@@ -12,9 +12,11 @@
 
 services:
   elasticsearch:
-    # 1단계에서 아래를 KOMORAN 플러그인 포함 커스텀 이미지로 교체:
-    #   build: { context: ./elasticsearch }   # deploy/elasticsearch/Dockerfile (FROM ...:9.4.2 + plugin install)
-    image: docker.elastic.co/elasticsearch/elasticsearch:9.4.2
+    # KOMORAN 플러그인 설치 커스텀 이미지 (ADR 0008). deploy/elasticsearch/Dockerfile.
+    # 빌드 전 komoran-analysis.zip 을 deploy/elasticsearch/ 로 복사해야 함 → deploy/up.sh 사용 권장.
+    build:
+      context: ./elasticsearch
+    image: psp-elasticsearch-komoran:9.4.2
     container_name: psp-elasticsearch
     environment:
       - discovery.type=single-node
