@@ -27,6 +27,10 @@ dependencies {
 	// --- 검색 엔진: Elasticsearch (리액티브 클라이언트 사용) ---
 	implementation("org.springframework.boot:spring-boot-starter-data-elasticsearch")
 
+	// --- 원천 창고: PostGIS 읽기 (R2DBC — WebFlux와 정합, 스트림 색인) ---
+	implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
+	runtimeOnly("org.postgresql:r2dbc-postgresql")
+
 	// --- 공통 ---
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("org.springframework.boot:spring-boot-starter-validation")

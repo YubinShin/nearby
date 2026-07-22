@@ -1,0 +1,32 @@
+{
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0,
+    "analysis": {
+      "analyzer": {
+        "komoran": {
+          "type": "custom",
+          "tokenizer": "komoran_tokenizer",
+          "filter": ["komoran_pos_stop", "lowercase"]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "place_id":       { "type": "keyword" },
+      "name":           { "type": "text", "analyzer": "komoran", "fields": { "raw": { "type": "keyword" } } },
+      "branch":         { "type": "text", "analyzer": "komoran" },
+      "category_large": { "type": "keyword" },
+      "category_mid":   { "type": "keyword" },
+      "category_small": { "type": "keyword" },
+      "sido":           { "type": "keyword" },
+      "sigungu":        { "type": "keyword" },
+      "dong":           { "type": "keyword" },
+      "road_address":   { "type": "text", "analyzer": "komoran" },
+      "jibun_address":  { "type": "text", "analyzer": "komoran" },
+      "location":       { "type": "geo_point" },
+      "updated_at":     { "type": "date" }
+    }
+  }
+}

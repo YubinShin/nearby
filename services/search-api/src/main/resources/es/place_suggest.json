@@ -1,0 +1,39 @@
+{
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0,
+    "analysis": {
+      "tokenizer": {
+        "edge_ngram_tok": {
+          "type": "edge_ngram",
+          "min_gram": 1,
+          "max_gram": 20,
+          "token_chars": ["letter", "digit"]
+        }
+      },
+      "analyzer": {
+        "autocomplete_index": {
+          "type": "custom",
+          "tokenizer": "edge_ngram_tok",
+          "filter": ["lowercase"]
+        },
+        "autocomplete_search": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": ["lowercase"]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "place_id":       { "type": "keyword" },
+      "name":           { "type": "text", "analyzer": "autocomplete_index", "search_analyzer": "autocomplete_search" },
+      "category_small": { "type": "keyword" },
+      "sigungu":        { "type": "keyword" },
+      "dong":           { "type": "keyword" },
+      "location":       { "type": "geo_point" },
+      "updated_at":     { "type": "date" }
+    }
+  }
+}
