@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: search-api
+
+  # Elasticsearch (리액티브 클라이언트) — 로컬 docker compose 기준. 0-2 단계에서 기동.
+  elasticsearch:
+    uris: http://localhost:9200
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info

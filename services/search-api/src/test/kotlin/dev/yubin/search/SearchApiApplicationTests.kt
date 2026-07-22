@@ -9,5 +9,4 @@ class SearchApiApplicationTests {
 	@Test
 	fun contextLoads() {
 	}
-
 }
