@@ -1,0 +1,71 @@
+# place-search-platform — 로컬 검색 엔진 스택
+#
+# 한 번에 띄우기:  docker compose -f deploy/docker-compose.yml up -d
+# 내리기:         docker compose -f deploy/docker-compose.yml down
+# (데이터까지 지우기: docker compose -f deploy/docker-compose.yml down -v)
+#
+# 구성 (설계 근거):
+#   - elasticsearch : 키워드 검색 엔진 (ADR 0002). 1단계에서 KOMORAN 플러그인 커스텀 이미지로 교체 (ADR 0008).
+#   - qdrant        : 벡터(뜻) 검색 엔진 (ADR 0007)
+#   - redis         : 빠른 차선 — 세션 흐름/인기 캐시 (ADR 0004, 0005)
+#   - postgis       : 원천 창고 — 장소 원본 + 거리 계산 (아키텍처 문서)
+
+services:
+  elasticsearch:
+    # 1단계에서 아래를 KOMORAN 플러그인 포함 커스텀 이미지로 교체:
+    #   build: { context: ./elasticsearch }   # deploy/elasticsearch/Dockerfile (FROM ...:9.4.2 + plugin install)
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.4.2
+    container_name: psp-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false          # 로컬 전용. 운영에서는 절대 끄지 않음.
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g            # 노트북(M4 16GB) 기준. 힙은 컨테이너 메모리 절반 이하로.
+    ports:
+      - "9200:9200"
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  qdrant:
+    image: qdrant/qdrant:v1.12.4
+    container_name: psp-qdrant
+    ports:
+      - "6333:6333"   # REST
+      - "6334:6334"   # gRPC
+    volumes:
+      - qdrant-data:/qdrant/storage
+
+  redis:
+    image: redis:7-alpine
+    container_name: psp-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  postgis:
+    image: postgis/postgis:16-3.4
+    container_name: psp-postgis
+    environment:
+      - POSTGRES_DB=place
+      - POSTGRES_USER=place
+      - POSTGRES_PASSWORD=place            # 로컬 전용
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgis-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U place -d place"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+volumes:
+  es-data:
+  qdrant-data:
+  redis-data:
+  postgis-data:
