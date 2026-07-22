@@ -8,5 +8,6 @@
 FROM docker.elastic.co/elasticsearch/elasticsearch:9.4.2
 
 COPY komoran-analysis.zip /tmp/komoran-analysis.zip
-RUN bin/elasticsearch-plugin install --batch file:///tmp/komoran-analysis.zip \
-    && rm /tmp/komoran-analysis.zip
+# rm 은 생략: ES 9.x 컨테이너는 elasticsearch 유저로 실행되어 root 소유의 /tmp 파일을 지울 수 없음.
+# 남는 zip(5MB)은 무해하다.
+RUN bin/elasticsearch-plugin install --batch file:///tmp/komoran-analysis.zip

@@ -22,7 +22,11 @@ import java.util.Set;
  */
 public class KomoranPosStopTokenFilterFactory extends AbstractTokenFilterFactory {
 
-    /** 세종 품사표 기준, 색인에서 기본으로 제거할 태그. 명사·용언 어간·어근·외국어·숫자 등은 남긴다. */
+    /**
+     * 세종 품사표 기준, 색인에서 기본으로 제거할 태그(공격적 정책 — 콘텐츠 품사만 남김).
+     * 남기는 것: 명사(NNG·NNP·NP·NR), 용언 어간(VV·VA), 어근(XR), 외국어(SL)·한자(SH)·숫자(SN).
+     * 미등록 추정(NF·NV·NA)은 신조어일 수 있어 남긴다.
+     */
     private static final Set<String> DEFAULT_STOP_TAGS = Set.of(
             // 조사
             "JKS", "JKC", "JKG", "JKO", "JKB", "JKV", "JKQ", "JX", "JC",
@@ -30,6 +34,14 @@ public class KomoranPosStopTokenFilterFactory extends AbstractTokenFilterFactory
             "EP", "EF", "EC", "ETN", "ETM",
             // 접사 (파생접사는 검색어로서 가치가 낮음)
             "XPN", "XSN", "XSV", "XSA",
+            // 지정사 (이다/아니다) — "맛집이다"의 "이" 같은 노이즈
+            "VCP", "VCN",
+            // 보조용언 — 검색어로서 가치 낮음
+            "VX",
+            // 관형사·부사 — "새", "자주" 등 검색어 가치 낮음
+            "MM", "MAG", "MAJ",
+            // 의존명사 — "것", "수" 등 의미 약함
+            "NNB",
             // 부호
             "SF", "SP", "SS", "SE", "SO", "SW",
             // 독립언(감탄사)
