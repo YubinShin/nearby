@@ -51,6 +51,27 @@
 레이어를 얹은 사내 분석기(사내 분석기)를 만들어 운용했고, 그 방식을 실제로 다뤄봤어요. 즉 이
 선택은 "새로 배우는 것"이 아니라 **경험한 구조를 공개 버전으로 재현**하는 거예요.
 
+## ES 실환경 실측 (구현 후 검증)
+
+플러그인을 ES 9.4.2에 실제로 설치하고 nori와 나란히 `_analyze` 해봤어요 (둘 다 순정, 사전 없이).
+
+| 입력 | komoran | nori | 메모 |
+|---|---|---|---|
+| 성수동 브런치 | `성수동`(통짜 NNP) · `브/런/치` | `성수`+`동` · `브런치` | 엇갈림 |
+| 역삼역 근처 | `역삼역`(통짜 NNP) | `역삼`+`역`(분리) | komoran 지명 강함 |
+| 노티드 · 혼밥 | `노티/드`, `혼/밥` | `노티/드`, `혼/밥` | 둘 다 미등록 |
+
+읽는 법:
+
+- **순정은 서로 다른 걸 틀려요.** komoran은 외래어(브런치)를 박살내고, nori는 지명(성수동·역삼역)을
+  쪼개요. **어느 쪽도 순정으로 완벽하지 않아요** — "순정은 도긴도긴"이라는 위 논지가 ES 실측으로
+  재확인됐어요.
+- **komoran은 지명 고유명사를 통짜로 인식하는 경향**이 있어요(`성수동`·`역삼역`이 NNP 하나).
+  장소 검색 도메인엔 유리한 특성이에요.
+- komoran의 외래어 약점은 **사전 한 줄로 메워져요**(위 로컬 실측). 결국 차이는 사전 튜닝 자유도로 수렴.
+- **실용 장점:** komoran은 품사를 토큰 `type`에 그대로 노출해 `_analyze`만으로 필터링이 투명하게
+  보여요. nori는 `type`이 전부 `word`라 뭐가 걸러졌는지 안 보여요. 튜닝·디버깅엔 komoran이 편해요.
+
 ## 정직한 트레이드오프 (택하면 떠안는 것)
 
 - **ES 통합·운영 비용을 우리가 진다.** nori는 공짜로 얻는 걸, KOMORAN은 플러그인을 직접 만들고
@@ -74,12 +95,27 @@
 이 프로젝트는 장소·음식·브랜드라는 **신조어 집약 도메인**이고, "ES 내부를 직접 다뤄본다"는 것
 자체가 목표라서 (B)가 더 맞아요.
 
-## 결과 (이렇게 하면 뒤따르는 일)
+## 결과 — 구현 상태
 
-- **ES 8.x용 KOMORAN analysis 플러그인을 별도 Gradle 모듈로 재포팅**해요
-  (`KomoranTokenizer` / `KomoranTokenizerFactory` / `AnalysisPlugin` / `plugin-descriptor`).
-  공식 7.x 구현의 버그(`readLine()`이 첫 줄만 읽는 문제)도 이때 고쳐요.
-- **POS-stop TokenFilter를 추가**해 색인에는 명사·동사 어간 등 검색에 의미 있는 품사만 남겨요.
+**완료 (1단계):**
+
+- **ES 9.4.2 / lucene 10.4.0 용 KOMORAN analysis 플러그인을 별도 Gradle 모듈(`es-analysis-komoran`)로
+  재포팅함.** 공식 7.x 구현 대비 ES 9.x는 analysis API가 크게 단순화돼(`AbstractTokenizerFactory(String)`
+  1-인자, 4-인자 `AnalysisProvider`) 그대로는 못 쓰고 재작성함. 구성:
+  `KomoranTokenizer` / `KomoranTokenizerFactory` / `KomoranPosStopTokenFilter(+Factory)` /
+  `KomoranAnalysisPlugin`. 공식 7.x의 `readLine()` 첫 줄만 읽는 버그도 전체 읽기로 수정.
+- **`komoran_pos_stop` TokenFilter 추가** (nori_part_of_speech 대응). lucene core `TokenFilter`를
+  직접 상속해 analysis-common 의존을 피함. `stoptags` 기본값은 **공격적(콘텐츠 품사만 남김)** 으로
+  실측 후 확정 — 조사·어미·접사·부호·감탄사에 더해 지정사(VCP·VCN)·보조용언(VX)·수식언(MM·MAG·MAJ)·
+  의존명사(NNB)까지 제거.
+- **플러그인 설치 커스텀 ES 이미지**(`deploy/elasticsearch/Dockerfile`) + 원클릭 기동(`deploy/up.sh`).
+  ES 9.4.2 실기동에서 플러그인 로드·형태소 분석·POS 필터 동작 검증 완료.
+- **운영 노트:** ① ES 9.x는 컨테이너가 `elasticsearch` 유저로 실행돼 root 소유 `/tmp` 파일을 못
+  지움 → Dockerfile `rm` 제거. ② 설치 시 ES 9.x entitlements 경고("policy file with no additional
+  entitlements") — 현재 무해하나 KOMORAN이 추가 권한을 요구하면 policy 선언이 필요할 수 있음.
+
+**예정:**
+
 - **사전 확보 파이프라인**을 설계해요. 사전은 세 곳에서 파생돼요:
   1. **원천 데이터(PostGIS)** — 상호명·카테고리·지역명을 사전으로 자동 추출.
   2. **검색 로그의 미매칭 질의** — 결과 0건 질의 = 신조어 후보.
