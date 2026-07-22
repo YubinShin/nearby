@@ -1,0 +1,45 @@
+flowchart LR
+    USER([사용자]):::user
+
+    subgraph SERVE[검색·추천 서빙]
+        direction TB
+        API["공통 검색·추천 API<br/>Kotlin · Spring WebFlux · 코루틴"]:::api
+        RRF{{"RRF 결합<br/>앱 레이어"}}:::logic
+    end
+
+    subgraph ENGINES[Kubernetes 위 검색 인프라]
+        direction TB
+        ES[("Elasticsearch<br/>키워드 BM25 · 자동완성")]:::engine
+        QD[("Qdrant<br/>벡터 · 뜻 검색")]:::engine
+        RD[("Redis<br/>세션 · 인기 · fallback")]:::engine
+        PG[("PostgreSQL / PostGIS<br/>원천 창고 · 거리")]:::store
+    end
+
+    subgraph INGEST[데이터 수집 · 색인]
+        direction TB
+        SRC["공공데이터포털<br/>· TourAPI"]:::src
+        IDX["색인 파이프라인"]:::logic
+    end
+
+    %% 검색 흐름
+    USER -->|검색| API
+    API -->|키워드| ES
+    API -->|벡터| QD
+    API -->|거리/geo| PG
+    API -->|세션·인기| RD
+    ES -->|순위| RRF
+    QD -->|순위| RRF
+    RRF -->|최종 결과| USER
+
+    %% 색인 흐름
+    SRC --> PG
+    PG -->|이벤트 트리거<br/>증분 색인| IDX
+    IDX --> ES
+    IDX --> QD
+
+    classDef user fill:#1e293b,color:#ffffff,stroke:#0f172a,stroke-width:1px;
+    classDef api fill:#2563eb,color:#ffffff,stroke:#1e40af,stroke-width:1px;
+    classDef engine fill:#e0f2fe,color:#0c4a6e,stroke:#0284c7,stroke-width:1px;
+    classDef store fill:#dcfce7,color:#14532d,stroke:#16a34a,stroke-width:1px;
+    classDef logic fill:#fef9c3,color:#713f12,stroke:#ca8a04,stroke-width:1px;
+    classDef src fill:#f1f5f9,color:#334155,stroke:#94a3b8,stroke-width:1px;
