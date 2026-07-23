@@ -9,6 +9,7 @@ data class SearchDoc(
 	val place_id: String = "",
 	val name: String = "",
 	val branch: String? = null,
+	val brand: String? = null,
 	val category_large: String? = null,
 	val category_mid: String? = null,
 	val category_small: String? = null,

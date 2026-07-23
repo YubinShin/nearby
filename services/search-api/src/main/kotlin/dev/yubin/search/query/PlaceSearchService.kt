@@ -128,6 +128,7 @@ class PlaceSearchService(
 		placeId = doc.place_id,
 		name = doc.name,
 		branch = doc.branch,
+		brand = doc.brand,
 		category = doc.category_small ?: doc.category_mid ?: doc.category_large,
 		address = doc.road_address ?: doc.jibun_address,
 		sigungu = doc.sigungu,
@@ -146,6 +147,8 @@ class PlaceSearchService(
 		private val HIGHLIGHT: Highlight = Highlight.of { h ->
 			h.fields(
 				NamedValue.of("name", HighlightField.of { f -> f }),
+				// 브랜드로 걸린 건이 상호명엔 없는 글자로 매칭되므로, 여기가 비면 이유가 안 보인다.
+				NamedValue.of("brand", HighlightField.of { f -> f }),
 				NamedValue.of("jibun_address", HighlightField.of { f -> f }),
 			)
 		}

@@ -86,6 +86,13 @@ data class PlaceHit(
 	val placeId: String,
 	val name: String,
 	val branch: String?,
+	/**
+	 * 복원한 브랜드명. **없는 게 기본**이고, 상호명에서 브랜드가 빠져 있던 가게에만 채워진다.
+	 *
+	 * 이게 없으면 `스타벅스` 검색 결과의 이름이 `개포동`·`언주역`으로 나와서
+	 * **맞는 결과인데 틀린 것처럼 보인다.** 왜 걸렸는지를 응답이 말해줘야 한다.
+	 */
+	val brand: String? = null,
 	val category: String?,
 	val address: String?,
 	val sigungu: String?,

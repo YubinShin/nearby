@@ -77,6 +77,9 @@
 	.hit { padding: 10px 13px; border-bottom: 1px solid var(--line); }
 	.hit:last-child { border-bottom: 0; }
 	.hit .name { font-weight: 600; }
+	/* 상호명에서 빠져 있던 브랜드를 복원한 표시. 이게 없으면 '스타벅스' 검색 결과가
+	   '개포동'으로만 보여서 맞는 결과인데 틀린 것처럼 읽힌다. */
+	.hit .brandtag { font-size: 11px; font-weight: 600; color: var(--hyb); border: 1px solid color-mix(in srgb, var(--hyb) 45%, transparent); border-radius: 5px; padding: 1px 5px; margin-right: 5px; vertical-align: middle; }
 	.hit .name em { font-style: normal; color: var(--dim); font-weight: 400; font-size: 12px; margin-left: 4px; }
 	.hit .cat { font-size: 12px; color: var(--dim); }
 	.hit .addr { font-size: 12px; color: var(--dim); margin-top: 2px; }
@@ -229,7 +232,7 @@ function renderHits(channel, body) {
 	}
 	return `<ul class="hits">` + hits.map((h) => `
 		<li class="hit">
-			<div class="name">${esc(h.name)}${h.branch ? `<em>${esc(h.branch)}</em>` : ""}</div>
+			<div class="name">${h.brand ? `<span class="brandtag">${esc(h.brand)}</span>` : ""}${esc(h.name)}${h.branch ? `<em>${esc(h.branch)}</em>` : ""}</div>
 			<div class="cat">${esc(h.category ?? "–")} · ${esc(h.dong ?? h.sigungu ?? "–")}${
 				h.distanceM != null ? ` · ${h.distanceM}m` : ""}</div>
 			${h.address ? `<div class="addr">${esc(h.address)}</div>` : ""}
