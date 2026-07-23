@@ -27,6 +27,7 @@ from concurrent.futures import ThreadPoolExecutor
 ES = "http://localhost:9200"
 PROBE_INDEX = "komoran_probe"
 OUT = "deploy/elasticsearch/analysis/komoran/place.dict"
+MANUAL = "deploy/elasticsearch/analysis/komoran/manual.dict"
 
 # POS 필터 없이 **토크나이저 원본 출력**만 보는 분석기. 사전 후보를 찾을 땐 필터가 지운 뒤가 아니라
 # 지우기 전을 봐야 한다 — 무엇이 왜 사라졌는지는 원본 토큰의 품사에 있기 때문.
@@ -226,20 +227,40 @@ def keep(word: str, structural_tail_ok: bool = False) -> bool:
     return True
 
 
-def minimal_units(words: set[str]) -> list[str]:
+def load_manual() -> dict[str, str]:
+    """사람이 관리하는 시드 사전. 자동 추출이 못 잡는 '사용자가 치는 말'을 메운다."""
+    try:
+        with open(MANUAL, encoding="utf-8") as f:
+            lines = f.readlines()
+    except FileNotFoundError:
+        return {}
+    out: dict[str, str] = {}
+    for line in lines:
+        line = line.split("#", 1)[0].strip()
+        if not line:
+            continue
+        word, _, pos = line.partition("\t")
+        out[word.strip()] = (pos.strip() or "NNP")
+    return out
+
+
+def minimal_units(words: set[str], seeds: set[str] = frozenset()) -> list[str]:
     """이미 등재된 단어를 **접두로 포함하는** 후보는 버린다 — 최소 단위만 남긴다.
 
     사전 등록의 부작용은 그 문자열이 **통짜 토큰**이 된다는 것이다.
     '논현' 과 '논현점' 을 둘 다 넣으면 '논현점' 이 하나의 고유명사가 되어 **'논현' 검색에 안 걸린다.**
     반대로 '논현' 만 넣으면 '논현점' 은 논현/점 으로 알아서 쪼개진다.
     그래서 짧은 것부터 채택하고, 그 접두를 갖는 긴 후보는 떨어뜨린다.
+
+    시드(사람이 등재한 단어)는 이 규칙에서 **면제**된다 — 의도적으로 넣은 것이므로
+    자동 후보가 시드를 밀어내면 안 된다. 대신 시드를 접두로 갖는 자동 후보는 떨어진다.
     """
-    accepted: list[str] = []
-    for word in sorted(words, key=lambda w: (len(w), w)):
+    accepted: list[str] = sorted(seeds, key=lambda w: (len(w), w))
+    for word in sorted(words - set(seeds), key=lambda w: (len(w), w)):
         if any(word.startswith(shorter) for shorter in accepted):
             continue
         accepted.append(word)
-    return sorted(accepted)
+    return sorted(set(accepted) - set(seeds))
 
 
 def still_broken(word: str) -> bool:
@@ -248,6 +269,19 @@ def still_broken(word: str) -> bool:
     if not tokens:
         return False
     return bool(broken_spans(word, tokens))
+
+
+def already_known(word: str) -> bool:
+    """KOMORAN이 이미 이 단어를 **통짜로** 알고 있는가.
+
+    시드 검증은 자동 추출보다 느슨한 기준을 써야 한다. 자동 추출은 '연속된 한 글자 토큰'을
+    신호로 삼는데, `스무디 -> 스무/디` 처럼 조각 하나만 한 글자면 그 신호에 안 걸린다.
+    시드는 사람이 판단해 넣은 것이므로, **이미 한 덩어리로 인식되는 경우에만** 불필요하다고 본다.
+    """
+    tokens = analyze(word)
+    if not tokens:
+        return False
+    return len(tokens) == 1 and tokens[0]["token"] == word
 
 
 # ---------- 실행 ----------
@@ -285,16 +319,34 @@ def main() -> int:
     print(f"▶ 단독 분석 검증: {len(candidates):,}종 중 {len(candidates) - len(broken):,}종은 이미 정상 → 제외",
           file=sys.stderr)
 
-    final = minimal_units(broken)
+    manual = load_manual()
+    final = minimal_units(broken, seeds=set(manual))
     print(f"▶ 최소 단위만 남기기: {len(broken):,}종 → {len(final):,}종", file=sys.stderr)
 
+    # 시드가 정말 필요한지 검증한다. 이미 KOMORAN이 통짜로 아는 단어를 사전에 넣는 건
+    # 무의미할 뿐 아니라, "왜 넣었는지" 근거가 없는 항목이 쌓이는 시작점이 된다.
+    if manual:
+        with ThreadPoolExecutor(args.workers) as pool:
+            known = dict(zip(manual, pool.map(already_known, manual)))
+        useless = [w for w, yes in known.items() if yes]
+        print(f"▶ 시드 사전 {len(manual):,}개 (manual.dict)", file=sys.stderr)
+        if useless:
+            print(f"  ⚠ KOMORAN이 이미 통짜로 아는 시드 {len(useless)}개 — 지워도 됩니다: {' '.join(useless)}",
+                  file=sys.stderr)
+
     with open(OUT, "w", encoding="utf-8") as f:
-        f.write("# 원천 데이터에서 자동 생성된 KOMORAN 사용자 사전 (scripts/build_komoran_dict.py)\n")
-        f.write("# 기준: 형태소 분석기가 '잘게 부수는' 문자열만 등록한다. 손으로 고치지 말 것 — 재생성됨.\n")
+        f.write("# KOMORAN 사용자 사전 — 자동 생성 파일. 손으로 고치지 말 것(재생성됨).\n")
+        f.write("#   생성: scripts/build_komoran_dict.py\n")
+        f.write("#   손으로 추가할 단어는 manual.dict 에 넣으세요.\n")
+        f.write(f"\n# --- 시드 (manual.dict, {len(manual)}개) ---\n")
+        for word in sorted(manual):
+            f.write(f"{word}\t{manual[word]}\n")
+        f.write(f"\n# --- 원천 데이터에서 자동 추출 ({len(final)}개) ---\n")
         for word in final:
             f.write(f"{word}\tNNP\n")
 
-    print(f"✔ {OUT} — {len(final):,}개 등재", file=sys.stderr)
+    print(f"✔ {OUT} — 시드 {len(manual):,} + 자동 {len(final):,} = {len(manual) + len(final):,}개 등재",
+          file=sys.stderr)
     return 0
 
 

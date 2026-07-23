@@ -1,5 +1,31 @@
-# 원천 데이터에서 자동 생성된 KOMORAN 사용자 사전 (scripts/build_komoran_dict.py)
-# 기준: 형태소 분석기가 '잘게 부수는' 문자열만 등록한다. 손으로 고치지 말 것 — 재생성됨.
+# KOMORAN 사용자 사전 — 자동 생성 파일. 손으로 고치지 말 것(재생성됨).
+#   생성: scripts/build_komoran_dict.py
+#   손으로 추가할 단어는 manual.dict 에 넣으세요.
+
+# --- 시드 (manual.dict, 21개) ---
+노티드	NNP
+다이소	NNP
+두피케어	NNP
+라떼	NNP
+리조또	NNP
+마카롱	NNP
+브런치	NNP
+스무디	NNP
+스피닝	NNP
+아메리카노	NNP
+오마카세	NNP
+왁싱	NNP
+웨이팅	NNP
+이디야	NNP
+존맛탱	NNP
+컴포즈	NNP
+코워킹	NNP
+크로플	NNP
+필라테스	NNP
+핫플	NNP
+혼밥	NNP
+
+# --- 원천 데이터에서 자동 추출 (1377개) ---
 가네	NNP
 가닉	NNP
 가든	NNP
@@ -264,7 +290,6 @@
 라끄	NNP
 라니	NNP
 라디	NNP
-라떼	NNP
 라렌	NNP
 라르	NNP
 라메	NNP
@@ -882,7 +907,6 @@
 와사	NNP
 와이디	NNP
 와치	NNP
-왁싱	NNP
 요아	NNP
 요커	NNP
 우규	NNP
