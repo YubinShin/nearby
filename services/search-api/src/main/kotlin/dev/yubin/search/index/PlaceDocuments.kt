@@ -39,7 +39,7 @@ object PlaceDocuments {
 		 * 사용자에게 아무 의미가 없다. 브랜드를 앞에 붙여 **한 덩어리로** 색인한다.
 		 * (자동완성 인덱스는 원래 표시 목적의 파생 인덱스다 — ADR 0002)
 		 */
-		put("label", listOfNotNull(brandOf(r), r.name).joinToString(" "))
+		put("label", label(r))
 		// 자동완성 랭킹 신호: 짧은 이름일수록 대표 상호일 확률이 높다 (크리틱 #10).
 		put("name_length", r.name.length)
 		r.categorySmall?.let { put("category_small", it) }
@@ -57,6 +57,15 @@ object PlaceDocuments {
 	 */
 	private fun brandOf(r: PlaceRow): String? =
 		r.brand ?: BrandDictionary.canonical(r.name, r.branch)
+
+	/**
+	 * 자동완성이 매칭하고 보여줄 글자.
+	 *
+	 * 이름이 **이미 브랜드로 시작하면 붙이지 않는다.** 상호가 `CU` 인 편의점에 브랜드 `CU` 를
+	 * 앞에 또 붙이면 드롭다운에 `CU CU` 가 뜬다(실측). 브랜드가 이름에서 빠져 있던 경우
+	 * (`신사역` → `스타벅스 신사역`)에만 앞에 세우는 게 이 필드의 목적이다.
+	 */
+	internal fun label(r: PlaceRow): String = BrandDictionary.display(brandOf(r), r.name)
 
 	/** ES geo_point 는 {lat, lon} 형태. 좌표 없으면 필드 자체를 넣지 않는다. */
 	private fun geoPoint(r: PlaceRow): Map<String, Double>? =

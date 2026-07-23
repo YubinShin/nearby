@@ -192,6 +192,15 @@ const EXAMPLES = [
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+/*
+ * 브랜드 배지. **판단은 서버가 한다** — 응답의 `label` 이 `name` 과 다르면, 그 차이가
+ * 이름에서 빠져 있던 브랜드다. 어떤 표기가 같은 브랜드인지(CU=씨유)는 서버만 아는 지식이라
+ * 여기서 다시 구현하면 곧 화면과 검색이 서로 다른 이름을 말하게 된다.
+ * (상호가 'CU' 인 편의점은 label==name 이라 배지가 안 붙는다 — 'CU CU' 방지)
+ */
+const brandBadge = (h) =>
+	h.brand && h.label && h.label !== h.name ? `<span class="brandtag">${esc(h.brand)}</span>` : "";
+
 const num = (n, d = 3) => (n == null ? "–" : Number(n).toFixed(d));
 
 const chips = $("chips");
@@ -249,7 +258,7 @@ function renderHits(channel, body) {
 	}
 	return `<ul class="hits">` + hits.map((h) => `
 		<li class="hit">
-			<div class="name">${h.brand ? `<span class="brandtag">${esc(h.brand)}</span>` : ""}${esc(h.name)}${h.branch ? `<em>${esc(h.branch)}</em>` : ""}</div>
+			<div class="name">${brandBadge(h)}${esc(h.name)}${h.branch ? `<em>${esc(h.branch)}</em>` : ""}</div>
 			<div class="cat">${esc(h.category ?? "–")} · ${esc(h.dong ?? h.sigungu ?? "–")}${
 				h.distanceM != null ? ` · ${h.distanceM}m` : ""}</div>
 			${h.address ? `<div class="addr">${esc(h.address)}</div>` : ""}
@@ -349,7 +358,7 @@ function renderAc() {
 	if (!acItems.length) { box.innerHTML = ""; return; }
 	box.innerHTML = acItems.map((it, i) => `
 		<div class="acitem ${i === acCursor ? "on" : ""}" data-i="${i}">
-			${it.brand ? `<span class="brandtag">${esc(it.brand)}</span>` : ""}
+			${brandBadge(it)}
 			<span>${esc(it.name)}</span>
 			<span class="sub">${esc(it.category ?? "")} ${esc(it.dong ?? "")}</span>
 		</div>`).join("") +

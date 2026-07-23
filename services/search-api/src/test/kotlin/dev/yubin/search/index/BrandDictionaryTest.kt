@@ -1,5 +1,6 @@
 package dev.yubin.search.index
 
+import java.time.OffsetDateTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -7,6 +8,14 @@ import kotlin.test.assertTrue
 
 /** 사람이 관리하는 브랜드 시드(`brands.tsv`)의 규칙을 엔진 없이 못박는다. */
 class BrandDictionaryTest {
+
+	private fun row(name: String, brand: String? = null) = PlaceRow(
+		placeId = "P1", name = name, branch = null, brand = brand,
+		categoryLarge = null, categoryMid = null, categorySmall = null,
+		sido = "서울특별시", sigungu = "강남구", dong = "역삼1동",
+		jibunAddress = null, roadAddress = null, lon = null, lat = null,
+		updatedAt = OffsetDateTime.parse("2026-07-23T00:00:00Z"), deletedAt = null,
+	)
 
 	@Test
 	fun `표기가 갈린 브랜드를 하나로 모은다`() {
@@ -57,6 +66,24 @@ class BrandDictionaryTest {
 	fun `지점명까지 이어 붙여 본다`() {
 		// 원천이 상호명과 지점명을 나눠 담는다 — '씨유' + '역삼점'
 		assertEquals("CU", BrandDictionary.canonical("씨유", "역삼점"))
+	}
+
+	@Test
+	fun `이름이 이미 브랜드로 시작하면 라벨에 두 번 붙이지 않는다`() {
+		// 상호가 'CU' 인 편의점에 브랜드를 또 붙이면 드롭다운에 'CU CU' 가 뜬다(실측).
+		assertEquals("CU역삼점", PlaceDocuments.label(row(name = "CU역삼점")))
+		assertEquals("씨유역삼점", PlaceDocuments.label(row(name = "씨유역삼점")))
+	}
+
+	@Test
+	fun `이름에서 빠져 있던 브랜드는 라벨 앞에 세운다`() {
+		// 이게 이 필드의 원래 목적. '신사역' 만으로는 자동완성에서 아무 의미가 없다.
+		assertEquals("스타벅스 신사역", PlaceDocuments.label(row(name = "신사역", brand = "스타벅스")))
+	}
+
+	@Test
+	fun `브랜드가 없으면 이름 그대로다`() {
+		assertEquals("먹어도", PlaceDocuments.label(row(name = "먹어도")))
 	}
 
 	@Test

@@ -39,6 +39,25 @@ object BrandDictionary {
 	fun searchText(canonical: String): String =
 		aliases[canonical]?.joinToString(" ") ?: canonical
 
+	/**
+	 * 화면에 보여줄 이름. **브랜드가 이름에 이미 있으면 붙이지 않는다.**
+	 *
+	 * 상호가 `CU` 인 편의점에 브랜드 `CU` 를 또 붙이면 `CU CU` 가 된다(실측). 브랜드를 앞에
+	 * 세우는 건 이름에서 **빠져 있던** 경우(`신사역` → `스타벅스 신사역`)를 위한 것이다.
+	 *
+	 * 정규형만 보면 안 된다 — `씨유역삼점` 은 정규형 `CU` 로 시작하지 않지만 이미 브랜드를
+	 * 달고 있다. **모든 표기**로 확인해야 한다.
+	 *
+	 * 색인(자동완성 label)과 응답(PlaceHit.label)이 **같은 함수**를 쓴다. 규칙이 두 벌이 되면
+	 * 화면과 검색이 서로 다른 이름을 말하게 된다.
+	 */
+	fun display(brand: String?, name: String): String {
+		if (brand.isNullOrBlank()) return name
+		val normalized = normalize(name)
+		val forms = (aliases[brand] ?: listOf(brand)).map(::normalize)
+		return if (forms.any { normalized.startsWith(it) }) name else "$brand $name"
+	}
+
 	private fun normalize(s: String) = s.replace(" ", "").lowercase()
 
 	private fun load(): Map<String, List<String>> {
