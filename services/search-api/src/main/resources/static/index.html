@@ -92,6 +92,8 @@
 	.note.fail { color: var(--bad); }
 	.banner { margin: 0 0 14px; padding: 10px 13px; font-size: 13px; }
 	.banner.fail { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 40%, transparent); }
+	.banner.info { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 40%, transparent); }
+	.banner b { color: var(--ink); }
 	.hidden { display: none; }
 	footer { margin-top: 22px; font-size: 12px; color: var(--dim); }
 	footer code { background: var(--panel); padding: 1px 5px; border-radius: 4px; border: 1px solid var(--line); }
@@ -106,6 +108,7 @@
 </header>
 
 <div id="banner" class="panel banner fail hidden"></div>
+<div id="explain" class="panel banner info hidden"></div>
 
 <form class="panel" id="form">
 	<div class="row">
@@ -278,7 +281,40 @@ async function search() {
 		$("banner").textContent = "세 채널 모두 실패했어요. 앱이 떠 있는지 확인해 주세요 (./gradlew bootRun).";
 		$("banner").classList.remove("hidden");
 	}
+	explainZero(q, results);
 	$("go").disabled = false;
+}
+
+/*
+ * 세 채널이 다 0건이면 **왜 없는지**를 말해준다.
+ * "0건"만 띄우면 사용자는 검색이 고장 났다고 읽는다. 실제로 여기서 제일 흔한 원인은
+ * 검색이 아니라 **원천 데이터의 범위**다 — 그걸 숨기면 잘못된 곳을 의심하게 만든다.
+ */
+const DIRECT_BRANDS = /(스타벅스|유니클로|자라|무인양품|애플스토어|나이키|아디다스|다이소)/;
+
+function explainZero(q, results) {
+	const box = $("explain");
+	box.classList.add("hidden");
+
+	const answered = results.filter((r) => r.status === "fulfilled");
+	if (!answered.length || answered.some((r) => (r.value.body.total ?? 0) > 0)) return;
+
+	const reasons = [];
+	if (DIRECT_BRANDS.test(q)) {
+		reasons.push(`<b>전 매장 직영 브랜드는 이 데이터에 없어요.</b> 원천이 사업자·점포 단위(소상공인 상가정보)라,
+			점포별 사업자등록이 없는 직영 체인은 통째로 빠져요. 서울 전체에서 &lsquo;스타벅스&rsquo;는 4건인데 매장은 0건이에요
+			(나머지는 본사와 무인 캡슐카페).`);
+	}
+	if ($("sigungu").value.trim() || $("dong").value.trim() || $("category").value.trim() || $("geo").value) {
+		reasons.push(`<b>필터를 걸었어요.</b> 지금 데이터엔 <code>역삼동</code>이 없고 <code>역삼1동</code>·<code>역삼2동</code>만 있는 것처럼,
+			값이 조금만 달라도 0건이 돼요.`);
+	}
+	reasons.push(`데이터는 <b>강남구 64,239건 · 2026-03 스냅샷</b>이에요. 다른 지역이나 최근 개업은 없어요.`);
+
+	box.innerHTML = `0건이에요 — 그런데 검색이 고장 난 게 아닐 수 있어요.<br>` +
+		reasons.map((r) => `• ${r}`).join("<br>") +
+		`<br>자세한 건 <code>docs/data-model.md</code> 의 &lsquo;이 데이터가 담지 못하는 것&rsquo;.`;
+	box.classList.remove("hidden");
 }
 
 $("form").addEventListener("submit", (e) => { e.preventDefault(); search(); });
