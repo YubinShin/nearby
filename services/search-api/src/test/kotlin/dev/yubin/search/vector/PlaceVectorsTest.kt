@@ -16,6 +16,7 @@ class PlaceVectorsTest {
 		placeId: String = "P1",
 		name: String = "스타벅스",
 		branch: String? = "강남역점",
+		brand: String? = null,
 		categoryMid: String? = "커피점/카페",
 		categorySmall: String? = "카페",
 		sigungu: String? = "강남구",
@@ -23,7 +24,7 @@ class PlaceVectorsTest {
 		lat: Double? = 37.4979,
 		lon: Double? = 127.0276,
 	) = PlaceRow(
-		placeId = placeId, name = name, branch = branch, brand = null,
+		placeId = placeId, name = name, branch = branch, brand = brand,
 		categoryLarge = "음식", categoryMid = categoryMid, categorySmall = categorySmall,
 		sido = "서울특별시", sigungu = sigungu, dong = dong,
 		jibunAddress = "역삼동 123-4", roadAddress = "테헤란로 1",
@@ -36,6 +37,26 @@ class PlaceVectorsTest {
 	@Test
 	fun `임베딩 문장은 이름 카테고리 지역을 담는다`() {
 		assertEquals("스타벅스 강남역점. 커피점/카페 카페. 강남구 역삼동", PlaceVectorText.of(row()))
+	}
+
+	@Test
+	fun `복원한 브랜드는 이름 맨 앞에 들어간다`() {
+		// 원천이 '스타벅스 신사역점'을 '신사역'으로만 등록해 둔 경우. 여기 안 넣으면
+		// 벡터 채널만 계속 '스타벅스'를 못 찾아, 키워드와 결과가 어긋난다.
+		val text = PlaceVectorText.of(row(name = "신사역", branch = null, brand = "스타벅스"))
+		assertEquals("스타벅스 신사역. 커피점/카페 카페. 강남구 역삼동", text)
+	}
+
+	@Test
+	fun `브랜드가 없으면 문장이 달라지지 않는다`() {
+		assertEquals(PlaceVectorText.of(row()), PlaceVectorText.of(row(brand = null)))
+	}
+
+	@Test
+	fun `payload 에도 브랜드가 실린다`() {
+		// 벡터만 찾은 결과도 화면에 '[스타벅스] 신사역'으로 보여줄 수 있어야 한다.
+		assertEquals("스타벅스", PlaceVectors.payload(row(brand = "스타벅스"))["brand"])
+		assertTrue("brand" !in PlaceVectors.payload(row()))
 	}
 
 	@Test

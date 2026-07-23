@@ -113,6 +113,7 @@ class PlaceVectorSearchService(
 			placeId = m.placeId,
 			name = m.payload["name"] as? String ?: "",
 			branch = m.payload["branch"] as? String,
+			brand = m.payload["brand"] as? String,
 			category = m.payload["category_small"] as? String ?: m.payload["category_large"] as? String,
 			address = null,   // 벡터 payload 에는 주소를 넣지 않는다 (PlaceVectors.payload 주석 참고)
 			sigungu = m.payload["sigungu"] as? String,

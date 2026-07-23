@@ -29,6 +29,8 @@ object PlaceVectors {
 		put("place_id", r.placeId)
 		put("name", r.name)
 		r.branch?.let { put("branch", it) }
+		// 복원한 브랜드. 벡터만 찾은 결과도 `[스타벅스] 개포동` 으로 보여줄 수 있어야 한다.
+		r.brand?.let { put("brand", it) }
 		r.categoryLarge?.let { put("category_large", it) }
 		r.categorySmall?.let { put("category_small", it) }
 		r.sigungu?.let { put("sigungu", it) }

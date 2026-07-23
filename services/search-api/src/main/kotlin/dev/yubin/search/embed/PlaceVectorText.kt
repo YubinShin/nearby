@@ -9,7 +9,9 @@ import dev.yubin.search.index.PlaceRow
  * 그래서 "어떤 문장으로 빚을지"가 곧 랭킹 설계다.
  *
  * 넣은 것과 이유:
- * - **상호명·지점명** — 검색의 주 대상.
+ * - **브랜드·상호명·지점명** — 검색의 주 대상. 브랜드는 원천에서 빠져 있던 걸 복원한 값이라
+ *   (`place_brand`) 여기 안 넣으면 벡터 채널만 `스타벅스` 를 계속 못 찾는다. 실제로 키워드 쪽만
+ *   먼저 고쳤더니 하이브리드 결과에 `스타커피`·`스타카페` 같은 게 섞였다.
  * - **카테고리(중·소분류)** — 뜻으로 찾기의 핵심 재료. "회 먹을 데" 같은 질의는 상호명이 아니라
  *   `한식/횟집` 같은 카테고리와 의미가 통한다. 카테고리가 없으면 벡터 검색을 할 이유가 절반 준다.
  * - **시군구·행정동** — "역삼동 조용한 카페"처럼 지역어가 섞인 질의를 받아내려고.
@@ -26,7 +28,7 @@ object PlaceVectorText {
 	 * 예: `"스타벅스 강남역점. 커피점/카페 카페. 강남구 역삼동"`
 	 */
 	fun of(r: PlaceRow): String {
-		val name = listOfNotNull(r.name, r.branch).joinToString(" ")
+		val name = listOfNotNull(r.brand, r.name, r.branch).joinToString(" ")
 		val category = listOfNotNull(r.categoryMid, r.categorySmall).distinct().joinToString(" ")
 		val region = listOfNotNull(r.sigungu, r.dong).joinToString(" ")
 		return listOf(name, category, region).filter { it.isNotBlank() }.joinToString(". ")
