@@ -133,6 +133,7 @@ curl -G localhost:8080/v1/hsearch --data-urlencode "q=회 먹을 데"
 # 2-1) 두 번째 원천 + 행정동 경계 (상가정보가 못 담는 직영 프랜차이즈를 메움)
 ./scripts/load_boundaries.sh
 ./scripts/load_localdata.sh
+./scripts/recover_brands.sh    # 상호명에서 사라진 브랜드 복원 (스타벅스 86건)
 
 # 3) 임베딩 모델 내려받기 (470MB — 벡터/하이브리드 검색에 필요)
 ./scripts/fetch_embedding_model.sh
