@@ -27,12 +27,15 @@ class QueryLog {
 	/**
 	 * 검색 한 건. `zero`(결과 없음)와 `relaxed`(조건을 풀어 재질의)가 사전 후보의 신호다.
 	 * 특히 **relaxed 인데도 걸린 질의**는 "글자는 아는데 제대로 못 쪼갠" 경우일 확률이 높다.
+	 *
+	 * `channel` 을 반드시 남긴다. 벡터 채널(5단계)의 0건은 **형태소 분석과 아무 상관이 없어서**,
+	 * 섞이면 사전 채굴이 엉뚱한 후보를 뽑는다 — 소비자(`mine_query_log.py`)는 키워드만 봐야 한다.
 	 */
-	fun search(q: String, total: Long, relaxed: Boolean, tookMs: Long) {
+	fun search(q: String, total: Long, relaxed: Boolean, tookMs: Long, channel: String = KEYWORD) {
 		if (q.isBlank()) return
 		log.info(
-			"""{"type":"search","q":"{}","total":{},"zero":{},"relaxed":{},"took_ms":{}}""",
-			escape(q), total, total == 0L, relaxed, tookMs,
+			"""{"type":"search","channel":"{}","q":"{}","total":{},"zero":{},"relaxed":{},"took_ms":{}}""",
+			channel, escape(q), total, total == 0L, relaxed, tookMs,
 		)
 	}
 
@@ -49,6 +52,8 @@ class QueryLog {
 		q.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", " ").replace("\r", " ")
 
 	companion object {
+		const val KEYWORD = "keyword"
+
 		/** 로거 이름을 고정해 logback 에서 이 로거만 별도 파일로 뗄 수 있게 한다. */
 		private val log = LoggerFactory.getLogger("psp.querylog")
 	}

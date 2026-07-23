@@ -27,4 +27,22 @@ class QueryMetrics(private val registry: MeterRegistry) {
 				.record(System.nanoTime() - startedAt, TimeUnit.NANOSECONDS)
 		}
 	}
+
+	/**
+	 * 한 채널 **안에서** 단계별로 쪼개 잰다 (벡터 채널: 임베딩 추론 vs 벡터 탐색).
+	 *
+	 * 채널 지연만 보면 "벡터 검색이 느리다"까지만 알 수 있다. 임베딩과 탐색은 고치는 방법이
+	 * 완전히 다르므로(모델 교체·캐시 vs ef/샤딩) 처음부터 갈라 재둔다.
+	 */
+	final inline fun <T> stage(channel: String, stage: String, block: () -> T): T {
+		val startedAt = System.nanoTime()
+		try {
+			return block()
+		} finally {
+			timer(channel, stage).record(System.nanoTime() - startedAt, TimeUnit.NANOSECONDS)
+		}
+	}
+
+	fun timer(channel: String, stage: String) =
+		registry.timer("psp.query.stage.latency", "channel", channel, "stage", stage)
 }

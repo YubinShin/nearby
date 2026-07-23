@@ -48,9 +48,15 @@ def read_log(path: str) -> list[dict]:
             if not line:
                 continue
             try:
-                rows.append(json.loads(line))
+                row = json.loads(line)
             except json.JSONDecodeError:
                 continue          # 로그 회전 중 잘린 줄 등은 조용히 건너뛴다
+            # 키워드 채널만 본다. 벡터 채널(5단계)의 0건은 **형태소 분석과 무관**해서
+            # 섞으면 엉뚱한 사전 후보가 나온다 — 벡터는 글자가 아니라 뜻으로 찾으니까.
+            # (channel 필드가 없는 줄은 이 필드를 넣기 전의 옛 로그 = 키워드다)
+            if row.get("channel", "keyword") != "keyword":
+                continue
+            rows.append(row)
     return rows
 
 

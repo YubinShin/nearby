@@ -42,5 +42,12 @@ class CheckpointStore(
 	companion object {
 		/** 장소 색인 파이프라인의 체크포인트 문서 id. */
 		const val PLACE_PIPELINE = "place"
+
+		/**
+		 * 벡터 색인 파이프라인의 체크포인트 문서 id.
+		 * 키워드와 **따로** 두는 이유: 임베딩 추론이 느려 두 파이프라인의 진도가 다르다.
+		 * 하나로 묶으면 빠른 쪽이 watermark 를 먼저 밀어 느린 쪽이 델타를 건너뛴다.
+		 */
+		const val PLACE_VECTOR = "place_vector"
 	}
 }

@@ -22,5 +22,7 @@ build/
 data/
 # 질의 로그 (런타임 산출물). 분석은 scripts/mine_query_log.py 로.
 logs/
+# 임베딩 모델 가중치(470MB 바이너리). 재현은 scripts/fetch_embedding_model.sh 로.
+models/
 __pycache__/
 __pycache__/

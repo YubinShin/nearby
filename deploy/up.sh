@@ -21,3 +21,7 @@ echo "✔ 기동 완료. ES 상태:  curl -s localhost:9200/_cat/plugins?v"
 echo "  KOMORAN 사용자 사전은 deploy/elasticsearch/analysis/komoran/place.dict 를 마운트해 쓴다."
 echo "  원천 데이터가 바뀌었다면 재생성 후 재색인:"
 echo "    python3 scripts/build_komoran_dict.py && curl -XPOST localhost:8080/admin/reindex"
+echo
+echo "  벡터(뜻) 검색을 쓰려면 임베딩 모델(470MB)이 먼저 있어야 한다:"
+echo "    ./scripts/fetch_embedding_model.sh && curl -XPOST localhost:8080/admin/vector/reindex"
+echo "  (벡터 색인은 6만 건에 약 9분 — 임베딩 추론이 병목이다. ADR 0010)"

@@ -4,7 +4,7 @@
 
 - 기준 URL(로컬): `http://localhost:8080`
 - 응답: `application/json` (UTF-8)
-- 구현 상태: **4단계까지 실제 동작.** 벡터·하이브리드·추천은 5~7단계 예정 (아래 [예정](#예정) 참고)
+- 구현 상태: **5단계까지 실제 동작.** 하이브리드 결합·추천은 6~7단계 예정 (아래 [예정](#예정) 참고)
 
 ## 목차
 
@@ -13,8 +13,11 @@
 | `GET` | [`/v1/search`](#get-v1search) | 키워드 본문 검색 (BM25 + KOMORAN) | ✅ |
 | `GET` | [`/v1/suggest`](#get-v1suggest) | 자동완성 (edge_ngram) | ✅ |
 | `GET` | [`/v1/instant`](#get-v1instant) | 추천어 + 결과 미리보기 (팬아웃) | ✅ |
-| `POST` | [`/admin/reindex`](#post-adminreindex) | 무중단 전체 재색인 | ✅ |
-| `POST` | [`/admin/reindex/incremental`](#post-adminreindexincremental) | 증분 색인 | ✅ |
+| `GET` | [`/v1/vsearch`](#get-v1vsearch) | 벡터(뜻) 검색 (Qdrant) | ✅ |
+| `POST` | [`/admin/reindex`](#post-adminreindex) | 무중단 전체 재색인 (키워드) | ✅ |
+| `POST` | [`/admin/reindex/incremental`](#post-adminreindexincremental) | 증분 색인 (키워드) | ✅ |
+| `POST` | [`/admin/vector/reindex`](#post-adminvectorreindex) | 무중단 전체 재색인 (벡터) | ✅ |
+| `POST` | `/admin/vector/reindex/incremental` | 증분 색인 (벡터) | ✅ |
 | `GET` | `/actuator/health` · `/actuator/prometheus` | 상태·지표 | ✅ |
 
 ---
@@ -144,6 +147,61 @@ curl -G localhost:8080/v1/search --data-urlencode "q=카페" \
 
 ---
 
+## `GET /v1/vsearch`
+
+**뜻으로** 찾아요. 글자가 하나도 안 겹쳐도 의미가 비슷하면 나와요
+([ADR 0007](adr/0007-vector-engine-qdrant-vs-milvus.md), [ADR 0010](adr/0010-embedding-model-and-serving.md)).
+
+파라미터는 `/v1/search` 와 **똑같아요** (`sort` 제외). 같은 질의를 두 채널에 던져 나란히
+비교할 수 있어야 6단계 결합을 설계할 수 있기 때문이에요.
+
+| 이름 | 타입 | 기본값 | 설명 |
+|---|---|---|---|
+| `q` | string | (필수) | 검색어 |
+| `size` · `page` | int | `10` · `0` | `/v1/search` 와 같은 규칙 |
+| `sigungu` · `dong` · `category` | string | – | 정확 일치 필터 (**벡터 엔진 안에서** 걸려요) |
+| `lat`, `lon`, `radius` | – | `2000` | 반경 필터. 좌표가 있으면 `distanceM` 도 채워져요 |
+
+`sort` 는 없어요. 뜻으로 뽑은 순서를 거리로 다시 세우면 벡터 점수가 통째로 버려져요.
+거리 다듬기는 결합 **뒤에** 할 일이에요(7단계).
+
+```bash
+curl -G localhost:8080/v1/vsearch --data-urlencode "q=회 먹을 데"
+```
+
+```jsonc
+{
+  "query": "회 먹을 데",
+  "total": 20,          // '몇 건 있나'가 아니라 '건져 올린 것 중 문턱을 넘은 수' — 키워드의 total 과 뜻이 달라요
+  "page": 0, "size": 10,
+  "tookMs": 5,
+  "relaxed": false,     // 벡터 채널엔 완화 재질의가 없어요 (항상 false)
+  "hits": [
+    { "placeId": "MA010120220810147236", "name": "먹어도", "category": "횟집",
+      "address": null,          // 벡터 payload 엔 주소를 안 담아요 (토큰만 먹고 의미가 없어서)
+      "sigungu": "강남구", "dong": "삼성2동",
+      "lat": 37.51518, "lon": 127.04282,
+      "score": 0.872,           // 코사인 유사도 (0~1)
+      "distanceM": null, "highlight": [] }   // 하이라이트는 없어요 — 걸린 '글자'가 없으니까요
+  ]
+}
+```
+
+### 키워드 검색과 뭐가 다른가요
+
+| | 키워드 (`/v1/search`) | 벡터 (`/v1/vsearch`) |
+|---|---|---|
+| 판단 기준 | 글자가 겹치나 | 뜻이 가까운가 |
+| `회 먹을 데` | **0건** | 횟집·일식 회/초밥 |
+| `스타벅스`(원천에 없음) | 0건 (**정확**) | 스타럭스… (**틀림**) |
+| 점수 | BM25 (수십 점대) | 코사인 (0~1) |
+| 지연(중앙값) | 8.0ms | 4.8ms (질의 캐시 히트) / 9.3ms (미스) |
+
+**벡터는 "없다"고 말할 줄 몰라요.** 항상 가장 가까운 것들을 주기 때문에, 코사인 `0.84`
+미만은 잘라내요. 그래도 완벽하진 않아요 — 이 결함의 진짜 해결책이 6단계 하이브리드예요.
+
+---
+
 ## `POST /admin/reindex`
 
 무중단 전체 재색인 — 새 버전 인덱스를 뒤에서 만들고 alias만 원자적으로 옮겨요.
@@ -164,6 +222,20 @@ curl -G localhost:8080/v1/search --data-urlencode "q=카페" \
   "checkpoint": "2026-07-23T15:40:47.502760+09:00",
   "searchIndex": "place_search_v5", "suggestIndex": "place_suggest_v5" }
 ```
+
+## `POST /admin/vector/reindex`
+
+벡터 컬렉션을 무중단으로 새로 만들어요. **키워드 색인과 따로 도는 게 핵심**이에요 —
+임베딩 추론이 훨씬 느려서(64,239건 **8분 33초** vs ES bulk 14초) 한 파이프라인에 묶으면
+느린 쪽이 주기를 결정해버려요. 체크포인트도 따로 전진해요.
+
+```jsonc
+{ "read": 64239, "upserted": 64239, "deleted": 0,
+  "collection": "place_vec_v2", "points": 64239,
+  "removed": ["place_vec_v1"], "elapsedMs": 512000, "embedMs": 486000 }
+```
+
+`POST /admin/vector/reindex/incremental` 은 벡터 체크포인트 이후 바뀐 것만 다시 임베딩해요.
 
 > ⚠️ `/admin/*` 는 **인증이 없어요.** 로컬 전용이라 그렇고, 운영이라면 관리자 인증과
 > 레이트리밋이 필요해요 (아키텍처 크리틱 #9). 질의 전용 노드로 띄우면(`psp.role.indexer=false`)
@@ -190,7 +262,8 @@ curl -G localhost:8080/v1/search --data-urlencode "q=카페" \
 
 | 지표 | 태그 | 뜻 |
 |---|---|---|
-| `psp_query_latency_seconds` | `channel=keyword\|suggest`, `outcome` | 채널별 질의 지연·실패 |
+| `psp_query_latency_seconds` | `channel=keyword\|suggest\|vector`, `outcome` | 채널별 질의 지연·실패 |
+| `psp_query_stage_latency_seconds` | `channel`, `stage=embed\|ann` | 채널 **안에서** 단계별 분해. 벡터가 느릴 때 모델 문제인지 탐색 문제인지 가려줘요 |
 | `psp_index_lag_seconds` | – | 원천 최신 변경과 색인 체크포인트의 차이(초). **0이면 따라잡음**, -1이면 체크포인트 없음 |
 
 채널을 나눠 재는 게 요점이에요. 합쳐 재면 "검색이 느리다"까지만 알고 *어디가* 느린지를 몰라요.
@@ -202,12 +275,13 @@ curl -G localhost:8080/v1/search --data-urlencode "q=카페" \
 ```bash
 ./gradlew bootRun --args='--psp.role.indexer=false'   # 질의 전용: /admin/* 없음, 색인 빈 없음
 ./gradlew bootRun --args='--psp.role.query=false'     # 색인 전용: /v1/* 없음
+./gradlew bootRun --args='--psp.vector.enabled=false' # 키워드 전용: /v1/vsearch·/admin/vector/* 없음,
+                                                     #   임베딩 모델을 아예 안 읽어요(메모리 0.5GB·기동 5.7초 절약)
 ```
 
 ## 예정
 
 | 단계 | 추가될 것 |
 |---|---|
-| 5 | 벡터 검색 채널 (Qdrant) |
 | 6 | `/v1/search` 에 하이브리드 결합(RRF) — 응답 모양은 유지, 순위 산출만 바뀜 ([ADR 0003](adr/0003-hybrid-search-rrf-in-app-layer.md)) |
 | 7 | 거리 기반 재랭킹 · 추천 엔드포인트 · 쿠키리스 세션 ([ADR 0004](adr/0004-cookieless-session-model.md), [0005](adr/0005-cold-start-and-recommend-strategy.md)) |
