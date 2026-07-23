@@ -1,5 +1,6 @@
 package dev.yubin.search.vector
 
+import dev.yubin.search.brand.Brands
 import dev.yubin.search.index.PlaceRow
 import dev.yubin.search.query.SearchRequest
 import kotlin.math.asin
@@ -29,8 +30,9 @@ object PlaceVectors {
 		put("place_id", r.placeId)
 		put("name", r.name)
 		r.branch?.let { put("branch", it) }
-		// 복원한 브랜드. 벡터만 찾은 결과도 `[스타벅스] 개포동` 으로 보여줄 수 있어야 한다.
-		r.brand?.let { put("brand", it) }
+		// 브랜드. 벡터만 찾은 결과도 `[스타벅스] 개포동` 으로 보여줄 수 있어야 한다.
+		// 색인 문서·임베딩 문장과 **같은 함수**로 정한다 (크리틱 #21).
+		Brands.resolve(r.brand, r.name, r.branch)?.let { put("brand", it) }
 		r.categoryLarge?.let { put("category_large", it) }
 		r.categorySmall?.let { put("category_small", it) }
 		r.sigungu?.let { put("sigungu", it) }

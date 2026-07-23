@@ -56,7 +56,9 @@ class PlaceVectorsTest {
 	fun `payload 에도 브랜드가 실린다`() {
 		// 벡터만 찾은 결과도 화면에 '[스타벅스] 신사역'으로 보여줄 수 있어야 한다.
 		assertEquals("스타벅스", PlaceVectors.payload(row(brand = "스타벅스"))["brand"])
-		assertTrue("brand" !in PlaceVectors.payload(row()))
+		// 상호명이 브랜드가 아니면 필드 자체가 없다. (기본 row 의 이름 '스타벅스' 는
+		// 시드 사전에 걸려 브랜드가 잡히므로 여기선 못 쓴다 — 테스트가 실제로 그걸 잡았다.)
+		assertTrue("brand" !in PlaceVectors.payload(row(name = "먹어도")))
 	}
 
 	@Test

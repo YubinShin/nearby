@@ -1,5 +1,6 @@
 package dev.yubin.search.embed
 
+import dev.yubin.search.brand.Brands
 import dev.yubin.search.index.PlaceRow
 
 /**
@@ -28,7 +29,10 @@ object PlaceVectorText {
 	 * 예: `"스타벅스 강남역점. 커피점/카페 카페. 강남구 역삼동"`
 	 */
 	fun of(r: PlaceRow): String {
-		val name = listOfNotNull(r.brand, r.name, r.branch).joinToString(" ")
+		// 브랜드는 Brands 한 곳에서 정한다 — 복원분과 시드 사전을 여기서 따로 다루면
+		// 벡터 채널만 사전 브랜드를 모르게 된다(크리틱 #21, 실제로 그랬다).
+		val brand = Brands.resolve(r.brand, r.name, r.branch)
+		val name = listOfNotNull(Brands.embedText(brand, r.name), r.branch).joinToString(" ")
 		val category = listOfNotNull(r.categoryMid, r.categorySmall).distinct().joinToString(" ")
 		val region = listOfNotNull(r.sigungu, r.dong).joinToString(" ")
 		return listOf(name, category, region).filter { it.isNotBlank() }.joinToString(". ")

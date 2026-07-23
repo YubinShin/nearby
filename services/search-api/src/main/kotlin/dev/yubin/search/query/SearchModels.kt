@@ -1,6 +1,6 @@
 package dev.yubin.search.query
 
-import dev.yubin.search.index.BrandDictionary
+import dev.yubin.search.brand.Brands
 
 /** 정렬 기준. 기본은 관련도, 좌표가 있으면 거리순도 고를 수 있다. */
 enum class SortBy { RELEVANCE, DISTANCE }
@@ -114,7 +114,7 @@ data class PlaceHit(
 	 * **규칙을 클라이언트에 넘기지 않는다.** 어떤 표기가 같은 브랜드인지는 서버만 아는데,
 	 * 그걸 화면마다 다시 구현하면 곧 서로 다른 이름을 말하게 된다.
 	 */
-	val label: String get() = BrandDictionary.display(brand, name)
+	val label: String get() = Brands.display(brand, name)
 }
 
 data class SearchResponse(
@@ -138,7 +138,7 @@ data class SuggestItem(
 	val score: Double,
 ) {
 	/** 드롭다운에 보여줄 글자. 자동완성 인덱스의 `label` 과 같은 규칙이다. */
-	val label: String get() = BrandDictionary.display(brand, name)
+	val label: String get() = Brands.display(brand, name)
 }
 
 data class SuggestResponse(
