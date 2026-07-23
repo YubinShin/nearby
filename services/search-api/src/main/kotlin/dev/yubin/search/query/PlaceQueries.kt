@@ -24,6 +24,9 @@ object PlaceQueries {
 	 */
 	val SEARCH_FIELDS = listOf(
 		"name^5",             // 상호명이 가장 강한 신호
+		// 상호명에서 빠진 브랜드를 복원한 필드 (place_brand). 상호명과 같은 무게를 준다 —
+		// 사용자가 '스타벅스'를 칠 때 기대하는 건 상호명을 친 것과 똑같기 때문이다.
+		"brand^5",
 		"branch^3",           // "역삼점" 같은 지점명
 		"category_small.txt^2",
 		"category_mid.txt",

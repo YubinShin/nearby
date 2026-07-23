@@ -40,6 +40,7 @@ class PlaceR2dbcReader(private val client: DatabaseClient) {
 					placeId = row.get("place_id", String::class.java)!!,
 					name = row.get("name", String::class.java)!!,
 					branch = row.get("branch", String::class.java),
+					brand = row.get("brand", String::class.java),
 					categoryLarge = row.get("category_large", String::class.java),
 					categoryMid = row.get("category_mid", String::class.java),
 					categorySmall = row.get("category_small", String::class.java),
@@ -58,17 +59,21 @@ class PlaceR2dbcReader(private val client: DatabaseClient) {
 			.asFlow()
 
 	companion object {
+		// place_brand 는 **우리가 만든 파생 테이블**이라 left join 이다 — 없는 게 정상이다.
+		// 주의: 브랜드만 바뀌면 place.updated_at 이 안 움직여 증분 색인이 못 잡는다.
+		//       지금은 전체 재색인으로만 반영된다 (셀프 크리틱 #20).
 		private val SELECT_BASE = """
-			select place_id, name, branch,
-			       category_large, category_mid, category_small,
-			       sido, sigungu, dong, jibun_address, road_address,
-			       lon, lat, updated_at, deleted_at
-			from public.place
+			select p.place_id, p.name, p.branch, b.brand,
+			       p.category_large, p.category_mid, p.category_small,
+			       p.sido, p.sigungu, p.dong, p.jibun_address, p.road_address,
+			       p.lon, p.lat, p.updated_at, p.deleted_at
+			from public.place p
+			left join public.place_brand b using (place_id)
 		""".trimIndent()
-		private val SELECT_ALL = "$SELECT_BASE\nwhere deleted_at is null"
+		private val SELECT_ALL = "$SELECT_BASE\nwhere p.deleted_at is null"
 
 		// checkpoint(ES date)는 밀리초 정밀도라, PostGIS 마이크로초와 비교하면 경계값이 매번 재매칭된다.
 		// 양쪽을 밀리초로 잘라 비교해 정밀도 불일치를 없앤다. (운영에선 단조 증가 version 컬럼이 더 안전)
-		private val SELECT_SINCE = "$SELECT_BASE\nwhere date_trunc('milliseconds', updated_at) > :since"
+		private val SELECT_SINCE = "$SELECT_BASE\nwhere date_trunc('milliseconds', p.updated_at) > :since"
 	}
 }

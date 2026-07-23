@@ -11,6 +11,8 @@ object PlaceDocuments {
 		put("place_id", r.placeId)
 		put("name", r.name)
 		r.branch?.let { put("branch", it) }
+		// 상호명에서 사라진 브랜드를 되살린 값. 이게 있어야 '스타벅스' 검색이 걸린다.
+		r.brand?.let { put("brand", it) }
 		r.categoryLarge?.let { put("category_large", it) }
 		r.categoryMid?.let { put("category_mid", it) }
 		r.categorySmall?.let { put("category_small", it) }

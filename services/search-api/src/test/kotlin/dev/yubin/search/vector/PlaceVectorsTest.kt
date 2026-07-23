@@ -23,7 +23,7 @@ class PlaceVectorsTest {
 		lat: Double? = 37.4979,
 		lon: Double? = 127.0276,
 	) = PlaceRow(
-		placeId = placeId, name = name, branch = branch,
+		placeId = placeId, name = name, branch = branch, brand = null,
 		categoryLarge = "음식", categoryMid = categoryMid, categorySmall = categorySmall,
 		sido = "서울특별시", sigungu = sigungu, dong = dong,
 		jibunAddress = "역삼동 123-4", roadAddress = "테헤란로 1",

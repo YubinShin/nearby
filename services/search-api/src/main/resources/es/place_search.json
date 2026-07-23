@@ -23,6 +23,7 @@
       "place_id":       { "type": "keyword" },
       "name":           { "type": "text", "analyzer": "komoran", "fields": { "raw": { "type": "keyword" } } },
       "branch":         { "type": "text", "analyzer": "komoran" },
+      "brand":          { "type": "text", "analyzer": "komoran", "fields": { "raw": { "type": "keyword" } } },
       "category_large": { "type": "keyword" },
       "category_mid":   { "type": "keyword", "fields": { "txt": { "type": "text", "analyzer": "komoran" } } },
       "category_small": { "type": "keyword", "fields": { "txt": { "type": "text", "analyzer": "komoran" } } },
