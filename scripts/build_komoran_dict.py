@@ -25,9 +25,12 @@ from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 
 ES = "http://localhost:9200"
-PROBE_INDEX = "komoran_probe"
+PROBE_INDEX = "komoran_probe"            # 사전 없음 — 사전을 처음부터 다시 뽑을 때
+LIVE_PROBE_INDEX = "komoran_probe_live"  # 현재 사전 적용 — 아직 못 잡는 게 뭔지 볼 때
 OUT = "deploy/elasticsearch/analysis/komoran/place.dict"
 MANUAL = "deploy/elasticsearch/analysis/komoran/manual.dict"
+# ES config 디렉토리 기준 상대경로 (place_search.json 의 설정과 같아야 한다)
+DICT_SETTING_PATH = "analysis/komoran/place.dict"
 
 # POS 필터 없이 **토크나이저 원본 출력**만 보는 분석기. 사전 후보를 찾을 땐 필터가 지운 뒤가 아니라
 # 지우기 전을 봐야 한다 — 무엇이 왜 사라졌는지는 원본 토큰의 품사에 있기 때문.
@@ -80,9 +83,29 @@ def ensure_probe_index() -> None:
     urllib.request.urlopen(req)
 
 
-def analyze(text: str) -> list[dict] | None:
+def ensure_live_probe_index() -> None:
+    """**현재 사전이 적용된** 분석기를 재현하는 인덱스.
+
+    사전 생성기는 사전 없이 봐야 한다(매번 처음부터 다시 뽑으므로). 반대로 질의 로그 채굴은
+    "지금 배포된 분석기가 아직도 못 쪼개는 게 무엇인가"를 물어야 하므로 사전이 적용돼야 한다.
+    사전 파일이 바뀌면 분석기도 바뀌므로 매번 새로 만든다.
+    """
+    urllib.request.urlopen(
+        urllib.request.Request(f"{ES}/{LIVE_PROBE_INDEX}?ignore_unavailable=true", method="DELETE"))
+    settings = json.loads(json.dumps(PROBE_SETTINGS))
+    settings["settings"]["analysis"]["tokenizer"] = {
+        "komoran_place": {"type": "komoran_tokenizer", "user_dictionary": DICT_SETTING_PATH},
+    }
+    settings["settings"]["analysis"]["analyzer"]["komoran_raw"]["tokenizer"] = "komoran_place"
+    urllib.request.urlopen(
+        urllib.request.Request(f"{ES}/{LIVE_PROBE_INDEX}", method="PUT",
+                               data=json.dumps(settings).encode(),
+                               headers={"Content-Type": "application/json"}))
+
+
+def analyze(text: str, index: str = PROBE_INDEX) -> list[dict] | None:
     body = json.dumps({"analyzer": "komoran_raw", "text": text}).encode()
-    req = urllib.request.Request(f"{ES}/{PROBE_INDEX}/_analyze", data=body,
+    req = urllib.request.Request(f"{ES}/{index}/_analyze", data=body,
                                  headers={"Content-Type": "application/json"})
     try:
         return json.load(urllib.request.urlopen(req))["tokens"]

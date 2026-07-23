@@ -30,6 +30,7 @@ import kotlin.math.roundToLong
 class PlaceSearchService(
 	private val es: ElasticsearchClient,
 	private val metrics: QueryMetrics,
+	private val queryLog: QueryLog,
 	@Value("\${psp.index.search-alias}") private val alias: String,
 ) {
 
@@ -45,8 +46,13 @@ class PlaceSearchService(
 		if (req.q.isBlank()) return@record SearchResponse(req.q, 0, req.page, req.size, 0)
 
 		val strict = execute(req, PlaceQueries.search(req, relaxed = false), relaxed = false)
-		if (strict.total > 0) strict
-		else execute(req, PlaceQueries.search(req, relaxed = true), relaxed = true)
+		val result =
+			if (strict.total > 0) strict
+			else execute(req, PlaceQueries.search(req, relaxed = true), relaxed = true)
+
+		// 0건·완화 질의는 미등록 어휘의 직접 증거다 (ADR 0008 — 사전의 두 번째 원천).
+		queryLog.search(result.query, result.total, result.relaxed, result.tookMs)
+		result
 	}
 
 	private suspend fun execute(req: SearchRequest, query: Query, relaxed: Boolean): SearchResponse =

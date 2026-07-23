@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service
 class PlaceSuggestService(
 	private val es: ElasticsearchClient,
 	private val metrics: QueryMetrics,
+	private val queryLog: QueryLog,
 	@Value("\${psp.index.suggest-alias}") private val alias: String,
 ) {
 
@@ -41,21 +42,21 @@ class PlaceSuggestService(
 					.sort({ so -> so.field { f -> f.field("place_id").order(SortOrder.Asc) } })
 			}, SuggestDoc::class.java)
 
-			SuggestResponse(
-				query = req.q,
-				tookMs = resp.took(),
-				items = resp.hits().hits().mapNotNull { h ->
-					h.source()?.let { doc ->
-						SuggestItem(
-							placeId = doc.place_id,
-							name = doc.name,
-							category = doc.category_small,
-							dong = doc.dong,
-							score = h.score() ?: 0.0,
-						)
-					}
-				},
-			)
+			val items = resp.hits().hits().mapNotNull { h ->
+				h.source()?.let { doc ->
+					SuggestItem(
+						placeId = doc.place_id,
+						name = doc.name,
+						category = doc.category_small,
+						dong = doc.dong,
+						score = h.score() ?: 0.0,
+					)
+				}
+			}
+			// 0건 자동완성도 미등록 어휘의 신호다 — 한 글자만 쳐도 걸리는 게 정상이므로.
+			queryLog.suggest(req.q, items.size, resp.took())
+
+			SuggestResponse(query = req.q, tookMs = resp.took(), items = items)
 		}
 	}
 

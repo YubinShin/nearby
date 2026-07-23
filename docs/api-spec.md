@@ -171,6 +171,21 @@ curl -G localhost:8080/v1/search --data-urlencode "q=카페" \
 
 ---
 
+## 질의 로그
+
+모든 검색·자동완성 질의가 `logs/query.log` 에 **한 줄 JSON**으로 남아요 (앱 로그와 분리 —
+디버깅용이 아니라 **데이터 자산**이라 수명과 관리 주체가 달라요).
+
+```jsonc
+{"ts":"2026-07-23T17:30:20.265+09:00","type":"search","q":"존맛탱","total":0,"zero":true,"relaxed":true,"took_ms":1}
+```
+
+용도가 둘이에요. ① **사전 확보** — 0건 질의는 미등록 어휘의 직접 증거예요
+(`scripts/mine_query_log.py` 가 후보를 뽑아요). ② **랭킹 근거** — 질의–클릭 쌍이 쌓여야
+필드 가중치를 nDCG 로 평가할 수 있어요.
+
+개인정보: 질의문 외에 식별자를 남기지 않아요.
+
 ## 지표 (`/actuator/prometheus`)
 
 | 지표 | 태그 | 뜻 |

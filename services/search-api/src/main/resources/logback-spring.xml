@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  질의 로그를 애플리케이션 로그와 **분리**한다.
+
+  같은 파일에 섞으면 분석할 때마다 grep 으로 골라내야 하고, 애플리케이션 로그 레벨을 바꾸면
+  질의 로그가 함께 사라진다. 질의 로그는 디버깅용이 아니라 **데이터 자산**이라
+  (사전 확보 · 랭킹 평가 · 0건 비율 지표) 수명과 관리 주체가 다르다.
+
+  운영이라면 파일 대신 Kafka·Fluent Bit 로 흘려보내지만, 로컬에서는 한 줄 JSON 파일이면 충분하다.
+  → 소비: scripts/mine_query_log.py
+-->
+<configuration>
+	<include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+	<include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+
+	<property name="QUERY_LOG_DIR" value="${PSP_QUERY_LOG_DIR:-logs}"/>
+
+	<appender name="QUERY_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${QUERY_LOG_DIR}/query.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${QUERY_LOG_DIR}/query.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<maxHistory>30</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<!-- 앞에 타임스탬프만 붙이고 본문은 QueryLog 가 만든 JSON 그대로 — 파싱이 단순해진다. -->
+			<pattern>{"ts":"%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX}",%replace(%msg){'^\{|\}$',''}}%n</pattern>
+		</encoder>
+	</appender>
+
+	<!-- additivity=false: 콘솔로도 새어 나가지 않게 한다(질의당 한 줄이라 금방 시끄러워진다). -->
+	<logger name="psp.querylog" level="INFO" additivity="false">
+		<appender-ref ref="QUERY_LOG"/>
+	</logger>
+
+	<root level="INFO">
+		<appender-ref ref="CONSOLE"/>
+	</root>
+</configuration>
