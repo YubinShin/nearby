@@ -86,16 +86,8 @@ class PlaceSearchService(
 				relaxed = relaxed,
 				hits = resp.hits().hits().mapNotNull { h ->
 					h.source()?.let { doc ->
-						PlaceHit(
-							placeId = doc.place_id,
-							name = doc.name,
-							branch = doc.branch,
-							category = doc.category_small ?: doc.category_mid ?: doc.category_large,
-							address = doc.road_address ?: doc.jibun_address,
-							sigungu = doc.sigungu,
-							dong = doc.dong,
-							lat = doc.location?.lat,
-							lon = doc.location?.lon,
+						toHit(
+							doc = doc,
 							score = h.score() ?: 0.0,
 							// 거리순일 때만 sort 값에 미터가 실려 온다.
 							distanceM = h.sort().firstOrNull()?.doubleValue()?.roundToLong()
@@ -106,6 +98,46 @@ class PlaceSearchService(
 				},
 			)
 		}
+
+	/**
+	 * id 로 문서를 직접 집어 온다 (BM25 를 태우지 않는 단순 조회).
+	 *
+	 * 하이브리드 결합(6단계)에서 **벡터만 찾아낸 문서**를 채우는 데 쓴다. 벡터 payload 에는
+	 * 주소가 없어서(용량 절약, `PlaceVectors.payload` 참고) 그대로 내보내면 *어느 엔진이
+	 * 찾았느냐에 따라 응답 필드가 들쭉날쭉해진다.* 결합 결과의 모양은 한 가지여야 한다.
+	 *
+	 * ES `_id` 는 색인 때 `place_id` 로 넣었으므로(`ReindexService.action`) mget 한 번이면 된다.
+	 * 검색이 아니라 조회라 `score` 는 없다 — 호출 측이 채워 넣는다.
+	 */
+	suspend fun byIds(ids: List<String>): Map<String, PlaceHit> {
+		if (ids.isEmpty()) return emptyMap()
+		return withContext(Dispatchers.IO) {
+			es.mget({ m -> m.index(alias).ids(ids) }, SearchDoc::class.java)
+				.docs()
+				.mapNotNull { item -> item.takeIf { it.isResult }?.result()?.source() }
+				.associate { doc -> doc.place_id to toHit(doc, score = 0.0) }
+		}
+	}
+
+	private fun toHit(
+		doc: SearchDoc,
+		score: Double,
+		distanceM: Long? = null,
+		highlight: List<String> = emptyList(),
+	) = PlaceHit(
+		placeId = doc.place_id,
+		name = doc.name,
+		branch = doc.branch,
+		category = doc.category_small ?: doc.category_mid ?: doc.category_large,
+		address = doc.road_address ?: doc.jibun_address,
+		sigungu = doc.sigungu,
+		dong = doc.dong,
+		lat = doc.location?.lat,
+		lon = doc.location?.lon,
+		score = score,
+		distanceM = distanceM,
+		highlight = highlight,
+	)
 
 	companion object {
 		const val CHANNEL = "keyword"

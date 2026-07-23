@@ -4,7 +4,7 @@
 
 - 기준 URL(로컬): `http://localhost:8080`
 - 응답: `application/json` (UTF-8)
-- 구현 상태: **5단계까지 실제 동작.** 하이브리드 결합·추천은 6~7단계 예정 (아래 [예정](#예정) 참고)
+- 구현 상태: **6단계까지 실제 동작.** 추천·거리 재랭킹은 7단계 예정 (아래 [예정](#예정) 참고)
 
 ## 목차
 
@@ -14,6 +14,7 @@
 | `GET` | [`/v1/suggest`](#get-v1suggest) | 자동완성 (edge_ngram) | ✅ |
 | `GET` | [`/v1/instant`](#get-v1instant) | 추천어 + 결과 미리보기 (팬아웃) | ✅ |
 | `GET` | [`/v1/vsearch`](#get-v1vsearch) | 벡터(뜻) 검색 (Qdrant) | ✅ |
+| `GET` | [`/v1/hsearch`](#get-v1hsearch) | **하이브리드 결합** (키워드 + 벡터, RRF) | ✅ |
 | `POST` | [`/admin/reindex`](#post-adminreindex) | 무중단 전체 재색인 (키워드) | ✅ |
 | `POST` | [`/admin/reindex/incremental`](#post-adminreindexincremental) | 증분 색인 (키워드) | ✅ |
 | `POST` | [`/admin/vector/reindex`](#post-adminvectorreindex) | 무중단 전체 재색인 (벡터) | ✅ |
@@ -172,7 +173,8 @@ curl -G localhost:8080/v1/vsearch --data-urlencode "q=회 먹을 데"
 ```jsonc
 {
   "query": "회 먹을 데",
-  "total": 20,          // '몇 건 있나'가 아니라 '건져 올린 것 중 문턱을 넘은 수' — 키워드의 total 과 뜻이 달라요
+  "total": 50,          // '몇 건 있나'가 아니라 '건져 올린 후보 중 문턱을 넘은 수' — 키워드의 total 과 뜻이 달라요
+                        //   후보는 최소 50건 떠요. size 만큼만 뜨면 total 이 size 를 그대로 되읊어요.
   "page": 0, "size": 10,
   "tookMs": 5,
   "relaxed": false,     // 벡터 채널엔 완화 재질의가 없어요 (항상 false)
@@ -193,12 +195,107 @@ curl -G localhost:8080/v1/vsearch --data-urlencode "q=회 먹을 데"
 |---|---|---|
 | 판단 기준 | 글자가 겹치나 | 뜻이 가까운가 |
 | `회 먹을 데` | **0건** | 횟집·일식 회/초밥 |
-| `스타벅스`(원천에 없음) | 0건 (**정확**) | 스타럭스… (**틀림**) |
+| `스타벅스`(원천에 없음) | 0건 (**정확**) | 0건 (**정확** — 최고점 0.834 < 문턱 0.84) |
+| `차 고치는 곳`(정비소 없음) | 0건 (**정확**) | 차병원사거리포차 (**틀림** — 0.842) |
 | 점수 | BM25 (수십 점대) | 코사인 (0~1) |
 | 지연(중앙값) | 8.0ms | 4.8ms (질의 캐시 히트) / 9.3ms (미스) |
 
 **벡터는 "없다"고 말할 줄 몰라요.** 항상 가장 가까운 것들을 주기 때문에, 코사인 `0.84`
-미만은 잘라내요. 그래도 완벽하진 않아요 — 이 결함의 진짜 해결책이 6단계 하이브리드예요.
+미만은 잘라내요. 그래도 완벽하진 않아요 (`차 고치는 곳` 0.842가 통과) — 진짜 해결책은
+"맞는 게 있느냐"를 글자로 판단하는 [`/v1/hsearch`](#get-v1hsearch) 예요.
+
+> ⚠️ **필터(`sigungu`·`dong`·`category`·`radius`)가 붙으면 이 문턱을 적용하지 않아요.**
+> 문턱 `0.84`는 *필터 없는 전체 코퍼스*의 점수 분포에서 정한 값이에요. 필터가 후보를 좁히면
+> "그 안에서 제일 가까운 것"의 절대 점수도 같이 내려가는데, 거기에 옛 기준선을 그대로 대면
+> **결과를 통째로 지워요** — 반경 300m 안에 2,015건이 있는데 0건이 나왔어요(실측).
+> 범위를 좁힌 판단은 이미 사용자가 내린 것이고, 남는 질문은 "그 안에서 뭐가 제일 가깝나"뿐이에요.
+
+---
+
+## `GET /v1/hsearch`
+
+키워드와 벡터를 **합쳐서** 찾아요 ([ADR 0003](adr/0003-hybrid-search-rrf-in-app-layer.md)).
+
+두 채널은 서로의 실패를 메워요. 키워드는 `회 먹을 데`를 못 찾고(글자가 하나도 안 겹쳐요),
+벡터는 `스타벅스`에 "없다"고 말할 줄 몰라요. 그래서 **둘 다 부르고 순위로 합쳐요.**
+
+파라미터는 `/v1/search` 와 같아요 (`sort` 제외 — 아래 참고).
+
+```bash
+curl -G localhost:8080/v1/hsearch --data-urlencode "q=회 먹을 데"
+```
+
+```jsonc
+{
+  "query": "회 먹을 데",
+  "total": 50,           // 결합 후보 중 유니크 문서 수. **코퍼스 전체 매칭 수가 아니에요**
+  "page": 0, "size": 10,
+  "tookMs": 16,
+  "degraded": false,     // 채널 하나가 죽어서 반쪽으로 답했는지
+  "channels": [          // 어느 채널이 몇 건 냈고 얼마나 걸렸는지
+    { "name": "keyword", "candidates": 0,  "tookMs": 13, "failed": false },
+    { "name": "vector",  "candidates": 50, "tookMs": 5,  "failed": false }
+  ],
+  "hits": [
+    { "placeId": "MA010120220810147236", "name": "먹어도", "category": "횟집",
+      "address": "서울특별시 강남구 학동로56길 32",   // 벡터만 찾은 문서도 ES 에서 채워 넣어요
+      "sigungu": "강남구", "dong": "삼성2동",
+      "lat": 37.51518, "lon": 127.04282,
+      "score": 0.01639,                            // **RRF 점수** (이 응답의 정렬 근거)
+      "distanceM": null, "highlight": [],
+      "ranks":  { "vector": 1 },                   // 채널별 등수 — 못 찾은 채널은 키가 없어요
+      "scores": { "vector": 0.872 }                // 채널별 **원점수** (keyword=BM25, vector=코사인)
+    }
+  ]
+}
+```
+
+### 어떻게 합치나요 — RRF
+
+점수를 더하지 **않아요.** BM25는 수십 점대인데 코사인은 0~1이라, 그냥 더하면 스케일이 큰 쪽이
+독식해요. 그래서 **등수만** 써요.
+
+```
+score(문서) = Σ  가중치 / (k + 그 채널에서의 등수)          k = 60
+```
+
+`k=60`이면 1등(1/61)과 2등(1/62)이 거의 붙어 있어요. 그래서 **"두 채널이 다 찾았다"가
+"한 채널에서 1등"보다 세져요.** 하이브리드에서 원하는 성질이 정확히 이거예요.
+
+응답의 `ranks`·`scores` 를 나란히 보면 그 판단 과정이 그대로 보여요. `역삼동 카페` 예시:
+
+| 이름 | keyword 등수 | vector 등수 | BM25 | 코사인 | 결과 |
+|---|---|---|---|---|---|
+| 카페808 | 2 | 43 | 20.7 | 0.877 | **1위** (양쪽이 다 찾음) |
+| 카페블루 | 1 | – | 21.2 | – | 밀림 (한쪽만 찾음) |
+
+### 후보를 깊게 떠요
+
+각 채널에서 `50`건씩 가져와 합쳐요(`psp.hybrid.candidates`). 상위 10개씩만 합치면,
+한 채널이 11등에 둔 정답은 다른 채널이 1등을 줘도 **결합에 들어오지도 못해요.**
+결합의 이득이 통째로 사라지는 지점이에요.
+
+그래서 `total`은 최대 100(50+50)이에요. 페이지를 깊게 넘기면 결과가 끊겨요.
+
+### 한쪽이 죽어도 답해요
+
+채널이 둘이면 고장날 곳도 둘이에요. 하이브리드가 각 채널보다 *덜* 안정적이면 합칠 이유가 없죠.
+그래서 한 채널이 실패해도 **나머지로 답하고**, 그 사실을 `degraded` 와 `channels[].failed` 로
+알려요. 조용히 반쪽 결과를 주는 게 제일 나빠요.
+
+| 상황 | 응답 |
+|---|---|
+| 정상 | `200` · `degraded:false` · total 95 |
+| Qdrant 중단 | `200` · `degraded:true` · keyword `failed:false` / vector `failed:true` · total 50 |
+| ES 중단 | `200` · `degraded:true` · keyword `failed:true` / vector `failed:false` · total 50 |
+
+> ES가 죽으면 주소 채우기(mget)도 같이 실패해요. 그때는 벡터 payload 로만 답해서
+> `address` 가 `null` 이에요. **주소 없는 결과가 결과 없음보다 나아요.**
+
+### `sort` 는 없어요
+
+결합 결과를 거리로 다시 세우면 RRF 순위가 통째로 버려져요. 다만 좌표를 주면 정렬과 무관하게
+`distanceM` 은 채워줘요 — 서버가 이미 아는 값이라서요. 거리 재랭킹은 7단계 일이에요.
 
 ---
 
@@ -262,8 +359,8 @@ curl -G localhost:8080/v1/vsearch --data-urlencode "q=회 먹을 데"
 
 | 지표 | 태그 | 뜻 |
 |---|---|---|
-| `psp_query_latency_seconds` | `channel=keyword\|suggest\|vector`, `outcome` | 채널별 질의 지연·실패 |
-| `psp_query_stage_latency_seconds` | `channel`, `stage=embed\|ann` | 채널 **안에서** 단계별 분해. 벡터가 느릴 때 모델 문제인지 탐색 문제인지 가려줘요 |
+| `psp_query_latency_seconds` | `channel=keyword\|suggest\|vector\|hybrid`, `outcome` | 채널별 질의 지연·실패 |
+| `psp_query_stage_latency_seconds` | `channel`, `stage=embed\|ann\|keyword\|vector\|fuse\|hydrate` | 채널 **안에서** 단계별 분해. 벡터가 느릴 때 모델 문제인지 탐색 문제인지, 하이브리드가 느릴 때 어느 채널 탓인지 가려줘요 |
 | `psp_index_lag_seconds` | – | 원천 최신 변경과 색인 체크포인트의 차이(초). **0이면 따라잡음**, -1이면 체크포인트 없음 |
 
 채널을 나눠 재는 게 요점이에요. 합쳐 재면 "검색이 느리다"까지만 알고 *어디가* 느린지를 몰라요.
@@ -283,5 +380,4 @@ curl -G localhost:8080/v1/vsearch --data-urlencode "q=회 먹을 데"
 
 | 단계 | 추가될 것 |
 |---|---|
-| 6 | `/v1/search` 에 하이브리드 결합(RRF) — 응답 모양은 유지, 순위 산출만 바뀜 ([ADR 0003](adr/0003-hybrid-search-rrf-in-app-layer.md)) |
 | 7 | 거리 기반 재랭킹 · 추천 엔드포인트 · 쿠키리스 세션 ([ADR 0004](adr/0004-cookieless-session-model.md), [0005](adr/0005-cold-start-and-recommend-strategy.md)) |

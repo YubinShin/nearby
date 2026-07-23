@@ -64,6 +64,18 @@ psp:
     # 질의 임베딩 LRU 캐시 크기(한 프로세스 안).
     cache-size: 2000
 
+  # 하이브리드 결합 — 6단계 (ADR 0003)
+  hybrid:
+    # 벡터 채널이 꺼진 노드에서는 자동으로 같이 꺼진다(조건에 psp.vector.enabled 가 함께 걸려 있다).
+    enabled: true
+    # RRF 완충값. 클수록 상위권 등수 차이가 평평해져 '두 채널의 합의'가 '한 채널의 1등'을 이긴다.
+    k: 60
+    # 각 채널에서 가져올 후보 수. 최종 페이지(size)보다 깊어야 결합의 이득이 생긴다.
+    candidates: 50
+    # 채널 가중치. 1:1 이 기본이고, 한쪽을 신뢰하지 못할 때 낮춘다.
+    keyword-weight: 1.0
+    vector-weight: 1.0
+
   embedding:
     # scripts/fetch_embedding_model.sh 가 저장소 루트 models/ 아래에 받아둔다.
     # 다른 곳에 두면 PSP_MODEL_DIR 로 알려준다.

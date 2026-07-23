@@ -55,27 +55,42 @@ class PlaceVectorSearchService(
 
 		val startedAt = System.nanoTime()
 		val vector = embedQuery(req.q)
+		val filter = PlaceVectors.filter(req)
 
-		// 벡터 엔진에는 페이지 끝까지 달라고 하고(오프셋 개념이 없다) 앱에서 잘라 쓴다.
-		val wanted = (req.from + req.size).coerceAtMost(MAX_FETCH)
-		val matches = metrics.stage(CHANNEL, "ann") {
-			qdrant.query(alias, vector, wanted, PlaceVectors.filter(req))
-		}
+		/*
+		 * 벡터 엔진에는 페이지 끝까지 달라고 하고(오프셋 개념이 없다) 앱에서 잘라 쓴다.
+		 * 다만 **요청한 size 보다는 깊게** 뜬다. 딱 size 만큼만 뜨면 아래 total 이
+		 * "몇 건이 문턱을 넘었나"가 아니라 "몇 건 달라고 했나"를 그대로 되읊는다
+		 * (size=1 이면 total=1, size=10 이면 total=10 — 실측에서 그렇게 나왔다).
+		 */
+		val wanted = (req.from + req.size).coerceAtLeast(MIN_CANDIDATES).coerceAtMost(MAX_FETCH)
+		val matches = metrics.stage(CHANNEL, "ann") { qdrant.query(alias, vector, wanted, filter) }
 
-		val hits = matches.asSequence()
-			.filter { it.score >= minScore }
-			.drop(req.from)
-			.map { toHit(it, req) }
-			.toList()
+		/*
+		 * **필터가 걸린 질의에는 절대 문턱을 적용하지 않는다.**
+		 *
+		 * [minScore] 는 *필터 없는 전체 코퍼스*에서 점수 분포를 재서 정한 값이다(ADR 0010).
+		 * 필터가 붙는 순간 후보 집합 자체가 달라지고, 좁아질수록 "그 안에서 가장 뜻이 가까운 것"의
+		 * 절대 점수도 함께 내려간다. 그 위에 예전 기준선을 그대로 대면 **결과를 통째로 지운다** —
+		 * 반경 300m 안에 2,015개 장소가 있는데도 0건이 나왔다(실측).
+		 *
+		 * 문턱의 원래 임무는 "이 질의에 맞는 게 코퍼스에 아예 없다"를 잡는 것이다. 사용자가 필터로
+		 * 범위를 좁혔다면 그 판단은 이미 사용자가 내린 것이고, 남은 질문은 "그 안에서 뭐가 제일
+		 * 가깝나"뿐이다. 필터별로 문턱을 다시 재는 건 불가능하니, 아예 적용하지 않는 쪽이 정직하다.
+		 */
+		val floor = if (filter == null) minScore else NO_FLOOR
+		val passed = matches.filter { it.score >= floor }
+
+		val hits = passed.drop(req.from).take(req.size).map { toHit(it, req) }
 
 		val tookMs = (System.nanoTime() - startedAt) / 1_000_000
 		queryLog.search(req.q, hits.size.toLong(), relaxed = false, tookMs = tookMs, channel = CHANNEL)
 
 		SearchResponse(
 			query = req.q,
-			// 벡터 검색의 total 은 "코퍼스에 몇 개 있나"가 아니라 "이번에 건져 올린 것 중 몇 개가
-			// 문턱을 넘었나"다. 키워드의 total 과 의미가 달라 그대로 비교하면 안 된다.
-			total = matches.count { it.score >= minScore }.toLong(),
+			// 벡터 검색의 total 은 "코퍼스에 몇 개 있나"가 아니라 "이번에 건져 올린 후보 중 몇 개가
+			// 문턱을 넘었나"다(최대 MAX_FETCH). 키워드의 total 과 의미가 달라 그대로 비교하면 안 된다.
+			total = passed.size.toLong(),
 			page = req.page,
 			size = req.size,
 			tookMs = tookMs,
@@ -118,5 +133,11 @@ class PlaceVectorSearchService(
 
 		/** 페이지가 깊어져도 엔진에 무한정 요구하지 않는다 (키워드 채널의 MAX_PAGE 와 같은 취지). */
 		private const val MAX_FETCH = 500
+
+		/** size 가 작아도 최소 이만큼은 뜬다 — total 이 size 를 따라다니지 않게. */
+		private const val MIN_CANDIDATES = 50
+
+		/** 문턱을 끄는 값. 코사인은 -1 아래로 못 내려가므로 아무것도 거르지 않는다. */
+		private const val NO_FLOOR = Float.NEGATIVE_INFINITY
 	}
 }
