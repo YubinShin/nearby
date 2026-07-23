@@ -163,7 +163,7 @@ const EXAMPLES = [
 	{ q: "회 먹을 데",     why: "키워드 0건" },
 	{ q: "머리 자르는 곳",  why: "키워드 0건" },
 	{ q: "혼밥하기 좋은 집", why: "키워드 0건" },
-	{ q: "스타벅스",       why: "원천에 없음(직영)" },
+	{ q: "스타벅스",       why: "이름에서 브랜드 탈락" },
 	{ q: "차 고치는 곳",    why: "벡터가 낚임" },
 	{ q: "ㅁㄴㅇㄹ",       why: "엉터리" },
 	{ q: "역삼동 카페",     why: "둘 다 잘함" },
@@ -290,7 +290,7 @@ async function search() {
  * "0건"만 띄우면 사용자는 검색이 고장 났다고 읽는다. 실제로 여기서 제일 흔한 원인은
  * 검색이 아니라 **원천 데이터의 범위**다 — 그걸 숨기면 잘못된 곳을 의심하게 만든다.
  */
-const DIRECT_BRANDS = /(스타벅스|유니클로|자라|무인양품|애플스토어|나이키|아디다스|다이소)/;
+const BRAND_STRIPPED = /(스타벅스|유니클로|무인양품|다이소)/;
 
 function explainZero(q, results) {
 	const box = $("explain");
@@ -300,10 +300,10 @@ function explainZero(q, results) {
 	if (!answered.length || answered.some((r) => (r.value.body.total ?? 0) > 0)) return;
 
 	const reasons = [];
-	if (DIRECT_BRANDS.test(q)) {
-		reasons.push(`<b>전 매장 직영 브랜드는 이 데이터에 없어요.</b> 원천이 사업자·점포 단위(소상공인 상가정보)라,
-			점포별 사업자등록이 없는 직영 체인은 통째로 빠져요. 서울 전체에서 &lsquo;스타벅스&rsquo;는 4건인데 매장은 0건이에요
-			(나머지는 본사와 무인 캡슐카페).`);
+	if (BRAND_STRIPPED.test(q)) {
+		reasons.push(`<b>가게는 있는데 상호명에 브랜드가 없어요.</b> 원천(상가정보)이 스타벅스 매장을
+			&lsquo;스타벅스 신사역점&rsquo;이 아니라 <code>신사역</code> 처럼 <b>지점명만</b>으로 등록해 뒀어요.
+			인허가 데이터와 좌표로 맞춰보니 100개 중 87개가 실제로 존재해요 — 이름만 없는 거예요.`);
 	}
 	if ($("sigungu").value.trim() || $("dong").value.trim() || $("category").value.trim() || $("geo").value) {
 		reasons.push(`<b>필터를 걸었어요.</b> 지금 데이터엔 <code>역삼동</code>이 없고 <code>역삼1동</code>·<code>역삼2동</code>만 있는 것처럼,
