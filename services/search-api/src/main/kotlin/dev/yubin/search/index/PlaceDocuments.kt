@@ -28,6 +28,14 @@ object PlaceDocuments {
 	fun suggestDoc(r: PlaceRow): Map<String, Any?> = buildMap {
 		put("place_id", r.placeId)
 		put("name", r.name)
+		r.brand?.let { put("brand", it) }
+		/*
+		 * 자동완성이 **실제로 매칭하고 보여주는** 값. 본문 검색과 달리 여기서는 브랜드를 별도
+		 * 필드로 두는 것만으로 부족하다 — '스타'를 쳤을 때 드롭다운에 뜨는 글자가 `개포동`이면
+		 * 사용자에게 아무 의미가 없다. 브랜드를 앞에 붙여 **한 덩어리로** 색인한다.
+		 * (자동완성 인덱스는 원래 표시 목적의 파생 인덱스다 — ADR 0002)
+		 */
+		put("label", listOfNotNull(r.brand, r.name).joinToString(" "))
 		// 자동완성 랭킹 신호: 짧은 이름일수록 대표 상호일 확률이 높다 (크리틱 #10).
 		put("name_length", r.name.length)
 		r.categorySmall?.let { put("category_small", it) }

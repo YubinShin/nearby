@@ -79,8 +79,10 @@ object PlaceQueries {
 		root.functionScore { fs ->
 			fs.query { q ->
 				q.bool { b ->
-					b.must { m -> m.match { mt -> mt.field("name").query(req.q).operator(Operator.And) } }
-					b.should { s -> s.prefix { p -> p.field("name.raw").value(req.q.lowercase()).boost(3.0f) } }
+					// `name` 이 아니라 `label`(브랜드+상호명)로 맞춘다 — 상호명에서 브랜드가 빠져
+					// 있던 가게도 '스타'로 걸려야 하고, 걸린 뒤 보여줄 글자도 이쪽이다.
+					b.must { m -> m.match { mt -> mt.field("label").query(req.q).operator(Operator.And) } }
+					b.should { s -> s.prefix { p -> p.field("label.raw").value(req.q.lowercase()).boost(3.0f) } }
 				}
 			}
 			fs.functions { f ->

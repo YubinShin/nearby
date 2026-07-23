@@ -23,6 +23,7 @@ data class SearchDoc(
 data class SuggestDoc(
 	val place_id: String = "",
 	val name: String = "",
+	val brand: String? = null,
 	val category_small: String? = null,
 	val dong: String? = null,
 )

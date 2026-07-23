@@ -85,6 +85,10 @@ class PlaceQueriesTest {
 		val q = json(PlaceQueries.suggest(SuggestRequest.of("스타")))
 
 		assertTrue("function_score" in q, q)
+		// 매칭 대상은 `name` 이 아니라 `label`(브랜드+상호명)이다. 상호명에서 브랜드가 빠져 있던
+		// 가게가 '스타'로 걸리려면 이 필드여야 한다 — 되돌아가면 스타벅스가 다시 안 뜬다.
+		assertTrue("\"label\"" in q, "자동완성은 label 로 매칭해야 한다: $q")
+		assertTrue("\"name\"" !in q, "name 으로 되돌아가면 브랜드 복원이 무의미해진다: $q")
 		assertTrue("prefix" in q, "이름이 그 글자로 시작하면 올려야 한다: $q")
 		assertTrue("name_length" in q && "reciprocal" in q, "짧은 이름 우선(길이 역수): $q")
 		assertTrue("multiply" in q, "BM25 점수에 곱해야 원래 관련도가 유지된다: $q")

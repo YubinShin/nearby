@@ -120,6 +120,8 @@ data class SearchResponse(
 data class SuggestItem(
 	val placeId: String,
 	val name: String,
+	/** 복원한 브랜드명. `/v1/search` 와 같은 규칙 — 있으면 클라이언트가 이름 앞에 붙여 보여준다. */
+	val brand: String? = null,
 	val category: String?,
 	val dong: String?,
 	val score: Double,

@@ -47,6 +47,7 @@ class PlaceSuggestService(
 					SuggestItem(
 						placeId = doc.place_id,
 						name = doc.name,
+						brand = doc.brand,
 						category = doc.category_small,
 						dong = doc.dong,
 						score = h.score() ?: 0.0,
