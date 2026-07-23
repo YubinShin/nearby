@@ -26,6 +26,8 @@ object PlaceDocuments {
 	fun suggestDoc(r: PlaceRow): Map<String, Any?> = buildMap {
 		put("place_id", r.placeId)
 		put("name", r.name)
+		// 자동완성 랭킹 신호: 짧은 이름일수록 대표 상호일 확률이 높다 (크리틱 #10).
+		put("name_length", r.name.length)
 		r.categorySmall?.let { put("category_small", it) }
 		r.sigungu?.let { put("sigungu", it) }
 		r.dong?.let { put("dong", it) }

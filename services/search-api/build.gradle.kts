@@ -33,6 +33,8 @@ dependencies {
 
 	// --- 공통 ---
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
+	// 질의 지연·색인 lag 지표 노출 (/actuator/prometheus)
+	runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("tools.jackson.module:jackson-module-kotlin")

@@ -11,6 +11,12 @@
           "token_chars": ["letter", "digit"]
         }
       },
+      "normalizer": {
+        "lowercase_norm": {
+          "type": "custom",
+          "filter": ["lowercase"]
+        }
+      },
       "analyzer": {
         "autocomplete_index": {
           "type": "custom",
@@ -28,7 +34,13 @@
   "mappings": {
     "properties": {
       "place_id":       { "type": "keyword" },
-      "name":           { "type": "text", "analyzer": "autocomplete_index", "search_analyzer": "autocomplete_search" },
+      "name":           {
+        "type": "text",
+        "analyzer": "autocomplete_index",
+        "search_analyzer": "autocomplete_search",
+        "fields": { "raw": { "type": "keyword", "normalizer": "lowercase_norm" } }
+      },
+      "name_length":    { "type": "integer" },
       "category_small": { "type": "keyword" },
       "sigungu":        { "type": "keyword" },
       "dong":           { "type": "keyword" },

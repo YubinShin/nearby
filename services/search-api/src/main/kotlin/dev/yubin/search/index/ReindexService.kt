@@ -5,6 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 import java.time.OffsetDateTime
 
@@ -35,8 +36,11 @@ data class IncrementalResult(
  * - **전체(rebuildAndSwap)**: 새 버전 생성 → 적재 → alias 원자적 스왑 → 옛 버전 삭제 (무중단, ADR 0002).
  *   적재가 실패하면 방금 만든 새 버전을 정리한다(고아 인덱스 방지).
  * - **증분(incremental)**: 체크포인트 이후 바뀐 행만 현재 alias 인덱스에 upsert/delete (멱등, ADR 0001).
+ *
+ * 쓰기(색인) 경로라 `psp.role.indexer` 로 켜고 끈다 — 질의 전용 노드에는 이 빈이 뜨지 않는다.
  */
 @Service
+@ConditionalOnProperty(prefix = "psp.role", name = ["indexer"], havingValue = "true", matchIfMissing = true)
 class ReindexService(
 	private val reader: PlaceR2dbcReader,
 	private val indexer: EsBulkIndexer,
@@ -156,6 +160,6 @@ class ReindexService(
 	}
 
 	companion object {
-		private const val PIPELINE = "place"
+		private const val PIPELINE = CheckpointStore.PLACE_PIPELINE
 	}
 }

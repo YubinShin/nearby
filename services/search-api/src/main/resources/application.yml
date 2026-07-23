@@ -19,12 +19,29 @@ management:
   endpoints:
     web:
       exposure:
-        include: health, info
+        include: health, info, metrics, prometheus
+  metrics:
+    tags:
+      application: search-api
+  # 질의 지연은 평균이 아니라 꼬리(p95/p99)로 봐야 의미가 있다.
+  distribution:
+    percentiles-histogram:
+      psp.query.latency: true
+    slo:
+      psp.query.latency: 10ms, 25ms, 50ms, 100ms, 250ms, 500ms
 
-# 색인 파이프라인 설정
 psp:
+  # 한 아티팩트를 역할별로 나눠 띄우기 위한 스위치 (색인 노드 / 질의 노드).
+  role:
+    indexer: true
+    query: true
+
+  # 색인 파이프라인 설정
   index:
     search-alias: place_search
     suggest-alias: place_suggest
     checkpoint-index: psp_index_checkpoint
     batch-size: 2000
+
+  metrics:
+    lag-refresh-ms: 10000

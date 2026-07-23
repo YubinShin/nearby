@@ -38,4 +38,9 @@ class CheckpointStore(
 			i.index(index).id(pipeline).document(Checkpoint(at.toString())).refresh(Refresh.True)
 		}
 	}
+
+	companion object {
+		/** 장소 색인 파이프라인의 체크포인트 문서 id. */
+		const val PLACE_PIPELINE = "place"
+	}
 }

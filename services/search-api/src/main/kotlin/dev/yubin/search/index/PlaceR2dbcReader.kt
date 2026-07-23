@@ -2,6 +2,7 @@ package dev.yubin.search.index
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.stereotype.Repository
 import java.time.OffsetDateTime
@@ -19,6 +20,18 @@ class PlaceR2dbcReader(private val client: DatabaseClient) {
 	/** 증분 색인용 — checkpoint '이후'에 바뀐 행만. 삭제된 행도 포함(그래야 ES에서 지울 수 있음). */
 	fun readSince(since: OffsetDateTime): Flow<PlaceRow> =
 		query(client.sql(SELECT_SINCE).bind("since", since))
+
+	/**
+	 * 원천에서 가장 최근에 바뀐 시각. 색인 lag 지표의 기준점이다.
+	 * `place_updated_at_idx` 덕에 인덱스 끝만 읽으면 되는 값싼 질의다.
+	 */
+	suspend fun maxUpdatedAt(): OffsetDateTime? =
+		// max() 대신 정렬+limit 1 — 인덱스 끝을 바로 집고, 빈 테이블이면 'null 값을 담은 한 행'이
+		// 아니라 아예 0행이 와서 널 처리가 단순해진다.
+		client.sql("select updated_at as ts from public.place order by updated_at desc limit 1")
+			.map { row, _ -> row.get("ts", OffsetDateTime::class.java)!! }
+			.one()
+			.awaitSingleOrNull()
 
 	private fun query(spec: org.springframework.r2dbc.core.DatabaseClient.GenericExecuteSpec): Flow<PlaceRow> =
 		spec
