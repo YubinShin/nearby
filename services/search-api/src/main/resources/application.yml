@@ -15,6 +15,13 @@ spring:
 server:
   port: 8080
 
+spring.web.resources.cache.cachecontrol:
+  # 앱이 서빙하는 비교 페이지(static/index.html)는 **개발·시연용**이라 매번 최신이어야 한다.
+  # 기본값이면 브라우저가 옛 HTML 을 붙들고 있어서 "고쳤는데 화면이 그대로"가 된다 (실제로 겪었다).
+  # 정적 자산이 늘어나면 파일명 해시를 붙이고 이 설정을 되돌리는 게 맞다.
+  no-cache: true
+  must-revalidate: true
+
 management:
   endpoints:
     web:

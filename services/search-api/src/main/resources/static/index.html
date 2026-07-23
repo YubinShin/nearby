@@ -48,6 +48,20 @@
 	.field { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--dim); }
 	.field input { width: 100px; padding: 6px 8px; font-size: 13px; }
 
+	/* ---- 자동완성 미리보기 ---- */
+	.ac { position: relative; flex: 1 1 320px; }
+	.ac #q { width: 100%; }
+	.aclist {
+		position: absolute; z-index: 5; left: 0; right: 0; top: calc(100% + 4px);
+		background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+		box-shadow: 0 6px 18px rgba(0,0,0,.10); overflow: hidden;
+	}
+	.aclist:empty { display: none; }
+	.acitem { padding: 7px 11px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 13px; }
+	.acitem:hover, .acitem.on { background: var(--bg); }
+	.acitem .sub { color: var(--dim); font-size: 12px; margin-left: auto; }
+	.achint { padding: 5px 11px; font-size: 11px; color: var(--dim); border-top: 1px solid var(--line); }
+
 	/* ---- 예시 질의 칩 ---- */
 	.chips { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 	.chips b { font-size: 12px; color: var(--dim); font-weight: 500; margin-right: 2px; }
@@ -115,7 +129,10 @@
 
 <form class="panel" id="form">
 	<div class="row">
-		<input id="q" placeholder="예: 회 먹을 데" autocomplete="off" autofocus>
+		<div class="ac">
+			<input id="q" placeholder="예: 회 먹을 데" autocomplete="off" autofocus>
+			<div class="aclist" id="aclist"></div>
+		</div>
 		<label class="field">size <input id="size" type="number" value="10" min="1" max="50"></label>
 		<button class="go" id="go" type="submit">검색</button>
 	</div>
@@ -320,7 +337,67 @@ function explainZero(q, results) {
 	box.classList.remove("hidden");
 }
 
-$("form").addEventListener("submit", (e) => { e.preventDefault(); search(); });
+/*
+ * 자동완성 미리보기 — /v1/suggest 를 그대로 붙였다.
+ * 세 채널 비교에 자동완성이 빠져 있으면 '브랜드가 어디까지 반영됐나'가 절반만 보인다.
+ * (자동완성은 `label`=브랜드+상호명 으로 매칭한다 — '스타벅' 으로 스타벅스 매장이 떠야 정상)
+ */
+let acTimer = null, acItems = [], acCursor = -1;
+
+function renderAc() {
+	const box = $("aclist");
+	if (!acItems.length) { box.innerHTML = ""; return; }
+	box.innerHTML = acItems.map((it, i) => `
+		<div class="acitem ${i === acCursor ? "on" : ""}" data-i="${i}">
+			${it.brand ? `<span class="brandtag">${esc(it.brand)}</span>` : ""}
+			<span>${esc(it.name)}</span>
+			<span class="sub">${esc(it.category ?? "")} ${esc(it.dong ?? "")}</span>
+		</div>`).join("") +
+		`<div class="achint">/v1/suggest — 브랜드+상호명(label)으로 매칭해요</div>`;
+	box.querySelectorAll(".acitem").forEach((el) => {
+		el.onclick = () => {
+			const it = acItems[Number(el.dataset.i)];
+			$("q").value = [it.brand, it.name].filter(Boolean).join(" ");
+			closeAc(); search();
+		};
+	});
+}
+
+function closeAc() { acItems = []; acCursor = -1; renderAc(); }
+
+async function fetchAc() {
+	const q = $("q").value.trim();
+	if (!q) return closeAc();
+	try {
+		const p = new URLSearchParams({ q, size: "6" });
+		const res = await fetch(`/v1/suggest?${p}`);
+		acItems = res.ok ? (await res.json()).items ?? [] : [];
+	} catch { acItems = []; }
+	acCursor = -1;
+	renderAc();
+}
+
+$("q").addEventListener("input", () => {
+	clearTimeout(acTimer);
+	// 한 글자마다 부르면 호출량이 본문 검색의 몇 배가 된다. 사람이 멈춘 뒤에만 묻는다.
+	acTimer = setTimeout(fetchAc, 180);
+});
+$("q").addEventListener("keydown", (e) => {
+	if (!acItems.length) return;
+	if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+		e.preventDefault();
+		acCursor = (acCursor + (e.key === "ArrowDown" ? 1 : acItems.length - 1) + acItems.length) % acItems.length;
+		renderAc();
+	} else if (e.key === "Enter" && acCursor >= 0) {
+		e.preventDefault();
+		const it = acItems[acCursor];
+		$("q").value = [it.brand, it.name].filter(Boolean).join(" ");
+		closeAc(); search();
+	} else if (e.key === "Escape") { closeAc(); }
+});
+document.addEventListener("click", (e) => { if (!e.target.closest(".ac")) closeAc(); });
+
+$("form").addEventListener("submit", (e) => { e.preventDefault(); closeAc(); search(); });
 </script>
 </body>
 </html>
