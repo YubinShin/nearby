@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>place-search-platform — 세 채널 비교</title>
+<style>
+	/*
+	 * 검색 데모가 아니라 **비교 도구**다.
+	 * 이 프로젝트의 핵심 주장("글자 검색과 뜻 검색은 서로의 실패를 메운다")은
+	 * 한 채널만 보면 안 보이고, 셋을 나란히 놓아야 5초 만에 보인다.
+	 */
+	:root {
+		--bg: #f7f7f8; --panel: #fff; --line: #e3e3e6; --ink: #1c1c1f; --dim: #6b6b73;
+		--kw: #2563eb; --vec: #9333ea; --hyb: #059669; --warn: #b45309; --bad: #b91c1c;
+		--radius: 10px;
+	}
+	@media (prefers-color-scheme: dark) {
+		:root {
+			--bg: #17171a; --panel: #1f1f23; --line: #33333a; --ink: #ececed; --dim: #9a9aa4;
+			--kw: #7ba4ff; --vec: #c78dff; --hyb: #4ade80; --warn: #fbbf24; --bad: #fca5a5;
+		}
+	}
+	* { box-sizing: border-box; }
+	body {
+		margin: 0; background: var(--bg); color: var(--ink);
+		font: 14px/1.55 -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", sans-serif;
+	}
+	.wrap { max-width: 1400px; margin: 0 auto; padding: 22px 18px 60px; }
+
+	header h1 { font-size: 18px; margin: 0 0 4px; letter-spacing: -.2px; }
+	header p { margin: 0 0 18px; color: var(--dim); font-size: 13px; }
+
+	.panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+
+	/* ---- 검색 입력 ---- */
+	form { padding: 14px; margin-bottom: 14px; }
+	.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+	.row + .row { margin-top: 10px; }
+	input, select, button {
+		font: inherit; color: inherit; background: var(--bg);
+		border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px;
+	}
+	input:focus, select:focus { outline: 2px solid var(--kw); outline-offset: -1px; }
+	#q { flex: 1 1 320px; font-size: 15px; }
+	button.go { background: var(--ink); color: var(--panel); border-color: var(--ink); cursor: pointer; padding: 8px 18px; font-weight: 600; }
+	button.go:disabled { opacity: .5; cursor: default; }
+	.field { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--dim); }
+	.field input { width: 100px; padding: 6px 8px; font-size: 13px; }
+
+	/* ---- 예시 질의 칩 ---- */
+	.chips { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+	.chips b { font-size: 12px; color: var(--dim); font-weight: 500; margin-right: 2px; }
+	.chip {
+		cursor: pointer; font-size: 12px; padding: 4px 10px; border-radius: 999px;
+		border: 1px solid var(--line); background: transparent; color: var(--dim);
+	}
+	.chip:hover { border-color: var(--ink); color: var(--ink); }
+	.chip small { opacity: .7; margin-left: 5px; }
+
+	/* ---- 결과 3열 ---- */
+	.cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; align-items: start; }
+	@media (max-width: 900px) { .cols { grid-template-columns: 1fr; } }
+
+	.col > h2 {
+		display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+		margin: 0; padding: 11px 13px; border-bottom: 1px solid var(--line); font-size: 14px;
+	}
+	.col[data-c="keyword"] h2 .dot { background: var(--kw); }
+	.col[data-c="vector"]  h2 .dot { background: var(--vec); }
+	.col[data-c="hybrid"]  h2 .dot { background: var(--hyb); }
+	.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+	h2 .meta { margin-left: auto; font-weight: 400; font-size: 12px; color: var(--dim); }
+	h2 .sub { font-weight: 400; font-size: 12px; color: var(--dim); }
+
+	.hits { list-style: none; margin: 0; padding: 0; }
+	.hit { padding: 10px 13px; border-bottom: 1px solid var(--line); }
+	.hit:last-child { border-bottom: 0; }
+	.hit .name { font-weight: 600; }
+	.hit .name em { font-style: normal; color: var(--dim); font-weight: 400; font-size: 12px; margin-left: 4px; }
+	.hit .cat { font-size: 12px; color: var(--dim); }
+	.hit .addr { font-size: 12px; color: var(--dim); margin-top: 2px; }
+	.hit .badges { margin-top: 6px; display: flex; gap: 5px; flex-wrap: wrap; }
+
+	.tag { font-size: 11px; padding: 2px 7px; border-radius: 5px; border: 1px solid var(--line); color: var(--dim); font-variant-numeric: tabular-nums; }
+	.tag.kw  { color: var(--kw);  border-color: color-mix(in srgb, var(--kw) 40%, transparent); }
+	.tag.vec { color: var(--vec); border-color: color-mix(in srgb, var(--vec) 40%, transparent); }
+	.tag.both { color: var(--hyb); border-color: color-mix(in srgb, var(--hyb) 45%, transparent); font-weight: 600; }
+
+	.note { padding: 10px 13px; font-size: 12px; color: var(--dim); }
+	.note.zero { color: var(--warn); }
+	.note.fail { color: var(--bad); }
+	.banner { margin: 0 0 14px; padding: 10px 13px; font-size: 13px; }
+	.banner.fail { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 40%, transparent); }
+	.hidden { display: none; }
+	footer { margin-top: 22px; font-size: 12px; color: var(--dim); }
+	footer code { background: var(--panel); padding: 1px 5px; border-radius: 4px; border: 1px solid var(--line); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+	<h1>place-search-platform — 세 채널 비교</h1>
+	<p>같은 질의를 <b>글자 검색</b>·<b>뜻 검색</b>·<b>둘을 합친 것</b>에 동시에 던져 나란히 봅니다. 강남구 상가정보 64,239건.</p>
+</header>
+
+<div id="banner" class="panel banner fail hidden"></div>
+
+<form class="panel" id="form">
+	<div class="row">
+		<input id="q" placeholder="예: 회 먹을 데" autocomplete="off" autofocus>
+		<label class="field">size <input id="size" type="number" value="10" min="1" max="50"></label>
+		<button class="go" id="go" type="submit">검색</button>
+	</div>
+	<div class="row">
+		<label class="field">시군구 <input id="sigungu" placeholder="강남구"></label>
+		<label class="field">행정동 <input id="dong" placeholder="역삼1동"></label>
+		<label class="field">카테고리 <input id="category" placeholder="음식"></label>
+		<label class="field">
+			위치
+			<select id="geo">
+				<option value="">안 씀</option>
+				<option value="37.4979,127.0276">강남역</option>
+				<option value="37.5045,127.0489">선릉역</option>
+				<option value="37.5273,127.0286">압구정역</option>
+			</select>
+		</label>
+		<label class="field">반경(m) <input id="radius" type="number" value="500" min="1" max="50000"></label>
+	</div>
+	<div class="row chips" id="chips"><b>실측에서 나온 예시</b></div>
+</form>
+
+<div class="cols">
+	<section class="panel col" data-c="keyword">
+		<h2><span class="dot"></span>키워드 <span class="sub">글자</span><span class="meta" id="m-keyword">–</span></h2>
+		<div id="r-keyword"><p class="note">검색어를 입력하세요.</p></div>
+	</section>
+	<section class="panel col" data-c="vector">
+		<h2><span class="dot"></span>벡터 <span class="sub">뜻</span><span class="meta" id="m-vector">–</span></h2>
+		<div id="r-vector"><p class="note">–</p></div>
+	</section>
+	<section class="panel col" data-c="hybrid">
+		<h2><span class="dot"></span>하이브리드 <span class="sub">RRF 결합</span><span class="meta" id="m-hybrid">–</span></h2>
+		<div id="r-hybrid"><p class="note">–</p></div>
+	</section>
+</div>
+
+<footer>
+	하이브리드 결과의 <span class="tag kw">KW #2</span> <span class="tag vec">VEC #43</span> 배지는
+	<b>그 채널에서 몇 등이었는지</b>와 <b>원점수</b>입니다. 둘 다 붙어 있으면 두 채널이 합의한 결과예요 —
+	RRF가 그걸 위로 올립니다. 자세한 건 <code>docs/api-spec.md</code> · <code>docs/adr/0003-…</code>.
+</footer>
+
+</div>
+
+<script>
+// 예시 질의 — 전부 문서에 실측으로 기록된 것들이다. 눌러 보면 그 관찰이 재현된다.
+const EXAMPLES = [
+	{ q: "회 먹을 데",     why: "키워드 0건" },
+	{ q: "머리 자르는 곳",  why: "키워드 0건" },
+	{ q: "혼밥하기 좋은 집", why: "키워드 0건" },
+	{ q: "스타벅스",       why: "원천에 없음" },
+	{ q: "차 고치는 곳",    why: "벡터가 낚임" },
+	{ q: "ㅁㄴㅇㄹ",       why: "엉터리" },
+	{ q: "역삼동 카페",     why: "둘 다 잘함" },
+	{ q: "강남 치과",      why: "둘 다 잘함" },
+];
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const num = (n, d = 3) => (n == null ? "–" : Number(n).toFixed(d));
+
+const chips = $("chips");
+for (const ex of EXAMPLES) {
+	const b = document.createElement("button");
+	b.type = "button";
+	b.className = "chip";
+	b.innerHTML = `${esc(ex.q)}<small>${esc(ex.why)}</small>`;
+	b.onclick = () => { $("q").value = ex.q; search(); };
+	chips.append(b);
+}
+
+function params() {
+	const p = new URLSearchParams();
+	p.set("q", $("q").value.trim());
+	p.set("size", $("size").value || "10");
+	for (const k of ["sigungu", "dong", "category"]) {
+		const v = $(k).value.trim();
+		if (v) p.set(k, v);
+	}
+	const geo = $("geo").value;
+	if (geo) {
+		const [lat, lon] = geo.split(",");
+		p.set("lat", lat); p.set("lon", lon);
+		p.set("radius", $("radius").value || "500");
+	}
+	return p;
+}
+
+async function call(path, p) {
+	const started = performance.now();
+	const res = await fetch(`${path}?${p}`);
+	if (!res.ok) throw new Error(`${path} → HTTP ${res.status}`);
+	const body = await res.json();
+	return { body, rtt: Math.round(performance.now() - started) };
+}
+
+/** 하이브리드 hit 의 ranks/scores 를 배지로. 두 채널이 다 찾았으면 '합의' 로 강조한다. */
+function badges(hit) {
+	const ranks = hit.ranks || {}, scores = hit.scores || {};
+	const agreed = Object.keys(ranks).length === 2;
+	const out = [];
+	if (ranks.keyword != null) out.push(`<span class="tag ${agreed ? "both" : "kw"}">KW #${ranks.keyword} · ${num(scores.keyword, 1)}</span>`);
+	if (ranks.vector != null) out.push(`<span class="tag ${agreed ? "both" : "vec"}">VEC #${ranks.vector} · ${num(scores.vector)}</span>`);
+	if (agreed) out.push(`<span class="tag both">두 채널 합의</span>`);
+	return out.join("");
+}
+
+function renderHits(channel, body) {
+	const hits = body.hits || [];
+	if (!hits.length) {
+		return `<p class="note zero">0건 — ${channel === "vector"
+			? "문턱(0.84)을 넘은 결과가 없어요."
+			: "글자가 겹치는 문서가 없어요."}</p>`;
+	}
+	return `<ul class="hits">` + hits.map((h) => `
+		<li class="hit">
+			<div class="name">${esc(h.name)}${h.branch ? `<em>${esc(h.branch)}</em>` : ""}</div>
+			<div class="cat">${esc(h.category ?? "–")} · ${esc(h.dong ?? h.sigungu ?? "–")}${
+				h.distanceM != null ? ` · ${h.distanceM}m` : ""}</div>
+			${h.address ? `<div class="addr">${esc(h.address)}</div>` : ""}
+			<div class="badges">
+				${channel === "hybrid" ? badges(h) : `<span class="tag">score ${num(h.score, channel === "keyword" ? 1 : 3)}</span>`}
+			</div>
+		</li>`).join("") + `</ul>`;
+}
+
+function renderChannel(channel, result) {
+	const meta = $(`m-${channel}`), box = $(`r-${channel}`);
+	if (result.status === "rejected") {
+		meta.textContent = "실패";
+		box.innerHTML = `<p class="note fail">호출 실패 — ${esc(result.reason.message)}</p>`;
+		return;
+	}
+	const { body, rtt } = result.value;
+	const bits = [`total ${body.total}`, `${body.tookMs}ms`];
+	if (body.relaxed) bits.push("완화 재질의");
+	if (body.degraded) bits.push("⚠ 반쪽 응답");
+	meta.textContent = bits.join(" · ") + ` (왕복 ${rtt}ms)`;
+
+	let head = "";
+	if (body.degraded && body.channels) {
+		const dead = body.channels.filter((c) => c.failed).map((c) => c.name).join(", ");
+		head = `<p class="note fail">${esc(dead)} 채널이 죽어서 나머지로만 답했어요.</p>`;
+	}
+	box.innerHTML = head + renderHits(channel, body);
+}
+
+async function search() {
+	const q = $("q").value.trim();
+	if (!q) return;
+	$("go").disabled = true;
+	$("banner").classList.add("hidden");
+	for (const c of ["keyword", "vector", "hybrid"]) {
+		$(`m-${c}`).textContent = "…";
+		$(`r-${c}`).innerHTML = `<p class="note">찾는 중…</p>`;
+	}
+
+	const p = params();
+	// 세 채널을 동시에 부른다. 하나가 죽어도 나머지는 보여준다 — 서버의 degraded 와 같은 태도.
+	const results = await Promise.allSettled([
+		call("/v1/search", p), call("/v1/vsearch", p), call("/v1/hsearch", p),
+	]);
+	["keyword", "vector", "hybrid"].forEach((c, i) => renderChannel(c, results[i]));
+
+	if (results.every((r) => r.status === "rejected")) {
+		$("banner").textContent = "세 채널 모두 실패했어요. 앱이 떠 있는지 확인해 주세요 (./gradlew bootRun).";
+		$("banner").classList.remove("hidden");
+	}
+	$("go").disabled = false;
+}
+
+$("form").addEventListener("submit", (e) => { e.preventDefault(); search(); });
+</script>
+</body>
+</html>

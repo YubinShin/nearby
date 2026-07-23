@@ -20,6 +20,7 @@
 | `POST` | [`/admin/vector/reindex`](#post-adminvectorreindex) | 무중단 전체 재색인 (벡터) | ✅ |
 | `POST` | `/admin/vector/reindex/incremental` | 증분 색인 (벡터) | ✅ |
 | `GET` | `/actuator/health` · `/actuator/prometheus` | 상태·지표 | ✅ |
+| `GET` | `/` | 세 채널 비교 페이지 (개발·시연용 정적 HTML) | ✅ |
 
 ---
 
