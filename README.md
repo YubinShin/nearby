@@ -130,6 +130,10 @@ curl -G localhost:8080/v1/hsearch --data-urlencode "q=회 먹을 데"
 #    먼저 서울 상가정보 CSV 를 data/raw 에 두세요 — 출처는 docs/data-model.md
 ./scripts/load_place.sh
 
+# 2-1) 두 번째 원천 + 행정동 경계 (상가정보가 못 담는 직영 프랜차이즈를 메움)
+./scripts/load_boundaries.sh
+./scripts/load_localdata.sh
+
 # 3) 임베딩 모델 내려받기 (470MB — 벡터/하이브리드 검색에 필요)
 ./scripts/fetch_embedding_model.sh
 
