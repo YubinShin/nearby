@@ -18,3 +18,6 @@ echo "▶ 3/3  docker compose up (ES 이미지 빌드 포함)"
 docker compose -f deploy/docker-compose.yml up -d --build
 
 echo "✔ 기동 완료. ES 상태:  curl -s localhost:9200/_cat/plugins?v"
+echo "  KOMORAN 사용자 사전은 deploy/elasticsearch/analysis/komoran/place.dict 를 마운트해 쓴다."
+echo "  원천 데이터가 바뀌었다면 재생성 후 재색인:"
+echo "    python3 scripts/build_komoran_dict.py && curl -XPOST localhost:8080/admin/reindex"

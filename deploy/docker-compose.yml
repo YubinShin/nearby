@@ -26,6 +26,10 @@ services:
       - "9200:9200"
     volumes:
       - es-data:/usr/share/elasticsearch/data
+      # KOMORAN 사용자 사전. 이미지에 굽지 않고 마운트하는 이유: 사전은 원천 데이터에서 **생성되는
+      # 산출물**이라 자주 바뀐다 (scripts/build_komoran_dict.py). 이미지 재빌드 없이 갈아끼우되,
+      # 반영에는 인덱스 재생성이 필요하다 — 색인과 검색이 같은 사전을 봐야 하기 때문 (ADR 0008).
+      - ./elasticsearch/analysis:/usr/share/elasticsearch/config/analysis:ro
     healthcheck:
       test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1"]
       interval: 10s

@@ -22,7 +22,7 @@ public class KomoranAnalysisPlugin extends Plugin implements AnalysisPlugin {
     @Override
     public Map<String, AnalysisProvider<TokenizerFactory>> getTokenizers() {
         return Map.of("komoran_tokenizer",
-                (indexSettings, environment, name, settings) -> new KomoranTokenizerFactory(name));
+                (indexSettings, environment, name, settings) -> new KomoranTokenizerFactory(environment, name, settings));
     }
 
     @Override

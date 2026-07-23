@@ -3,10 +3,16 @@
     "number_of_shards": 1,
     "number_of_replicas": 0,
     "analysis": {
+      "tokenizer": {
+        "komoran_place": {
+          "type": "komoran_tokenizer",
+          "user_dictionary": "analysis/komoran/place.dict"
+        }
+      },
       "analyzer": {
         "komoran": {
           "type": "custom",
-          "tokenizer": "komoran_tokenizer",
+          "tokenizer": "komoran_place",
           "filter": ["komoran_pos_stop", "lowercase"]
         }
       }
