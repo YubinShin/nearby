@@ -153,6 +153,7 @@ curl -XPOST localhost:8080/admin/vector/reindex   # 6만 건에 약 9분 — 95.
 
 | 문서 | 내용 |
 |---|---|
+| [glossary.md](docs/glossary.md) | **용어 사전** — 문서에 나오는 말을 쉬운 말로 |
 | [api-spec.md](docs/api-spec.md) | API 명세 — 파라미터·응답·주의점 |
 | [architecture.md](docs/architecture.md) | 구조와 각 조각의 역할 |
 | [architecture-review.md](docs/architecture-review.md) | **셀프 크리틱 19건** |
