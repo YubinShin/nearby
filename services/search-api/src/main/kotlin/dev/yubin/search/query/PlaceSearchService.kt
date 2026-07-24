@@ -13,7 +13,6 @@ import dev.yubin.search.observability.QueryMetrics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 import kotlin.math.roundToLong
 
@@ -27,7 +26,6 @@ import kotlin.math.roundToLong
  * (ADR 0003). 그래서 결합에 필요한 것(순위·점수·place_id)을 온전히 돌려주는 게 이 클래스의 계약이다.
  */
 @Service
-@ConditionalOnProperty(prefix = "psp.role", name = ["query"], havingValue = "true", matchIfMissing = true)
 class PlaceSearchService(
 	private val es: ElasticsearchClient,
 	private val metrics: QueryMetrics,

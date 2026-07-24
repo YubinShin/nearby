@@ -1,4 +1,4 @@
-package dev.yubin.search.vector
+package dev.yubin.search.indexer.vector
 
 import dev.yubin.search.core.embed.EmbeddingModel
 import dev.yubin.search.core.embed.PlaceVectorText
@@ -6,8 +6,8 @@ import dev.yubin.search.core.place.PlaceRow
 import dev.yubin.search.core.vector.PlaceVectorPayload
 import dev.yubin.search.core.vector.QdrantStore
 import dev.yubin.search.core.vector.VectorPoint
-import dev.yubin.search.index.CheckpointStore
-import dev.yubin.search.index.PlaceR2dbcReader
+import dev.yubin.search.indexer.index.CheckpointStore
+import dev.yubin.search.indexer.index.PlaceR2dbcReader
 import kotlinx.coroutines.flow.Flow
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -48,7 +48,7 @@ data class VectorIncrementalResult(
  */
 @Service
 @ConditionalOnProperty(
-	name = ["psp.role.indexer", "psp.vector.enabled"],
+	name = ["psp.vector.enabled"],
 	havingValue = "true",
 	matchIfMissing = true,
 )

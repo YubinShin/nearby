@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: indexer-batch
+
+  # 질의기와 **같아야 하는** 설정은 search-core 가 소유한다 (ES 주소·alias·임베딩 설정).
+  config:
+    import: classpath:core.yml
+
+  # PostGIS 원천 창고 (R2DBC) — 색인기가 여기서 읽어 ES·Qdrant 로 옮긴다.
+  # **검색 API 에는 이 설정이 없다.** 질의 경로가 원천 창고를 여는 일은 없어야 한다.
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/place
+    username: place
+    password: place
+
+server:
+  # 검색 API(8080)와 같은 장비에서 함께 띄울 수 있게 포트를 나눈다.
+  port: 8081
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, prometheus
+  metrics:
+    tags:
+      application: indexer-batch
+
+psp:
+  # 색인 파이프라인 설정
+  index:
+    checkpoint-index: psp_index_checkpoint
+    # ES bulk 한 번에 보낼 문서 수.
+    batch-size: 2000
+
+  vector:
+    # 원천에서 한 번에 읽어 처리할 행 수. 임베딩 추론이 색인 시간의 대부분이라
+    # ES bulk 배치(2000)보다 훨씬 작게 잡는다.
+    batch-size: 500
+
+  embedding:
+    # 한 번에 추론기에 넣는 문장 수. 질의기는 한 문장씩 임베딩하므로 색인기만 쓴다.
+    batch-size: 64
+
+  metrics:
+    lag-refresh-ms: 10000

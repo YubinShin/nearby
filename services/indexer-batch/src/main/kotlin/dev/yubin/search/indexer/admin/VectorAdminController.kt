@@ -1,8 +1,8 @@
-package dev.yubin.search.admin
+package dev.yubin.search.indexer.admin
 
-import dev.yubin.search.vector.VectorIncrementalResult
-import dev.yubin.search.vector.VectorIndexService
-import dev.yubin.search.vector.VectorRebuildResult
+import dev.yubin.search.indexer.vector.VectorIncrementalResult
+import dev.yubin.search.indexer.vector.VectorIndexService
+import dev.yubin.search.indexer.vector.VectorRebuildResult
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/admin/vector")
 @ConditionalOnProperty(
-	name = ["psp.role.indexer", "psp.vector.enabled"],
+	name = ["psp.vector.enabled"],
 	havingValue = "true",
 	matchIfMissing = true,
 )

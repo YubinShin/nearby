@@ -1,4 +1,4 @@
-package dev.yubin.search.index
+package dev.yubin.search.indexer.index
 
 import dev.yubin.search.core.place.PlaceDocuments
 import dev.yubin.search.core.place.PlaceRow
@@ -7,7 +7,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 import java.time.OffsetDateTime
 
@@ -39,10 +38,9 @@ data class IncrementalResult(
  *   적재가 실패하면 방금 만든 새 버전을 정리한다(고아 인덱스 방지).
  * - **증분(incremental)**: 체크포인트 이후 바뀐 행만 현재 alias 인덱스에 upsert/delete (멱등, ADR 0001).
  *
- * 쓰기(색인) 경로라 `psp.role.indexer` 로 켜고 끈다 — 질의 전용 노드에는 이 빈이 뜨지 않는다.
+ * 쓰기(색인) 경로라 `indexer-batch` 아티팩트에만 있다 — 질의 앱의 클래스패스에 이 클래스는 없다.
  */
 @Service
-@ConditionalOnProperty(prefix = "psp.role", name = ["indexer"], havingValue = "true", matchIfMissing = true)
 class ReindexService(
 	private val reader: PlaceR2dbcReader,
 	private val indexer: EsBulkIndexer,

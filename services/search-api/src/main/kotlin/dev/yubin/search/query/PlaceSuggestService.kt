@@ -7,7 +7,6 @@ import dev.yubin.search.observability.QueryMetrics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 
 /**
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Service
  * 캐시와 세그먼트를 서로 밀어낸다.
  */
 @Service
-@ConditionalOnProperty(prefix = "psp.role", name = ["query"], havingValue = "true", matchIfMissing = true)
 class PlaceSuggestService(
 	private val es: ElasticsearchClient,
 	private val metrics: QueryMetrics,

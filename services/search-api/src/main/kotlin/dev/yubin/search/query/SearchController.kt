@@ -2,7 +2,6 @@ package dev.yubin.search.query
 
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController
  */
 @RestController
 @RequestMapping("/v1")
-@ConditionalOnProperty(prefix = "psp.role", name = ["query"], havingValue = "true", matchIfMissing = true)
 class SearchController(
 	private val searchService: PlaceSearchService,
 	private val suggestService: PlaceSuggestService,

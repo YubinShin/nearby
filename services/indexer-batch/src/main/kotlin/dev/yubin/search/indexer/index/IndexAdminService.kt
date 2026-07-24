@@ -1,4 +1,4 @@
-package dev.yubin.search.index
+package dev.yubin.search.indexer.index
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient
 import kotlinx.coroutines.Dispatchers

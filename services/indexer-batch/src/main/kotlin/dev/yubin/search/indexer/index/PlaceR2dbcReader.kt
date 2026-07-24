@@ -1,4 +1,4 @@
-package dev.yubin.search.index
+package dev.yubin.search.indexer.index
 
 import dev.yubin.search.core.place.PlaceRow
 import kotlinx.coroutines.flow.Flow

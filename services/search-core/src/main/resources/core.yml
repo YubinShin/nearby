@@ -1,0 +1,39 @@
+# 색인기와 질의기가 **반드시 같아야 하는 설정**. 두 앱이 `spring.config.import` 로 이 파일을 읽는다.
+#
+# 왜 따로 두나 — 모듈을 쪼개면서 application.yml 을 그냥 복사해 나눴다면, 여기 값들이
+# 한쪽에서만 바뀌는 사고가 언제든 난다. 그리고 그 사고는 **예외를 던지지 않는다**:
+#   · alias 가 어긋나면  → 색인기는 place_search_v9 를 채우고 질의기는 v8 을 읽는다. 결과만 낡는다.
+#   · 임베딩 설정이 어긋나면 → 문서 벡터와 질의 벡터가 다른 공간에 놓인다. 점수만 의미를 잃는다.
+# 코드(search-core)와 같은 이유로 설정도 한 벌만 둔다 (ADR 0011).
+#
+# 런타임에도 한 번 더 확인한다 — IndexMeta 가 인덱스에 심어둔 버전을 질의기가 기동 시 대조한다.
+
+spring:
+  # Elasticsearch (리액티브 클라이언트) — 로컬 docker compose 기준.
+  elasticsearch:
+    uris: http://localhost:9200
+
+psp:
+  # 인덱스 alias — 색인기가 채우고 질의기가 읽는 **같은 이름**이어야 한다 (ADR 0002).
+  index:
+    search-alias: place_search
+    suggest-alias: place_suggest
+
+  # 벡터(뜻) 검색 — 5단계 (ADR 0007, 0010)
+  qdrant:
+    url: http://localhost:6333
+
+  vector:
+    # false 로 두면 임베딩 모델을 아예 안 읽는다(메모리 0.5GB 절약). 키워드 검색만 쓰는 노드용.
+    enabled: true
+    alias: place_vec
+
+  embedding:
+    # 색인과 질의가 **같은 모델·같은 전처리**를 써야 한다 (ADR 0010). 이 세 값이 갈리면
+    # 두 벡터가 서로 다른 공간에 놓여 유사도가 의미를 잃는다 — 그런데 에러는 안 난다.
+    # scripts/fetch_embedding_model.sh 가 저장소 루트 models/ 아래에 받아둔다.
+    model-dir: ${PSP_MODEL_DIR:models/multilingual-e5-small}
+    # 상호명+카테고리+지역은 짧다. 512 를 다 쓰면 배치 추론만 느려진다.
+    max-tokens: 64
+    # 동시에 추론에 들어갈 수 있는 요청 수. 코어 수보다 크게 잡으면 서로 느려진다.
+    pool-size: 2

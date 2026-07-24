@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/v1")
 @ConditionalOnProperty(
-	name = ["psp.role.query", "psp.vector.enabled"],
+	name = ["psp.vector.enabled"],
 	havingValue = "true",
 	matchIfMissing = true,
 )

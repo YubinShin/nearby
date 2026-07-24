@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit
  */
 @Service
 @ConditionalOnProperty(
-	name = ["psp.role.query", "psp.vector.enabled", "psp.hybrid.enabled"],
+	name = ["psp.vector.enabled", "psp.hybrid.enabled"],
 	havingValue = "true",
 	matchIfMissing = true,
 )

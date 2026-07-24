@@ -27,7 +27,7 @@ import java.util.Collections
  */
 @Service
 @ConditionalOnProperty(
-	name = ["psp.role.query", "psp.vector.enabled"],
+	name = ["psp.vector.enabled"],
 	havingValue = "true",
 	matchIfMissing = true,
 )

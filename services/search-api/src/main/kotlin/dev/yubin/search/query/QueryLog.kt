@@ -1,7 +1,6 @@
 package dev.yubin.search.query
 
 import org.slf4j.LoggerFactory
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 
 /**
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Component
  * 쿠키리스 임시 UUID 를 붙이되, 재방문 추적으로 넘어가지 않는다.
  */
 @Component
-@ConditionalOnProperty(prefix = "psp.role", name = ["query"], havingValue = "true", matchIfMissing = true)
 class QueryLog {
 
 	/**

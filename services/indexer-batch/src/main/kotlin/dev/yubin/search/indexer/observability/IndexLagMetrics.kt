@@ -1,12 +1,11 @@
-package dev.yubin.search.observability
+package dev.yubin.search.indexer.observability
 
-import dev.yubin.search.index.CheckpointStore
-import dev.yubin.search.index.PlaceR2dbcReader
+import dev.yubin.search.indexer.index.CheckpointStore
+import dev.yubin.search.indexer.index.PlaceR2dbcReader
 import io.micrometer.core.instrument.Gauge
 import io.micrometer.core.instrument.MeterRegistry
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.time.Duration
@@ -27,7 +26,6 @@ import java.util.concurrent.atomic.AtomicLong
  * 값 -1 은 "아직 체크포인트 없음"(전체 재색인 전).
  */
 @Component
-@ConditionalOnProperty(prefix = "psp.role", name = ["indexer"], havingValue = "true", matchIfMissing = true)
 class IndexLagMetrics(
 	registry: MeterRegistry,
 	private val checkpoints: CheckpointStore,

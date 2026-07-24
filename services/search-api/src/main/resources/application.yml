@@ -2,15 +2,10 @@ spring:
   application:
     name: search-api
 
-  # Elasticsearch (리액티브 클라이언트) — 로컬 docker compose 기준. 0-2 단계에서 기동.
-  elasticsearch:
-    uris: http://localhost:9200
-
-  # PostGIS 원천 창고 (R2DBC) — 색인기가 여기서 읽어 ES로 옮김.
-  r2dbc:
-    url: r2dbc:postgresql://localhost:5432/place
-    username: place
-    password: place
+  # 색인기와 **같아야 하는** 설정은 search-core 가 소유한다 (ES 주소·alias·임베딩 설정).
+  # 여기에 복사해 두면 언젠가 한쪽만 바뀌고, 그 사고는 예외 없이 결과만 이상하게 만든다.
+  config:
+    import: classpath:core.yml
 
 server:
   port: 8080
@@ -39,31 +34,7 @@ management:
       psp.query.latency: 10ms, 25ms, 50ms, 100ms, 250ms, 500ms
 
 psp:
-  # 한 아티팩트를 역할별로 나눠 띄우기 위한 스위치 (색인 노드 / 질의 노드).
-  role:
-    indexer: true
-    query: true
-
-  # 색인 파이프라인 설정
-  index:
-    search-alias: place_search
-    suggest-alias: place_suggest
-    checkpoint-index: psp_index_checkpoint
-    batch-size: 2000
-
-  metrics:
-    lag-refresh-ms: 10000
-
-  # 벡터(뜻) 검색 — 5단계 (ADR 0007, 0010)
-  qdrant:
-    url: http://localhost:6333
-
   vector:
-    # false 로 두면 임베딩 모델을 아예 안 읽는다(메모리 0.5GB 절약). 키워드 검색만 쓰는 노드용.
-    enabled: true
-    alias: place_vec
-    # 원천에서 한 번에 읽어 처리할 행 수.
-    batch-size: 500
     # 코사인 유사도 문턱. 벡터 검색은 "0건"이 없어서 이 선이 없으면 아무 말에나 답을 준다.
     # 실측으로 정한 값: 진짜 질의 20개는 전부 통과(최소 5건 확보)하면서 엉터리 질의 12개 중
     # 10개를 막는 지점. 0.86 으로 올리면 진짜 질의 8개가 0건이 된다 — ADR 0010 분포표 참고.
@@ -82,14 +53,3 @@ psp:
     # 채널 가중치. 1:1 이 기본이고, 한쪽을 신뢰하지 못할 때 낮춘다.
     keyword-weight: 1.0
     vector-weight: 1.0
-
-  embedding:
-    # scripts/fetch_embedding_model.sh 가 저장소 루트 models/ 아래에 받아둔다.
-    # 다른 곳에 두면 PSP_MODEL_DIR 로 알려준다.
-    model-dir: ${PSP_MODEL_DIR:models/multilingual-e5-small}
-    # 상호명+카테고리+지역은 짧다. 512 를 다 쓰면 배치 추론만 느려진다.
-    max-tokens: 64
-    # 한 번에 추론기에 넣는 문장 수.
-    batch-size: 64
-    # 동시에 추론에 들어갈 수 있는 요청 수. 코어 수보다 크게 잡으면 서로 느려진다.
-    pool-size: 2
