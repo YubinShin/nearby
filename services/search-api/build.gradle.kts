@@ -1,21 +1,10 @@
+// 버전은 루트(`services/build.gradle.kts`)가 못박는다. 여기서는 "무엇인지"만 선언한다 —
+// 이 모듈은 **실행 가능한 앱**이다(bootJar).
 plugins {
-	kotlin("jvm") version "2.3.21"
-	kotlin("plugin.spring") version "2.3.21"
-	id("org.springframework.boot") version "4.1.0"
-	id("io.spring.dependency-management") version "1.1.7"
-}
-
-group = "dev.yubin"
-version = "0.0.1-SNAPSHOT"
-
-java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
-	}
-}
-
-repositories {
-	mavenCentral()
+	kotlin("jvm")
+	kotlin("plugin.spring")
+	id("org.springframework.boot")
+	id("io.spring.dependency-management")
 }
 
 /** DJL(Deep Java Library) — 임베딩 모델(ONNX) 추론 (ADR 0010). */
