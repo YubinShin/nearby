@@ -1,5 +1,7 @@
 package dev.yubin.search.indexer.index
 
+import dev.yubin.search.core.meta.IndexMeta
+import dev.yubin.search.core.meta.IndexMetaStore
 import dev.yubin.search.core.place.PlaceDocuments
 import dev.yubin.search.core.place.PlaceRow
 import co.elastic.clients.elasticsearch.ElasticsearchClient
@@ -46,6 +48,7 @@ class ReindexService(
 	private val indexer: EsBulkIndexer,
 	private val admin: IndexAdminService,
 	private val checkpoints: CheckpointStore,
+	private val meta: IndexMetaStore,
 	private val es: ElasticsearchClient,
 	@Value("\${psp.index.search-alias}") private val searchAlias: String,
 	@Value("\${psp.index.suggest-alias}") private val suggestAlias: String,
@@ -73,6 +76,15 @@ class ReindexService(
 		val removed = oldSearch + oldSuggest
 		admin.deleteIndices(removed)
 
+		/*
+		 * 스왑이 **성공한 뒤에** 버전 도장을 남긴다 (ADR 0011). 이 도장이 없으면 질의기는
+		 * 자기가 어떤 스키마 위에서 질의하는지 알 방법이 없다. 순서가 중요하다 — 스왑 전에
+		 * 찍으면 적재가 실패했을 때 "새 스키마로 색인됐다"는 거짓말이 남는다.
+		 */
+		val stamp = IndexMeta.stamp()
+		meta.write(IndexMeta.PIPELINE_SEARCH, stamp)
+		meta.write(IndexMeta.PIPELINE_SUGGEST, stamp)
+
 		// 전체 재색인 시점을 체크포인트로 심어, 이후 증분이 여기서부터 이어지게 한다.
 		stats.maxUpdatedAt?.let { checkpoints.set(PIPELINE, it) }
 
@@ -93,6 +105,21 @@ class ReindexService(
 			?: error("alias 미설정: $searchAlias — 먼저 전체 재색인이 필요합니다")
 		val suggestIndex = admin.indicesBehind(suggestAlias).firstOrNull()
 			?: error("alias 미설정: $suggestAlias")
+
+		/*
+		 * 증분은 살아있는 인덱스에 덮어쓰므로, 문서 스키마가 바뀐 채로 돌리면 한 인덱스 안에
+		 * 옛 스키마 문서와 새 스키마 문서가 섞인다. 섞인 걸 감지하기보다 못 섞이게 막는다
+		 * (ADR 0011). 벡터 쪽 `VectorIndexService.incremental()` 과 같은 규칙이다.
+		 */
+		val stamp = IndexMeta.stamp()
+		meta.requireCompatible(
+			IndexMeta.PIPELINE_SEARCH, stamp,
+			remedy = "POST /admin/reindex 로 전체 재색인하세요. 증분으로는 섞인 인덱스가 됩니다.",
+		)
+		meta.requireCompatible(
+			IndexMeta.PIPELINE_SUGGEST, stamp,
+			remedy = "POST /admin/reindex 로 전체 재색인하세요. 증분으로는 섞인 인덱스가 됩니다.",
+		)
 
 		// watermark: 저장된 체크포인트. 없으면(첫 실행) 인덱스 max 로 폴백.
 		val since = checkpoints.get(PIPELINE) ?: admin.maxUpdatedAt(searchAlias)

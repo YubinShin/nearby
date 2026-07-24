@@ -30,6 +30,9 @@ dependencies {
 	api("org.springframework.boot:spring-boot-starter-webflux")
 	api("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
+	// --- 버전 도장(IndexMetaStore)을 ES 에 읽고 쓴다. 두 앱이 같은 형식을 쓰게 하는 것이 요점 ---
+	api("org.springframework.boot:spring-boot-starter-data-elasticsearch")
+
 	// --- 임베딩 추론. 색인·질의가 **같은 모델·같은 전처리**를 쓰게 하는 것이 이 모듈의 존재 이유 ---
 	api("ai.djl:api:$djlVersion")
 	implementation("ai.djl.huggingface:tokenizers:$djlVersion")

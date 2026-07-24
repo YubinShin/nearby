@@ -2,6 +2,8 @@ package dev.yubin.search.indexer.vector
 
 import dev.yubin.search.core.embed.EmbeddingModel
 import dev.yubin.search.core.embed.PlaceVectorText
+import dev.yubin.search.core.meta.IndexMeta
+import dev.yubin.search.core.meta.IndexMetaStore
 import dev.yubin.search.core.place.PlaceRow
 import dev.yubin.search.core.vector.PlaceVectorPayload
 import dev.yubin.search.core.vector.QdrantStore
@@ -57,6 +59,7 @@ class VectorIndexService(
 	private val embeddings: EmbeddingModel,
 	private val qdrant: QdrantStore,
 	private val checkpoints: CheckpointStore,
+	private val meta: IndexMetaStore,
 	@Value("\${psp.vector.alias}") private val alias: String,
 	@Value("\${psp.vector.batch-size}") private val batchSize: Int,
 	@Value("\${psp.embedding.batch-size}") private val embedBatch: Int,
@@ -76,6 +79,17 @@ class VectorIndexService(
 
 		val removed = qdrant.swapAlias(alias, newCollection)
 		qdrant.deleteCollections(removed)
+
+		/*
+		 * 스왑 성공 후 버전 도장 (ADR 0011). 여기 남기는 값은 설정이 아니라 **실제로 로드된
+		 * 모델**이다 — 설정만 맞고 파일이 다른 경우까지 잡으려는 것. 질의기가 기동할 때
+		 * 자기 모델과 대조하고, 다르면 뜨지 않는다.
+		 */
+		meta.write(
+			IndexMeta.PIPELINE_VECTOR,
+			IndexMeta.stamp(embeddingModel = embeddings.modelId, embeddingDim = embeddings.dimension),
+		)
+
 		stats.maxUpdatedAt?.let { checkpoints.set(CheckpointStore.PLACE_VECTOR, it) }
 
 		return VectorRebuildResult(
@@ -94,6 +108,20 @@ class VectorIndexService(
 		val startedAt = System.nanoTime()
 		val collection = qdrant.collectionsBehind(alias).firstOrNull()
 			?: error("alias 미설정: $alias — 먼저 벡터 전체 재색인이 필요합니다")
+
+		/*
+		 * **증분은 살아있는 컬렉션에 그대로 덮어쓴다.** 그래서 모델이 바뀐 채로 증분을 돌리면
+		 * 한 컬렉션 안에 옛 모델 벡터와 새 모델 벡터가 섞인다 — 그리고 그 상태는 오류를 내지
+		 * 않는다. 384차원끼리라면 유사도 계산은 멀쩡히 되고, 숫자만 의미를 잃는다.
+		 *
+		 * 섞인 걸 나중에 감지하는 것보다 **애초에 못 섞이게** 막는 쪽이 싸다 (ADR 0011).
+		 * 모델을 바꿨으면 답은 하나뿐이다 — 전체 재색인.
+		 */
+		meta.requireCompatible(
+			IndexMeta.PIPELINE_VECTOR,
+			IndexMeta.stamp(embeddingModel = embeddings.modelId, embeddingDim = embeddings.dimension),
+			remedy = "POST /admin/vector/rebuild 로 전체 재색인하세요. 증분으로는 섞인 컬렉션이 됩니다.",
+		)
 
 		val since = checkpoints.get(CheckpointStore.PLACE_VECTOR)
 		val stats = load(if (since == null) reader.readAll() else reader.readSince(since), alias)

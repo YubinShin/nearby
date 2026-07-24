@@ -52,8 +52,15 @@ class EmbeddingModel(
 	/** 벡터 차원. Qdrant 컬렉션 설정과 반드시 같아야 해서 모델에서 직접 읽어 쓴다. */
 	final val dimension: Int
 
+	/**
+	 * 실제로 읽은 모델의 이름(폴더명). 설정값이 아니라 **로드된 결과**라는 게 중요하다 —
+	 * 색인기와 질의기가 같은 모델을 쓰는지 대조할 때 쓴다 (`IndexMeta`, ADR 0011).
+	 */
+	final val modelId: String
+
 	init {
 		val dir = resolveModelDir(modelDir)
+		modelId = dir.fileName.toString()
 		val started = System.nanoTime()
 
 		model = Criteria.builder()
