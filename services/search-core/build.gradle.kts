@@ -33,6 +33,11 @@ dependencies {
 	// --- 버전 도장(IndexMetaStore)을 ES 에 읽고 쓴다. 두 앱이 같은 형식을 쓰게 하는 것이 요점 ---
 	api("org.springframework.boot:spring-boot-starter-data-elasticsearch")
 
+	// ES 자바 클라이언트는 **Jackson 2** 를 쓴다(Spring Boot 4 의 웹 직렬화는 Jackson 3).
+	// 그쪽 Kotlin 모듈이 없으면 `val` 뿐인 data class 가 조용히 전부 기본값이 된다 —
+	// 이유는 EsJsonpMapperConfig 주석 참고. api 인 이유: 두 앱의 런타임에도 있어야 한다.
+	api("com.fasterxml.jackson.module:jackson-module-kotlin")
+
 	// --- 임베딩 추론. 색인·질의가 **같은 모델·같은 전처리**를 쓰게 하는 것이 이 모듈의 존재 이유 ---
 	api("ai.djl:api:$djlVersion")
 	implementation("ai.djl.huggingface:tokenizers:$djlVersion")
