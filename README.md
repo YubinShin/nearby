@@ -37,13 +37,14 @@
 - [x] Watermark 기반 증분 색인 (`/admin/reindex/incremental`)
 - [x] Alias Swap 기반 무중단 재색인
 - [x] PostGIS 원천 데이터 관리
+- [x] 색인 계약 버전 도장 — 모델·스키마가 어긋나면 질의기 기동 차단, 증분 색인 거부
 - [ ] 이벤트 트리거 색인 — 설계 완료([ADR 0001](docs/adr/0001-event-triggered-incremental-indexing.md)), 구현 예정
 
 ### 운영
 
 - [x] 장애 발생 시 `degraded:true` 응답
 - [x] Micrometer + Prometheus 기반 메트릭
-- [x] 역할별 노드 분리 (Query / Indexer)
+- [x] 색인기 / 질의기 **별도 아티팩트** 분리 ([ADR 0011](docs/adr/0011-module-split-and-index-contract.md))
 
 ### 추천 (예정)
 
@@ -97,13 +98,14 @@ curl -G localhost:8080/v1/hsearch \
 
 예열 후 50회, Prometheus 카운터 차분 기준입니다.
 
-| 방식 | 평균 |
-| --- | --- |
-| Keyword | 9.2ms |
-| Vector | 4.9ms |
-| Hybrid | **16.3ms** |
+| 방식 | 중앙값 | p95 |
+| --- | --- | --- |
+| Keyword | 4.6ms | 7.0ms |
+| Vector | 4.7ms | 5.7ms |
+| Hybrid | **8.2ms** | 11.4ms |
 
-- RRF 계산: 0.21ms
+- RRF 계산 자체: 0.21ms — 하이브리드 비용은 결합이 아니라 **두 번 부르고 깊게 뜨는 것**에서 옵니다.
+- 회귀 측정은 스크립트로 고정했습니다 (`scripts/measure_search.py`, 질의 20개 × 5회).
 
 ### 무중단 재색인
 
@@ -119,9 +121,15 @@ curl -G localhost:8080/v1/hsearch \
 
 검색 요청은 키워드 검색과 벡터 검색을 병렬 수행한 뒤 애플리케이션 레이어에서 RRF로 결합합니다.
 
-원천 데이터(PostGIS)는 인덱스의 최신 `updated_at`을 watermark로 삼아 바뀐 행만 증분 색인하며,
+원천 데이터(PostGIS)는 체크포인트를 watermark로 삼아 바뀐 행만 증분 색인하며,
 Alias Swap을 이용해 무중단 재색인을 수행합니다. 색인 트리거는 현재 관리 API 호출이고,
 원천 변경 이벤트로 자동 트리거하는 방식은 ADR 0001로 설계만 마친 상태입니다.
+
+**색인기와 검색기는 별도 아티팩트입니다.** 두 앱의 자원 성격이 반대이고(색인은 CPU 버스트 —
+벡터 재색인 492초 중 471초가 임베딩 추론, 질의는 저지연 상시 대기), 한 프로세스에 두면 색인
+쪽 OOM 한 번이 곧 검색 장애가 되기 때문입니다. 공유해야 하는 것(문서 스키마·브랜드 규칙·임베딩
+모델)은 `search-core` 한 벌만 두고, 따로 배포되면서 어긋나는 것은 **런타임 버전 도장**으로
+막습니다 ([ADR 0011](docs/adr/0011-module-split-and-index-contract.md)).
 
 자세한 내용은 [docs/architecture.md](docs/architecture.md)를 참고하세요.
 
@@ -143,6 +151,7 @@ Alias Swap을 이용해 무중단 재색인을 수행합니다. 색인 트리거
 | [0008](docs/adr/0008-korean-analyzer-komoran-vs-nori.md) | KOMORAN 재포팅 | 구현 |
 | [0009](docs/adr/0009-keyword-ranking-and-fallback.md) | 키워드 랭킹 및 폴백 | 구현 |
 | [0010](docs/adr/0010-embedding-model-and-serving.md) | 임베딩 모델 및 추론 | 구현 |
+| [0011](docs/adr/0011-module-split-and-index-contract.md) | 색인기/질의기 아티팩트 분리 · 색인 계약 대조 | 구현 |
 
 ---
 
@@ -172,23 +181,31 @@ Alias Swap을 이용해 무중단 재색인을 수행합니다. 색인 트리거
 
 ./scripts/fetch_embedding_model.sh
 
-cd services/search-api
-./gradlew bootRun
+cd services
 
-curl -XPOST localhost:8080/admin/reindex
-curl -XPOST localhost:8080/admin/vector/reindex
+# 색인기 (8081) — 원천을 읽어 검색 엔진에 밀어넣습니다
+./gradlew :indexer-batch:bootRun
+
+curl -XPOST localhost:8081/admin/reindex          # 키워드 전체 재색인 (17초)
+curl -XPOST localhost:8081/admin/vector/reindex   # 벡터 전체 재색인 (8분 12초)
+
+# 검색기 (8080) — 재색인을 마친 뒤 띄웁니다
+./gradlew :search-api:bootRun
 ```
+
+색인기와 검색기는 **별도 아티팩트**라 각각 띄웁니다. 검색기는 기동할 때 색인된 데이터가
+자기와 같은 계약(문서 스키마·임베딩 모델)으로 만들어졌는지 대조하고, 다르면 기동하지
+않습니다 ([ADR 0011](docs/adr/0011-module-split-and-index-contract.md)).
 
 상가정보 CSV 등 원천 데이터의 출처는 [docs/data-model.md](docs/data-model.md)에 정리했습니다.
 
 브라우저에서 `http://localhost:8080`을 열면 동일한 질의를 키워드 검색, 벡터 검색,
 하이브리드 검색으로 비교할 수 있습니다.
 
-역할별 노드 분리는 동일 아티팩트에 옵션으로 지정합니다.
+검색기에서 벡터 채널을 끄면 임베딩 모델을 아예 읽지 않습니다(메모리 0.5GB · 기동 5.6초 절약).
 
 ```bash
-./gradlew bootRun --args='--psp.role.indexer=false'    # 질의 전용
-./gradlew bootRun --args='--psp.vector.enabled=false'  # 키워드 전용
+./gradlew :search-api:bootRun --args='--psp.vector.enabled=false'   # 키워드 전용
 ```
 
 ---
