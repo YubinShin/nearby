@@ -1,27 +1,27 @@
-flowchart LR
+flowchart TB
     USER([사용자]):::user
 
-    subgraph SERVE[검색·추천 서빙]
-        direction TB
+    subgraph SERVE[검색·추천 서빙 · 애플리케이션 레이어]
+        direction LR
         API["공통 검색·추천 API<br/>Kotlin · Spring WebFlux · 코루틴"]:::api
         RRF{{"RRF 결합<br/>앱 레이어"}}:::logic
     end
 
     subgraph ENGINES[Kubernetes 위 검색 인프라]
-        direction TB
+        direction LR
         ES[("Elasticsearch<br/>키워드 BM25 · 자동완성")]:::engine
         QD[("Qdrant<br/>벡터 · 뜻 검색")]:::engine
         RD[("Redis<br/>세션 · 인기 · fallback")]:::engine
         PG[("PostgreSQL / PostGIS<br/>원천 창고 · 거리")]:::store
     end
 
-    subgraph INGEST[데이터 수집 · 색인]
-        direction TB
-        SRC["공공데이터포털<br/>· TourAPI"]:::src
-        IDX["색인 파이프라인"]:::logic
+    subgraph INGEST[데이터 수집 · 색인 파이프라인]
+        direction LR
+        SRC["공공데이터<br/>상가정보 · 인허가"]:::src
+        IDX["색인 파이프라인<br/>이벤트 트리거 · 증분"]:::logic
     end
 
-    %% 검색 흐름
+    %% 검색 흐름 (위 → 아래)
     USER -->|검색| API
     API -->|키워드| ES
     API -->|벡터| QD
@@ -31,7 +31,7 @@ flowchart LR
     QD -->|순위| RRF
     RRF -->|최종 결과| USER
 
-    %% 색인 흐름
+    %% 색인 흐름 (아래 → 위)
     SRC --> PG
     PG -->|이벤트 트리거<br/>증분 색인| IDX
     IDX --> ES
