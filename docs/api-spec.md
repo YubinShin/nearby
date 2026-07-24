@@ -2,7 +2,8 @@
 
 이 플랫폼을 쓰는 서비스는 ES·Qdrant·PostGIS를 몰라도 돼요. **이 API 하나만** 부르면 돼요.
 
-- 기준 URL(로컬): `http://localhost:8080`
+- 기준 URL(로컬): `http://localhost:8080` — 질의(`/v1/*`).
+  색인(`/admin/*`)은 **다른 앱**이라 `http://localhost:8081` 이에요 ([앱이 둘이에요](#앱이-둘이에요-adr-0011))
 - 응답: `application/json` (UTF-8)
 - 구현 상태: **6단계까지 실제 동작.** 추천·거리 재랭킹은 7단계 예정 (아래 [예정](#예정) 참고)
 
@@ -371,8 +372,8 @@ score(문서) = Σ  가중치 / (k + 그 채널에서의 등수)          k = 60
 `POST /admin/vector/reindex/incremental` 은 벡터 체크포인트 이후 바뀐 것만 다시 임베딩해요.
 
 > ⚠️ `/admin/*` 는 **인증이 없어요.** 로컬 전용이라 그렇고, 운영이라면 관리자 인증과
-> 레이트리밋이 필요해요 (아키텍처 크리틱 #9). 질의 전용 노드로 띄우면(`psp.role.indexer=false`)
-> 이 경로 자체가 없어서 404가 나요.
+> 레이트리밋이 필요해요 (아키텍처 크리틱 #9). 다만 이 경로는 `indexer-batch`(8081)에만
+> 있고 **공개 트래픽을 받는 `search-api` 의 jar 에는 클래스 자체가 없어요** (ADR 0011).
 
 ---
 
@@ -401,16 +402,47 @@ score(문서) = Σ  가중치 / (k + 그 채널에서의 등수)          k = 60
 
 채널을 나눠 재는 게 요점이에요. 합쳐 재면 "검색이 느리다"까지만 알고 *어디가* 느린지를 몰라요.
 
-## 역할 분리
+## 앱이 둘이에요 (ADR 0011)
 
-같은 아티팩트를 두 역할로 나눠 띄울 수 있어요 (아키텍처 크리틱 #5).
+`/v1/*` 과 `/admin/*` 은 **서로 다른 아티팩트**예요. 한 앱을 스위치로 나눠 띄우는 게 아니라
+빌드가 따로 나옵니다.
+
+| 앱 | 포트 | 가진 것 | 없는 것 |
+|---|---|---|---|
+| `search-api` | **8080** | `/v1/search` · `/v1/suggest` · `/v1/instant` · `/v1/vsearch` · `/v1/hsearch` | `/admin/*`, PostGIS 연결 |
+| `indexer-batch` | **8081** | `/admin/*` | `/v1/*` |
 
 ```bash
-./gradlew bootRun --args='--psp.role.indexer=false'   # 질의 전용: /admin/* 없음, 색인 빈 없음
-./gradlew bootRun --args='--psp.role.query=false'     # 색인 전용: /v1/* 없음
-./gradlew bootRun --args='--psp.vector.enabled=false' # 키워드 전용: /v1/vsearch·/admin/vector/* 없음,
-                                                     #   임베딩 모델을 아예 안 읽어요(메모리 0.5GB·기동 5.7초 절약)
+cd services
+./gradlew :search-api:bootRun      # 질의 (8080)
+./gradlew :indexer-batch:bootRun   # 색인 (8081)
 ```
+
+"없는 것"은 꺼둔 게 아니라 **jar 에 클래스가 없어요.** (검증: `search-api.jar` 안에
+r2dbc/postgresql 0개, `Admin` 클래스 0개.) 그래서 질의 앱이 원천 창고를 열 방법 자체가 없어요.
+
+여전히 런타임 스위치인 것은 하나예요.
+
+```bash
+./gradlew :search-api:bootRun --args='--psp.vector.enabled=false'
+# 키워드 전용: /v1/vsearch·/v1/hsearch 없음, 임베딩 모델을 아예 안 읽어요
+#   (메모리 0.5GB·기동 5.6초 절약)
+```
+
+### 기동할 때 색인 계약을 대조해요
+
+`search-api` 는 뜰 때 **색인된 데이터가 자기와 같은 계약으로 만들어졌는지** 확인해요
+(문서 스키마 버전, 임베딩 모델·차원). 다르면 **뜨지 않아요.**
+
+```
+[search] 색인된 데이터와 이 프로세스의 계약이 다릅니다.
+  - 문서 스키마 버전: 색인=1, 질의=2
+  이 상태로는 오류 없이 결과만 조용히 틀려집니다.
+  → 색인기(indexer-batch)에서 POST /admin/reindex 로 전체 재색인한 뒤 다시 띄우세요.
+```
+
+경고가 아니라 기동 실패인 이유는, 이 어긋남이 **증상이 없기** 때문이에요 — 200 OK 에 로그도
+깨끗하고 결과만 조용히 틀려요. 도장이 아예 없으면(분리 이전에 만든 인덱스) 경고만 하고 떠요.
 
 ## 예정
 
