@@ -1,14 +1,23 @@
 flowchart TB
     USER([사용자]):::user
 
-    subgraph SERVE[검색·추천 서빙 · 애플리케이션 레이어]
+    subgraph SERVE["질의 — search-api :8080"]
         direction LR
-        API["공통 검색·추천 API<br/>Kotlin · Spring WebFlux · 코루틴"]:::api
-        EMB["임베딩 모델<br/>e5-small · ONNX · 앱 내장<br/>(색인·질의 공용)"]:::model
+        API["검색 API<br/>Kotlin · Spring WebFlux · 코루틴"]:::api
         RRF{{"RRF 결합<br/>앱 레이어"}}:::logic
     end
 
-    subgraph ENGINES[Kubernetes 위 검색 인프라]
+    CORE["<b>search-core</b> · 라이브러리 (앱 아님)<br/>문서 스키마 · 브랜드 규칙<br/>임베딩 모델 e5-small · ONNX<br/>색인 계약 IndexMeta"]:::core
+
+    subgraph INGEST["색인 — indexer-batch :8081"]
+        direction LR
+        SRC["공공데이터<br/>상가정보 · 인허가"]:::src
+        IDX["색인 파이프라인<br/>증분 · 전체 재색인 · alias 스왑"]:::logic
+    end
+
+    STREAM["indexer-stream<br/>이벤트 증분 · 뼈대만"]:::planned
+
+    subgraph ENGINES["Kubernetes 위 검색 인프라"]
         direction LR
         ES[("Elasticsearch<br/>키워드 BM25 · 자동완성")]:::engine
         QD[("Qdrant<br/>벡터 · 뜻 검색")]:::engine
@@ -16,34 +25,36 @@ flowchart TB
         PG[("PostgreSQL / PostGIS<br/>원천 창고 · 거리")]:::store
     end
 
-    subgraph INGEST[데이터 수집 · 색인 파이프라인]
-        direction LR
-        SRC["공공데이터<br/>상가정보 · 인허가"]:::src
-        IDX["색인 파이프라인<br/>이벤트 트리거 · 증분"]:::logic
-    end
+    %% 컴파일 시점 공유 — 런타임 호출이 아니라 같은 코드가 두 아티팩트에 들어간다
+    API -. 컴파일 의존 .-> CORE
+    IDX -. 컴파일 의존 .-> CORE
+    STREAM -. 컴파일 의존 .-> CORE
 
-    %% 검색 흐름 (위 → 아래)
+    %% 검색 흐름
     USER -->|검색| API
     API -->|키워드| ES
-    API -->|질의 임베딩| EMB
-    EMB -->|KNN 검색| QD
-    API -->|거리/geo| PG
-    API -->|세션·인기| RD
+    API -->|질의 임베딩 → KNN| QD
+    API -->|거리 · geo| PG
+    API -->|세션 · 인기| RD
     ES -->|순위| RRF
     QD -->|순위| RRF
     RRF -->|최종 결과| USER
 
-    %% 색인 흐름 (아래 → 위)
+    %% 색인 흐름
     SRC --> PG
-    PG -->|이벤트 트리거<br/>증분 색인| IDX
+    PG -->|바뀐 행만 읽기| IDX
     IDX -->|키워드 색인| ES
-    IDX -->|문서 임베딩| EMB
-    EMB -->|벡터 적재| QD
+    IDX -->|문서 임베딩 → 벡터 적재| QD
+
+    %% 색인 계약 — 쪼개면서 잃은 보호를 런타임으로 되찾는다 (ADR 0011)
+    IDX ==>|"alias 스왑 성공 후<br/>버전 도장 기록"| ES
+    ES ==>|"기동 시 대조<br/>다르면 뜨지 않음"| API
 
     classDef user fill:#1e293b,color:#ffffff,stroke:#0f172a,stroke-width:1px;
     classDef api fill:#2563eb,color:#ffffff,stroke:#1e40af,stroke-width:1px;
-    classDef model fill:#ede9fe,color:#4c1d95,stroke:#7c3aed,stroke-width:1px;
+    classDef core fill:#ede9fe,color:#4c1d95,stroke:#7c3aed,stroke-width:2px;
     classDef engine fill:#e0f2fe,color:#0c4a6e,stroke:#0284c7,stroke-width:1px;
     classDef store fill:#dcfce7,color:#14532d,stroke:#16a34a,stroke-width:1px;
     classDef logic fill:#fef9c3,color:#713f12,stroke:#ca8a04,stroke-width:1px;
     classDef src fill:#f1f5f9,color:#334155,stroke:#94a3b8,stroke-width:1px;
+    classDef planned fill:#ffffff,color:#64748b,stroke:#cbd5e1,stroke-width:1px,stroke-dasharray:4 3;
