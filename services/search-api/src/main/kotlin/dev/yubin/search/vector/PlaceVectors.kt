@@ -1,7 +1,5 @@
 package dev.yubin.search.vector
 
-import dev.yubin.search.brand.Brands
-import dev.yubin.search.index.PlaceRow
 import dev.yubin.search.query.SearchRequest
 import kotlin.math.asin
 import kotlin.math.cos
@@ -10,35 +8,15 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 
 /**
- * 벡터 채널의 규칙을 **순수 함수로** 모아둔다 — Qdrant 도 코루틴도 스프링도 모른다.
+ * 벡터 채널의 **질의 쪽** 규칙을 순수 함수로 모아둔다 — Qdrant 도 코루틴도 스프링도 모른다.
  * 키워드 채널의 [dev.yubin.search.query.PlaceQueries] 와 같은 역할이고, 같은 이유로 분리했다:
  * 랭킹·필터 규칙은 엔진을 띄우지 않고 단위 테스트로 못박을 수 있어야 한다 (ADR 0009).
+ *
+ * 색인 쪽 짝인 payload 생성은 [dev.yubin.search.core.vector.PlaceVectorPayload] 로 갔다 —
+ * 그건 색인기와 질의기가 **같아야 하는** 문서 스키마라 core 가 소유한다 (ADR 0011).
+ * 여기 남은 것은 질의기만 쓰는 규칙이라 core 가 `SearchRequest` 를 알 필요가 없어졌다.
  */
 object PlaceVectors {
-
-	/**
-	 * 점에 함께 저장할 부속 정보.
-	 *
-	 * ES 문서와 내용이 겹치는데도 복제하는 이유:
-	 * 1. **필터**(시군구·행정동·반경)는 payload 인덱스가 있어야 벡터 탐색 중에 같이 걸린다.
-	 *    payload 가 없으면 "일단 100개 뽑고 앱에서 거른다"가 되어 필터가 셀수록 결과가 빈다.
-	 * 2. 벡터 채널만으로도 응답을 만들 수 있어야 한다 — 결과 한 건마다 ES 를 다시 부르면
-	 *    6단계 하이브리드에서 왕복이 두 배가 된다.
-	 * 대신 **표시에 필요한 최소한만** 담는다. 주소 전문 같은 건 넣지 않는다.
-	 */
-	fun payload(r: PlaceRow): Map<String, Any?> = buildMap {
-		put("place_id", r.placeId)
-		put("name", r.name)
-		r.branch?.let { put("branch", it) }
-		// 브랜드. 벡터만 찾은 결과도 `[스타벅스] 개포동` 으로 보여줄 수 있어야 한다.
-		// 색인 문서·임베딩 문장과 **같은 함수**로 정한다 (크리틱 #21).
-		Brands.resolve(r.brand, r.name, r.branch)?.let { put("brand", it) }
-		r.categoryLarge?.let { put("category_large", it) }
-		r.categorySmall?.let { put("category_small", it) }
-		r.sigungu?.let { put("sigungu", it) }
-		r.dong?.let { put("dong", it) }
-		if (r.lat != null && r.lon != null) put("location", mapOf("lat" to r.lat, "lon" to r.lon))
-	}
 
 	/**
 	 * 검색 요청 → Qdrant 필터. 조건이 하나도 없으면 null (필터 없는 순수 ANN).

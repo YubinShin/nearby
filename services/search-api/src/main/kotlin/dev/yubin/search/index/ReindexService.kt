@@ -1,5 +1,7 @@
 package dev.yubin.search.index
 
+import dev.yubin.search.core.place.PlaceDocuments
+import dev.yubin.search.core.place.PlaceRow
 import co.elastic.clients.elasticsearch.ElasticsearchClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow

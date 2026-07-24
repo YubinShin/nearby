@@ -1,4 +1,4 @@
-package dev.yubin.search.index
+package dev.yubin.search.core.place
 
 import java.time.OffsetDateTime
 

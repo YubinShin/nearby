@@ -1,10 +1,13 @@
 package dev.yubin.search.vector
 
-import dev.yubin.search.embed.EmbeddingModel
-import dev.yubin.search.embed.PlaceVectorText
+import dev.yubin.search.core.embed.EmbeddingModel
+import dev.yubin.search.core.embed.PlaceVectorText
+import dev.yubin.search.core.place.PlaceRow
+import dev.yubin.search.core.vector.PlaceVectorPayload
+import dev.yubin.search.core.vector.QdrantStore
+import dev.yubin.search.core.vector.VectorPoint
 import dev.yubin.search.index.CheckpointStore
 import dev.yubin.search.index.PlaceR2dbcReader
-import dev.yubin.search.index.PlaceRow
 import kotlinx.coroutines.flow.Flow
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -125,7 +128,7 @@ class VectorIndexService(
 				val at = System.nanoTime()
 				val vectors = embeddings.embedPassages(chunk.map { PlaceVectorText.of(it) })
 				stats.embedNanos += System.nanoTime() - at
-				qdrant.upsert(target, chunk.zip(vectors) { row, v -> VectorPoint(row.placeId, v, PlaceVectors.payload(row)) })
+				qdrant.upsert(target, chunk.zip(vectors) { row, v -> VectorPoint(row.placeId, v, PlaceVectorPayload.of(row)) })
 			}
 			qdrant.delete(target, dead.map { it.placeId })
 

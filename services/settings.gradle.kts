@@ -10,4 +10,5 @@ rootProject.name = "nearby"
  * 그래서 런타임 플래그로 나누던 역할을 **빌드 시점 경계로 승격**했다 (ADR 0011).
  * 여기서 include 되지 않은 모듈은 그 앱의 클래스패스에 아예 없다 — 이게 플래그와 다른 점이다.
  */
+include("search-core")
 include("search-api")

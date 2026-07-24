@@ -1,9 +1,9 @@
-package dev.yubin.search.brand
+package dev.yubin.search.core.brand
 
-import dev.yubin.search.embed.PlaceVectorText
-import dev.yubin.search.index.PlaceDocuments
-import dev.yubin.search.index.PlaceRow
-import dev.yubin.search.vector.PlaceVectors
+import dev.yubin.search.core.embed.PlaceVectorText
+import dev.yubin.search.core.place.PlaceDocuments
+import dev.yubin.search.core.place.PlaceRow
+import dev.yubin.search.core.vector.PlaceVectorPayload
 import java.time.OffsetDateTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -36,7 +36,7 @@ class BrandsTest {
 		for (r in listOf(dictionaryOnly, recoveredOnly)) {
 			val expected = Brands.resolve(r.brand, r.name, r.branch)
 			assertEquals(expected, PlaceDocuments.searchDoc(r)["brand"], "색인 문서: ${r.name}")
-			assertEquals(expected, PlaceVectors.payload(r)["brand"], "payload: ${r.name}")
+			assertEquals(expected, PlaceVectorPayload.of(r)["brand"], "payload: ${r.name}")
 			assertTrue(
 				PlaceVectorText.of(r).startsWith("$expected "),
 				"임베딩 문장에 브랜드가 없다: ${PlaceVectorText.of(r)}",
@@ -48,7 +48,7 @@ class BrandsTest {
 	fun `브랜드가 없으면 세 경로 모두 아무것도 넣지 않는다`() {
 		val r = row(name = "먹어도")
 		assertTrue("brand" !in PlaceDocuments.searchDoc(r))
-		assertTrue("brand" !in PlaceVectors.payload(r))
+		assertTrue("brand" !in PlaceVectorPayload.of(r))
 		assertEquals("먹어도. 커피점/카페 카페. 강남구 역삼1동", PlaceVectorText.of(r))
 	}
 

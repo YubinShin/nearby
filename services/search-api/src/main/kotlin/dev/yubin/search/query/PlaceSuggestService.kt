@@ -1,5 +1,6 @@
 package dev.yubin.search.query
 
+import dev.yubin.search.core.place.SuggestDoc
 import co.elastic.clients.elasticsearch.ElasticsearchClient
 import co.elastic.clients.elasticsearch._types.SortOrder
 import dev.yubin.search.observability.QueryMetrics

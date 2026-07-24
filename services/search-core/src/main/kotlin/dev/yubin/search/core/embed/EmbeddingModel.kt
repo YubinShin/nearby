@@ -1,4 +1,4 @@
-package dev.yubin.search.embed
+package dev.yubin.search.core.embed
 
 import ai.djl.huggingface.translator.TextEmbeddingTranslatorFactory
 import ai.djl.inference.Predictor

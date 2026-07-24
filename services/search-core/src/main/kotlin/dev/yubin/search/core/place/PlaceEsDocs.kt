@@ -1,4 +1,4 @@
-package dev.yubin.search.query
+package dev.yubin.search.core.place
 
 /**
  * ES `_source` 를 그대로 받는 모양. **색인된 스키마와 1:1** 이라 필드명이 snake_case 다.

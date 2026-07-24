@@ -1,4 +1,4 @@
-package dev.yubin.search.embed
+package dev.yubin.search.core.embed
 
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.AfterAll

@@ -11,6 +11,9 @@ plugins {
 val djlVersion = "0.36.0"
 
 dependencies {
+	// --- 색인기와 공유하는 계약: 문서 스키마·브랜드 규칙·임베딩 모델 (ADR 0011) ---
+	implementation(project(":search-core"))
+
 	// --- Web: 리액티브(WebFlux) + 코루틴 (ADR 0006) ---
 	implementation("org.springframework.boot:spring-boot-starter-webflux")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")

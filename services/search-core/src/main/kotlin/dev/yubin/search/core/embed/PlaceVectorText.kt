@@ -1,7 +1,7 @@
-package dev.yubin.search.embed
+package dev.yubin.search.core.embed
 
-import dev.yubin.search.brand.Brands
-import dev.yubin.search.index.PlaceRow
+import dev.yubin.search.core.brand.Brands
+import dev.yubin.search.core.place.PlaceRow
 
 /**
  * **무엇을 벡터로 만들 것인가.** 벡터 검색 품질의 절반은 여기서 갈린다 (ADR 0010).

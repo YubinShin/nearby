@@ -1,5 +1,6 @@
 package dev.yubin.search.index
 
+import dev.yubin.search.core.place.PlaceRow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingleOrNull

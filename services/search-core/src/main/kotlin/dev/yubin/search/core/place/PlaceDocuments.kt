@@ -1,6 +1,6 @@
-package dev.yubin.search.index
+package dev.yubin.search.core.place
 
-import dev.yubin.search.brand.Brands
+import dev.yubin.search.core.brand.Brands
 
 /**
  * 원천 행(PlaceRow)을 **용도별 ES 문서**로 바꾼다 (ADR 0002 — 용도별 인덱스 분리).

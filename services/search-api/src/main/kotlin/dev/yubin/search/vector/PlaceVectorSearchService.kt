@@ -1,6 +1,8 @@
 package dev.yubin.search.vector
 
-import dev.yubin.search.embed.EmbeddingModel
+import dev.yubin.search.core.embed.EmbeddingModel
+import dev.yubin.search.core.vector.QdrantStore
+import dev.yubin.search.core.vector.VectorMatch
 import dev.yubin.search.observability.QueryMetrics
 import dev.yubin.search.query.PlaceHit
 import dev.yubin.search.query.QueryLog

@@ -1,6 +1,6 @@
 package dev.yubin.search.query
 
-import dev.yubin.search.brand.Brands
+import dev.yubin.search.core.brand.Brands
 
 /** 정렬 기준. 기본은 관련도, 좌표가 있으면 거리순도 고를 수 있다. */
 enum class SortBy { RELEVANCE, DISTANCE }

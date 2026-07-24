@@ -1,5 +1,6 @@
 package dev.yubin.search.query
 
+import dev.yubin.search.core.place.SearchDoc
 import co.elastic.clients.elasticsearch.ElasticsearchClient
 import co.elastic.clients.elasticsearch._types.DistanceUnit
 import co.elastic.clients.elasticsearch._types.SortOrder
