@@ -5,7 +5,7 @@
 > 키워드 검색, 벡터 검색, 하이브리드 검색을 기반으로 장소를 검색하는 서비스이자,
 > 여러 서비스에서 공통으로 사용할 수 있도록 설계한 검색 플랫폼입니다.
 
-![Architecture](docs/diagrams/architecture.svg)
+![Architecture](docs/diagrams/architecture.png)
 
 ---
 

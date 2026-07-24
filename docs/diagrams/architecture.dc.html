@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<style>
+  body { margin:0; background:#f3f4f6; }
+  a { color:#2563eb; }
+  a:hover { color:#1d4ed8; }
+</style>
+</helmet>
+<div style="position:relative; width:1400px; height:940px; background:#ffffff; font-family:'Noto Sans KR','Helvetica Neue',Arial,sans-serif; color:#1f2937; box-sizing:border-box; margin:0 auto;">
+
+  <!-- ===== TITLE ===== -->
+  <div style="position:absolute; top:30px; left:40px; display:flex; align-items:stretch; gap:14px; background:#fff; border:1px solid #e2e5ea; border-radius:12px; padding:14px 18px; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+    <div style="width:5px; border-radius:3px; background:{{accent}};"></div>
+    <div style="display:flex; flex-direction:column; justify-content:center; gap:5px;">
+      <div style="font-size:23px; font-weight:700; letter-spacing:-0.01em; color:#111827; line-height:1.15;">장소 검색 · 추천 아키텍처</div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="font-size:12px; font-weight:600; color:#475569; background:#f1f5f9; border-radius:5px; padding:2px 9px; font-family:'Helvetica Neue',Arial,sans-serif; letter-spacing:0.01em;">Hybrid Search</span>
+        <span style="font-size:12px; font-weight:600; color:#475569; background:#f1f5f9; border-radius:5px; padding:2px 9px; font-family:'Helvetica Neue',Arial,sans-serif; letter-spacing:0.01em;">RRF</span>
+        <span style="font-size:12px; font-weight:600; color:#475569; background:#f1f5f9; border-radius:5px; padding:2px 9px; font-family:'Helvetica Neue',Arial,sans-serif; letter-spacing:0.01em;">무중단 색인</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== LEGEND ===== -->
+  <div style="position:absolute; top:34px; right:40px; z-index:5; display:flex; flex-direction:column; gap:7px; background:#fff; border:1px solid #e2e5ea; border-radius:10px; padding:11px 15px; font-size:12px; color:#475569; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+    <div style="font-size:11px; font-weight:700; color:#111827; letter-spacing:0.02em;">범례</div>
+    <div style="display:flex; align-items:center; gap:9px;"><span style="display:inline-block; width:26px; height:0; border-top:2.5px solid #6b7280;"></span> 구현 완료</div>
+    <div style="display:flex; align-items:center; gap:9px;"><span style="display:inline-block; width:26px; height:0; border-top:2.5px dashed #a9b0b8;"></span> 구현예정</div>
+    <div style="display:flex; align-items:center; gap:9px;"><span style="display:inline-block; width:26px; height:0; border-top:2.5px dashed #8b5cf6;"></span> 코드 공유</div>
+  </div>
+
+  <!-- ===== ARROW LAYER ===== -->
+  <svg viewBox="0 0 1400 940" width="1400" height="940" style="position:absolute; inset:0; z-index:1; pointer-events:none;">
+    <defs>
+      <marker id="ah" markerWidth="11" markerHeight="9" refX="8.5" refY="3" orient="auto" markerUnits="userSpaceOnUse">
+        <path d="M0,0 L9,3 L0,6 z" fill="#9ca3af"></path>
+      </marker>
+      <marker id="ahv" markerWidth="11" markerHeight="9" refX="8.5" refY="3" orient="auto" markerUnits="userSpaceOnUse">
+        <path d="M0,0 L9,3 L0,6 z" fill="#8b5cf6"></path>
+      </marker>
+    </defs>
+
+    <g stroke="#9ca3af" stroke-width="2" fill="none" marker-end="url(#ah)" stroke-linejoin="round" stroke-linecap="round">
+      <!-- 사용자 <-> 질의 앱 -->
+      <polyline points="280,222 280,264"></polyline>
+      <polyline points="322,264 322,224"></polyline>
+      <!-- 질의 앱 <-> 검색 인프라 -->
+      <polyline points="258,478 258,542"></polyline>
+      <polyline points="344,542 344,478"></polyline>
+      <!-- 색인 앱 <-> 검색 인프라 -->
+      <polyline points="952,478 952,542"></polyline>
+      <polyline points="1040,542 1040,478"></polyline>
+      <!-- 공공데이터 -> PostGIS -->
+      <polyline points="1129,828 1129,784"></polyline>
+    </g>
+
+    <g stroke="#8b5cf6" stroke-width="2" fill="none" marker-end="url(#ahv)" stroke-dasharray="7 5" stroke-linejoin="round" stroke-linecap="round">
+      <polyline points="544,371 574,371"></polyline>
+      <polyline points="856,371 826,371"></polyline>
+    </g>
+  </svg>
+
+  <!-- ===== EDGE LABELS ===== -->
+  <div style="display:{{labelDisp}}; position:absolute; z-index:4; left:238px; top:243px; transform:translate(-50%,-50%); font-size:12px; font-weight:600; color:#374151; background:#fff; padding:2px 8px; border-radius:6px; box-shadow:0 0 0 1px rgba(0,0,0,0.06); white-space:nowrap;">검색</div>
+  <div style="display:{{labelDisp}}; position:absolute; z-index:4; left:366px; top:243px; transform:translate(-50%,-50%); font-size:12px; font-weight:600; color:#374151; background:#fff; padding:2px 8px; border-radius:6px; box-shadow:0 0 0 1px rgba(0,0,0,0.06); white-space:nowrap;">결과</div>
+  <div style="display:{{labelDisp}}; position:absolute; z-index:4; left:210px; top:510px; transform:translate(-50%,-50%); font-size:12px; font-weight:600; color:#374151; background:#fff; padding:2px 8px; border-radius:6px; box-shadow:0 0 0 1px rgba(0,0,0,0.06); white-space:nowrap;">질의</div>
+  <div style="display:{{labelDisp}}; position:absolute; z-index:4; left:392px; top:510px; transform:translate(-50%,-50%); font-size:12px; font-weight:600; color:#374151; background:#fff; padding:2px 8px; border-radius:6px; box-shadow:0 0 0 1px rgba(0,0,0,0.06); white-space:nowrap;">순위</div>
+  <div style="display:{{labelDisp}}; position:absolute; z-index:4; left:906px; top:510px; transform:translate(-50%,-50%); font-size:12px; font-weight:600; color:#374151; background:#fff; padding:2px 8px; border-radius:6px; box-shadow:0 0 0 1px rgba(0,0,0,0.06); white-space:nowrap;">색인</div>
+  <div style="display:{{labelDisp}}; position:absolute; z-index:4; left:1088px; top:510px; transform:translate(-50%,-50%); font-size:12px; font-weight:600; color:#374151; background:#fff; padding:2px 8px; border-radius:6px; box-shadow:0 0 0 1px rgba(0,0,0,0.06); white-space:nowrap;">원천 읽기</div>
+
+  <!-- ===== USER ===== -->
+  <div style="position:absolute; z-index:3; left:240px; top:130px; width:120px; height:92px; background:#1e293b; color:#fff; border-radius:16px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; box-shadow:0 2px 6px rgba(15,23,42,0.25);">
+    <div style="width:30px; height:28px;">
+      <div style="width:12px; height:12px; border-radius:50%; background:#fff; margin:0 auto;"></div>
+      <div style="width:24px; height:13px; background:#fff; border-radius:12px 12px 4px 4px; margin:2px auto 0;"></div>
+    </div>
+    <div style="font-size:14px; font-weight:700;">사용자</div>
+  </div>
+
+  <!-- ===== 질의 앱 ===== -->
+  <div style="position:absolute; z-index:3; left:60px; top:266px; width:480px; height:212px; background:#ffffff; border:1.5px solid #cfd2d7; border-radius:16px;">
+    <div style="position:absolute; top:-11px; left:240px; transform:translateX(-50%); background:#fff; padding:0 12px; font-size:15px; font-weight:700; white-space:nowrap; color:#111827;"><span style="font-family:'Helvetica Neue',Arial,sans-serif;">search-api</span> <span style="font-size:12px; color:#6b7280;">:8080 · 읽기</span></div>
+
+    <div style="position:absolute; left:26px; top:42px; width:202px; height:146px; background:{{accent}}; border-radius:13px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:11px; color:#ffffff; box-shadow:0 3px 10px rgba(37,99,235,0.28); box-sizing:border-box; padding:14px; text-align:center;">
+      <div style="display:flex; gap:10px;">
+        <div style="width:38px; height:38px; background:#fff; border-radius:9px; padding:5px; box-sizing:border-box;"><img src="uploads/kotlin.svg" alt="Kotlin" style="width:100%; height:100%; object-fit:contain;"></div>
+        <div style="width:38px; height:38px; background:#fff; border-radius:9px; padding:5px; box-sizing:border-box;"><img src="uploads/pasted-1784871908234-0.png" alt="Spring" style="width:100%; height:100%; object-fit:contain;"></div>
+      </div>
+      <div style="font-size:14.5px; font-weight:700;">검색 API</div>
+      <div style="font-size:12px; color:rgba(255,255,255,0.88); line-height:1.35;">키워드 + 벡터 동시 호출</div>
+    </div>
+
+    <div style="position:absolute; left:252px; top:42px; width:202px; height:146px; background:#fffdf2; border:1.2px solid #e6d68a; border-radius:13px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; box-sizing:border-box; padding:14px; text-align:center;">
+      <div style="font-family:'Helvetica Neue',Arial,sans-serif; font-size:15px; font-weight:800; letter-spacing:0.04em; color:#a16207; background:#fef9c3; border:1px solid #eadf9c; border-radius:8px; padding:4px 12px;">RRF</div>
+      <div style="font-size:14.5px; font-weight:700; color:#713f12;">랭킹 결합</div>
+      <div style="font-size:12px; color:#8a6d3b; line-height:1.35;">앱 레이어</div>
+    </div>
+  </div>
+
+  <!-- ===== search-core ===== -->
+  <div style="position:absolute; z-index:3; left:580px; top:290px; width:240px; height:164px; background:#f5f3ff; border:1.5px solid #c4b5fd; border-radius:16px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:9px; box-sizing:border-box; padding:16px 14px; text-align:center;">
+    <div style="font-size:10.5px; font-weight:700; letter-spacing:0.04em; color:#7c3aed; background:#ede9fe; border-radius:5px; padding:2px 9px;">라이브러리</div>
+    <div style="width:34px; height:34px;"><img src="uploads/onnxai-icon.svg" alt="ONNX" style="width:100%; height:100%; object-fit:contain;"></div>
+    <div style="font-size:15px; font-weight:700; color:#4c1d95; font-family:'Helvetica Neue',Arial,sans-serif;">search-core</div>
+    <div style="font-size:11.5px; color:#6d5b9e; line-height:1.45;">문서 스키마 · 브랜드<br>임베딩 e5-small · 색인 계약</div>
+  </div>
+
+  <!-- ===== 색인 앱 ===== -->
+  <div style="position:absolute; z-index:3; left:860px; top:266px; width:480px; height:212px; background:#ffffff; border:1.5px solid #cfd2d7; border-radius:16px;">
+    <div style="position:absolute; top:-11px; left:240px; transform:translateX(-50%); background:#fff; padding:0 12px; font-size:15px; font-weight:700; white-space:nowrap; color:#111827;"><span style="font-family:'Helvetica Neue',Arial,sans-serif;">indexer</span> <span style="font-size:12px; color:#6b7280;">:8081 · 쓰기</span></div>
+
+    <div style="position:absolute; left:26px; top:42px; width:202px; height:146px; background:#fffdf2; border:1.2px solid #e6d68a; border-radius:13px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; box-sizing:border-box; padding:14px; text-align:center;">
+      <div style="font-family:'Helvetica Neue',Arial,sans-serif; font-size:12px; font-weight:800; letter-spacing:0.02em; color:#a16207; background:#fef9c3; border:1px solid #eadf9c; border-radius:8px; padding:3px 10px;">batch</div>
+      <div style="font-size:14.5px; font-weight:700; color:#713f12;">전체 · 증분 색인</div>
+      <div style="font-size:12px; color:#8a6d3b; line-height:1.35;">alias 스왑</div>
+    </div>
+
+    <div style="position:absolute; left:252px; top:42px; width:202px; height:146px; background:#fff; border:1.5px dashed #a9b0b8; border-radius:13px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; box-sizing:border-box; padding:14px; text-align:center;">
+      <div style="font-family:'Helvetica Neue',Arial,sans-serif; font-size:12px; font-weight:800; letter-spacing:0.02em; color:#64748b; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:8px; padding:3px 10px;">stream</div>
+      <div style="font-size:14.5px; font-weight:700; color:#475569;">이벤트 색인</div>
+      <div style="font-size:12px; color:#6b7280; line-height:1.35;">Kafka · 구현예정</div>
+    </div>
+  </div>
+
+  <!-- ===== 검색 인프라 ===== -->
+  <div style="position:absolute; z-index:3; left:100px; top:544px; width:1200px; height:252px; background:#e9f1fd; border:1.5px solid #b7d1f4; border-radius:18px;">
+    <div style="position:absolute; top:-11px; left:600px; transform:translateX(-50%); background:#fff; padding:0 12px; font-size:15px; font-weight:700; white-space:nowrap; color:#111827;">검색 인프라 · docker compose</div>
+
+    <div style="position:absolute; top:16px; left:18px; display:flex; align-items:center; gap:8px; background:#fff; color:#374151; border:1.2px solid #dfe3e8; padding:5px 12px 5px 7px; border-radius:20px; font-size:12px; font-weight:600; box-shadow:0 1px 2px rgba(0,0,0,0.04);">
+      <span style="font-family:'Helvetica Neue',Arial,sans-serif; font-size:11px; font-weight:800; letter-spacing:0.02em; color:#a16207; background:#fef9c3; border:1px solid #eadf9c; border-radius:6px; padding:2px 7px;">alias swap</span>
+      무중단 색인
+    </div>
+
+    <div style="position:absolute; left:40px; top:66px; width:262px; height:166px; background:#fff; border:1.2px solid #dfe3e8; border-radius:13px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; box-sizing:border-box; padding:16px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+      <div style="width:50px; height:50px;"><img src="uploads/elasticsearch-logo-svgrepo-com.svg" alt="Elasticsearch" style="width:100%; height:100%; object-fit:contain;"></div>
+      <div style="font-size:15px; font-weight:700;">Elasticsearch</div>
+      <div style="font-size:12px; color:#6b7280; line-height:1.35;">키워드 · 자동완성</div>
+    </div>
+    <div style="position:absolute; left:326px; top:66px; width:262px; height:166px; background:#fff; border:1.2px solid #dfe3e8; border-radius:13px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; box-sizing:border-box; padding:16px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+      <div style="width:50px; height:50px;"><img src="uploads/qdrant-e8227184.svg" alt="Qdrant" style="width:100%; height:100%; object-fit:contain;"></div>
+      <div style="font-size:15px; font-weight:700;">Qdrant</div>
+      <div style="font-size:12px; color:#6b7280; line-height:1.35;">벡터 검색</div>
+    </div>
+    <div style="position:absolute; left:612px; top:66px; width:262px; height:166px; background:#fff; border:1.5px dashed #a9b0b8; border-radius:13px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; box-sizing:border-box; padding:16px; text-align:center;">
+      <div style="width:50px; height:50px;"><img src="uploads/redis.svg" alt="Redis" style="width:100%; height:100%; object-fit:contain;"></div>
+      <div style="font-size:15px; font-weight:700;">Redis</div>
+      <div style="font-size:12px; color:#6b7280; line-height:1.35;">세션 · 인기 · 구현예정</div>
+    </div>
+    <div style="position:absolute; left:898px; top:66px; width:262px; height:166px; background:#f2fbf5; border:1.3px solid #b6e3c6; border-radius:13px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; box-sizing:border-box; padding:16px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+      <div style="width:50px; height:50px;"><img src="uploads/postgresql.svg" alt="PostgreSQL / PostGIS" style="width:100%; height:100%; object-fit:contain;"></div>
+      <div style="font-size:15px; font-weight:700; color:#14532d;">PostgreSQL / PostGIS</div>
+      <div style="font-size:12px; color:#3f7355; line-height:1.35;">원천 창고 · 거리</div>
+    </div>
+  </div>
+
+  <!-- ===== 공공데이터 ===== -->
+  <div style="position:absolute; z-index:3; left:1019px; top:830px; width:220px; height:82px; background:#fff; border:1.2px solid #dfe3e8; border-radius:13px; display:flex; align-items:center; justify-content:center; gap:12px; box-sizing:border-box; padding:12px; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+    <div style="width:32px; height:32px; flex:none;"><div style="width:100%; height:100%; background:#1866ab; border-radius:8px; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Helvetica Neue',Arial,sans-serif; font-weight:800; font-size:21px; color:#fff; line-height:1;">D</span></div></div>
+    <div style="text-align:left;">
+      <div style="font-size:14px; font-weight:700;">공공데이터포털</div>
+      <div style="font-size:11.5px; color:#6b7280;">상가정보 ·&nbsp;인허가</div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: { &quot;width&quot;: 1400, &quot;height&quot;: 940 },
+  &quot;accentColor&quot;: { &quot;editor&quot;: &quot;color&quot;, &quot;default&quot;: &quot;#2563eb&quot;, &quot;options&quot;: [&quot;#2563eb&quot;, &quot;#0284c7&quot;, &quot;#7c3aed&quot;, &quot;#059669&quot;], &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;스타일&quot; },
+  &quot;showEdgeLabels&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;스타일&quot; }
+}">
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      accent: this.props.accentColor ?? '#2563eb',
+      labelDisp: (this.props.showEdgeLabels ?? true) ? 'block' : 'none',
+    };
+  }
+}
+</script>
+</body>
+</html>

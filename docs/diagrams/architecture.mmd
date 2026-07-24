@@ -1,60 +1,56 @@
+%% docs/diagrams/architecture.svg 의 **텍스트 원본**.
+%% 실제 이미지는 Claude Design 에서 만들지만, 구조가 무엇인지는 여기 텍스트로 남겨둔다 —
+%% 그림 파일만 있으면 무엇이 왜 그렇게 그려졌는지 diff 로 추적할 수 없다.
 flowchart TB
     USER([사용자]):::user
 
-    subgraph SERVE["질의 — search-api :8080"]
+    subgraph SERVE["search-api :8080 · 읽기"]
         direction LR
-        API["검색 API<br/>Kotlin · Spring WebFlux · 코루틴"]:::api
-        RRF{{"RRF 결합<br/>앱 레이어"}}:::logic
+        API["검색 API<br/>키워드 + 벡터 동시 호출"]:::api
+        RRF{{"RRF<br/>랭킹 결합"}}:::logic
     end
 
-    CORE["<b>search-core</b> · 라이브러리 (앱 아님)<br/>문서 스키마 · 브랜드 규칙<br/>임베딩 모델 e5-small · ONNX<br/>색인 계약 IndexMeta"]:::core
+    CORE["<b>search-core</b> · 라이브러리<br/>문서 스키마 · 브랜드<br/>임베딩 e5-small · 색인 계약"]:::core
 
-    subgraph INGEST["색인 — indexer-batch :8081"]
+    subgraph INGEST["indexer :8081 · 쓰기"]
         direction LR
-        SRC["공공데이터<br/>상가정보 · 인허가"]:::src
-        IDX["색인 파이프라인<br/>증분 · 전체 재색인 · alias 스왑"]:::logic
+        BATCH["batch<br/>전체 · 증분 색인<br/>alias 스왑"]:::logic
+        STREAM["stream<br/>이벤트 색인<br/>Kafka · 구현예정"]:::planned
     end
 
-    STREAM["indexer-stream<br/>이벤트 증분 · 뼈대만"]:::planned
-
-    subgraph ENGINES["Kubernetes 위 검색 인프라"]
+    subgraph ENGINES["검색 인프라 · docker compose &lpar;alias swap 무중단 색인&rpar;"]
         direction LR
-        ES[("Elasticsearch<br/>키워드 BM25 · 자동완성")]:::engine
-        QD[("Qdrant<br/>벡터 · 뜻 검색")]:::engine
-        RD[("Redis<br/>세션 · 인기 · fallback")]:::engine
+        ES[("Elasticsearch<br/>키워드 · 자동완성")]:::engine
+        QD[("Qdrant<br/>벡터 검색")]:::engine
+        RD[("Redis<br/>세션 · 인기 · 구현예정")]:::planned
         PG[("PostgreSQL / PostGIS<br/>원천 창고 · 거리")]:::store
     end
 
-    %% 컴파일 시점 공유 — 런타임 호출이 아니라 같은 코드가 두 아티팩트에 들어간다
-    API -. 컴파일 의존 .-> CORE
-    IDX -. 컴파일 의존 .-> CORE
-    STREAM -. 컴파일 의존 .-> CORE
+    SRC["공공데이터포털<br/>상가정보 · 인허가"]:::src
 
-    %% 검색 흐름
+    %% 코드 공유 — 런타임 호출이 아니라 같은 코드가 두 아티팩트에 들어간다.
+    %% 실선으로 그리면 그림이 거짓말을 한다.
+    API -. 코드 공유 .-> CORE
+    BATCH -. 코드 공유 .-> CORE
+    STREAM -. 코드 공유 .-> CORE
+
     USER -->|검색| API
-    API -->|키워드| ES
-    API -->|질의 임베딩 → KNN| QD
-    API -->|거리 · geo| PG
-    API -->|세션 · 인기| RD
+    RRF -->|결과| USER
+    API -->|질의| ES
+    API -->|질의| QD
     ES -->|순위| RRF
     QD -->|순위| RRF
-    RRF -->|최종 결과| USER
 
-    %% 색인 흐름
-    SRC --> PG
-    PG -->|바뀐 행만 읽기| IDX
-    IDX -->|키워드 색인| ES
-    IDX -->|문서 임베딩 → 벡터 적재| QD
-
-    %% 색인 계약 — 쪼개면서 잃은 보호를 런타임으로 되찾는다 (ADR 0011)
-    IDX ==>|"alias 스왑 성공 후<br/>버전 도장 기록"| ES
-    ES ==>|"기동 시 대조<br/>다르면 뜨지 않음"| API
+    PG -->|원천 읽기| BATCH
+    BATCH -->|색인| ES
+    BATCH -->|색인| QD
+    SRC -->|적재| PG
 
     classDef user fill:#1e293b,color:#ffffff,stroke:#0f172a,stroke-width:1px;
     classDef api fill:#2563eb,color:#ffffff,stroke:#1e40af,stroke-width:1px;
-    classDef core fill:#ede9fe,color:#4c1d95,stroke:#7c3aed,stroke-width:2px;
-    classDef engine fill:#e0f2fe,color:#0c4a6e,stroke:#0284c7,stroke-width:1px;
-    classDef store fill:#dcfce7,color:#14532d,stroke:#16a34a,stroke-width:1px;
-    classDef logic fill:#fef9c3,color:#713f12,stroke:#ca8a04,stroke-width:1px;
-    classDef src fill:#f1f5f9,color:#334155,stroke:#94a3b8,stroke-width:1px;
-    classDef planned fill:#ffffff,color:#64748b,stroke:#cbd5e1,stroke-width:1px,stroke-dasharray:4 3;
+    classDef core fill:#f5f3ff,color:#4c1d95,stroke:#c4b5fd,stroke-width:2px;
+    classDef engine fill:#ffffff,color:#1f2937,stroke:#dfe3e8,stroke-width:1px;
+    classDef store fill:#f2fbf5,color:#14532d,stroke:#b6e3c6,stroke-width:1px;
+    classDef logic fill:#fffdf2,color:#713f12,stroke:#e6d68a,stroke-width:1px;
+    classDef src fill:#ffffff,color:#334155,stroke:#dfe3e8,stroke-width:1px;
+    classDef planned fill:#ffffff,color:#64748b,stroke:#a9b0b8,stroke-width:1.5px,stroke-dasharray:4 3;
