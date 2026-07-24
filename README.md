@@ -1,6 +1,6 @@
 # Nearby
 
-> **Hybrid Search Platform for Local Places** — 내 동네 맛집·카페·놀거리를 찾아주는 검색·추천 서비스, 그리고 여러 서비스가 공통으로 가져다 쓸 수 있게 만든 "검색 플랫폼"
+> **Hybrid Search Platform for Local Places** — 지리 정보를 기반으로 맛집·카페·놀거리를 찾아주는 검색·추천 서비스, 그리고 여러 서비스가 공통으로 가져다 쓸 수 있게 만든 "검색 플랫폼"
 
 **상태:** 🟢 **6/8 단계 구현·실측 완료** (키워드·벡터·하이브리드 검색 동작) · 🗺️ [로드맵](docs/roadmap.md)
 
