@@ -8,6 +8,7 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.time.OffsetDateTime
@@ -55,6 +56,8 @@ class ReindexService(
 	@Value("\${psp.index.batch-size}") private val batchSize: Int,
 ) {
 
+	private val log = LoggerFactory.getLogger(ReindexService::class.java)
+
 	// ---- 전체 재색인 (무중단 버전 스왑) ----
 
 	suspend fun rebuildAndSwap(): RebuildResult {
@@ -62,7 +65,7 @@ class ReindexService(
 		val newSuggest = admin.createNextVersion(suggestAlias, "es/place_suggest.json")
 
 		val stats = try {
-			val s = indexFlow(reader.readAll(), newSearch, newSuggest)
+			val s = indexFlow(reader.readAll(), newSearch, newSuggest, "전체 재색인")
 			refresh(newSearch, newSuggest)
 			s
 		} catch (e: Exception) {
@@ -126,7 +129,7 @@ class ReindexService(
 		val flow = if (since == null) reader.readAll() else reader.readSince(since)
 
 		// alias 로 직접 upsert/delete — 같은 place_id 면 덮어쓰기/삭제라 재실행에 안전(멱등).
-		val stats = indexFlow(flow, searchAlias, suggestAlias)
+		val stats = indexFlow(flow, searchAlias, suggestAlias, if (since == null) "증분(최초=전체)" else "증분")
 		refresh(searchAlias, suggestAlias)
 
 		// 처리한 델타의 최신 시각까지 watermark 전진 (삭제 행도 여기에 포함되어 전진됨).
@@ -145,9 +148,13 @@ class ReindexService(
 
 	// ---- 공통: 스트림을 배치로 나눠 두 인덱스에 upsert/delete ----
 
-	private suspend fun indexFlow(flow: Flow<PlaceRow>, searchTarget: String, suggestTarget: String): LoadStats {
+	private suspend fun indexFlow(flow: Flow<PlaceRow>, searchTarget: String, suggestTarget: String, label: String): LoadStats {
 		val stats = LoadStats()
 		val batch = ArrayList<PlaceRow>(batchSize)
+		// 진행 로그(배치마다). 키워드는 17초라 짧지만, 벡터와 같은 관측성을 준다 —
+		// 멈춘 건지 느린 건지를 로그만으로 가른다(VectorIndexService 와 같은 이유).
+		val startedAt = System.nanoTime()
+		log.info("키워드 {} 시작 → {} + {} (배치 {})", label, searchTarget, suggestTarget, batchSize)
 
 		suspend fun flush() {
 			if (batch.isEmpty()) return
@@ -159,6 +166,10 @@ class ReindexService(
 			stats.read += batch.size
 			batch.forEach { r -> if (stats.maxUpdatedAt == null || r.updatedAt.isAfter(stats.maxUpdatedAt)) stats.maxUpdatedAt = r.updatedAt }
 			batch.clear()
+
+			val elapsedS = (System.nanoTime() - startedAt) / 1_000_000_000.0
+			val rate = if (elapsedS > 0) stats.read / elapsedS else 0.0
+			log.info("키워드 {} 진행: {}건 (delete {}) · {}건/초", label, stats.read, stats.deleted, "%.0f".format(rate))
 		}
 
 		flow.collect { row ->
@@ -166,6 +177,7 @@ class ReindexService(
 			if (batch.size >= batchSize) flush()
 		}
 		flush()
+		log.info("키워드 {} 완료: {}건 ({}ms)", label, stats.read, (System.nanoTime() - startedAt) / 1_000_000)
 		return stats
 	}
 

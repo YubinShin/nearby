@@ -11,6 +11,7 @@ import dev.yubin.search.core.vector.VectorPoint
 import dev.yubin.search.indexer.index.CheckpointStore
 import dev.yubin.search.indexer.index.PlaceR2dbcReader
 import kotlinx.coroutines.flow.Flow
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
@@ -65,12 +66,14 @@ class VectorIndexService(
 	@Value("\${psp.embedding.batch-size}") private val embedBatch: Int,
 ) {
 
+	private val log = LoggerFactory.getLogger(VectorIndexService::class.java)
+
 	suspend fun rebuildAndSwap(): VectorRebuildResult {
 		val startedAt = System.nanoTime()
 		val newCollection = qdrant.createNextVersion(alias, embeddings.dimension)
 
 		val stats = try {
-			load(reader.readAll(), newCollection)
+			load(reader.readAll(), newCollection, "전체 재색인")
 		} catch (e: Exception) {
 			// 스왑 전 실패 → 서빙엔 영향 없다. 고아 컬렉션만 정리하고 예외를 올린다.
 			qdrant.deleteCollections(setOf(newCollection))
@@ -124,7 +127,11 @@ class VectorIndexService(
 		)
 
 		val since = checkpoints.get(CheckpointStore.PLACE_VECTOR)
-		val stats = load(if (since == null) reader.readAll() else reader.readSince(since), alias)
+		val stats = load(
+			if (since == null) reader.readAll() else reader.readSince(since),
+			alias,
+			if (since == null) "증분(최초=전체)" else "증분",
+		)
 
 		val advanced = stats.maxUpdatedAt
 			?.also { if (since == null || it.isAfter(since)) checkpoints.set(CheckpointStore.PLACE_VECTOR, it) }
@@ -142,9 +149,13 @@ class VectorIndexService(
 
 	// ---- 공통: 스트림을 배치로 나눠 임베딩 → upsert/delete ----
 
-	private suspend fun load(flow: Flow<PlaceRow>, target: String): LoadStats {
+	private suspend fun load(flow: Flow<PlaceRow>, target: String, label: String): LoadStats {
 		val stats = LoadStats()
 		val batch = ArrayList<PlaceRow>(batchSize)
+		// 진행 로그. 배치(batchSize)마다 한 줄 남긴다 — 임베딩이 느려서 "멈춘 건지 느린 건지"를
+		// 로그만으로 가를 수 있어야 한다(실제로 이게 없어서 thread dump 를 떠야 했다).
+		val startedAt = System.nanoTime()
+		log.info("벡터 {} 시작 → {} (읽기 배치 {}, 추론 배치 {})", label, target, batchSize, embedBatch)
 
 		suspend fun flush() {
 			if (batch.isEmpty()) return
@@ -165,6 +176,11 @@ class VectorIndexService(
 			stats.deleted += dead.size
 			batch.forEach { r -> if (stats.maxUpdatedAt == null || r.updatedAt.isAfter(stats.maxUpdatedAt)) stats.maxUpdatedAt = r.updatedAt }
 			batch.clear()
+
+			// 누적 처리량과 초당 속도. 속도가 있으면 남은 시간을 눈대중할 수 있다.
+			val elapsedS = (System.nanoTime() - startedAt) / 1_000_000_000.0
+			val rate = if (elapsedS > 0) stats.read / elapsedS else 0.0
+			log.info("벡터 {} 진행: {}건 (upsert {}, delete {}) · {}건/초", label, stats.read, stats.upserted, stats.deleted, "%.0f".format(rate))
 		}
 
 		flow.collect { row ->
@@ -172,6 +188,7 @@ class VectorIndexService(
 			if (batch.size >= batchSize) flush()
 		}
 		flush()
+		log.info("벡터 {} 완료: {}건 ({}ms, 임베딩 {}ms)", label, stats.read, (System.nanoTime() - startedAt) / 1_000_000, stats.embedNanos / 1_000_000)
 		return stats
 	}
 
