@@ -62,10 +62,11 @@
 | [`GET /v1/hsearch`](docs/api-spec.md#get-v1hsearch) | 하이브리드 검색 |
 | [`GET /v1/suggest`](docs/api-spec.md#get-v1suggest) | 자동완성 |
 | [`GET /v1/instant`](docs/api-spec.md#get-v1instant) | 추천어 + 결과 미리보기 |
-| [`POST /admin/reindex`](docs/api-spec.md#post-adminreindex) | 전체 재색인 |
-| [`POST /admin/reindex/incremental`](docs/api-spec.md#post-adminreindexincremental) | 증분 색인 |
-| [`POST /admin/vector/reindex`](docs/api-spec.md#post-adminvectorreindex) | 벡터 재색인 |
-| `POST /admin/vector/reindex/incremental` | 벡터 증분 색인 |
+| [`POST /admin/reindex`](docs/api-spec.md#post-adminreindex) | 전체 재색인 — **202 + jobId** |
+| [`POST /admin/reindex/incremental`](docs/api-spec.md#post-adminreindexincremental) | 증분 색인 — **202** |
+| [`POST /admin/vector/reindex`](docs/api-spec.md#post-adminvectorreindex) | 벡터 재색인 — **202** |
+| `POST /admin/vector/reindex/incremental` | 벡터 증분 색인 — **202** |
+| [`GET /admin/jobs/{jobId}`](docs/api-spec.md#get-adminjobsjobid) | 색인 진행 상황·결과 |
 
 ### 하이브리드 검색 예시
 
@@ -232,8 +233,14 @@ cd services
 # 색인기 (8081) — 원천을 읽어 검색 엔진에 밀어넣습니다
 ./gradlew :indexer-batch:bootRun
 
-curl -XPOST localhost:8081/admin/reindex          # 키워드 전체 재색인 (17초)
-curl -XPOST localhost:8081/admin/vector/reindex   # 벡터 전체 재색인 (8분 12초)
+# 재색인은 **접수만 하고 즉시 202 + jobId** 를 돌려줍니다 (ADR 0013).
+# curl 을 끊어도 색인은 계속 돕니다 — Spring Batch job 스레드에서 도니까요.
+curl -XPOST localhost:8081/admin/reindex          # 키워드 (실측 15.6초) → {"jobId":1,...}
+curl -XPOST localhost:8081/admin/vector/reindex   # 벡터 (실측 8분 32초) → {"jobId":2,...}
+
+# 진행·결과 조회. 건수는 Spring Batch 가 chunk 커밋마다 DB 에 적은 값이라
+# 색인기를 재시작한 뒤에도, 실패한 실행이 몇 건까지 갔는지도 남습니다.
+curl -s localhost:8081/admin/jobs/2 | jq .
 
 # 검색기 (8080) — 재색인을 마친 뒤 띄웁니다
 ./gradlew :search-api:bootRun

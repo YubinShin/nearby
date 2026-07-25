@@ -35,7 +35,7 @@ indexer-stream  (뼈대만)
 |---|---|---|
 | **search-core** (lib) | 두 앱이 어긋나면 **조용히 망가지는 것** | `dev.yubin.search.core.*` |
 | **search-api** (app) | `/v1/*` 질의. `/admin` 없음, PostGIS 없음 | `dev.yubin.search.*` (그대로) |
-| **indexer-batch** (app) | `/admin/*`, ES bulk, 체크포인트, PostGIS R2DBC | `dev.yubin.search.indexer.*` |
+| **indexer-batch** (app) | 관리 API, Spring Batch job, ES bulk, 체크포인트, PostGIS JDBC | `dev.yubin.search.indexer.*` |
 | **indexer-stream** | 비어 있음 (아래 참조) | `dev.yubin.search.indexer.stream` |
 
 ### 무엇을 core 에 넣을지 — 기준을 좁게 잡았다
@@ -90,11 +90,16 @@ Spring Boot 플러그인도 붙이지 않았다. 뜨기만 하고 아무것도 �
 플래그와 다른 점은 **클래스가 아예 없다**는 것이다. jar 로 확인했다.
 
 ```
-search-api.jar    r2dbc/postgresql 0개 · indexer/Admin 0개
-indexer-batch.jar r2dbc/postgresql 9개
+                        리액티브계열  postgresql  spring-batch  Admin
+search-api.jar                 37          0            0        0
+indexer-batch.jar               0          1            2        5
 ```
 
-질의 앱이 원천 창고를 열 방법 **자체가 없다.**
+(리액티브계열 = webflux · reactor · kotlinx-coroutines · netty 아티팩트 수)
+
+질의 앱이 원천 창고를 열 방법 **자체가 없다.** 그리고 색인 앱에는 리액티브가 **한 조각도 없다** —
+두 jar 이 서로의 거울상이 됐다. 뒤쪽 두 열(spring-batch, 리액티브 0)은 ADR 0013 이후의 모습이다.
+처음에는 색인기도 리액티브였고, 그때 이 표는 `indexer-batch.jar r2dbc 9개` 였다.
 
 `psp.vector.enabled` 는 남긴다. 임베딩 모델을 읽을지 말지는 여전히 런타임 선택이다(ADR 0010).
 
