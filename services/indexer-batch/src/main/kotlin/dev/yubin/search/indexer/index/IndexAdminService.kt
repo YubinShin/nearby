@@ -1,6 +1,7 @@
 package dev.yubin.search.indexer.index
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient
+import dev.yubin.search.core.index.IndexVersion
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.springframework.core.io.ClassPathResource
@@ -16,21 +17,13 @@ import java.time.ZoneOffset
 @Service
 class IndexAdminService(private val es: ElasticsearchClient) {
 
-	/** `{alias}_v{n}` 중 다음 버전 인덱스를 매핑과 함께 새로 만든다. 만든 인덱스명 반환. */
+	/** `{alias}_{yyyyMMddHHmmss}` 새 버전 인덱스를 매핑과 함께 만든다. 만든 인덱스명 반환. */
 	suspend fun createNextVersion(alias: String, mappingResource: String): String = withContext(Dispatchers.IO) {
-		val name = "${alias}_v${nextVersion(alias)}"
+		val name = IndexVersion.newName(alias)
 		ClassPathResource(mappingResource).inputStream.use { json ->
 			es.indices().create { it.index(name).withJson(json) }
 		}
 		name
-	}
-
-	private fun nextVersion(alias: String): Int {
-		val existing = es.indices()
-			.get { it.index("${alias}_v*").ignoreUnavailable(true) }
-			.indices().keys
-		val max = existing.mapNotNull { VERSION_SUFFIX.find(it)?.groupValues?.get(1)?.toInt() }.maxOrNull() ?: 0
-		return max + 1
 	}
 
 	/** alias 가 지금 가리키는 인덱스들. (없으면 빈 집합) */
@@ -60,6 +53,29 @@ class IndexAdminService(private val es: ElasticsearchClient) {
 	}
 
 	/**
+	 * 버전 인덱스 정리. alias 가 가리키는 **현재 버전(keep 개, 현재 포함)만 남기고** 그보다 낮은
+	 * 번호를 지운다. 취소·실패로 남은 고아 인덱스도 함께 사라진다.
+	 *
+	 * **현재보다 높은 번호는 손대지 않는다** — 진행 중인 새 빌드일 수 있어서다(새 버전은 항상
+	 * max+1 로 생긴다). alias 가 없으면 기준이 없으니 아무것도 지우지 않는다. 지운 인덱스명을 반환한다.
+	 */
+	suspend fun reconcile(alias: String, keep: Int): Set<String> = withContext(Dispatchers.IO) {
+		val current = indicesBehind(alias).mapNotNull { IndexVersion.tokenOf(alias, it) }.maxOrNull()
+			?: return@withContext emptySet()
+
+		val below = es.indices()
+			.get { it.index("${alias}_*").ignoreUnavailable(true) }
+			.indices().keys
+			.mapNotNull { name -> IndexVersion.tokenOf(alias, name)?.let { name to it } }
+			.filter { it.second < current }   // 문자열 비교 = 시간 비교(고정폭 14자리)
+			.sortedByDescending { it.second }
+
+		val doomed = below.drop((keep - 1).coerceAtLeast(0)).map { it.first }.toSet()
+		deleteIndices(doomed)
+		doomed
+	}
+
+	/**
 	 * 인덱스에 들어있는 가장 최신 `updated_at` (증분 색인의 watermark).
 	 * 인덱스 자체를 진실의 원천으로 삼아 별도 체크포인트 저장소가 필요 없다. 비어있으면 null.
 	 */
@@ -73,8 +89,4 @@ class IndexAdminService(private val es: ElasticsearchClient) {
 			if (millis == null || millis.isNaN() || millis <= 0.0) null
 			else Instant.ofEpochMilli(millis.toLong()).atOffset(ZoneOffset.UTC)
 		}
-
-	companion object {
-		private val VERSION_SUFFIX = Regex("_v(\\d+)$")
-	}
 }

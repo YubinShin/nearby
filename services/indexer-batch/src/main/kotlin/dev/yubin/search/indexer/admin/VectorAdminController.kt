@@ -1,5 +1,6 @@
 package dev.yubin.search.indexer.admin
 
+import dev.yubin.search.indexer.vector.VectorCleanupResult
 import dev.yubin.search.indexer.vector.VectorIncrementalResult
 import dev.yubin.search.indexer.vector.VectorIndexService
 import dev.yubin.search.indexer.vector.VectorRebuildResult
@@ -28,4 +29,8 @@ class VectorAdminController(private val vectorIndex: VectorIndexService) {
 	/** 증분: 벡터 체크포인트 이후 바뀐 것만 다시 임베딩해 현재 컬렉션에 upsert. */
 	@PostMapping("/reindex/incremental")
 	suspend fun incremental(): VectorIncrementalResult = vectorIndex.incremental()
+
+	/** 수동 버전 정리: 재색인 없이 현재 포함 keep-versions 개만 남기고 옛 컬렉션·고아 삭제. */
+	@PostMapping("/cleanup")
+	suspend fun cleanup(): VectorCleanupResult = vectorIndex.cleanup()
 }

@@ -33,6 +33,11 @@ psp:
     # ES bulk 한 번에 보낼 문서 수.
     batch-size: 2000
 
+    # 재색인 후 남길 버전 수(현재 포함). 2 = 현재 + 직전 1개를 롤백용으로 보존하고(회사의
+    # yesterday+today 패턴), 그보다 낮은 버전과 취소·실패로 남은 고아는 지운다.
+    # rebuildAndSwap 끝과 POST /admin/(vector/)cleanup 이 같은 규칙(reconcile)을 쓴다.
+    keep-versions: 2
+
     # 색인 주기 (ADR 0011 · ReindexScheduler 주석에 근거를 적어뒀다).
     # 로컬에서는 꺼둔다 — 뜨자마자 원천을 훑으면 시연·실측이 방해받는다.
     # 아래 cron 값이 곧 "프로덕션이면 이렇게 돈다"의 기록이다.

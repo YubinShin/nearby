@@ -29,6 +29,9 @@ data class VectorRebuildResult(
 	val embedMs: Long,
 )
 
+/** 수동 버전 정리 결과. */
+data class VectorCleanupResult(val kept: Int, val removed: List<String>)
+
 /** 벡터 증분 색인 결과 요약. */
 data class VectorIncrementalResult(
 	val since: String?,
@@ -64,6 +67,8 @@ class VectorIndexService(
 	@Value("\${psp.vector.alias}") private val alias: String,
 	@Value("\${psp.vector.batch-size}") private val batchSize: Int,
 	@Value("\${psp.embedding.batch-size}") private val embedBatch: Int,
+	// 재색인 후 남길 버전 수(현재 포함). 2 = 현재 + 직전 1개(롤백용). 그보다 낮은 버전·고아는 지운다.
+	@Value("\${psp.index.keep-versions:2}") private val keepVersions: Int,
 ) {
 
 	private val log = LoggerFactory.getLogger(VectorIndexService::class.java)
@@ -80,8 +85,9 @@ class VectorIndexService(
 			throw e
 		}
 
-		val removed = qdrant.swapAlias(alias, newCollection)
-		qdrant.deleteCollections(removed)
+		qdrant.swapAlias(alias, newCollection)
+		// 스왑 후 정리 — 현재 포함 keepVersions 개만 남기고 낮은 버전·고아 삭제 (ADR 0002 회사 패턴).
+		val removed = qdrant.reconcile(alias, keepVersions)
 
 		/*
 		 * 스왑 성공 후 버전 도장 (ADR 0011). 여기 남기는 값은 설정이 아니라 **실제로 로드된
@@ -145,6 +151,17 @@ class VectorIndexService(
 			collection = collection,
 			elapsedMs = (System.nanoTime() - startedAt) / 1_000_000,
 		)
+	}
+
+	/**
+	 * 수동 버전 정리. 재색인을 돌리지 않고 지금 상태에서 정리만 한다 — 취소·실패로 남은 고아를
+	 * 즉시 치우거나, keepVersions 를 줄인 뒤 소급 적용할 때 쓴다. rebuildAndSwap 이 끝에서 부르는
+	 * 것과 같은 [QdrantStore.reconcile] 이다.
+	 */
+	suspend fun cleanup(): VectorCleanupResult {
+		val removed = qdrant.reconcile(alias, keepVersions)
+		log.info("벡터 수동 정리: {}개 유지, {}개 삭제 {}", keepVersions, removed.size, removed.sorted())
+		return VectorCleanupResult(kept = keepVersions, removed = removed.sorted())
 	}
 
 	// ---- 공통: 스트림을 배치로 나눠 임베딩 → upsert/delete ----

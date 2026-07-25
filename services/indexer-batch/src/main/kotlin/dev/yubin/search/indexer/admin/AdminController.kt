@@ -1,5 +1,6 @@
 package dev.yubin.search.indexer.admin
 
+import dev.yubin.search.indexer.index.CleanupResult
 import dev.yubin.search.indexer.index.IncrementalResult
 import dev.yubin.search.indexer.index.RebuildResult
 import dev.yubin.search.indexer.index.ReindexService
@@ -27,4 +28,8 @@ class AdminController(private val reindexService: ReindexService) {
 	/** 증분 재색인: watermark 이후 바뀐 것만 현재 alias 인덱스에 upsert. */
 	@PostMapping("/reindex/incremental")
 	suspend fun incremental(): IncrementalResult = reindexService.incremental()
+
+	/** 수동 버전 정리: 재색인 없이 현재 포함 keep-versions 개만 남기고 옛 버전·고아 삭제. */
+	@PostMapping("/cleanup")
+	suspend fun cleanup(): CleanupResult = reindexService.cleanup()
 }

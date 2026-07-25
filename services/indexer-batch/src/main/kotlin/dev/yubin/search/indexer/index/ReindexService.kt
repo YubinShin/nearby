@@ -23,6 +23,9 @@ data class RebuildResult(
 	val removed: List<String>,
 )
 
+/** 수동 버전 정리 결과. */
+data class CleanupResult(val kept: Int, val removed: List<String>)
+
 /** 증분 색인 결과 요약. */
 data class IncrementalResult(
 	val since: String?,   // 이 시각 이후 바뀐 것만 색인 (null=체크포인트 없어 전체)
@@ -54,6 +57,8 @@ class ReindexService(
 	@Value("\${psp.index.search-alias}") private val searchAlias: String,
 	@Value("\${psp.index.suggest-alias}") private val suggestAlias: String,
 	@Value("\${psp.index.batch-size}") private val batchSize: Int,
+	// 재색인 후 남길 버전 수(현재 포함). 2 = 현재 + 직전 1개(롤백용).
+	@Value("\${psp.index.keep-versions:2}") private val keepVersions: Int,
 ) {
 
 	private val log = LoggerFactory.getLogger(ReindexService::class.java)
@@ -74,10 +79,10 @@ class ReindexService(
 			throw e
 		}
 
-		val oldSearch = admin.swapAlias(searchAlias, newSearch)
-		val oldSuggest = admin.swapAlias(suggestAlias, newSuggest)
-		val removed = oldSearch + oldSuggest
-		admin.deleteIndices(removed)
+		admin.swapAlias(searchAlias, newSearch)
+		admin.swapAlias(suggestAlias, newSuggest)
+		// 스왑 후 정리 — 현재 포함 keepVersions 개만 남기고 낮은 버전·고아 삭제 (ADR 0002 회사 패턴).
+		val removed = admin.reconcile(searchAlias, keepVersions) + admin.reconcile(suggestAlias, keepVersions)
 
 		/*
 		 * 스왑이 **성공한 뒤에** 버전 도장을 남긴다 (ADR 0011). 이 도장이 없으면 질의기는
@@ -144,6 +149,16 @@ class ReindexService(
 			searchIndex = searchIndex,
 			suggestIndex = suggestIndex,
 		)
+	}
+
+	/**
+	 * 수동 버전 정리. 재색인 없이 지금 상태에서 두 alias(검색·자동완성)의 옛 버전·고아를 치운다.
+	 * rebuildAndSwap 이 끝에서 부르는 것과 같은 [IndexAdminService.reconcile] 이다.
+	 */
+	suspend fun cleanup(): CleanupResult {
+		val removed = admin.reconcile(searchAlias, keepVersions) + admin.reconcile(suggestAlias, keepVersions)
+		log.info("키워드 수동 정리: {}개 유지, {}개 삭제 {}", keepVersions, removed.size, removed.sorted())
+		return CleanupResult(kept = keepVersions, removed = removed.sorted())
 	}
 
 	// ---- 공통: 스트림을 배치로 나눠 두 인덱스에 upsert/delete ----

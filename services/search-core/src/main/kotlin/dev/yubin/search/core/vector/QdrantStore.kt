@@ -1,5 +1,6 @@
 package dev.yubin.search.core.vector
 
+import dev.yubin.search.core.index.IndexVersion
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
@@ -27,7 +28,7 @@ data class VectorMatch(val placeId: String, val score: Float, val payload: Map<S
  * 처리량이 문제가 되면 gRPC 로 바꾸는 건 이 클래스 안쪽 교체로 끝난다.
  *
  * ### 인덱스 교체 방식은 ES 와 같다
- * `place_vec_v{n}` 을 새로 만들어 채운 뒤 alias 를 원자적으로 옮긴다 (ADR 0002 의 무중단 스왑).
+ * `place_vec_{yyyyMMddHHmmss}` 을 새로 만들어 채운 뒤 alias 를 원자적으로 옮긴다 (ADR 0002 의 무중단 스왑).
  * Qdrant 도 alias 를 지원해서 같은 패턴이 그대로 성립한다.
  */
 @Component
@@ -42,9 +43,9 @@ class QdrantStore(
 
 	// ---- 컬렉션 생명주기 ----
 
-	/** `{alias}_v{n}` 다음 버전 컬렉션을 만든다. 필터로 쓸 필드에는 payload 인덱스도 함께 건다. */
+	/** `{alias}_{yyyyMMddHHmmss}` 새 버전 컬렉션을 만든다. 필터로 쓸 필드엔 payload 인덱스도 함께 건다. */
 	suspend fun createNextVersion(alias: String, dimension: Int): String {
-		val name = "${alias}_v${nextVersion(alias)}"
+		val name = IndexVersion.newName(alias)
 		http.put().uri("/collections/{name}", name)
 			.bodyValue(
 				mapOf(
@@ -85,6 +86,32 @@ class QdrantStore(
 
 	suspend fun deleteCollections(names: Set<String>) {
 		names.forEach { http.delete().uri("/collections/{name}", it).retrieve().awaitBody<Map<String, Any?>>() }
+	}
+
+	/**
+	 * 버전 컬렉션 정리. alias 가 가리키는 **현재 버전(keep 개, 현재 포함)만 남기고** 그보다 낮은
+	 * 번호를 지운다. 취소·실패로 남은 고아 컬렉션도 이 규칙으로 함께 사라진다.
+	 *
+	 * **현재보다 높은 번호는 절대 안 건드린다** — 그건 지금 만들어지는 중인 새 빌드일 수 있다.
+	 * 새 버전은 항상 max+1(더 높은 번호)로 생기므로, 이 정리가 색인과 동시에 돌아도 안전하다.
+	 * alias 가 없으면(아직 첫 스왑 전) 기준이 없으니 아무것도 지우지 않는다.
+	 *
+	 * 지운 컬렉션명을 반환한다.
+	 */
+	suspend fun reconcile(alias: String, keep: Int): Set<String> {
+		val current = collectionsBehind(alias).mapNotNull { IndexVersion.tokenOf(alias, it) }.maxOrNull()
+			?: return emptySet()   // alias 미설정 → 기준 없음, 정리 보류
+
+		val below = http.get().uri("/collections").retrieve()
+			.awaitBody<CollectionsResponse>().result.collections
+			.mapNotNull { c -> IndexVersion.tokenOf(alias, c.name)?.let { c.name to it } }
+			.filter { it.second < current }   // 문자열 비교 = 시간 비교(고정폭 14자리)
+			.sortedByDescending { it.second }
+
+		// 현재보다 낮은 것 중 상위 (keep-1)개는 롤백용으로 남기고, 나머지를 지운다.
+		val doomed = below.drop((keep - 1).coerceAtLeast(0)).map { it.first }.toSet()
+		deleteCollections(doomed)
+		return doomed
 	}
 
 	suspend fun count(collection: String): Long =
@@ -151,15 +178,6 @@ class QdrantStore(
 	 */
 	private suspend fun aliases(): List<AliasDescription> =
 		http.get().uri("/aliases").retrieve().awaitBody<AliasesResponse>().result.aliases
-
-	private suspend fun nextVersion(alias: String): Int {
-		val versioned = Regex("^${Regex.escape(alias)}_v(\\d+)$")
-		val max = http.get().uri("/collections").retrieve()
-			.awaitBody<CollectionsResponse>().result.collections
-			.mapNotNull { versioned.find(it.name)?.groupValues?.get(1)?.toInt() }
-			.maxOrNull() ?: 0
-		return max + 1
-	}
 
 	companion object {
 		/**
