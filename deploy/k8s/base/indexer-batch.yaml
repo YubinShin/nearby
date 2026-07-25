@@ -1,10 +1,13 @@
-# indexer-batch — 색인 앱 (ADR 0011). /admin/* + PostGIS(R2DBC) 읽기 → ES·Qdrant 쓰기.
-# /v1/* 은 여기 없다. 이 앱만 원천 창고(PostGIS)에 붙는다.
+# indexer-batch — 색인 앱 (ADR 0011). 관리 API + PostGIS(JDBC) 읽기 → ES·Qdrant 쓰기.
+# 검색 질의 경로는 여기 없다. 이 앱만 원천 창고(PostGIS)에 붙는다.
 #
 # 자원 성격: CPU 버스티(임베딩이 색인 시간의 95.8%), 저지연 상시 가동 아님. 그래서 질의기와
 # 다른 노드로 떼어 둔다 — 색인기가 OOMKilled 나도 검색은 살아 있게(분리의 핵심 논거, ADR 0011).
 #
-# Service 는 얇게 둔다: 데모에서 /admin/reindex 를 port-forward 로 부르기 위한 것.
+# 런타임은 Spring Batch + MVC(Tomcat)다 — 질의기만 리액티브다 (ADR 0013). 그래서 원천 접속이
+# R2DBC 가 아니라 JDBC 이고, 아래 환경변수 이름도 그에 맞춰 바뀌었다.
+#
+# Service 는 얇게 둔다: 데모에서 재색인을 port-forward 로 부르기 위한 것.
 # 운영이면 이 엔드포인트는 클러스터 밖으로 노출하지 않는다(architecture-review #9).
 ---
 apiVersion: v1
@@ -52,10 +55,19 @@ spec:
             - configMapRef: { name: search-backends }
           env:
             # 원천 창고(PostGIS) 주소. 색인기만 갖는다. core.yml 에는 없고 application.yml 의
-            # localhost 를 이 환경변수가 덮는다(spring.r2dbc.* ← SPRING_R2DBC_*).
-            - { name: SPRING_R2DBC_URL, value: "r2dbc:postgresql://postgis:5432/place" }
-            - { name: SPRING_R2DBC_USERNAME, value: "place" }
-            - { name: SPRING_R2DBC_PASSWORD, value: "place" }
+            # localhost 를 이 환경변수가 덮는다(spring.datasource.* ← SPRING_DATASOURCE_*).
+            #
+            # 이 DataSource 는 **두 가지 용도**로 쓰인다 (ADR 0013):
+            #  1. 원천 읽기 — JdbcCursorItemReader 가 커서로 훑는다
+            #  2. Spring Batch 메타데이터 — BATCH_* 테이블(job 이력·재시작 지점·진행 건수)
+            # 같은 DB 를 쓰는 게 의도다. job 메타데이터를 위해 별도 저장소를 띄우는 건 과하다.
+            #
+            # 앱이 뜰 때 BATCH_* 테이블이 없으면 만든다(BatchSchema). 부트 4 에서
+            # spring.batch.jdbc.initialize-schema 프로퍼티가 없어져 앱이 직접 하는 일이 됐다.
+            # 운영이면 이 DDL 은 마이그레이션 도구가 미리 하고 앱 계정엔 DML 권한만 주는 게 맞다.
+            - { name: SPRING_DATASOURCE_URL, value: "jdbc:postgresql://postgis:5432/place" }
+            - { name: SPRING_DATASOURCE_USERNAME, value: "place" }
+            - { name: SPRING_DATASOURCE_PASSWORD, value: "place" }
           resources:
             # 힙은 이미지에서 40%(-XX:MaxRAMPercentage=40) — 질의기(50%)보다 낮다. 임베딩 추론이
             # 힙 밖 ONNX 네이티브에서 도니 네이티브 여유를 더 준다. CPU 는 버스티라 한계를 넉넉히.

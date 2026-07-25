@@ -4,7 +4,6 @@ import dev.yubin.search.core.embed.EmbeddingModel
 import dev.yubin.search.core.meta.IndexMeta
 import dev.yubin.search.core.meta.IndexMetaStore
 import jakarta.annotation.PostConstruct
-import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.stereotype.Component
@@ -31,20 +30,22 @@ class IndexContractGuard(
 	private val embeddings: ObjectProvider<EmbeddingModel>,
 ) {
 
+	/**
+	 * 기동 스레드에서 그대로 블로킹한다 — 여기서 기다리는 건 **의도**다. 계약이 확인되기 전에
+	 * 컨텍스트가 뜨면 안 된다. (`IndexMetaStore` 가 블로킹이 된 뒤 `runBlocking` 두 겹이 사라졌다.)
+	 */
 	@PostConstruct
-	fun verify() = runBlocking {
+	fun verify() {
 		val keyword = IndexMeta.stamp()
 		meta.requireCompatible(IndexMeta.PIPELINE_SEARCH, keyword, remedy = REMEDY_KEYWORD)
 		meta.requireCompatible(IndexMeta.PIPELINE_SUGGEST, keyword, remedy = REMEDY_KEYWORD)
 
 		embeddings.ifAvailable { model ->
-			runBlocking {
-				meta.requireCompatible(
-					IndexMeta.PIPELINE_VECTOR,
-					IndexMeta.stamp(embeddingModel = model.modelId, embeddingDim = model.dimension),
-					remedy = REMEDY_VECTOR,
-				)
-			}
+			meta.requireCompatible(
+				IndexMeta.PIPELINE_VECTOR,
+				IndexMeta.stamp(embeddingModel = model.modelId, embeddingDim = model.dimension),
+				remedy = REMEDY_VECTOR,
+			)
 		}
 
 		log.info("색인 계약 확인 완료 — 스키마 v{}", IndexMeta.SCHEMA_VERSION)

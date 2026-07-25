@@ -6,12 +6,29 @@ spring:
   config:
     import: classpath:core.yml
 
-  # PostGIS 원천 창고 (R2DBC) — 색인기가 여기서 읽어 ES·Qdrant 로 옮긴다.
+  # PostGIS 원천 창고 (JDBC) — 색인기가 여기서 읽어 ES·Qdrant 로 옮긴다.
   # **검색 API 에는 이 설정이 없다.** 질의 경로가 원천 창고를 여는 일은 없어야 한다.
-  r2dbc:
-    url: r2dbc:postgresql://localhost:5432/place
+  #
+  # R2DBC 에서 내려온 이유는 ADR 0013. 이 DataSource 는 **두 가지 용도**로 쓰인다:
+  #  1. 원천 읽기 (JdbcCursorItemReader — 64k 행을 커서로 흘려보낸다)
+  #  2. Spring Batch 메타데이터 (BATCH_* 테이블 — job 이력·재시작 지점)
+  # 같은 DB 를 쓰는 게 의도다. job 메타데이터를 위해 별도 저장소를 띄우는 건 과하고,
+  # 색인기가 이미 이 DB 에 붙어 있다.
+  datasource:
+    url: jdbc:postgresql://localhost:5432/place
     username: place
     password: place
+    hikari:
+      # 색인 중 동시에 필요한 커넥션: 커서 리더 1 + 청크 트랜잭션 1 + JobRepository 1 + lag 지표 1.
+      # 한 번에 job 하나만 도니 이 정도로 충분하고, 넉넉히 8 로 둔다.
+      maximum-pool-size: 8
+
+  batch:
+    job:
+      # **부팅 시 job 자동 실행 끔.** 기본값이 true 라서, 이걸 안 끄면 뜨자마자 job 을 하나
+      # 골라 돌리려 하고(여러 개면 실패) 원천을 훑기 시작한다. job 은 /admin/* 이나
+      # 스케줄러가 부를 때만 돈다 (BatchConfig 주석 참고).
+      enabled: false
 
 server:
   # 검색 API(8080)와 같은 장비에서 함께 띄울 수 있게 포트를 나눈다.
@@ -30,8 +47,14 @@ psp:
   # 색인 파이프라인 설정
   index:
     checkpoint-index: psp_index_checkpoint
-    # ES bulk 한 번에 보낼 문서 수.
+    # ES bulk 한 번에 보낼 문서 수 = Spring Batch 의 **chunk 크기**.
+    # chunk 하나가 곧 트랜잭션 하나이고 재시작 단위다 (ADR 0013).
     batch-size: 2000
+
+    # JDBC 커서가 한 번에 끌어올 행 수. chunk 크기와 다른 손잡이다 —
+    # chunk 는 "얼마나 모아서 쓰나", fetch-size 는 "얼마나 모아서 읽나".
+    # 기본값(0=드라이버 위임)으로 두면 postgres JDBC 가 결과를 전부 메모리에 올린다.
+    fetch-size: 1000
 
     # 재색인 후 남길 버전 수(현재 포함). 2 = 현재 + 직전 1개를 롤백용으로 보존하고(회사의
     # yesterday+today 패턴), 그보다 낮은 버전과 취소·실패로 남은 고아는 지운다.

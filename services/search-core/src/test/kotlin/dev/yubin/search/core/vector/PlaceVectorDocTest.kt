@@ -99,7 +99,7 @@ class PlaceVectorDocTest {
 	@Test
 	fun `점 id 는 place_id 로부터 결정적으로 만들어진다`() {
 		// 재실행해도 같은 id 여야 upsert/delete 가 멱등하다.
-		assertEquals(QdrantStore.pointId("P1"), QdrantStore.pointId("P1"))
-		assertTrue(QdrantStore.pointId("P1") != QdrantStore.pointId("P2"))
+		assertEquals(QdrantContract.pointId("P1"), QdrantContract.pointId("P1"))
+		assertTrue(QdrantContract.pointId("P1") != QdrantContract.pointId("P2"))
 	}
 }

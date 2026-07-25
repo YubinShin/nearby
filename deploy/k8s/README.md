@@ -25,8 +25,10 @@ deploy/k8s/
 ## 설계 메모 (왜 이렇게 했나)
 
 - **주소 주입은 env 로.** `search-core/core.yml` 은 ES·Qdrant 주소를 `localhost` 로 적어 뒀지만,
-  Spring 완화 바인딩이 `SPRING_ELASTICSEARCH_URIS` / `PSP_QDRANT_URL` / `SPRING_R2DBC_URL`
+  Spring 완화 바인딩이 `SPRING_ELASTICSEARCH_URIS` / `PSP_QDRANT_URL` / `SPRING_DATASOURCE_URL`
   환경변수로 그 값을 덮는다. 그래서 **k8s 를 위해 설정 파일을 고치지 않았다** — 서비스 DNS 만 넣는다.
+  (색인기가 R2DBC → JDBC 로 내려오면서 이 이름이 `SPRING_R2DBC_URL` 에서 바뀌었다 — ADR 0013.
+  이런 종류의 변경이 이미지를 굽고 ECR 에 올린 **뒤에** 오면 비싸다는 게 리팩터를 앞당긴 이유였다.)
 - **백엔드는 StatefulSet, 앱은 Deployment.** 백엔드(ES/Qdrant/PostGIS)는 디스크에 상태를 들고 있어
   안정된 이름과 PVC 재부착이 필요하다. 앱은 상태가 없어 언제든 갈아끼워도 된다.
 - **anti-affinity 가 분리의 마지막 조각.** 앱을 쪼갰어도 같은 노드에 얹히면 색인기의 CPU 버스트가
@@ -62,9 +64,15 @@ kubectl -n nearby get pods -w
 전부 `Running` + `READY` 가 되면:
 
 ```bash
-# 5) 색인 트리거 (indexer-batch 로 port-forward 후 /admin/reindex)
+# 5) 색인 트리거 — 접수만 하고 즉시 202 + jobId 를 준다 (ADR 0013)
 kubectl -n nearby port-forward svc/indexer-batch 8081:80 &
-curl -X POST localhost:8081/admin/reindex
+curl -X POST localhost:8081/admin/reindex          # 키워드 → {"jobId":1,"poll":"/admin/jobs/1"}
+curl -X POST localhost:8081/admin/vector/reindex   # 벡터(kind 실측 32분)
+
+# 5-1) 진행 조회. port-forward 가 끊겨도 색인은 계속 돈다 — job 스레드에서 돌기 때문이다.
+#      건수는 Spring Batch 가 chunk 커밋마다 BATCH_STEP_EXECUTION 에 적은 값이라
+#      파드를 재시작해도 이력이 남는다.
+curl -s localhost:8081/admin/jobs/2 | jq '{status, steps: [.steps[] | {name, read, written}]}'
 
 # 6) 검색 (search-api)
 kubectl -n nearby port-forward svc/search-api 8080:80 &

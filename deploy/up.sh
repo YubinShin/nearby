@@ -19,9 +19,17 @@ docker compose -f deploy/docker-compose.yml up -d --build
 
 echo "✔ 기동 완료. ES 상태:  curl -s localhost:9200/_cat/plugins?v"
 echo "  KOMORAN 사용자 사전은 deploy/elasticsearch/analysis/komoran/place.dict 를 마운트해 쓴다."
-echo "  원천 데이터가 바뀌었다면 재생성 후 재색인:"
-echo "    python3 scripts/build_komoran_dict.py && curl -XPOST localhost:8080/admin/reindex"
+echo
+echo "  ── 색인은 색인기(8081)에 건다. 질의기(8080)에는 관리 API 가 아예 없다 (ADR 0011)."
+echo "     재색인은 접수만 하고 즉시 202 + jobId 를 준다 — 진행은 따로 조회한다 (ADR 0013)."
+echo
+echo "  원천 데이터가 바뀌었다면 사전 재생성 후 재색인:"
+echo "    python3 scripts/build_komoran_dict.py"
+echo "    curl -XPOST localhost:8081/admin/reindex            # → 202 {\"jobId\":1,...}"
+echo "    curl localhost:8081/admin/jobs/1                    # 진행·결과 조회"
 echo
 echo "  벡터(뜻) 검색을 쓰려면 임베딩 모델(470MB)이 먼저 있어야 한다:"
-echo "    ./scripts/fetch_embedding_model.sh && curl -XPOST localhost:8080/admin/vector/reindex"
+echo "    ./scripts/fetch_embedding_model.sh"
+echo "    curl -XPOST localhost:8081/admin/vector/reindex"
 echo "  (벡터 색인은 6만 건에 약 9분 — 임베딩 추론이 병목이다. ADR 0010)"
+echo "  이제 curl 을 끊어도 색인은 계속 돈다 — job 스레드에서 돌기 때문이다."

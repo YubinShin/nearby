@@ -3,8 +3,6 @@ package dev.yubin.search.core.meta
 import co.elastic.clients.elasticsearch.ElasticsearchClient
 import co.elastic.clients.elasticsearch._types.ElasticsearchException
 import co.elastic.clients.elasticsearch._types.Refresh
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
@@ -14,6 +12,12 @@ import org.springframework.stereotype.Component
  * **읽는 쪽과 쓰는 쪽이 같은 클래스를 쓰는 것**이 이 파일이 core 에 있는 이유다. 도장을 대조하는
  * 기능인데 정작 도장 형식이 두 앱에서 갈라지면 아무 의미가 없다. 색인기가 늘어나도
  * (`indexer-stream`) 같은 코드를 쓰게 된다.
+ *
+ * ### 블로킹인 이유 (ADR 0013)
+ * 밑에 있는 `ElasticsearchClient` 는 **동기 클라이언트**다. 전에는 그걸 `suspend` +
+ * `withContext(Dispatchers.IO)` 로 감싸고 있었는데, 그러면 이 클래스를 쓰는 모든 앱이 코루틴을
+ * 짊어진다. 게다가 실제 호출부는 둘 다 기다려도 되는 자리다 —
+ * 질의기는 **기동 시 한 번**(`IndexContractGuard`), 색인기는 **job 스레드**. 감싸서 얻는 게 없었다.
  */
 @Component
 class IndexMetaStore(private val es: ElasticsearchClient) {
@@ -22,9 +26,8 @@ class IndexMetaStore(private val es: ElasticsearchClient) {
 	 * 파이프라인의 도장을 남긴다. **alias 스왑이 성공한 뒤에** 부를 것 —
 	 * 실패한 색인의 도장이 남으면 대조가 거짓말을 한다.
 	 */
-	suspend fun write(pipeline: String, stamp: IndexMeta.Stamp): Unit = withContext(Dispatchers.IO) {
+	fun write(pipeline: String, stamp: IndexMeta.Stamp) {
 		es.index { it.index(IndexMeta.ES_INDEX).id(pipeline).document(stamp).refresh(Refresh.True) }
-		Unit
 	}
 
 	/**
@@ -35,14 +38,13 @@ class IndexMetaStore(private val es: ElasticsearchClient) {
 	 * 어긋난 색인 위에서 서비스하게 된다 — 이 클래스가 막으려던 바로 그 상태다.
 	 * 그래서 인덱스가 없는 경우(404)만 null 로 보고, 나머지 오류는 그대로 올린다.
 	 */
-	suspend fun read(pipeline: String): IndexMeta.Stamp? = withContext(Dispatchers.IO) {
+	fun read(pipeline: String): IndexMeta.Stamp? =
 		try {
 			es.get({ g -> g.index(IndexMeta.ES_INDEX).id(pipeline) }, IndexMeta.Stamp::class.java).source()
 		} catch (e: ElasticsearchException) {
 			// 인덱스가 아직 없다 = 아직 아무도 색인하지 않았다. (문서만 없으면 예외 없이 source()=null)
 			if (e.status() == HTTP_NOT_FOUND) null else throw e
 		}
-	}
 
 	/**
 	 * 저장된 도장이 [expected] 와 맞지 않으면 **예외를 던진다.**
@@ -55,7 +57,7 @@ class IndexMetaStore(private val es: ElasticsearchClient) {
 	 *
 	 * @param remedy 사람이 다음에 뭘 해야 하는지. 예외 메시지의 마지막 줄이 된다.
 	 */
-	suspend fun requireCompatible(pipeline: String, expected: IndexMeta.Stamp, remedy: String) {
+	fun requireCompatible(pipeline: String, expected: IndexMeta.Stamp, remedy: String) {
 		when (val verdict = IndexMeta.verify(read(pipeline), expected)) {
 			IndexMeta.Verdict.Ok -> Unit
 

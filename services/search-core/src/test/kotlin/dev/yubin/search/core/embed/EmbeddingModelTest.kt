@@ -1,6 +1,5 @@
 package dev.yubin.search.core.embed
 
-import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.condition.EnabledIf
@@ -22,7 +21,7 @@ import kotlin.test.assertTrue
 class EmbeddingModelTest {
 
 	@Test
-	fun `벡터는 384차원이고 길이가 1이다`() = runTest {
+	fun `벡터는 384차원이고 길이가 1이다`() {
 		val v = model.embedQuery("강남 브런치 카페")
 		assertEquals(384, v.size)
 		val norm = Math.sqrt(v.sumOf { (it * it).toDouble() })
@@ -30,7 +29,7 @@ class EmbeddingModelTest {
 	}
 
 	@Test
-	fun `뜻이 가까운 장소가 먼 장소보다 점수가 높다`() = runTest {
+	fun `뜻이 가까운 장소가 먼 장소보다 점수가 높다`() {
 		val q = model.embedQuery("회 먹을 데")
 		val (near, far) = model.embedPassages(
 			listOf(
@@ -44,13 +43,13 @@ class EmbeddingModelTest {
 	}
 
 	@Test
-	fun `같은 문장은 항상 같은 벡터가 된다`() = runTest {
+	fun `같은 문장은 항상 같은 벡터가 된다`() {
 		// 색인 때와 검색 때 결과가 흔들리면 유사도 자체가 무의미해진다.
 		assertTrue(model.embedQuery("스타벅스").contentEquals(model.embedQuery("스타벅스")))
 	}
 
 	@Test
-	fun `질의 접두어와 문서 접두어는 다른 벡터를 만든다`() = runTest {
+	fun `질의 접두어와 문서 접두어는 다른 벡터를 만든다`() {
 		// e5 의 접두어 규칙이 실제로 먹고 있는지 확인 — 안 먹으면 두 벡터가 같아진다.
 		val asQuery = model.embedQuery("카페")
 		val asPassage = model.embedPassages(listOf("카페")).single()

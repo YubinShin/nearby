@@ -1,10 +1,9 @@
 package dev.yubin.search.indexer.observability
 
 import dev.yubin.search.indexer.index.CheckpointStore
-import dev.yubin.search.indexer.index.PlaceR2dbcReader
+import dev.yubin.search.indexer.index.PlaceSourceDao
 import io.micrometer.core.instrument.Gauge
 import io.micrometer.core.instrument.MeterRegistry
-import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
@@ -29,7 +28,7 @@ import java.util.concurrent.atomic.AtomicLong
 class IndexLagMetrics(
 	registry: MeterRegistry,
 	private val checkpoints: CheckpointStore,
-	private val reader: PlaceR2dbcReader,
+	private val source: PlaceSourceDao,
 ) {
 	private val lagSeconds = AtomicLong(NO_CHECKPOINT)
 
@@ -40,13 +39,19 @@ class IndexLagMetrics(
 			.register(registry)
 	}
 
-	/** 게이지는 당겨오는(pull) 방식이라 값이 항상 준비돼 있어야 한다 → 주기적으로 미리 읽어 둔다. */
+	/**
+	 * 게이지는 당겨오는(pull) 방식이라 값이 항상 준비돼 있어야 한다 → 주기적으로 미리 읽어 둔다.
+	 *
+	 * `@Scheduled` 스레드에서 **그대로 블로킹**한다 (ADR 0013). 전에는 `runBlocking` 으로 코루틴
+	 * 세계를 열어 두 번의 IO 를 기다렸는데, 결국 이 스레드를 붙잡는 건 똑같았다 — 코루틴 껍데기만
+	 * 한 겹 있었던 셈이다. 두 질의 모두 값싸고(ES 문서 1건 조회 + 인덱스 끝 1행) 이 스레드는
+	 * 요청을 처리하지 않으므로 기다려도 아무도 안 기다린다.
+	 */
 	@Scheduled(fixedDelayString = "\${psp.metrics.lag-refresh-ms:10000}", initialDelayString = "5000")
 	fun refresh() {
 		try {
-			val (checkpoint, sourceLatest) = runBlocking {
-				checkpoints.get(CheckpointStore.PLACE_PIPELINE) to reader.maxUpdatedAt()
-			}
+			val checkpoint = checkpoints.get(CheckpointStore.PLACE_PIPELINE)
+			val sourceLatest = source.maxUpdatedAt()
 			lagSeconds.set(
 				when {
 					checkpoint == null -> NO_CHECKPOINT

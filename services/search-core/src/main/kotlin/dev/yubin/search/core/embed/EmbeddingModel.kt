@@ -5,17 +5,13 @@ import ai.djl.inference.Predictor
 import ai.djl.repository.zoo.Criteria
 import ai.djl.repository.zoo.ZooModel
 import jakarta.annotation.PreDestroy
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.sync.Semaphore
-import kotlinx.coroutines.sync.withPermit
-import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 import java.nio.file.Files
 import java.nio.file.Path
-import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.ArrayBlockingQueue
 
 /**
  * 문장을 벡터로 바꾼다 — 뜻으로 찾기(5단계)의 재료 (ADR 0010).
@@ -30,22 +26,41 @@ import java.util.concurrent.ConcurrentLinkedQueue
  * 추론에서도 똑같이 붙여야 성능이 나온다 — 빼먹으면 조용히 품질만 나빠지는 종류의 실수라
  * 호출부가 실수할 수 없게 [embedQuery] / [embedPassages] 로 갈라두었다.
  *
- * ### 스레드 처리
+ * ### 스레드 처리 — **이 클래스는 블로킹이다** (ADR 0013)
+ * 추론은 ONNX 네이티브 호출이라 **본질적으로 블로킹**이다. 전에는 이 클래스가 `suspend` 였는데,
+ * 그건 블로킹 호출을 `withContext` 로 감싸 스레드를 옮긴 것뿐이었다 — 안 기다리게 만든 게 아니라
+ * **누가 기다릴지를 여기서 정해버린 것**이다. 그래서 배치 색인기는 쓰지도 않는 코루틴을 짊어졌다.
+ *
+ * 지금은 **어느 스레드에서 돌릴지를 호출자가 고른다.**
+ * - `indexer-batch` → Batch 의 job 스레드에서 그냥 부른다 (동시성 1, 대기 자체가 없다).
+ * - `search-api` → `Dispatchers.Default.limitedParallelism(poolSize)` 에서 부른다. 대기가
+ *   **스레드 블로킹이 아니라 코루틴 서스펜션**으로 일어나 이벤트 루프가 멀쩡하다. 예전 코루틴
+ *   세마포어가 하던 일이 그 디스패처로 옮겨간 것이다.
+ *
  * DJL `Predictor` 는 스레드 안전하지 않다. 모델(ONNX 세션)은 공유하고 Predictor 만 풀로 돌린다.
- * 추론은 CPU 를 태우는 일이라 [Dispatchers.Default] 에서 돌리고, 풀 크기만큼만 동시에 들어가도록
- * 코루틴 세마포어로 막는다 (IO 디스패처를 쓰면 CPU 코어 수보다 많은 추론이 몰려 서로 느려진다).
+ * 풀을 **블로킹 큐**로 두면 "동시 추론은 [poolSize] 개까지"라는 규칙이 자료구조 하나에 다 들어간다
+ * (전에는 세마포어 + 큐 두 곳에 흩어져 있었다).
  */
 @Component
 @ConditionalOnProperty(prefix = "psp.vector", name = ["enabled"], havingValue = "true", matchIfMissing = true)
 class EmbeddingModel(
 	@Value("\${psp.embedding.model-dir}") modelDir: String,
 	@Value("\${psp.embedding.max-tokens}") maxTokens: Int,
-	@Value("\${psp.embedding.pool-size}") private val poolSize: Int,
+	/**
+	 * 동시에 추론에 들어갈 수 있는 수. **호출자가 자기 동시성을 여기에 맞추기 위해 읽는다** —
+	 * `search-api` 가 `limitedParallelism(poolSize)` 를 만들 때 쓴다. 그래서 public 이다.
+	 */
+	@Value("\${psp.embedding.pool-size}") final val poolSize: Int,
 ) {
 
 	private val model: ZooModel<String, FloatArray>
-	private val idle = ConcurrentLinkedQueue<Predictor<String, FloatArray>>()
-	private val permits = Semaphore(poolSize)
+
+	/**
+	 * 유휴 Predictor 풀. [poolSize] 개를 미리 만들어 채우고 [ArrayBlockingQueue.take] 로 꺼낸다 —
+	 * 비어 있으면 **기다린다.** 이 큐가 곧 동시성 제한이라, 예전처럼 "없으면 하나 더 만들기"
+	 * 우회 경로가 없다(그 경로는 풀이 조용히 커질 여지였다).
+	 */
+	private val idle: ArrayBlockingQueue<Predictor<String, FloatArray>> = ArrayBlockingQueue(poolSize)
 
 	// 스프링 all-open 플러그인이 @Component 의 멤버를 open 으로 바꾸므로, init 에서 채우는
 	// 프로퍼티는 final 을 명시해야 한다.
@@ -87,7 +102,8 @@ class EmbeddingModel(
 			.build()
 			.loadModel()
 
-		repeat(poolSize) { idle.add(model.newPredictor()) }
+		repeat(poolSize) { idle.put(model.newPredictor()) }
+		// 풀에서 빌리지 않고 따로 만들어 쓰고 닫는다 — 기동 중이라 경쟁이 없고, 풀을 건드리지 않는다.
 		dimension = model.newPredictor().use { it.predict("차원 확인").size }
 
 		log.info(
@@ -96,19 +112,21 @@ class EmbeddingModel(
 		)
 	}
 
-	/** 사용자가 친 검색어 → 벡터. */
-	suspend fun embedQuery(text: String): FloatArray = embed(listOf(QUERY_PREFIX + text)).first()
+	/** 사용자가 친 검색어 → 벡터. **블로킹** — 호출자가 알맞은 스레드에서 부를 것. */
+	fun embedQuery(text: String): FloatArray = embed(listOf(QUERY_PREFIX + text)).first()
 
-	/** 색인할 장소 설명문들 → 벡터. 배치로 넣어야 추론이 빠르다. */
-	suspend fun embedPassages(texts: List<String>): List<FloatArray> =
+	/** 색인할 장소 설명문들 → 벡터. 배치로 넣어야 추론이 빠르다. **블로킹.** */
+	fun embedPassages(texts: List<String>): List<FloatArray> =
 		if (texts.isEmpty()) emptyList() else embed(texts.map { PASSAGE_PREFIX + it })
 
-	private suspend fun embed(prefixed: List<String>): List<FloatArray> = permits.withPermit {
-		val predictor = idle.poll() ?: model.newPredictor()
-		try {
-			withContext(Dispatchers.Default) { predictor.batchPredict(prefixed) }
+	private fun embed(prefixed: List<String>): List<FloatArray> {
+		// 풀이 비어 있으면 여기서 기다린다. 호출자가 동시성을 poolSize 에 맞춰 두면 사실상 안 기다린다.
+		val predictor = idle.take()
+		return try {
+			predictor.batchPredict(prefixed)
 		} finally {
-			idle.offer(predictor)
+			// 꺼낸 건 반드시 돌려놓는다 — 못 돌려놓으면 풀이 영구히 줄어든다(느려지기만 하고 조용하다).
+			idle.put(predictor)
 		}
 	}
 

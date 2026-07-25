@@ -16,10 +16,12 @@
 | `GET` | [`/v1/instant`](#get-v1instant) | 추천어 + 결과 미리보기 (팬아웃) | ✅ |
 | `GET` | [`/v1/vsearch`](#get-v1vsearch) | 벡터(뜻) 검색 (Qdrant) | ✅ |
 | `GET` | [`/v1/hsearch`](#get-v1hsearch) | **하이브리드 결합** (키워드 + 벡터, RRF) | ✅ |
-| `POST` | [`/admin/reindex`](#post-adminreindex) | 무중단 전체 재색인 (키워드) | ✅ |
-| `POST` | [`/admin/reindex/incremental`](#post-adminreindexincremental) | 증분 색인 (키워드) | ✅ |
-| `POST` | [`/admin/vector/reindex`](#post-adminvectorreindex) | 무중단 전체 재색인 (벡터) | ✅ |
-| `POST` | `/admin/vector/reindex/incremental` | 증분 색인 (벡터) | ✅ |
+| `POST` | [`/admin/reindex`](#post-adminreindex) | 무중단 전체 재색인 (키워드) — **202 접수증** | ✅ |
+| `POST` | [`/admin/reindex/incremental`](#post-adminreindexincremental) | 증분 색인 (키워드) — **202** | ✅ |
+| `POST` | [`/admin/vector/reindex`](#post-adminvectorreindex) | 무중단 전체 재색인 (벡터) — **202** | ✅ |
+| `POST` | `/admin/vector/reindex/incremental` | 증분 색인 (벡터) — **202** | ✅ |
+| `GET` | [`/admin/jobs/{jobId}`](#get-adminjobsjobid) | 색인 진행 상황·결과 조회 | ✅ |
+| `POST` | [`/admin/cleanup`](#post-admincleanup--post-adminvectorcleanup) | 옛 버전 정리 (동기) | ✅ |
 | `GET` | `/actuator/health` · `/actuator/prometheus` | 상태·지표 | ✅ |
 | `GET` | `/` | 세 채널 비교 페이지 (개발·시연용 정적 HTML) | ✅ |
 
@@ -336,26 +338,28 @@ score(문서) = Σ  가중치 / (k + 그 채널에서의 등수)          k = 60
 
 ---
 
+## 색인은 접수증을 받아요 (ADR 0013)
+
+재색인 엔드포인트는 **색인이 끝날 때까지 기다리지 않아요.** 접수하면 즉시 `202` 와 `jobId` 를
+주고, 색인은 뒤에서 계속 돌아요. 택배 송장번호랑 같아요.
+
+전에는 응답이 올 때까지 기다렸는데, 벡터 재색인이 **8분 33초**(kind 환경 32분)라 문제가 셋이었어요.
+`curl` 을 끊으면 색인도 죽고, 그 취소 경로에서 DB 커넥션이 새고, 진행 상황은 로그밖에 없었어요.
+
 ## `POST /admin/reindex`
 
 무중단 전체 재색인 — 새 버전 인덱스를 뒤에서 만들고 alias만 원자적으로 옮겨요.
 (3단계 실측: 64,239건 약 14초, 그 사이 검색 무중단)
 
 ```jsonc
-{ "read": 64239, "searchIndexed": 64239, "suggestIndexed": 64239,
-  "searchIndex": "place_search_v5", "suggestIndex": "place_suggest_v5",
-  "removed": ["place_search_v4", "place_suggest_v4"] }
+// 202 Accepted
+{ "jobId": 12, "jobName": "keywordRebuild", "status": "STARTING", "poll": "/admin/jobs/12" }
 ```
 
 ## `POST /admin/reindex/incremental`
 
 체크포인트 이후 바뀐 것만 반영해요(멱등). 소프트 삭제된 행은 인덱스에서 지워요.
-
-```jsonc
-{ "since": "2026-07-22T19:35:06.111581+09:00", "matched": 1, "upserted": 1, "deleted": 0,
-  "checkpoint": "2026-07-23T15:40:47.502760+09:00",
-  "searchIndex": "place_search_v5", "suggestIndex": "place_suggest_v5" }
-```
+응답은 위와 같은 접수증 형태고 `jobName` 이 `keywordIncremental` 이에요.
 
 ## `POST /admin/vector/reindex`
 
@@ -363,15 +367,47 @@ score(문서) = Σ  가중치 / (k + 그 채널에서의 등수)          k = 60
 임베딩 추론이 훨씬 느려서(64,239건 **8분 33초** vs ES bulk 14초) 한 파이프라인에 묶으면
 느린 쪽이 주기를 결정해버려요. 체크포인트도 따로 전진해요.
 
-```jsonc
-{ "read": 64239, "upserted": 64239, "deleted": 0,
-  "collection": "place_vec_v2", "points": 64239,
-  "removed": ["place_vec_v1"], "elapsedMs": 512000, "embedMs": 486000 }
-```
-
 `POST /admin/vector/reindex/incremental` 은 벡터 체크포인트 이후 바뀐 것만 다시 임베딩해요.
 
-> ⚠️ `/admin/*` 는 **인증이 없어요.** 로컬 전용이라 그렇고, 운영이라면 관리자 인증과
+## `GET /admin/jobs/{jobId}`
+
+진행 상황과 결과예요. **끝난 job 도 답해요** — 이력이 Postgres 의 `BATCH_*` 테이블에 남아서,
+색인기를 재시작한 뒤에도 어제 실행이 몇 건이었는지 조회돼요.
+
+```jsonc
+{
+  "jobId": 12, "jobName": "keywordRebuild", "status": "COMPLETED",
+  "running": false, "elapsedMs": 17204,
+  // 아래 건수는 제가 센 게 아니라 Spring Batch 가 chunk 커밋마다 DB 에 적은 값이에요.
+  "steps": [
+    { "name": "keywordRebuild.prepare", "status": "COMPLETED", "read": 0,     "written": 0,     "commits": 1,  "rollbacks": 0 },
+    { "name": "keywordLoad",            "status": "COMPLETED", "read": 64239, "written": 64239, "commits": 33, "rollbacks": 0 },
+    { "name": "keywordRebuild.promote", "status": "COMPLETED", "read": 0,     "written": 0,     "commits": 1,  "rollbacks": 0 }
+  ],
+  // 프레임워크가 알 수 없는 도메인 요약이에요.
+  "summary": {
+    "searchIndex": "place_search_20260725163000",
+    "suggestIndex": "place_suggest_20260725163000",
+    "read": "64239", "upserted": "64239", "deleted": "0",
+    "checkpoint": "2026-07-25T07:30:12.481Z",
+    "removed": "place_search_20260724043000,place_suggest_20260724043000"
+  },
+  "failure": null
+}
+```
+
+`GET /admin/jobs?name=keywordRebuild&limit=10` 은 최근 실행 이력을 줘요.
+
+## `POST /admin/cleanup` · `POST /admin/vector/cleanup`
+
+이 둘만 **동기**예요(`200`). alias 를 보고 옛 버전을 지우는 것뿐이라 밀리초로 끝나서, job 이력을
+남길 가치가 없어요. **오래 걸리는 것만 job 으로 만들어요.**
+
+```jsonc
+{ "kept": 2, "removed": ["place_search_20260723043000"] }
+```
+
+> ⚠️ 관리 경로는 **인증이 없어요.** 로컬 전용이라 그렇고, 운영이라면 관리자 인증과
 > 레이트리밋이 필요해요 (아키텍처 크리틱 #9). 다만 이 경로는 `indexer-batch`(8081)에만
 > 있고 **공개 트래픽을 받는 `search-api` 의 jar 에는 클래스 자체가 없어요** (ADR 0011).
 
@@ -419,7 +455,7 @@ cd services
 ```
 
 "없는 것"은 꺼둔 게 아니라 **jar 에 클래스가 없어요.** (검증: `search-api.jar` 안에
-r2dbc/postgresql 0개, `Admin` 클래스 0개.) 그래서 질의 앱이 원천 창고를 열 방법 자체가 없어요.
+postgresql 드라이버 0개, `Admin` 클래스 0개.) 그래서 질의 앱이 원천 창고를 열 방법 자체가 없어요.
 
 여전히 런타임 스위치인 것은 하나예요.
 

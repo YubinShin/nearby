@@ -1,13 +1,14 @@
 package dev.yubin.search.vector
 
 import dev.yubin.search.core.embed.EmbeddingModel
-import dev.yubin.search.core.vector.QdrantStore
 import dev.yubin.search.core.vector.VectorMatch
 import dev.yubin.search.observability.QueryMetrics
 import dev.yubin.search.query.PlaceHit
 import dev.yubin.search.query.QueryLog
 import dev.yubin.search.query.SearchRequest
 import dev.yubin.search.query.SearchResponse
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
@@ -33,7 +34,7 @@ import java.util.Collections
 )
 class PlaceVectorSearchService(
 	private val embeddings: EmbeddingModel,
-	private val qdrant: QdrantStore,
+	private val qdrant: QdrantSearchStore,
 	private val metrics: QueryMetrics,
 	private val queryLog: QueryLog,
 	@Value("\${psp.vector.alias}") private val alias: String,
@@ -51,6 +52,20 @@ class PlaceVectorSearchService(
 			override fun removeEldestEntry(eldest: Map.Entry<String, FloatArray>) = size > cacheSize
 		},
 	)
+
+	/**
+	 * 임베딩 추론을 돌릴 디스패처.
+	 *
+	 * [EmbeddingModel] 은 **블로킹**이다 — ONNX 네이티브 호출이라 원래 그렇고, 전에 `suspend` 였던
+	 * 건 그 사실을 가린 것뿐이었다 (ADR 0013). 그래서 "어디서 기다릴지"를 여기서 정한다.
+	 *
+	 * - `Dispatchers.Default` — 추론은 **CPU 를 태우는** 일이다. IO 디스패처(기본 64 스레드)에 넣으면
+	 *   코어 수보다 많은 추론이 몰려 서로 느려진다.
+	 * - `limitedParallelism(poolSize)` — 모델의 Predictor 풀 크기에 맞춘다. 그러면 초과 요청은
+	 *   **스레드를 붙잡고 블로킹하는 대신 코루틴으로 서스펜드**해 대기한다. 예전 코루틴 세마포어가
+	 *   하던 일이 정확히 이것이고, 이제 그게 코루틴을 쓰는 쪽(질의기)에 있다.
+	 */
+	private val embedDispatcher = Dispatchers.Default.limitedParallelism(embeddings.poolSize)
 
 	suspend fun search(req: SearchRequest): SearchResponse = metrics.record(CHANNEL) {
 		if (req.q.isBlank()) return@record SearchResponse(req.q, 0, req.page, req.size, 0)
@@ -102,7 +117,9 @@ class PlaceVectorSearchService(
 
 	private suspend fun embedQuery(q: String): FloatArray {
 		queryVectors[q]?.let { return it }
-		val vector = metrics.stage(CHANNEL, "embed") { embeddings.embedQuery(q) }
+		val vector = metrics.stage(CHANNEL, "embed") {
+			withContext(embedDispatcher) { embeddings.embedQuery(q) }
+		}
 		queryVectors[q] = vector
 		return vector
 	}
