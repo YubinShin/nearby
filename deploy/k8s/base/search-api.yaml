@@ -1,0 +1,67 @@
+# search-api — 질의 앱 (ADR 0011). /v1/* + 벡터 + 하이브리드 RRF + 비교 UI.
+# /admin 도, PostGIS 연결도 여기 없다 — 플래그로 끈 게 아니라 클래스가 jar 에 없다.
+#
+# 자원 성격: 저지연·상시 가동. 색인기와 **정반대**라 같은 노드에 묶을 이유가 없다(anti-affinity).
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: search-api
+  namespace: nearby
+  labels: { app: search-api }
+spec:
+  selector: { app: search-api }
+  ports:
+    - { name: http, port: 80, targetPort: 8080 }
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: search-api
+  namespace: nearby
+  labels: { app: search-api }
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: search-api }
+  template:
+    metadata:
+      labels: { app: search-api }
+    spec:
+      # ── 분리의 값을 여기서 지킨다 ─────────────────────────────────────────
+      # 색인기와 질의기를 **다른 노드**에 놓으려 한다. 같은 노드면 색인기의 임베딩 배치가
+      # CPU 를 태울 때 질의 지연이 함께 튄다(분리했는데 자원은 안 나뉜 상태 = 측정에서 11.5→23.4ms).
+      # base 에서는 preferred(단일 노드 kind 에서도 뜬다). eks 오버레이가 required 로 굳혀
+      # 진짜 다른 노드로 강제한다.
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels: { app: indexer-batch }
+                topologyKey: kubernetes.io/hostname
+      containers:
+        - name: search-api
+          image: nearby-search-api:latest
+          imagePullPolicy: IfNotPresent   # kind 로 load 한 로컬 이미지.
+          ports:
+            - { name: http, containerPort: 8080 }
+          envFrom:
+            - configMapRef: { name: search-backends }
+          resources:
+            # 힙은 이미지에서 컨테이너 메모리의 50%(-XX:MaxRAMPercentage). 나머지 절반은
+            # ONNX 네이티브(임베딩)가 쓴다. 한계를 이 비율에 맞춰 잡지 않으면 힙 여유가 있어도
+            # 네이티브 할당 실패로 OOMKilled 가 난다.
+            requests: { cpu: "250m", memory: "1Gi" }
+            limits:   { memory: "2Gi" }
+          readinessProbe:
+            httpGet: { path: /actuator/health/readiness, port: 8080 }
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 12
+          livenessProbe:
+            httpGet: { path: /actuator/health/liveness, port: 8080 }
+            initialDelaySeconds: 60
+            periodSeconds: 20

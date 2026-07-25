@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Nearby 검색 스택의 공통(base) 정의. 환경별 차이는 overlays/ 가 덮는다.
+#   overlays/kind : 로컬 검증 (자원 축소, 로컬 이미지)
+#   overlays/eks  : 진짜 다른 노드로 anti-affinity 강제 + 레지스트리 접두어
+namespace: nearby
+
+resources:
+  - namespace.yaml
+  # 상태 백엔드 (StatefulSet)
+  - elasticsearch.yaml
+  - qdrant.yaml
+  - postgis.yaml
+  # 앱 (Deployment)
+  - search-api.yaml
+  - indexer-batch.yaml
+  # 설정
+  - backend-wiring.yaml
+  - komoran-dict.configmap.yaml

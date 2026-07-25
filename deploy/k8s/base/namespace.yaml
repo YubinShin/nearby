@@ -1,0 +1,7 @@
+# Nearby 검색 스택 전체가 이 네임스페이스 안에서 돈다.
+# 한 클러스터에 여러 팀/용도가 올라오는 게 이 프로젝트의 지향(용도별 멀티클러스터)이라,
+# 처음부터 네임스페이스로 경계를 그어 둔다.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nearby

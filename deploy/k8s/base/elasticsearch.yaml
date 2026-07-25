@@ -1,0 +1,87 @@
+# Elasticsearch — 키워드 검색 엔진 (ADR 0002), KOMORAN 형태소 플러그인 포함 (ADR 0008).
+#
+# 이미지: psp-elasticsearch-komoran:9.4.2  (deploy/elasticsearch/Dockerfile 로 빌드, kind 에 load)
+#
+# 왜 StatefulSet 인가 — ES 는 상태(인덱스)를 디스크에 들고 있다. Deployment 로 띄우면 파드가
+# 갈릴 때마다 새 임의 이름과 새 볼륨을 받아 데이터가 흩어진다. StatefulSet 은 안정된 이름
+# (elasticsearch-0)과 **같은 PVC 를 재부착**해서, 파드가 죽었다 떠도 인덱스가 그대로다.
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch
+  namespace: nearby
+  labels: { app: elasticsearch }
+spec:
+  # headless(clusterIP: None): StatefulSet 파드에 안정된 DNS(elasticsearch-0.elasticsearch)를
+  # 주기 위한 것. 앱은 서비스 이름 'elasticsearch:9200' 으로 붙는다(단일 노드라 이걸로 충분).
+  clusterIP: None
+  selector: { app: elasticsearch }
+  ports:
+    - name: http
+      port: 9200
+      targetPort: 9200
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: elasticsearch
+  namespace: nearby
+  labels: { app: elasticsearch }
+spec:
+  serviceName: elasticsearch
+  replicas: 1
+  selector:
+    matchLabels: { app: elasticsearch }
+  template:
+    metadata:
+      labels: { app: elasticsearch }
+    spec:
+      # ── ES 가 뜨기 전에 커널 한 줄을 고쳐야 한다 ─────────────────────────────
+      # ES 는 Lucene 세그먼트를 mmap 으로 연다. 기본 vm.max_map_count(65530)로는 매핑
+      # 개수가 모자라 부팅 중 bootstrap check 에서 죽는다. 이 값은 **노드 커널** 설정이라
+      # 컨테이너 안에서 못 바꾼다 → privileged initContainer 로 노드에 sysctl 을 건다.
+      # (kind 는 Docker Desktop VM 커널을 공유해 대개 이미 크지만, 명시해 두면 EKS 에서도 동일하게 뜬다.)
+      initContainers:
+        - name: sysctl-max-map-count
+          image: busybox:1.36
+          command: ["sh", "-c", "sysctl -w vm.max_map_count=262144"]
+          securityContext:
+            privileged: true
+      containers:
+        - name: elasticsearch
+          image: psp-elasticsearch-komoran:9.4.2
+          imagePullPolicy: IfNotPresent   # kind 로 load 한 로컬 이미지. 레지스트리에서 당기지 않는다.
+          env:
+            - { name: discovery.type, value: single-node }
+            - { name: xpack.security.enabled, value: "false" }   # 로컬/데모 전용. 운영에서는 끄지 않는다.
+            - { name: ES_JAVA_OPTS, value: "-Xms1g -Xmx1g" }     # 힙은 컨테이너 메모리의 절반 이하로.
+          ports:
+            - { name: http, containerPort: 9200 }
+          resources:
+            requests: { cpu: "250m", memory: "1536Mi" }
+            limits:   { memory: "2Gi" }
+          volumeMounts:
+            - name: data
+              mountPath: /usr/share/elasticsearch/data
+            # KOMORAN 사용자 사전. 인덱스 매핑이 analysis/komoran/place.dict 를 참조하므로
+            # (search-core es/place_search.json), 색인기가 인덱스를 만들 때 이 파일이 반드시
+            # 여기 있어야 한다 — 없으면 인덱스 생성이 실패한다. compose 의 volume 마운트와 같은 역할.
+            - name: komoran-dict
+              mountPath: /usr/share/elasticsearch/config/analysis/komoran
+              readOnly: true
+          readinessProbe:
+            httpGet: { path: /_cluster/health, port: 9200 }
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 12
+      volumes:
+        - name: komoran-dict
+          configMap:
+            name: komoran-dict
+  volumeClaimTemplates:
+    - metadata: { name: data }
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests: { storage: 5Gi }

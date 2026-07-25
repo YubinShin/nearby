@@ -1,0 +1,66 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# EKS(진짜 멀티 노드)용. kind 와 결정적으로 다른 한 가지: anti-affinity 를 **required 로 굳혀**
+# 색인기와 질의기를 강제로 다른 노드에 놓는다. 이게 분리의 마지막 조각이다 —
+# 앱을 쪼갰어도 같은 노드에 얹히면 색인기의 CPU 버스트가 질의 지연을 끌어올린다
+# (kind 단일 노드 실측: 11.5 → 23.4ms). 다른 노드로 떼어야 지연이 ~11ms 로 돌아온다.
+#
+# 전제: 노드가 2개 이상이고, 이미지는 ECR 같은 레지스트리에 push 돼 있어야 한다.
+# ⚠️ nearby-postgis 는 amd64(postgis/postgis:16-3.4 기반)라 노드가 x86 이어야 한다(Graviton 불가).
+
+resources:
+  - ../../base
+
+# 로컬 이미지 이름 → 레지스트리 경로. <ACCOUNT> 를 실제 ECR 계정으로 바꾼다.
+images:
+  - name: nearby-search-api
+    newName: <ACCOUNT>.dkr.ecr.ap-northeast-2.amazonaws.com/nearby-search-api
+    newTag: latest
+  - name: nearby-indexer-batch
+    newName: <ACCOUNT>.dkr.ecr.ap-northeast-2.amazonaws.com/nearby-indexer-batch
+    newTag: latest
+  - name: nearby-postgis
+    newName: <ACCOUNT>.dkr.ecr.ap-northeast-2.amazonaws.com/nearby-postgis
+    newTag: seeded
+  - name: psp-elasticsearch-komoran
+    newName: <ACCOUNT>.dkr.ecr.ap-northeast-2.amazonaws.com/psp-elasticsearch-komoran
+    newTag: 9.4.2
+
+patches:
+  # 질의기: 색인기와 **반드시** 다른 노드에. preferred → required.
+  - target: { kind: Deployment, name: search-api }
+    patch: |
+      - op: replace
+        path: /spec/template/spec/affinity/podAntiAffinity
+        value:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels: { app: indexer-batch }
+              topologyKey: kubernetes.io/hostname
+  # 색인기: 질의기와 **반드시** 다른 노드에.
+  - target: { kind: Deployment, name: indexer-batch }
+    patch: |
+      - op: replace
+        path: /spec/template/spec/affinity/podAntiAffinity
+        value:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels: { app: search-api }
+              topologyKey: kubernetes.io/hostname
+  # 상태 백엔드는 EKS 기본 스토리지클래스(gp3)를 쓰게 명시. (kind 는 standard 라 base 에 안 박았다.)
+  - target: { kind: StatefulSet, name: elasticsearch }
+    patch: |
+      - op: add
+        path: /spec/volumeClaimTemplates/0/spec/storageClassName
+        value: gp3
+  - target: { kind: StatefulSet, name: qdrant }
+    patch: |
+      - op: add
+        path: /spec/volumeClaimTemplates/0/spec/storageClassName
+        value: gp3
+  - target: { kind: StatefulSet, name: postgis }
+    patch: |
+      - op: add
+        path: /spec/volumeClaimTemplates/0/spec/storageClassName
+        value: gp3

@@ -1,0 +1,72 @@
+# indexer-batch — 색인 앱 (ADR 0011). /admin/* + PostGIS(R2DBC) 읽기 → ES·Qdrant 쓰기.
+# /v1/* 은 여기 없다. 이 앱만 원천 창고(PostGIS)에 붙는다.
+#
+# 자원 성격: CPU 버스티(임베딩이 색인 시간의 95.8%), 저지연 상시 가동 아님. 그래서 질의기와
+# 다른 노드로 떼어 둔다 — 색인기가 OOMKilled 나도 검색은 살아 있게(분리의 핵심 논거, ADR 0011).
+#
+# Service 는 얇게 둔다: 데모에서 /admin/reindex 를 port-forward 로 부르기 위한 것.
+# 운영이면 이 엔드포인트는 클러스터 밖으로 노출하지 않는다(architecture-review #9).
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: indexer-batch
+  namespace: nearby
+  labels: { app: indexer-batch }
+spec:
+  selector: { app: indexer-batch }
+  ports:
+    - { name: http, port: 80, targetPort: 8081 }
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: indexer-batch
+  namespace: nearby
+  labels: { app: indexer-batch }
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: indexer-batch }
+  template:
+    metadata:
+      labels: { app: indexer-batch }
+    spec:
+      # 질의기와 반대 방향의 같은 규칙: 서로 다른 노드에 놓으려 한다(search-api.yaml 주석 참고).
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels: { app: search-api }
+                topologyKey: kubernetes.io/hostname
+      containers:
+        - name: indexer-batch
+          image: nearby-indexer-batch:latest
+          imagePullPolicy: IfNotPresent   # kind 로 load 한 로컬 이미지.
+          ports:
+            - { name: http, containerPort: 8081 }
+          envFrom:
+            - configMapRef: { name: search-backends }
+          env:
+            # 원천 창고(PostGIS) 주소. 색인기만 갖는다. core.yml 에는 없고 application.yml 의
+            # localhost 를 이 환경변수가 덮는다(spring.r2dbc.* ← SPRING_R2DBC_*).
+            - { name: SPRING_R2DBC_URL, value: "r2dbc:postgresql://postgis:5432/place" }
+            - { name: SPRING_R2DBC_USERNAME, value: "place" }
+            - { name: SPRING_R2DBC_PASSWORD, value: "place" }
+          resources:
+            # 힙은 이미지에서 40%(-XX:MaxRAMPercentage=40) — 질의기(50%)보다 낮다. 임베딩 추론이
+            # 힙 밖 ONNX 네이티브에서 도니 네이티브 여유를 더 준다. CPU 는 버스티라 한계를 넉넉히.
+            requests: { cpu: "500m", memory: "1Gi" }
+            limits:   { cpu: "2", memory: "2560Mi" }
+          readinessProbe:
+            httpGet: { path: /actuator/health/readiness, port: 8081 }
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 12
+          livenessProbe:
+            httpGet: { path: /actuator/health/liveness, port: 8081 }
+            initialDelaySeconds: 60
+            periodSeconds: 20

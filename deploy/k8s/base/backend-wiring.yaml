@@ -1,0 +1,18 @@
+# 백엔드 주소 주입 — **코드/설정 파일은 안 건드린다.**
+#
+# search-core 의 core.yml 은 ES·Qdrant 주소를 localhost 로 적어 뒀지만(로컬 compose 기준),
+# Spring 완화 바인딩 덕에 환경변수가 그 값을 덮는다:
+#   SPRING_ELASTICSEARCH_URIS  →  spring.elasticsearch.uris
+#   PSP_QDRANT_URL             →  psp.qdrant.url
+# 그래서 k8s 에서는 서비스 DNS 만 넣어 주면 된다. 두 앱이 함께 쓴다.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: search-backends
+  namespace: nearby
+data:
+  SPRING_ELASTICSEARCH_URIS: "http://elasticsearch:9200"
+  PSP_QDRANT_URL: "http://qdrant:6333"
+  # liveness/readiness 그룹을 확실히 연다. k8s 를 자동 감지하면 켜지지만, 명시해 두면
+  # 어느 환경에서든 /actuator/health/{liveness,readiness} 가 존재한다(프로브가 404 안 난다).
+  MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED: "true"
