@@ -5,6 +5,7 @@ import org.springframework.batch.core.job.Job
 import org.springframework.batch.core.job.parameters.JobParametersBuilder
 import org.springframework.batch.core.launch.JobOperator
 import org.springframework.batch.core.repository.JobRepository
+import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.stereotype.Service
 import java.time.Duration
 import java.time.LocalDateTime
@@ -110,9 +111,31 @@ class IndexJobService(
 		)
 	}
 
-	/** 진행 상황·결과 조회. 없는 id 면 null. */
+	/**
+	 * 진행 상황·결과 조회. 없는 id 면 null.
+	 *
+	 * ### 왜 `?:` 만으로는 부족한가 — 실측으로 잡은 함정
+	 * `getJobExecution(id)` 은 **널을 돌려줄 것처럼 생겼지만 없는 id 에는 예외를 던진다.**
+	 * 바이트코드를 뜯어보면 이 메서드 안에 쿼리가 둘 있는데, 예외 보호가 뒤쪽 하나에만 걸려 있다.
+	 *
+	 * ```
+	 * getJobExecution(long):
+	 *   getJobInstanceId(id)   ← 예외 테이블 범위 밖 — 없는 id 면 여기서 터진다
+	 *   queryForObject(...)     ← EmptyResultDataAccessException 을 잡아 null 을 돌려준다
+	 * ```
+	 *
+	 * 그래서 `GET /admin/jobs/999999` 가 404 대신 **500** 을 냈다. 시그니처만 보고 널 처리를
+	 * 했으면 놓쳤을 자리다 — "없는 걸 물었을 때"를 실제로 눌러봐야 나온다.
+	 *
+	 * `EmptyResultDataAccessException` 만 좁게 잡는다. `DataAccessException` 을 통째로 잡으면
+	 * 진짜 DB 장애(접속 끊김·권한)까지 "그런 job 없음"으로 뭉개서, 장애를 404 로 숨긴다.
+	 */
 	fun progress(jobId: Long): JobProgress? {
-		val execution = jobRepository.getJobExecution(jobId) ?: return null
+		val execution = try {
+			jobRepository.getJobExecution(jobId) ?: return null
+		} catch (_: EmptyResultDataAccessException) {
+			return null
+		}
 
 		return JobProgress(
 			jobId = execution.id,
@@ -142,13 +165,22 @@ class IndexJobService(
 		)
 	}
 
-	/** 최근 실행 이력. 어떤 job 이 언제 돌았는지 한눈에 — 전에는 로그를 뒤져야 알던 것. */
+	/**
+	 * 최근 실행 이력. 어떤 job 이 언제 돌았는지 한눈에 — 전에는 로그를 뒤져야 알던 것.
+	 *
+	 * 아직 한 번도 안 돌린 job 이름이면 **빈 목록**이다. 예외로 만들지 않는 이유: "이력이 없다"는
+	 * 정상 상태다(방금 배포한 색인기가 그렇다). [progress] 와 같은 이유로 조회 예외를 방어한다.
+	 */
 	fun recent(jobName: String, limit: Int): List<JobProgress> =
-		jobRepository.getJobInstances(jobName, 0, limit)
-			.flatMap { jobRepository.getJobExecutions(it) }
-			.sortedByDescending { it.createTime }
-			.take(limit)
-			.mapNotNull { progress(it.id) }
+		try {
+			jobRepository.getJobInstances(jobName, 0, limit)
+				.flatMap { jobRepository.getJobExecutions(it) }
+				.sortedByDescending { it.createTime }
+				.take(limit)
+				.mapNotNull { progress(it.id) }
+		} catch (_: EmptyResultDataAccessException) {
+			emptyList()
+		}
 
 	/** 아직 안 끝난 실행이 몇 개인지 — 스케줄러가 겹침을 판단할 때 쓴다. */
 	fun runningCount(jobName: String): Int =

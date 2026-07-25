@@ -28,6 +28,61 @@ images:
     newTag: 9.4.2
 
 patches:
+  # ── 노드 고정 (role 라벨은 deploy/eks/cluster.yaml 의 노드그룹이 붙인다) ──
+  #
+  # anti-affinity 만으로는 **실험이 오염된다.** 두 앱이 서로 다른 노드에 가는 것만 보장되고,
+  # ES·Qdrant·PostGIS 가 어디로 갈지는 스케줄러가 정한다. 하필 ES 가 색인 노드에 얹히면
+  # "질의 노드의 지연"을 재는 의미가 사라진다.
+  #
+  # 그래서 배치를 못박는다:
+  #   role=query → search-api + elasticsearch + qdrant   (질의 경로 전체 = 지연을 재는 노드)
+  #   role=index → indexer-batch + postgis               (원천 읽기를 노드 내부로 가둔다)
+  - target: { kind: Deployment, name: search-api }
+    patch: |
+      - op: add
+        path: /spec/template/spec/nodeSelector
+        value: { role: query }
+  - target: { kind: StatefulSet, name: elasticsearch }
+    patch: |
+      - op: add
+        path: /spec/template/spec/nodeSelector
+        value: { role: query }
+  - target: { kind: StatefulSet, name: qdrant }
+    patch: |
+      - op: add
+        path: /spec/template/spec/nodeSelector
+        value: { role: query }
+  - target: { kind: Deployment, name: indexer-batch }
+    patch: |
+      - op: add
+        path: /spec/template/spec/nodeSelector
+        value: { role: index }
+  - target: { kind: StatefulSet, name: postgis }
+    patch: |
+      - op: add
+        path: /spec/template/spec/nodeSelector
+        value: { role: index }
+
+  # ── 색인기에 CPU 를 몰아준다 (ADR 0013) ──
+  #
+  # base 는 `limits.cpu: "2"` 다. kind(단일 노드)에서 다른 파드에 자리를 내주려 묶은 값인데,
+  # 그게 곧 kind 재색인 32분 43초의 원인이었다 — 임베딩이 색인 시간의 96.1%이고 **CPU 에
+  # 거의 선형**이라, 코어를 5분의 1로 묶으면 4배 느려진다(로컬 10코어 512초 → kind 2코어 1,963초).
+  #
+  # 여기선 색인기가 노드를 독차지하므로 8 vCPU 중 7 을 준다. 예상 ~700초.
+  # 이게 세 번째 측정점이 되어 "색인 시간 = CPU 로 사는 손잡이"를 3점으로 고정한다.
+  #
+  # **메모리는 일부러 안 건드린다.** 메모리 제한을 바꾸면 MaxRAMPercentage=40 을 통해 힙 크기가
+  # 따라 변하고, 그러면 이 실험에 변수가 둘이 된다. 한 번에 하나만 바꾼다.
+  - target: { kind: Deployment, name: indexer-batch }
+    patch: |
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/cpu
+        value: "6"
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/cpu
+        value: "7"
+
   # 질의기: 색인기와 **반드시** 다른 노드에. preferred → required.
   - target: { kind: Deployment, name: search-api }
     patch: |

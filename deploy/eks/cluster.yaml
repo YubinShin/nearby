@@ -1,0 +1,91 @@
+# EKS 클러스터 — **실험용이다.** 재고 있는 운영 클러스터가 아니다 (ADR 0011 · 0013).
+#
+# ## 이 클러스터가 답하려는 질문 하나
+# ADR 0011 의 표에 ❌ 로 남은 칸이 있다: "색인이 질의 지연을 밀어올리는 것 — 같은 머신이면
+# 그대로 경쟁한다." kind 는 **단일 노드라 이 질문에 답할 수 없다.** 그래서 노드를 둘로 나눈
+# 클러스터를 띄워, 색인기와 질의기를 강제로 다른 노드에 놓고 지연을 다시 잰다.
+#
+# 답을 얻으면 지운다. `down.sh` 를 반드시 돌릴 것 — 컨트롤 플레인은 노드를 0으로 줄여도
+# 시간당 요금이 계속 나간다.
+#
+# ## 아키텍처가 amd64 인 이유
+# 로컬(M4)에서 구운 이미지 3개는 arm64 인데 `nearby-postgis` 만 amd64 다
+# (`postgis/postgis:16-3.4` 가 amd64 전용). 셋을 amd64 로 다시 굽는 쪽을 골랐다 —
+# `build-images.sh` 가 `PLATFORM` 을 이미 지원해서 명령 하나로 끝나고, 반대로 가면 **데이터가
+# 구워진 유일한 이미지**(PostGIS 시드 64,239행)의 베이스를 갈아야 한다. 위험한 쪽을 안 건드린다.
+# 수명 몇 시간짜리 실험에서 Graviton 절약분은 무의미하다.
+
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: nearby
+  region: ap-northeast-2
+  # `version` 을 일부러 비워둔다 — eksctl 이 그 시점에 지원되는 기본 버전을 고른다.
+  # 버전을 못박으면 몇 달 뒤 "지원 종료" 로 생성이 실패해서, 실험을 재현하려는 사람이
+  # 클러스터 버전부터 고쳐야 한다. 이 파일의 목적은 버전 고정이 아니다.
+
+iam:
+  # EBS CSI 드라이버가 IRSA(서비스 어카운트 → IAM 역할)를 쓴다. 이게 없으면 아래 애드온이
+  # 볼륨을 못 만들고, PVC 3개가 Pending 에서 영구 대기한다 → 아무것도 뜨지 않는다.
+  withOIDC: true
+
+addons:
+  # **이게 없으면 클러스터가 통째로 무용지물이다.** 최신 EKS 에는 in-tree EBS 프로비저너가
+  # 없어서, 이 드라이버 없이는 StatefulSet 세 개(ES·Qdrant·PostGIS)의 PVC 가 절대 바인딩되지
+  # 않는다. 증상이 "파드가 Pending" 뿐이라 원인을 찾기 어렵다.
+  - name: aws-ebs-csi-driver
+    wellKnownPolicies:
+      ebsCSIController: true
+
+managedNodeGroups:
+  # ── 질의 경로 전체를 한 노드에 ──
+  # search-api + Elasticsearch + Qdrant. 여기가 **지연을 재는 노드**다.
+  #
+  # ES·Qdrant 를 질의기와 같이 두는 게 의도다. "질의 경로"란 앱만이 아니라 엔진까지다.
+  # 이렇게 두면 실험이 두 갈래로 갈린다 (그게 목적이다):
+  #   · 벡터 재색인 중 → 색인 비용의 96.1%가 임베딩(순수 앱 CPU)이라 다른 노드로 빠진다 → 지연 회복 예상
+  #   · 키워드 재색인 중 → 비용이 ES `_bulk` 라 **같은 ES 파드를 때린다** → 회복 안 될 것으로 예상
+  # 이 비대칭이 확인되면 "앱 분리는 앱 CPU 경쟁만 푼다"는 결론이 데이터로 남는다.
+  - name: ng-query
+    instanceType: m7i.xlarge      # 4 vCPU / 16 GiB — 메모리 요청 합 ~2.8Gi, 제한 합 ~5Gi, ES 힙 1g
+    desiredCapacity: 1
+    minSize: 1
+    maxSize: 1
+    volumeSize: 50               # 노드 루트 디스크. ES 이미지(~1.5GB) + 앱 이미지(모델 490MB 포함)
+    labels:
+      role: query
+    # 퍼블릭 서브넷 = **NAT 게이트웨이를 안 만든다.** eksctl 기본은 프라이빗 노드 + NAT 인데,
+    # NAT 는 시간당 요금에 GB당 요금이 붙고 ECR 에서 500MB 이미지를 당길 때도 과금된다.
+    # 몇 시간짜리 실험에 프라이빗 서브넷이 사주는 건 없다.
+    privateNetworking: false
+    tags:
+      purpose: nearby-latency-experiment
+
+  # ── 색인기 전용 노드 ──
+  # CPU 를 몰아준다. 임베딩 추론이 색인 시간의 96.1%이고 **CPU 에 거의 선형**이라,
+  # 이 인스턴스 타입이 곧 재색인 소요 시간이다.
+  #
+  # 실측 3점 (같은 64,239건):
+  #   2코어(kind)   → 1,963초 · 33건/초
+  #   10코어(로컬)  →   512초 · 132건/초
+  #   7코어(여기)   →   ~700초 예상        ← 이 노드가 세 번째 점을 찍는다
+  #
+  # 8 vCPU 중 7 을 파드에 주고 1 을 kubelet·CNI·EBS CSI 데몬셋에 남긴다.
+  - name: ng-index
+    instanceType: c7i.2xlarge     # 8 vCPU / 16 GiB — 컴퓨트 최적화. 여기선 메모리가 아니라 CPU 가 손잡이
+    desiredCapacity: 1
+    minSize: 1
+    maxSize: 1
+    volumeSize: 50
+    labels:
+      role: index
+    privateNetworking: false
+    tags:
+      purpose: nearby-latency-experiment
+
+# ## 테인트를 안 건 이유
+# `ng-index` 에 테인트를 걸면 coredns 같은 시스템 파드까지 막아 측정이 더 깨끗해진다.
+# 안 걸었다 — 얻는 정밀도(coredns 는 CPU 를 거의 안 쓴다)보다 잃는 게 크다: 톨러레이션을
+# 하나 빠뜨리면 파드가 조용히 Pending 이 되고, 그 디버깅이 실험보다 오래 걸린다.
+# 배치 보장은 `nodeSelector`(overlays/eks) 로 충분하다.

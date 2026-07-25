@@ -2,6 +2,8 @@
 """색인이 도는 동안 **검색이 계속 답하는지**, 그리고 **얼마나 느려지는지** 잰다.
 
   전제:  search-api(:8080) · indexer-batch(:8081) 기동, ES·Qdrant 가동
+  주의:  재색인은 202 + jobId 로 접수되므로 이 스크립트가 job 상태를 폴링해
+         측정 창을 색인 소요 시간에 맞춘다 (ADR 0013 · reindex() 주석)
   실행:  python3 scripts/verify_zero_downtime.py
   소요:  약 10분 (벡터 전체 재색인이 8분)
 
@@ -131,11 +133,62 @@ def measure(base, seconds=None, trigger=None, workers=4, label=""):
     }
 
 
-def post(admin, path, timeout=3600):
+TERMINAL = ("COMPLETED", "FAILED", "STOPPED", "ABANDONED")
+
+
+def reindex(admin, path, poll=2.0, budget=3600):
+    """색인 job 을 걸고 **끝날 때까지 기다린다.** 그 대기 시간이 곧 측정 창이다.
+
+    ## 왜 폴링을 하게 됐나 (ADR 0013)
+    전에는 이 POST 가 색인이 끝날 때까지 응답하지 않았고, 측정 창이 그 성질에 **의존**하고
+    있었다 — `urlopen` 이 돌아오는 순간이 곧 "색인 끝"이었다.
+
+    지금은 접수하면 즉시 `202 {jobId}` 가 돌아온다. 그래서 이 함수를 안 고치면 측정 창이
+    50ms 로 쪼그라들고, 색인은 **측정이 끝난 뒤에** 돈다. 실패도 안 나고 숫자도 그럴듯하게
+    나오는데 재는 대상만 사라지는 종류의 고장이라, 결과를 믿고 결론을 쓰게 된다.
+
+    그래서 job 상태를 폴링해 창을 다시 색인 소요 시간에 맞춘다. 폴링은 색인기(8081)로 가고
+    질의기(8080)를 건드리지 않으므로 지연 측정에 섞이지 않는다.
+
+    바뀐 김에 얻는 것: 반환값에 프레임워크가 센 step 별 건수·커밋·롤백이 들어온다.
+    전에는 "몇 초 걸렸다"뿐이었다.
+    """
     def _call():
         req = urllib.request.Request(f"{admin}{path}", method="POST")
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            return json.load(resp)
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            if resp.status != 202:
+                raise RuntimeError(f"202 를 기대했는데 {resp.status} — 엔드포인트가 동기인가?")
+            accepted = json.load(resp)
+
+        job_id = accepted["jobId"]
+        deadline = time.perf_counter() + budget
+
+        while time.perf_counter() < deadline:
+            time.sleep(poll)
+            with urllib.request.urlopen(f"{admin}/admin/jobs/{job_id}", timeout=15) as resp:
+                progress = json.load(resp)
+            if progress["status"] in TERMINAL:
+                if progress["status"] != "COMPLETED":
+                    raise RuntimeError(
+                        f"job {job_id} 가 {progress['status']} 로 끝났다: {progress.get('failure')}"
+                    )
+                return {
+                    "jobId": job_id,
+                    "jobName": progress["jobName"],
+                    "elapsedMs": progress["elapsedMs"],
+                    # 프레임워크가 chunk 커밋마다 DB 에 적은 값 (BATCH_STEP_EXECUTION)
+                    "steps": {
+                        s["name"]: {
+                            "read": s["read"],
+                            "commits": s["commits"],
+                            "rollbacks": s["rollbacks"],
+                        }
+                        for s in progress["steps"]
+                    },
+                    "summary": progress["summary"],
+                }
+
+        raise RuntimeError(f"job {job_id} 가 {budget}초 안에 끝나지 않았다")
     return _call
 
 
@@ -157,14 +210,14 @@ def main():
 
     runs.append(measure(
         args.base,
-        trigger=post(args.admin, "/admin/reindex"),
+        trigger=reindex(args.admin, "/admin/reindex"),
         label="② 키워드 전체 재색인 중",
     ))
 
     if not args.skip_vector:
         runs.append(measure(
             args.base,
-            trigger=post(args.admin, "/admin/vector/reindex"),
+            trigger=reindex(args.admin, "/admin/vector/reindex"),
             label="③ 벡터 전체 재색인 중 (임베딩 추론이 CPU 를 태운다)",
         ))
 
