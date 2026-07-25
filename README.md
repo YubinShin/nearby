@@ -192,6 +192,7 @@ Alias Swap을 이용해 무중단 재색인을 수행합니다. 색인 트리거
 | [0009](docs/adr/0009-keyword-ranking-and-fallback.md) | 키워드 랭킹 및 폴백 | 구현 |
 | [0010](docs/adr/0010-embedding-model-and-serving.md) | 임베딩 모델 및 추론 | 구현 |
 | [0011](docs/adr/0011-module-split-and-index-contract.md) | 색인기/질의기 아티팩트 분리 · 색인 계약 대조 | 구현 |
+| [0012](docs/adr/0012-manifests-in-monorepo.md) | 배포 매니페스트를 모노레포에 · 실무면 config repo 분리 | 구현 |
 
 ---
 
