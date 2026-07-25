@@ -2,6 +2,7 @@ package dev.yubin.search.indexer
 
 import dev.yubin.search.indexer.batch.IndexJobs
 import dev.yubin.search.indexer.batch.IndexJobService
+import dev.yubin.search.indexer.batch.JobNotAcceptedException
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.scheduling.annotation.Scheduled
@@ -24,7 +25,7 @@ import org.springframework.stereotype.Component
  * - **tombstone** — 전체 재색인이 곧 청소다.
  *
  * 전체 재색인은 이걸 전부 쓸어낸다. 비용이 실측으로 확인돼 있어서 결정이 감이 아니다:
- * **키워드 17초, 벡터 8분 33초 (64,239건).** 벡터가 하루의 0.6% 다 — 드리프트를 고민하는
+ * **키워드 15.6초, 벡터 8분 32초 (64,239건).** 벡터가 하루의 0.6% 다 — 드리프트를 고민하는
  * 것보다 매일 다시 만드는 쪽이 싸다.
  *
  * ### 기본값이 꺼져 있는 이유
@@ -64,18 +65,33 @@ class ReindexScheduler(private val jobs: IndexJobService) {
 	 * 여기서 예외가 밖으로 나가면 스프링 스케줄러가 그 작업을 **영구히 멈춘다.**
 	 * 색인 한 번 실패했다고 이후 색인이 통째로 서면 안 된다.
 	 *
-	 * 이제 여기서 잡히는 건 **접수 실패**뿐이다(큐가 꽉 찼거나 job 이 없거나). 색인 자체의 실패는
-	 * job 안에서 일어나고 `BATCH_JOB_EXECUTION` 에 FAILED 로 남는다 — 전에는 이 로그 한 줄이
-     * 유일한 기록이었지만, 지금은 조회할 수 있는 이력이 된다.
+	 * 이제 여기서 잡히는 건 **접수 실패**뿐이다. 색인 자체의 실패는 job 안에서 일어나고
+	 * `BATCH_JOB_EXECUTION` 에 FAILED 로 남는다 — 전에는 이 로그 한 줄이 유일한 기록이었지만,
+	 * 지금은 조회할 수 있는 이력이 된다.
 	 *
 	 * 도장 불일치로 증분이 거부되는 경우도 마찬가지다. 그때는 사람이 전체 재색인을 돌려야 하므로,
 	 * 재시도로 뭉개지 않고 실행 이력에 같은 실패가 쌓여 눈에 띄게 둔다.
+	 *
+	 * ### 심각도를 세 갈래로 나눈다
+	 * 전부 ERROR 로 찍으면 **정상 구성이 내는 소음에 알람이 묻힌다.**
+	 * - **없는 job** — `psp.vector.enabled=false` 노드에 벡터 job 이 없는 건 지원되는 구성이다.
+	 *   부르기 전에 걸러 아무것도 남기지 않는다(디버그만). 전에는 이게 5분마다 ERROR + 스택트레이스로
+	 *   찍혀 하루 288줄이 됐고, 멀쩡한 노드에서 에러율 알람이 영구히 울렸다.
+	 * - **큐 참** — 배압이지 고장이 아니다. WARN 으로 남기고 다음 주기에 다시 건다.
+	 * - **그 밖** — 진짜 예상 밖이므로 ERROR + 스택트레이스.
 	 */
 	private fun enqueue(jobName: String) {
+		// 벡터를 끄고 뜬 노드에는 벡터 job 이 없다 — 조용히 건너뛴다(주석대로 실제로 조용하게).
+		if (!jobs.isRegistered(jobName)) {
+			log.debug("이 노드에 없는 색인 job 이라 건너뜀 — {}", jobName)
+			return
+		}
+
 		try {
-			// 벡터를 끄고 뜬 노드에는 벡터 job 이 없다 — 조용히 건너뛴다.
 			val accepted = jobs.launch(jobName, IndexJobs.TRIGGER_SCHEDULE)
 			log.info("예약 색인 접수 — {} #{}", accepted.jobName, accepted.jobId)
+		} catch (e: JobNotAcceptedException) {
+			log.warn("예약 색인 접수 보류 ({}) — 다음 주기에 다시 시도합니다: {}", jobName, e.message)
 		} catch (e: Exception) {
 			log.error("예약 색인 접수 실패 ({}) — 다음 주기에 다시 시도합니다: {}", jobName, e.message, e)
 		}

@@ -79,12 +79,18 @@ class AdminController(
 
 	/**
 	 * 수동 버전 정리: 재색인 없이 현재 포함 keep-versions 개만 남기고 옛 버전·고아 삭제.
-	 * 전체 재색인이 끝에서 하는 것과 같은 규칙(reconcile)이다.
+	 *
+	 * **정리가 두 종류인 이유**: `reconcile` 은 현재보다 **낮은** 번호만 지운다(높은 건 진행 중인
+	 * 빌드일 수 있어서). 그래서 OOM·SIGKILL 이 남긴 '현재보다 높은' 반쯤 만든 인덱스는 그걸로는
+	 * 영영 안 지워지고, 다음 재색인이 성공하면 롤백본 한 칸을 차지해 **진짜 마지막 정상본을 밀어낸다.**
+	 * 그 고아는 `sweepOrphansAbove` 가 맡는다 — 색인 job 이 한 번에 하나만 돌기 때문에, 지금 돌고
+	 * 있는 job 이 없다면 '현재보다 높은 번호'는 확정된 고아다.
 	 */
 	@PostMapping("/cleanup")
 	fun cleanup(): CleanupResult {
-		val removed = admin.reconcile(searchAlias, keepVersions) + admin.reconcile(suggestAlias, keepVersions)
-		return CleanupResult(kept = keepVersions, removed = removed.sorted())
+		val orphans = admin.sweepOrphansAbove(searchAlias) + admin.sweepOrphansAbove(suggestAlias)
+		val old = admin.reconcile(searchAlias, keepVersions) + admin.reconcile(suggestAlias, keepVersions)
+		return CleanupResult(kept = keepVersions, removed = (orphans + old).sorted())
 	}
 
 	private companion object {

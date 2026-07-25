@@ -38,7 +38,7 @@ class BatchConfig(private val dataSource: DataSource) : JdbcDefaultBatchConfigur
 	 *
 	 * 큐가 있는 이유: 8분짜리 전체 재색인 도중 증분 주기가 와도 거절하지 않고 뒤에 세운다.
 	 * 가상 스레드를 쓰지 않는 것은 의도다 — 색인은 I/O 대기가 아니라 **CPU 바운드**(임베딩 추론이
-	 * 색인 시간의 95.8%)이고, ONNX 네이티브 호출은 가상 스레드를 캐리어에 고정시킨다.
+	 * 색인 시간의 96.1%)이고, ONNX 네이티브 호출은 가상 스레드를 캐리어에 고정시킨다.
 	 */
 	private val jobExecutor = ThreadPoolTaskExecutor().apply {
 		corePoolSize = 1
@@ -72,7 +72,14 @@ class BatchConfig(private val dataSource: DataSource) : JdbcDefaultBatchConfigur
 	}
 
 	private companion object {
-		/** 전체 재색인(벡터 8분 33초 실측)이 셧다운에 걸려도 스왑까지는 마치게 둔다. */
+		/**
+		 * 전체 재색인(벡터 8분 32초 실측)이 셧다운에 걸려도 스왑까지는 마치게 둔다.
+		 *
+		 * **이 값 혼자서는 아무것도 보장하지 못한다.** k8s 는 `terminationGracePeriodSeconds`(기본
+		 * 30초)가 지나면 SIGKILL 하므로, 그 값이 이보다 작으면 여기서 아무리 기다려도 프로세스가
+		 * 먼저 죽는다. `deploy/k8s/base/indexer-batch.yaml` 이 630 으로 맞춰져 있다 — **둘은 한 쌍이라
+		 * 한쪽만 바꾸면 다른 쪽이 조용히 무의미해진다.**
+		 */
 		const val AWAIT_TERMINATION_SECONDS = 600
 	}
 }

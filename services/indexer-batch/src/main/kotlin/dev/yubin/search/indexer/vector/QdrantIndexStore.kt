@@ -91,11 +91,29 @@ class QdrantIndexStore(
 	}
 
 	/**
+	 * alias 가 가리키는 현재 버전보다 **높은 번호**의 컬렉션을 지운다 — 크래시가 남긴 고아다.
+	 * 이유와 부르는 시점은 ES 쪽 `IndexAdminService.sweepOrphansAbove` 와 같다: [reconcile] 이
+	 * 일부러 손대지 않는 영역이라, 안 치우면 고아가 다음 정리에서 롤백본 자리를 차지한다.
+	 *
+	 * **새 버전을 만들기 전**에만 부른다 — job 이 한 번에 하나만 돌기 때문에 그 시점의
+	 * '현재보다 높은 번호'는 진행 중인 빌드가 아니라 확정된 고아뿐이다.
+	 */
+	fun sweepOrphansAbove(alias: String): Set<String> {
+		val current = collectionsBehind(alias).mapNotNull { IndexVersion.tokenOf(alias, it) }.maxOrNull()
+			?: return emptySet()
+
+		val above = versionsOf(alias).filter { it.second > current }.map { it.first }.toSet()
+		deleteCollections(above)
+		return above
+	}
+
+	/**
 	 * 버전 컬렉션 정리. alias 가 가리키는 **현재 버전(keep 개, 현재 포함)만 남기고** 그보다 낮은
-	 * 번호를 지운다. 취소·실패로 남은 고아 컬렉션도 이 규칙으로 함께 사라진다.
+	 * 번호를 지운다.
 	 *
 	 * **현재보다 높은 번호는 절대 안 건드린다** — 그건 지금 만들어지는 중인 새 빌드일 수 있다.
 	 * 새 버전은 항상 max+1(더 높은 번호)로 생기므로, 이 정리가 색인과 동시에 돌아도 안전하다.
+	 * 크래시가 남긴 고아는 그래서 여기서 안 지워진다 — [sweepOrphansAbove] 담당이다.
 	 * alias 가 없으면(아직 첫 스왑 전) 기준이 없으니 아무것도 지우지 않는다.
 	 *
 	 * 지운 컬렉션명을 반환한다.
@@ -104,9 +122,7 @@ class QdrantIndexStore(
 		val current = collectionsBehind(alias).mapNotNull { IndexVersion.tokenOf(alias, it) }.maxOrNull()
 			?: return emptySet()   // alias 미설정 → 기준 없음, 정리 보류
 
-		val below = http.get().uri("/collections").retrieve()
-			.requiredBody<CollectionsResponse>().result.collections
-			.mapNotNull { c -> IndexVersion.tokenOf(alias, c.name)?.let { c.name to it } }
+		val below = versionsOf(alias)
 			.filter { it.second < current }   // 문자열 비교 = 시간 비교(고정폭 14자리)
 			.sortedByDescending { it.second }
 
@@ -115,6 +131,12 @@ class QdrantIndexStore(
 		deleteCollections(doomed)
 		return doomed
 	}
+
+	/** `{alias}_{토큰}` 꼴로 존재하는 버전 컬렉션들 — `(컬렉션명, 토큰)` 쌍. */
+	private fun versionsOf(alias: String): List<Pair<String, String>> =
+		http.get().uri("/collections").retrieve()
+			.requiredBody<CollectionsResponse>().result.collections
+			.mapNotNull { c -> IndexVersion.tokenOf(alias, c.name)?.let { c.name to it } }
 
 	fun count(collection: String): Long =
 		http.post().uri("/collections/{name}/points/count", collection)

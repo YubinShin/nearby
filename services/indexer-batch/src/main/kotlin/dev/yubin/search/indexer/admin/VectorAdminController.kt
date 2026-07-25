@@ -44,10 +44,14 @@ class VectorAdminController(
 	@ResponseStatus(HttpStatus.ACCEPTED)
 	fun incremental(): JobAccepted = jobs.launch(IndexJobs.VECTOR_INCREMENTAL)
 
-	/** 수동 버전 정리: 재색인 없이 현재 포함 keep-versions 개만 남기고 옛 컬렉션·고아 삭제. */
+	/**
+	 * 수동 버전 정리: 재색인 없이 현재 포함 keep-versions 개만 남기고 옛 컬렉션·고아 삭제.
+	 * 정리가 두 종류인 이유는 키워드 쪽([AdminController.cleanup])과 같다.
+	 */
 	@PostMapping("/cleanup")
 	fun cleanup(): CleanupResult {
-		val removed = qdrant.reconcile(alias, keepVersions)
-		return CleanupResult(kept = keepVersions, removed = removed.sorted())
+		val orphans = qdrant.sweepOrphansAbove(alias)
+		val old = qdrant.reconcile(alias, keepVersions)
+		return CleanupResult(kept = keepVersions, removed = (orphans + old).sorted())
 	}
 }

@@ -6,9 +6,21 @@ import org.springframework.batch.core.job.parameters.JobParametersBuilder
 import org.springframework.batch.core.launch.JobOperator
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.dao.EmptyResultDataAccessException
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.web.bind.annotation.ResponseStatus
 import java.time.Duration
 import java.time.LocalDateTime
+
+/**
+ * job 을 **접수하지 못했다.** 색인이 실패한 게 아니라 아예 시작조차 못 했다는 뜻이다.
+ *
+ * 지금은 원인이 하나뿐이다 — 실행 큐(동시 1 + 대기 8)가 꽉 참. 이건 장애가 아니라 **배압**이라
+ * 503 으로 답한다: 부른 쪽이 잠시 뒤 다시 걸면 되는 상태다. 500 으로 주면 "색인기가 고장났다"로
+ * 읽혀 온콜을 잘못 부른다.
+ */
+@ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+class JobNotAcceptedException(message: String) : IllegalStateException(message)
 
 /** job 을 걸었다는 접수증. 색인이 끝난 게 아니라 **시작됐다**는 뜻이다 (HTTP 202). */
 data class JobAccepted(
@@ -49,7 +61,7 @@ data class JobProgress(
  * 색인 job 을 **걸고**(비동기) **들여다본다**. (ADR 0013)
  *
  * ### 왜 요청이 색인을 기다리지 않는가
- * 전에는 `POST /admin/vector/reindex` 가 색인이 끝날 때까지 응답하지 않았다. 실측 8분 33초
+ * 전에는 `POST /admin/vector/reindex` 가 색인이 끝날 때까지 응답하지 않았다. 실측 8분 32초
  * (kind 환경 32분)짜리 작업이라 문제가 셋이었다.
  * 1. `curl` 을 끊으면 **색인도 죽었다.** 요청 스코프에 매달려 있었기 때문이다.
  * 2. 그 취소 경로에서 r2dbc 커넥션 누수가 났다 (`DataRow.release()` 누락 LEAK).
@@ -91,6 +103,16 @@ class IndexJobService(
 	 * 이미 job 이 돌고 있으면 거절하지 않고 **줄을 세운다** — 8분짜리 전체 재색인 도중 증분 주기가
 	 * 와도 놓치지 않게. 큐는 [BatchConfig] 의 단일 스레드 풀에 있고, 그래서 두 색인이 같은 인덱스를
 	 * 동시에 만지는 일이 없다.
+	 *
+	 * ### 큐가 꽉 차면 **성공처럼 보인다** — 그래서 상태를 직접 본다
+	 * 큐(대기 8칸)가 차면 `TaskExecutorJobLauncher` 가 `TaskRejectedException` 을 **잡아서**
+	 * `jobExecution.upgradeStatus(FAILED)` 만 찍고 정상 리턴한다 — `start()` 밖으로 예외가 나가지
+	 * 않는다. 그대로 두면 **돌지도 않은 job 에 202 와 jobId 를 준다.** 벡터 전체 재색인(8분, kind
+	 * 32분) 도중 1분 주기 증분이 쌓이면 실제로 도달하는 상태이고, 그때 증분 색인이 조용히
+	 * 멈추는데 로그에는 접수 성공만 남는다.
+	 *
+	 * 그래서 반환된 실행 상태를 확인하고, 시작도 못 했으면 [JobNotAcceptedException] 을 던진다.
+	 * **접수증은 실제로 접수됐을 때만 준다.**
 	 */
 	fun launch(jobName: String, trigger: String = IndexJobs.TRIGGER_MANUAL): JobAccepted {
 		val job = byName[jobName] ?: error("그런 색인 job 이 없습니다: $jobName")
@@ -101,6 +123,17 @@ class IndexJobService(
 			.toJobParameters()
 
 		val execution = jobOperator.start(job, parameters)
+
+		// 시작조차 못 한 실행은 접수가 아니다. (돌다가 실패한 job 은 여기 안 걸린다 — 그건 비동기라
+		// 이 시점엔 STARTING/STARTED 다. 여기서 FAILED 라는 건 런처가 거절했다는 뜻이다.)
+		if (execution.status.isUnsuccessful) {
+			val reason = execution.allFailureExceptions.firstOrNull()?.message
+				?: execution.exitStatus.exitDescription.lineSequence().firstOrNull()?.ifEmpty { null }
+				?: "실행 큐가 가득 찼습니다 (동시 1 + 대기 8)"
+			log.warn("색인 job 접수 거부 — {} #{}: {}", jobName, execution.id, reason)
+			throw JobNotAcceptedException("색인 job 을 접수하지 못했습니다 ($jobName): $reason")
+		}
+
 		log.info("색인 job 접수 — {} #{} (트리거: {})", jobName, execution.id, trigger)
 
 		return JobAccepted(
@@ -181,6 +214,15 @@ class IndexJobService(
 		} catch (_: EmptyResultDataAccessException) {
 			emptyList()
 		}
+
+	/**
+	 * 이 노드에 그 job 이 등록돼 있나. `psp.vector.enabled=false` 로 뜬 노드에는 벡터 job 이 아예 없다.
+	 *
+	 * 스케줄러가 **부르기 전에** 물어보라고 있는 것이다 — 없는 job 을 [launch] 하면 예외가 나고,
+	 * 5분마다 도는 스케줄러에선 그게 하루 288줄의 ERROR 가 된다. 지원되는 구성이 내는 소음은
+	 * 알람을 무디게 만든다.
+	 */
+	fun isRegistered(jobName: String): Boolean = jobName in byName
 
 	/** 아직 안 끝난 실행이 몇 개인지 — 스케줄러가 겹침을 판단할 때 쓴다. */
 	fun runningCount(jobName: String): Int =

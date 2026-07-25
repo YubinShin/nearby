@@ -1,7 +1,7 @@
 # indexer-batch — 색인 앱 (ADR 0011). 관리 API + PostGIS(JDBC) 읽기 → ES·Qdrant 쓰기.
 # 검색 질의 경로는 여기 없다. 이 앱만 원천 창고(PostGIS)에 붙는다.
 #
-# 자원 성격: CPU 버스티(임베딩이 색인 시간의 95.8%), 저지연 상시 가동 아님. 그래서 질의기와
+# 자원 성격: CPU 버스티(임베딩이 색인 시간의 96.1%), 저지연 상시 가동 아님. 그래서 질의기와
 # 다른 노드로 떼어 둔다 — 색인기가 OOMKilled 나도 검색은 살아 있게(분리의 핵심 논거, ADR 0011).
 #
 # 런타임은 Spring Batch + MVC(Tomcat)다 — 질의기만 리액티브다 (ADR 0013). 그래서 원천 접속이
@@ -36,6 +36,11 @@ spec:
     metadata:
       labels: { app: indexer-batch }
     spec:
+      # 앱의 종료 대기(BatchConfig.AWAIT_TERMINATION_SECONDS=600)보다 **길어야 한다.**
+      # 기본값 30초를 그대로 두면 kubelet 이 600초를 기다려주지 않고 SIGKILL 해서, 색인이 스왑 전에
+      # 끊기고 고아 인덱스/컬렉션(벡터는 64k 점을 통째로)이 PVC 에 남는다. 두 숫자는 한 쌍이다 —
+      # 한쪽만 바꾸면 다른 쪽이 조용히 무의미해진다.
+      terminationGracePeriodSeconds: 630
       # 질의기와 반대 방향의 같은 규칙: 서로 다른 노드에 놓으려 한다(search-api.yaml 주석 참고).
       affinity:
         podAntiAffinity:
@@ -45,6 +50,14 @@ spec:
                 labelSelector:
                   matchLabels: { app: search-api }
                 topologyKey: kubernetes.io/hostname
+      # Postgres 가 뜨기 전에 시작하면 컨텍스트 refresh 자체가 실패한다 — BatchSchema.ensure 가
+      # 빈 생성 시점에 커넥션을 열기 때문이다(ADR 0013). 그러면 CrashLoopBackOff 에 걸리고,
+      # 지수 백오프 때문에 DB 가 준비된 뒤에도 몇 분을 더 죽어 있는다. R2DBC 때는 커넥션이 lazy 라
+      # 앱이 뜬 채로 degrade 했지만 지금은 die 한다 — 그 차이를 여기서 메운다.
+      initContainers:
+        - name: wait-for-postgis
+          image: postgres:16-alpine
+          command: ['sh', '-c', 'until pg_isready -h postgis -p 5432 -U place; do echo "postgis 대기 중..."; sleep 2; done']
       containers:
         - name: indexer-batch
           image: nearby-indexer-batch:latest

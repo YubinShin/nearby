@@ -44,12 +44,35 @@ object PlaceSql {
 	/**
 	 * 증분 색인용 — checkpoint '이후'에 바뀐 행만. 삭제된 행도 포함(그래야 ES에서 지울 수 있음).
 	 *
-	 * checkpoint(ES date)는 밀리초 정밀도라, PostGIS 마이크로초와 비교하면 경계값이 매번 재매칭된다.
-	 * 양쪽을 밀리초로 잘라 비교해 정밀도 불일치를 없앤다. (운영에선 단조 증가 version 컬럼이 더 안전)
+	 * ### 왼쪽에 `date_trunc` 를 걸지 않는다 — 걸면 행이 조용히 사라진다
+	 * 한때 `where date_trunc('milliseconds', p.updated_at) > ?` 였다. watermark 의 출처가 둘이고
+	 * (저장된 체크포인트는 원천에서 온 **마이크로초**, 첫 실행 폴백인 `IndexAdminService.maxUpdatedAt`
+	 * 은 ES date 라 **밀리초**) 정밀도를 맞추려던 것이었다. 그런데 그 자름이 **같은 밀리초 안의
+	 * 뒷행을 영영 못 읽게** 만든다:
+	 *
+	 * ```
+	 * 행 A 10:00:00.123456 색인됨 → watermark = 10:00:00.123456
+	 * 행 B 10:00:00.123656 (200µs 뒤, 커서가 막 지나간 직후 수정)
+	 *   date_trunc(ms, B) > watermark  ⇒  10:00:00.123 > 10:00:00.123456  ⇒ false ❌
+	 * ```
+	 *
+	 * 바인딩 값을 같이 잘라도 **결과가 바뀌지 않는다.** `date_trunc` 결과는 항상 밀리초 격자 위에
+	 * 있고, 격자 위 값이 `W` 보다 크다는 것과 `trunc(W)` 보다 크다는 것은 같은 집합이기 때문이다
+	 * (`> trunc(W)` 는 곧 `≥ trunc(W)+1ms`). 즉 자름은 여기서 **no-op** 이고 B 는 그대로 빠진다.
+	 *
+	 * ### 정밀도가 다른 건 자를 게 아니라 그냥 둬도 되는 문제였다
+	 * 폴백 watermark 는 `Instant.ofEpochMilli(millis.toLong())` — **내림**이라 원천 생값보다 항상
+	 * 작거나 같다. 굵은 watermark 가 만드는 결과는 "경계 행 몇 개를 다시 읽음"뿐이고, 색인은
+	 * 멱등이라(ADR 0001) 덮어쓰기로 끝난다. 게다가 그 회차가 끝나면 체크포인트가 원천 생값으로
+	 * 올라가 다음 회차부터 저절로 정상화된다. **재처리는 싸고 누락은 조용히 틀린다.**
+	 *
+	 * `>=` 로 바꿔 경계 밀리초를 통째로 다시 읽는 길도 있지만 이 데이터에는 위험하다 — 대량 적재
+	 * 탓에 `updated_at` 고유값이 4개뿐이고 한 값에 64,236행이 몰려 있어, watermark 가 그 무리에
+	 * 걸리면 증분마다 6만 건을 다시 읽는다. (운영에선 단조 증가 version 컬럼이 이 모든 것보다 안전)
 	 *
 	 * R2DBC 의 이름 있는 바인딩(`:since`)과 달리 JDBC 는 `?` 위치 바인딩이다 — 인자는 하나뿐이다.
 	 */
-	val SELECT_SINCE = "$SELECT_BASE\nwhere date_trunc('milliseconds', p.updated_at) > ?\norder by p.place_id"
+	val SELECT_SINCE = "$SELECT_BASE\nwhere p.updated_at > ?\norder by p.place_id"
 
 	/**
 	 * 원천에서 가장 최근에 바뀐 시각. 색인 lag 지표의 기준점이다.

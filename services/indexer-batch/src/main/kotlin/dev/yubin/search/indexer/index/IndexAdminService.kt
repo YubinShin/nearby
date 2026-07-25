@@ -54,20 +54,41 @@ class IndexAdminService(private val es: ElasticsearchClient) {
 	}
 
 	/**
+	 * alias 가 가리키는 현재 버전보다 **높은 번호**의 인덱스를 지운다 — 크래시가 남긴 고아다.
+	 *
+	 * ### 왜 [reconcile] 로는 이걸 못 치우나
+	 * [reconcile] 은 "현재보다 높은 번호는 진행 중인 빌드일 수 있다"는 이유로 손대지 않는다.
+	 * 그래서 OOM·SIGKILL 로 죽어 남은 반쯤 만든 인덱스는 **영원히 살아남고**, 다음 재색인이
+	 * 성공하면 그게 '현재보다 낮은 것 중 가장 최신' 자리에 앉아 **롤백본 한 칸을 차지한다.**
+	 * 그 대가로 진짜 마지막 정상본이 대신 지워진다 — 롤백(ADR 0002)이 반쯤 만든 인덱스를 서빙하게 된다.
+	 *
+	 * ### 언제 부르는 게 안전한가
+	 * **새 버전을 만들기 전**, 즉 prepare step 의 맨 앞에서 부른다. 색인 job 은 한 번에 하나만
+	 * 돌기 때문에([BatchConfig] 의 단일 스레드 풀) 그 시점에 '현재보다 높은 번호'는 진행 중인
+	 * 빌드가 아니라 **확정된 고아**뿐이다. 새 버전을 만든 뒤에 부르면 방금 만든 걸 지운다.
+	 */
+	fun sweepOrphansAbove(alias: String): Set<String> {
+		val current = indicesBehind(alias).mapNotNull { IndexVersion.tokenOf(alias, it) }.maxOrNull()
+			?: return emptySet()   // alias 미설정 → 기준 없음. 첫 재색인 전이므로 판단을 보류한다.
+
+		val above = versionsOf(alias).filter { it.second > current }.map { it.first }.toSet()
+		deleteIndices(above)
+		return above
+	}
+
+	/**
 	 * 버전 인덱스 정리. alias 가 가리키는 **현재 버전(keep 개, 현재 포함)만 남기고** 그보다 낮은
-	 * 번호를 지운다. 취소·실패로 남은 고아 인덱스도 함께 사라진다.
+	 * 번호를 지운다.
 	 *
 	 * **현재보다 높은 번호는 손대지 않는다** — 진행 중인 새 빌드일 수 있어서다(새 버전은 항상
-	 * max+1 로 생긴다). alias 가 없으면 기준이 없으니 아무것도 지우지 않는다. 지운 인덱스명을 반환한다.
+	 * max+1 로 생긴다). 그래서 크래시가 남긴 고아는 여기서 안 지워진다 — 그건 [sweepOrphansAbove]
+	 * 담당이다. alias 가 없으면 기준이 없으니 아무것도 지우지 않는다. 지운 인덱스명을 반환한다.
 	 */
 	fun reconcile(alias: String, keep: Int): Set<String> {
 		val current = indicesBehind(alias).mapNotNull { IndexVersion.tokenOf(alias, it) }.maxOrNull()
 			?: return emptySet()
 
-		val below = es.indices()
-			.get { it.index("${alias}_*").ignoreUnavailable(true) }
-			.indices().keys
-			.mapNotNull { name -> IndexVersion.tokenOf(alias, name)?.let { name to it } }
+		val below = versionsOf(alias)
 			.filter { it.second < current }   // 문자열 비교 = 시간 비교(고정폭 14자리)
 			.sortedByDescending { it.second }
 
@@ -75,6 +96,13 @@ class IndexAdminService(private val es: ElasticsearchClient) {
 		deleteIndices(doomed)
 		return doomed
 	}
+
+	/** `{alias}_{토큰}` 꼴로 존재하는 버전 인덱스들 — `(인덱스명, 토큰)` 쌍. */
+	private fun versionsOf(alias: String): List<Pair<String, String>> =
+		es.indices()
+			.get { it.index("${alias}_*").ignoreUnavailable(true) }
+			.indices().keys
+			.mapNotNull { name -> IndexVersion.tokenOf(alias, name)?.let { name to it } }
 
 	/**
 	 * 인덱스에 들어있는 가장 최신 `updated_at` (증분 색인의 watermark).

@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.batch.core.configuration.annotation.StepScope
 import org.springframework.batch.core.job.Job
 import org.springframework.batch.core.job.builder.JobBuilder
+import org.springframework.batch.core.listener.ChunkListener
+import org.springframework.batch.core.listener.StepExecutionListener
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.core.step.Step
 import org.springframework.batch.core.step.builder.StepBuilder
@@ -112,16 +114,21 @@ class KeywordIndexJobConfig(
 	 * ([IndexJobs.PARAM_REQUESTED_AT]) 이미 완료된 step 을 다시 만나는 일이 없다.
 	 */
 	@Bean
-	fun keywordLoadStep(): Step =
-		StepBuilder(IndexJobs.STEP_KEYWORD_LOAD, jobRepository)
+	fun keywordLoadStep(): Step {
+		// 두 얼굴을 **각각** 등록한다 — 하나로 넘기면 오버로드 해소가 한쪽 인터페이스만 잡아
+		// 실행마다 카운터를 리셋하는 beforeStep 이 안 불릴 수 있다 ([ChunkProgressLogger] 주석).
+		val progress = ChunkProgressLogger("키워드 색인")
+		return StepBuilder(IndexJobs.STEP_KEYWORD_LOAD, jobRepository)
 			.chunk<PlaceRow, PlaceRow>(chunkSize)
 			.transactionManager(transactionManager)
 			.reader(keywordPlaceReader())
 			.writer(keywordBulkWriter())
 			// writer 가 StepExecutionListener 이기도 하다 — 집계를 job 컨텍스트로 올리려고.
 			.listener(keywordBulkWriter())
-			.listener(ChunkProgressLogger("키워드 색인"))
+			.listener(progress as ChunkListener<PlaceRow, PlaceRow>)
+			.listener(progress as StepExecutionListener)
 			.build()
+	}
 
 	/**
 	 * `since` 가 있으면 델타만, 없으면 전체를 읽는다. `@StepScope` 라서 step 이 시작할 때 비로소
@@ -145,6 +152,8 @@ class KeywordIndexJobConfig(
 		return if (since == null) {
 			builder.sql(PlaceSql.SELECT_ALL).build()
 		} else {
+			// 자르지 않고 **생값 그대로** 넘긴다 — 양쪽 어디를 잘라도 같은 밀리초 안의 뒷행이
+			// 누락된다 ([PlaceSql.SELECT_SINCE] 주석).
 			val watermark = OffsetDateTime.parse(since)
 			builder.sql(PlaceSql.SELECT_SINCE)
 				.preparedStatementSetter { ps -> ps.setObject(1, watermark) }
@@ -171,6 +180,13 @@ class KeywordIndexJobConfig(
 		StepBuilder("${IndexJobs.KEYWORD_REBUILD}.${IndexJobs.STEP_PREPARE}", jobRepository)
 			.tasklet({ _, chunkContext ->
 				val ctx = chunkContext.stepContext.stepExecution.jobExecution.executionContext
+
+				// 새 버전을 만들기 **전에** 크래시가 남긴 고아를 치운다. 지금은 alias 가 마지막 정상본을
+				// 가리키고 있으므로 '그보다 높은 번호'는 확정된 고아다. 새 버전을 만든 뒤에 부르면
+				// 방금 만든 걸 지운다 — 순서가 곧 안전 조건이다 (IndexAdminService.sweepOrphansAbove).
+				val swept = admin.sweepOrphansAbove(searchAlias) + admin.sweepOrphansAbove(suggestAlias)
+				if (swept.isNotEmpty()) log.warn("이전 실행이 남긴 고아 인덱스 {}개 정리 {}", swept.size, swept.sorted())
+
 				val newSearch = admin.createNextVersion(searchAlias, "es/place_search.json")
 				val newSuggest = admin.createNextVersion(suggestAlias, "es/place_suggest.json")
 				ctx.putString(IndexJobs.Ctx.SEARCH_INDEX, newSearch)
@@ -202,6 +218,11 @@ class KeywordIndexJobConfig(
 
 				admin.swapAlias(searchAlias, newSearch)
 				admin.swapAlias(suggestAlias, newSuggest)
+
+				// 여기부터는 두 인덱스가 **서빙 중**이다. 아래에서 무엇이 실패하든
+				// [OrphanIndexCleanupListener] 가 이걸 지우면 안 된다 (지우면 alias 도 함께 사라진다).
+				ctx.putString(IndexJobs.Ctx.PROMOTED, "$newSearch,$newSuggest")
+
 				val removed = admin.reconcile(searchAlias, keepVersions) + admin.reconcile(suggestAlias, keepVersions)
 				ctx.putString(IndexJobs.Ctx.REMOVED, removed.sorted().joinToString(","))
 

@@ -15,8 +15,19 @@ import org.springframework.batch.core.listener.JobExecutionListener
  * 승격 step 의 alias 스왑, 도장 쓰기, 체크포인트 갱신. 리스너는 job 이 어디서 어떻게 끝나든
  * 마지막에 한 번 불리므로 **모든 실패 경로를 한 곳에서** 처리한다.
  *
- * 프로세스가 그냥 죽는 경우(OOM·SIGKILL)는 이 리스너도 못 잡는다. 그건 다음 재색인이나
- * `POST /admin/cleanup` 이 치운다 — 그래서 정리 규칙이 두 겹으로 있다.
+ * 프로세스가 그냥 죽는 경우(OOM·SIGKILL)는 이 리스너도 못 잡는다. 그건 다음 재색인의 prepare
+ * step 이 부르는 `IndexAdminService.sweepOrphansAbove` 나 `POST /admin/cleanup` 이 치운다 —
+ * 그래서 정리 규칙이 두 겹으로 있다.
+ *
+ * ### 승격 뒤에는 절대 지우지 않는다
+ * step 을 쪼개면서 **실패할 수 있는 자리가 alias 스왑 뒤로도 늘었다** — 정리(reconcile), 버전
+ * 도장, 체크포인트 갱신. 그 자리에서 실패하면 job 은 FAILED 지만 인덱스는 **이미 서빙 중**이다.
+ * 그걸 지우면 alias 가 함께 사라져 검색이 전면 장애가 난다(`index_not_found_exception`).
+ *
+ * 그래서 승격 step 이 스왑 직후 [IndexJobs.Ctx.PROMOTED] 를 찍고, 여기서는 그게 있으면
+ * 손을 뗀다. **정리 실패보다 장애가 훨씬 비싸므로, 애매하면 남기는 쪽으로 기운다** — 남은
+ * 인덱스는 다음 재색인이나 수동 정리가 치우지만, 지워진 라이브 인덱스는 사람이 재색인을
+ * 돌리기 전까지 복구되지 않는다.
  *
  * ### 왜 alias 이름은 반드시 걸러내나
  * 증분 job 도 같은 컨텍스트 키에 대상 이름을 넣는데, 그때 들어가는 값은 **alias** 다.
@@ -33,6 +44,13 @@ class OrphanIndexCleanupListener(
 		if (!jobExecution.status.isUnsuccessful) return
 
 		val ctx = jobExecution.executionContext
+
+		// 스왑이 끝났으면 이건 고아가 아니라 **지금 서빙 중인 인덱스**다. 지우면 검색이 죽는다.
+		if (ctx.getString(IndexJobs.Ctx.PROMOTED, "").isNotEmpty()) {
+			log.warn("재색인이 승격 뒤에 실패했다 — 인덱스는 서빙 중이므로 정리하지 않는다 (수동 확인 필요)")
+			return
+		}
+
 		val orphans = listOf(IndexJobs.Ctx.SEARCH_INDEX, IndexJobs.Ctx.SUGGEST_INDEX)
 			.mapNotNull { ctx.getString(it, "").ifEmpty { null } }
 			.filterNot { it in protectedAliases }
@@ -63,8 +81,15 @@ class OrphanCollectionCleanupListener(
 	override fun afterJob(jobExecution: JobExecution) {
 		if (!jobExecution.status.isUnsuccessful) return
 
-		val orphan = jobExecution.executionContext
-			.getString(IndexJobs.Ctx.COLLECTION, "")
+		val ctx = jobExecution.executionContext
+
+		// 스왑 뒤 실패면 이건 서빙 중인 컬렉션이다 — 지우면 벡터 검색이 죽는다.
+		if (ctx.getString(IndexJobs.Ctx.PROMOTED, "").isNotEmpty()) {
+			log.warn("벡터 재색인이 승격 뒤에 실패했다 — 컬렉션은 서빙 중이므로 정리하지 않는다 (수동 확인 필요)")
+			return
+		}
+
+		val orphan = ctx.getString(IndexJobs.Ctx.COLLECTION, "")
 			.ifEmpty { null }
 			?.takeIf { it != protectedAlias }
 			?: return

@@ -3,13 +3,15 @@ package dev.yubin.search.indexer.batch
 import dev.yubin.search.core.place.PlaceRow
 import org.slf4j.LoggerFactory
 import org.springframework.batch.core.listener.ChunkListener
+import org.springframework.batch.core.listener.StepExecutionListener
+import org.springframework.batch.core.step.StepExecution
 import org.springframework.batch.infrastructure.item.Chunk
 
 /**
  * chunk 를 하나 커밋할 때마다 진행 상황을 한 줄 남긴다.
  *
  * ### 왜 진행 로그가 있어야 하나
- * 벡터 전체 재색인은 실측 8분 33초(kind 환경 32분)다. 그동안 로그가 조용하면 **멈춘 건지 느린
+ * 벡터 전체 재색인은 실측 8분 32초(kind 환경 32분)다. 그동안 로그가 조용하면 **멈춘 건지 느린
  * 건지 구분할 방법이 없다** — 실제로 이게 없어서 thread dump 를 떠서 확인해야 했다. 초당 처리량이
  * 함께 찍히면 남은 시간을 눈대중할 수 있다.
  *
@@ -22,17 +24,37 @@ import org.springframework.batch.infrastructure.item.Chunk
  * 그래서 이 리스너는 **자기가 센 것만** 말한다(이번 실행에서 이 객체가 본 chunk). 누적 이력은
  * 프레임워크 쪽이 더 정확하니 그쪽에 맡기고, 여기서는 "지금 살아 움직이고 있다"만 보여준다.
  *
+ * ### 왜 [StepExecutionListener] 이기도 한가 — 인스턴스가 하나뿐이라서
+ * 이 객체는 `@Bean` 인 적재 step 안에서 만들어지므로 **JVM 에 하나뿐이고, 전체 재색인 job 과
+ * 증분 job 이 같은 인스턴스를 공유한다.** 카운터를 생성자에서만 초기화하면 실행이 끝나도 값이
+ * 남아, 두 번째 실행부터 "이전 실행분까지 더한 건수"와 "유휴 시간으로 나눈 처리율"을 찍는다 —
+ * 09:00 전체 재색인(64,239건) 뒤 09:05 증분(3건)이 `64242건 · 214건/초` 가 되는 식이다.
+ * 그러면 "멈춘 건지 느린 건지"라는 이 클래스의 존재 이유가 두 번째 실행부터 무너진다.
+ *
+ * 그래서 **step 이 시작할 때마다 리셋한다.** (리팩터 전에는 `startedAt`·`stats` 가 색인 함수의
+ * 지역 변수였다 — 실행마다 새로 생기는 게 공짜였던 자리다.)
+ *
+ * 리셋이 경합하지 않는 이유: 색인 job 은 한 번에 하나만 돈다([BatchConfig] 의 단일 스레드 풀).
+ *
  * ### 새 chunk 리스너 API 를 쓴다
  * Batch 6 은 chunk step 구현을 `ChunkOrientedStep` 으로 갈면서 리스너 시그니처도 바꿨다 —
  * `ChunkContext` 를 받던 옛 메서드들은 deprecated 이고, 지금은 처리된 [Chunk] 를 직접 받는다.
  * 실제로 이게 더 낫다: 필요한 게 "이번에 몇 건 처리했나"인데, 전에는 그걸 알려고 `ChunkContext`
  * → `StepContext` → `StepExecution` 세 단계를 타고 들어가야 했다.
  */
-class ChunkProgressLogger(private val label: String) : ChunkListener<PlaceRow, PlaceRow> {
+class ChunkProgressLogger(private val label: String) :
+	ChunkListener<PlaceRow, PlaceRow>, StepExecutionListener {
 
 	private var startedAt = 0L
 	private var chunks = 0L
 	private var items = 0L
+
+	/** 실행마다 0부터 — 이 객체는 job 들 사이에서 공유되는 싱글턴이다(클래스 주석 참고). */
+	override fun beforeStep(stepExecution: StepExecution) {
+		startedAt = 0L
+		chunks = 0L
+		items = 0L
+	}
 
 	override fun beforeChunk(chunk: Chunk<PlaceRow>) {
 		if (startedAt == 0L) {

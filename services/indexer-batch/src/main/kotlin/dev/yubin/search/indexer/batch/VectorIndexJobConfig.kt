@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.batch.core.configuration.annotation.StepScope
 import org.springframework.batch.core.job.Job
 import org.springframework.batch.core.job.builder.JobBuilder
+import org.springframework.batch.core.listener.ChunkListener
+import org.springframework.batch.core.listener.StepExecutionListener
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.core.step.Step
 import org.springframework.batch.core.step.builder.StepBuilder
@@ -30,7 +32,7 @@ import javax.sql.DataSource
  * 벡터 색인 job 두 개 — **전체 재색인**과 **증분**. (ADR 0013)
  *
  * 키워드 색인([KeywordIndexJobConfig])과 **일부러 따로 돌린다.**
- * - 임베딩 추론이 ES bulk 보다 훨씬 느리다(키워드 17초 vs 벡터 8분 33초). 한 파이프라인에 묶으면
+ * - 임베딩 추론이 ES bulk 보다 훨씬 느리다(키워드 15.6초 vs 벡터 8분 32초). 한 파이프라인에 묶으면
  *   느린 쪽이 빠른 쪽의 발목을 잡는다.
  * - 모델을 바꾸면 벡터만 전부 다시 만들어야 한다. 그때 키워드 인덱스까지 재색인할 이유가 없다.
  *
@@ -38,7 +40,7 @@ import javax.sql.DataSource
  * prepare → load → promote 세 단계이고, 공유하는 적재 step 하나로 전체·증분을 모두 처리한다.
  *
  * ### 여기서 Spring Batch 가 가장 크게 값을 한다
- * 벡터 전체 재색인은 실측 8분 33초(kind 환경 32분)다. 전에는 이게 **HTTP 요청 하나의 수명**에
+ * 벡터 전체 재색인은 실측 8분 32초(kind 환경 32분)다. 전에는 이게 **HTTP 요청 하나의 수명**에
  * 매달려 있어서 `curl` 을 끊으면 색인이 죽었고, 취소 경로에서 r2dbc 커넥션 누수(`DataRow.release()`
  * 누락)까지 냈다. 지금은 job 스레드에서 돌고 요청은 즉시 202 로 끝난다 — 진행 상황은
  * `GET /admin/jobs/{id}` 로 따로 본다.
@@ -87,15 +89,19 @@ class VectorIndexJobConfig(
 
 	/** 구조는 키워드 적재 step 과 같다 — 새 `ChunkOrientedStep` 경로. 이유는 [KeywordIndexJobConfig]. */
 	@Bean
-	fun vectorLoadStep(): Step =
-		StepBuilder(IndexJobs.STEP_VECTOR_LOAD, jobRepository)
+	fun vectorLoadStep(): Step {
+		// 키워드 적재 step 과 같은 이유로 두 얼굴을 각각 등록한다 ([ChunkProgressLogger] 주석).
+		val progress = ChunkProgressLogger("벡터 색인")
+		return StepBuilder(IndexJobs.STEP_VECTOR_LOAD, jobRepository)
 			.chunk<PlaceRow, PlaceRow>(chunkSize)
 			.transactionManager(transactionManager)
 			.reader(vectorPlaceReader())
 			.writer(vectorUpsertWriter())
 			.listener(vectorUpsertWriter())
-			.listener(ChunkProgressLogger("벡터 색인"))
+			.listener(progress as ChunkListener<PlaceRow, PlaceRow>)
+			.listener(progress as StepExecutionListener)
 			.build()
+	}
 
 	/** 키워드 리더와 같은 규칙 — `since` 가 있으면 델타, 없으면 전체. 이유는 [KeywordIndexJobConfig]. */
 	@Bean
@@ -113,6 +119,7 @@ class VectorIndexJobConfig(
 		return if (since == null) {
 			builder.sql(PlaceSql.SELECT_ALL).build()
 		} else {
+			// 키워드 리더와 같은 이유로 생값 그대로 넘긴다 ([PlaceSql.SELECT_SINCE] 주석).
 			val watermark = OffsetDateTime.parse(since)
 			builder.sql(PlaceSql.SELECT_SINCE)
 				.preparedStatementSetter { ps -> ps.setObject(1, watermark) }
@@ -138,6 +145,13 @@ class VectorIndexJobConfig(
 		StepBuilder("${IndexJobs.VECTOR_REBUILD}.${IndexJobs.STEP_PREPARE}", jobRepository)
 			.tasklet({ _, chunkContext ->
 				val ctx = chunkContext.stepContext.stepExecution.jobExecution.executionContext
+
+				// 새 컬렉션을 만들기 **전에** 크래시가 남긴 고아를 치운다 — 이유는 키워드 쪽과 같다
+				// ([QdrantIndexStore.sweepOrphansAbove]). 벡터 고아는 64k 점을 통째로 들고 있어
+				// PVC 를 갉아먹기까지 한다.
+				val swept = qdrant.sweepOrphansAbove(alias)
+				if (swept.isNotEmpty()) log.warn("이전 실행이 남긴 고아 컬렉션 {}개 정리 {}", swept.size, swept.sorted())
+
 				val newCollection = qdrant.createNextVersion(alias, embeddings.dimension)
 				ctx.putString(IndexJobs.Ctx.COLLECTION, newCollection)
 				log.info("벡터 전체 재색인 준비 완료 → {} ({}차원)", newCollection, embeddings.dimension)
@@ -154,6 +168,10 @@ class VectorIndexJobConfig(
 				val newCollection = ctx.getString(IndexJobs.Ctx.COLLECTION)
 
 				qdrant.swapAlias(alias, newCollection)
+
+				// 여기부터 이 컬렉션은 **서빙 중**이다 — 아래에서 실패해도 고아 정리 대상이 아니다.
+				ctx.putString(IndexJobs.Ctx.PROMOTED, newCollection)
+
 				val removed = qdrant.reconcile(alias, keepVersions)
 				ctx.putString(IndexJobs.Ctx.REMOVED, removed.sorted().joinToString(","))
 
@@ -202,7 +220,9 @@ class VectorIndexJobConfig(
 				meta.requireCompatible(
 					IndexMeta.PIPELINE_VECTOR,
 					IndexMeta.stamp(embeddingModel = embeddings.modelId, embeddingDim = embeddings.dimension),
-					remedy = "POST /admin/vector/rebuild 로 전체 재색인하세요. 증분으로는 섞인 컬렉션이 됩니다.",
+					// 경로는 VectorAdminController 의 실제 매핑과 같아야 한다 — 이 문자열이 그대로
+					// `GET /admin/jobs/{id}` 의 failure 로 나가 온콜이 복붙하는 명령이 된다.
+					remedy = INCREMENTAL_REMEDY,
 				)
 
 				ctx.putString(IndexJobs.Ctx.COLLECTION, alias)
@@ -235,5 +255,9 @@ class VectorIndexJobConfig(
 
 	private companion object {
 		val log = LoggerFactory.getLogger(VectorIndexJobConfig::class.java)
+
+		/** `VectorAdminController` 의 `@RequestMapping("/admin/vector")` + `@PostMapping("/reindex")` 와 일치. */
+		const val INCREMENTAL_REMEDY =
+			"POST /admin/vector/reindex 로 전체 재색인하세요. 증분으로는 섞인 컬렉션이 됩니다."
 	}
 }

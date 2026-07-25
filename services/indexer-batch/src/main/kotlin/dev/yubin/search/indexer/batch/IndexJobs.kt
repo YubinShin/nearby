@@ -78,6 +78,15 @@ object IndexJobs {
 		/** promote 가 정리한 옛 버전들 (쉼표로 이음). */
 		const val REMOVED = "removed"
 
+		/**
+		 * **alias 스왑이 끝났다** = 여기 적힌 인덱스/컬렉션은 이제 서빙 중이다.
+		 *
+		 * promote step 이 스왑 직후에 넣는다. 이 뒤로 job 이 실패하더라도
+		 * [OrphanIndexCleanupListener] 는 대상을 지우면 안 된다 — 지우는 순간 검색 전면 장애다.
+		 * "만들다 만 인덱스"와 "이미 승격된 인덱스"를 같은 컨텍스트 키로 구분할 수 없어서 따로 둔다.
+		 */
+		const val PROMOTED = "promoted"
+
 		/** 전진시킨 watermark. */
 		const val CHECKPOINT = "checkpoint"
 	}
