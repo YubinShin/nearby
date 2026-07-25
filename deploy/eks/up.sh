@@ -111,23 +111,36 @@ kill $WATCH 2>/dev/null || true
 
 cat <<EOF
 
-━━━ 준비 완료 ━━━
+━━━ 준비 완료 (지금은 패스 A = 분리 상태) ━━━
 
-배치 확인 (질의기와 색인기가 다른 노드여야 한다):
+이 실험은 **한 클러스터에서 두 번** 잰다. 파드 스펙은 전부 같고 배치만 다르다 —
+그래서 두 패스의 '유휴 대비 배수' 차이가 곧 **노드 분리의 순효과**다.
+
+배치 확인 (패스 A: 질의기와 색인기가 다른 노드여야 한다):
   kubectl -n $NS get pods -o wide
+  kubectl get nodes -L topology.kubernetes.io/zone,role   # 두 노드가 같은 AZ 여야 한다
 
-색인 (색인기로 port-forward — LoadBalancer 는 일부러 안 만든다)
+port-forward 두 개 (LoadBalancer 는 일부러 안 만든다):
   kubectl -n $NS port-forward svc/indexer-batch 8081:80 &
-  curl -XPOST localhost:8081/admin/reindex           # 202 + jobId
-  curl -XPOST localhost:8081/admin/vector/reindex    # 약 700초 예상 (7 vCPU)
-  curl -s localhost:8081/admin/jobs/2 | jq .
+  kubectl -n $NS port-forward svc/search-api    8080:80 &
 
-지연 측정 (kind 때와 **같은 스크립트**여야 비교가 성립한다)
-  kubectl -n $NS port-forward svc/search-api 8080:80 &
-  python3 scripts/verify_zero_downtime.py            # ① 유휴 기준선을 먼저!
+── 패스 A (분리) ──
+  python3 scripts/verify_zero_downtime.py
+  # 유휴 → 키워드 재색인 중 → 벡터 재색인 중을 한 번에 잰다(약 10분).
+  # 벡터 재색인은 7 vCPU 에서 ~700초 예상 — 이게 CPU 3번째 측정점이다.
 
-  ⚠️ kind 의 11.5ms 와 EKS 절대값을 직접 비교하지 말 것 — 하드웨어가 다르다.
-     EKS **안에서의** 유휴 대비 배수를 kind 의 배수(벡터 2.03배 / 키워드 1.32배)와 비교한다.
+── 패스 B (합침 = 대조군) ──
+  kubectl kustomize $ROOT/deploy/k8s/overlays/eks-colocated | sed "s|<ACCOUNT>|${ACCOUNT}|g" | kubectl apply -f -
+  kubectl -n $NS rollout status deploy/search-api deploy/indexer-batch
+  kubectl -n $NS get pods -o wide      # 이제 **전부 role=index 노드**여야 한다
+  python3 scripts/verify_zero_downtime.py
+
+  ⚠️ 두 패스의 지연 **절대값을 비교하지 말 것** — 패스 B 는 c7i.2xlarge,
+     패스 A 의 질의 노드는 m7i.xlarge 라 하드웨어가 다르다.
+     비교 가능한 건 각 패스 **내부**의 유휴 대비 배수뿐이다.
+
+  ⚠️ 예전 값(벡터 2.03배 / 키워드 1.32배)을 대조군으로 쓰지 말 것 — 그건 로컬
+     docker-compose + 리액티브 색인기에서 잰 값이다. 대조군은 위 패스 B 다.
 
 끝나면 반드시:
   ./deploy/eks/down.sh

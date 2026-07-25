@@ -30,6 +30,20 @@ iam:
   # 볼륨을 못 만들고, PVC 3개가 Pending 에서 영구 대기한다 → 아무것도 뜨지 않는다.
   withOIDC: true
 
+vpc:
+  nat:
+    # **여기서 끊어야 NAT 가 안 생긴다.** 노드그룹의 `privateNetworking: false` 로는 부족하다 —
+    # 그건 *노드*를 퍼블릭 서브넷에 놓을 뿐이고, eksctl 은 프라이빗 서브넷을 어차피 만들면서
+    # 거기에 NAT 게이트웨이를 붙인다(기본값 `Single`). `--dry-run` 으로 확인한 사실이다.
+    #
+    # 끄는 게 안전한 이유: 두 노드그룹이 모두 퍼블릭 서브넷이라 IGW 로 나간다(ECR·Docker Hub
+    # 이미지 풀, EKS 컨트롤 플레인 통신 모두 NAT 가 필요 없다). 만들어진 프라이빗 서브넷에는
+    # 아무것도 배치하지 않으므로 인터넷 경로가 없어도 무해하다.
+    #
+    # 아끼는 건 요금(시간당 + GB당)만이 아니다 — NAT 는 생성·삭제가 느려서 실험의
+    # **왕복 시간**을 갉아먹는다. 몇 시간짜리 실험에서 그게 더 아깝다.
+    gateway: Disable
+
 addons:
   # **이게 없으면 클러스터가 통째로 무용지물이다.** 최신 EKS 에는 in-tree EBS 프로비저너가
   # 없어서, 이 드라이버 없이는 StatefulSet 세 개(ES·Qdrant·PostGIS)의 PVC 가 절대 바인딩되지
@@ -52,11 +66,20 @@ managedNodeGroups:
     desiredCapacity: 1
     minSize: 1
     maxSize: 1
+    # **두 노드그룹을 같은 AZ 에 못박는다 — 대조군(패스 B) 때문이다.**
+    # 실험은 같은 클러스터에서 두 번 잰다: 분리(overlays/eks)와 합침(overlays/eks-colocated).
+    # 패스를 바꾸면 ES·Qdrant·PostGIS 가 노드를 옮기는데, **EBS 볼륨은 AZ 에 묶여 있어**
+    # 다른 AZ 의 노드에는 붙지 않는다. storageclass 의 WaitForFirstConsumer 가 첫 소비자의
+    # AZ 에 볼륨을 만들어 두므로, AZ 가 갈리면 패스 B 에서 PVC 가 영구 Pending 이 된다.
+    # 덤으로 AZ 간 네트워크 지연이 변수에서 빠진다(색인기 → PostGIS 가 노드를 건너간다).
+    availabilityZones: ["ap-northeast-2a"]
     volumeSize: 50               # 노드 루트 디스크. ES 이미지(~1.5GB) + 앱 이미지(모델 490MB 포함)
     labels:
       role: query
-    # 퍼블릭 서브넷 = **NAT 게이트웨이를 안 만든다.** eksctl 기본은 프라이빗 노드 + NAT 인데,
-    # NAT 는 시간당 요금에 GB당 요금이 붙고 ECR 에서 500MB 이미지를 당길 때도 과금된다.
+    # 노드를 퍼블릭 서브넷에 놓는다 → IGW 로 직접 나가므로 NAT 경로가 필요 없어진다.
+    # **주의: 이 값만으로는 NAT 가 안 사라진다.** NAT 를 실제로 없애는 건 위의
+    # `vpc.nat.gateway: Disable` 이고, 이 둘은 한 쌍이다 — 여기만 false 로 두면
+    # 노드는 퍼블릭인데 NAT 게이트웨이는 그대로 생겨서 요금만 낸다.
     # 몇 시간짜리 실험에 프라이빗 서브넷이 사주는 건 없다.
     privateNetworking: false
     tags:
@@ -78,6 +101,9 @@ managedNodeGroups:
     minSize: 1
     maxSize: 1
     volumeSize: 50
+    # ng-query 와 **같은 AZ** 여야 한다 (위 주석 참고 — 대조군에서 EBS 재부착).
+    # 합침 패스에서는 이 노드가 전부를 받는다: CPU 요청 합 6.7 + 데몬셋 ~0.35 < 할당가능 ~7.9.
+    availabilityZones: ["ap-northeast-2a"]
     labels:
       role: index
     privateNetworking: false
