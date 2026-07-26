@@ -25,6 +25,21 @@ metadata:
   # 버전을 못박으면 몇 달 뒤 "지원 종료" 로 생성이 실패해서, 실험을 재현하려는 사람이
   # 클러스터 버전부터 고쳐야 한다. 이 파일의 목적은 버전 고정이 아니다.
 
+# **VPC 를 어느 AZ 에 만들지 여기서 못박는다.** 안 적으면 eksctl 이 3개를 자기가 고르는데,
+# 그 선택과 아래 노드그룹의 `availabilityZones` 가 어긋나면 컨트롤 플레인을 다 만든 **뒤에**
+# 노드그룹 단계에서 죽는다:
+#
+#   could not find public subnets for zones ["ap-northeast-2a"]
+#   (allSubnets=… "ap-northeast-2b" … "ap-northeast-2c" … "ap-northeast-2d" …)
+#
+# 2026-07-26 실제로 밟았다. eksctl 이 2b·2c·2d 를 골랐는데 노드그룹은 2a 로 못박혀 있었다.
+# 11분짜리 컨트롤 플레인이 만들어진 뒤에 실패해서, 살리려면 노드그룹만 따로 만들어야 했다.
+# `--dry-run` 은 이걸 못 잡는다 — AZ 선택이 실제 생성 시점에 일어나기 때문이다.
+#
+# 아래 노드그룹이 쓰는 AZ 가 반드시 이 목록 안에 있어야 한다. 3개를 적는 이유는 EKS 컨트롤
+# 플레인이 최소 2개 AZ 의 서브넷을 요구하기 때문이고, 노드는 그중 하나에만 놓는다.
+availabilityZones: ["ap-northeast-2b", "ap-northeast-2c", "ap-northeast-2d"]
+
 iam:
   # EBS CSI 드라이버가 IRSA(서비스 어카운트 → IAM 역할)를 쓴다. 이게 없으면 아래 애드온이
   # 볼륨을 못 만들고, PVC 3개가 Pending 에서 영구 대기한다 → 아무것도 뜨지 않는다.
@@ -72,7 +87,11 @@ managedNodeGroups:
     # 다른 AZ 의 노드에는 붙지 않는다. storageclass 의 WaitForFirstConsumer 가 첫 소비자의
     # AZ 에 볼륨을 만들어 두므로, AZ 가 갈리면 패스 B 에서 PVC 가 영구 Pending 이 된다.
     # 덤으로 AZ 간 네트워크 지연이 변수에서 빠진다(색인기 → PostGIS 가 노드를 건너간다).
-    availabilityZones: ["ap-northeast-2a"]
+    #
+    # **어느 AZ 인지는 중요하지 않다 — 둘이 같기만 하면 된다.** 처음엔 2a 였는데, eksctl 이
+    # VPC 를 2b·2c·2d 에 만들어서 붙을 서브넷이 없었다(위 `availabilityZones` 주석 참고).
+    # 요구사항은 "같은 AZ" 였지 2a 가 아니었으므로, VPC 가 가진 AZ 로 옮겼다.
+    availabilityZones: ["ap-northeast-2b"]
     volumeSize: 50               # 노드 루트 디스크. ES 이미지(~1.5GB) + 앱 이미지(모델 490MB 포함)
     labels:
       role: query
@@ -86,13 +105,22 @@ managedNodeGroups:
       purpose: nearby-latency-experiment
 
   # ── 색인기 전용 노드 ──
-  # CPU 를 몰아준다. 임베딩 추론이 색인 시간의 96.1%이고 **CPU 에 거의 선형**이라,
-  # 이 인스턴스 타입이 곧 재색인 소요 시간이다.
+  # CPU 를 몰아준다. 임베딩 추론이 색인 시간의 96.1%라 이 인스턴스 타입이 곧 재색인 소요 시간이다.
   #
-  # 실측 3점 (같은 64,239건):
-  #   2코어(kind)   → 1,963초 · 33건/초
-  #   10코어(로컬)  →   512초 · 132건/초
-  #   7코어(여기)   →   ~700초 예상        ← 이 노드가 세 번째 점을 찍는다
+  # 실측 (같은 64,239건). **코어 수로 보간하지 말 것 — 아키텍처가 셋 다 다르다:**
+  #
+  #   2코어   kind      arm64, Docker Desktop VM   1,963초 ·  32.7건/초 · 코어당 16.4
+  #   10코어  로컬      arm64 네이티브 (M4)           512초 · 125.5건/초 · 코어당 12.6
+  #   7코어   c7i(여기) x86-64 Sapphire Rapids        275초 · 233.2건/초 · 코어당 33.3
+  #
+  # 원래 이 노드를 "코어 수 3번째 측정점"으로 쓸 계획이었고 ~700초를 예상했다. 실측은 275초 —
+  # **7코어가 10코어보다 1.86배 빠르다.** 코어를 늘리면 보통 코어당 처리량이 내려가는데
+  # (16.4 → 12.6) 여기만 33.3 으로 튄다. 병렬 효율로는 설명이 안 되고, 남는 설명은 명령어
+  # 집합이다 — c7i 는 AMX / AVX-512 VNNI 를 갖고 있고 임베딩 비용은 대부분 행렬곱이다.
+  #
+  # 그래서 위 세 줄은 "코어 수 대 시간" 곡선이 아니라 **환경별 실측 세 개**로만 읽어야 한다.
+  # 이 실험이 대조군에 엄격히 적용한 "한 번에 하나만 바꾼다"를, 이 예측에는 적용하지 않았던
+  # 셈이다(ADR 0011 의 옛 대조군 표와 같은 종류의 실수).
   #
   # 8 vCPU 중 7 을 파드에 주고 1 을 kubelet·CNI·EBS CSI 데몬셋에 남긴다.
   - name: ng-index
@@ -103,7 +131,7 @@ managedNodeGroups:
     volumeSize: 50
     # ng-query 와 **같은 AZ** 여야 한다 (위 주석 참고 — 대조군에서 EBS 재부착).
     # 합침 패스에서는 이 노드가 전부를 받는다: CPU 요청 합 6.7 + 데몬셋 ~0.35 < 할당가능 ~7.9.
-    availabilityZones: ["ap-northeast-2a"]
+    availabilityZones: ["ap-northeast-2b"]
     labels:
       role: index
     privateNetworking: false

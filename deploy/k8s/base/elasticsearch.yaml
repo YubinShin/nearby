@@ -37,6 +37,23 @@ spec:
     metadata:
       labels: { app: elasticsearch }
     spec:
+      # ── 볼륨 소유권 ──────────────────────────────────────────────────────
+      # ES 컨테이너는 uid 1000 으로 도는데, 새로 만든 EBS 볼륨은 root:root 로 마운트된다.
+      # 그러면 부팅 중 데이터 디렉터리에 잠금 파일을 못 만들고 죽는다:
+      #
+      #   failed to obtain node locks, tried [/usr/share/elasticsearch/data]
+      #     Suppressed: java.nio.file.AccessDeniedException: …/data/node.lock
+      #
+      # fsGroup 을 주면 kubelet 이 볼륨을 그 그룹으로 chown 하고 프로세스에 보조 그룹으로
+      # 달아준다 → uid 1000 이 쓸 수 있게 된다.
+      #
+      # **kind 에서는 이 고장이 안 난다.** 로컬 경로 프로비저너가 디렉터리를 헐겁게 만들어
+      # uid 1000 이 그냥 쓰기 때문이다. 실제 블록 스토리지를 처음 붙이는 EKS 에서만 드러난다
+      # (2026-07-26 실험에서 실제로 밟았다). Qdrant·PostGIS 는 같은 gp3 를 쓰고도 멀쩡한데,
+      # 그 이미지들은 root 로 돌거나 진입점에서 스스로 소유권을 고치기 때문이다.
+      securityContext:
+        fsGroup: 1000
+
       # ── ES 가 뜨기 전에 커널 한 줄을 고쳐야 한다 ─────────────────────────────
       # ES 는 Lucene 세그먼트를 mmap 으로 연다. 기본 vm.max_map_count(65530)로는 매핑
       # 개수가 모자라 부팅 중 bootstrap check 에서 죽는다. 이 값은 **노드 커널** 설정이라
