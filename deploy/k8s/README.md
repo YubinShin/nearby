@@ -5,6 +5,9 @@
 
 > 이 매니페스트를 왜 소스와 같은 저장소에 뒀는지(모노레포 vs config repo 분리)는
 > [ADR 0012](../../docs/adr/0012-manifests-in-monorepo.md).
+>
+> EKS 클러스터 자체(노드그룹 구성 · AZ · NAT · EBS CSI)의 결정 근거는
+> [deploy/eks/README.md](../eks/README.md).
 
 ```
 deploy/k8s/
