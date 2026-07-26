@@ -220,6 +220,7 @@ search-core     두 앱이 어긋나면 조용히 틀려지는 것만 (계약)
 | 원천 | PostgreSQL / PostGIS |
 | 배포 | Docker Compose · Kubernetes (kustomize · kind · EKS) |
 | 관측 | Micrometer · Prometheus |
+| 세션 · 인기 | Redis *(예정)* |
 
 ---
 

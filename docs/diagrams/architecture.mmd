@@ -1,26 +1,32 @@
-%% docs/diagrams/architecture.svg 의 **텍스트 원본**.
-%% 실제 이미지는 Claude Design 에서 만들지만, 구조가 무엇인지는 여기 텍스트로 남겨둔다 —
+%% docs/diagrams/architecture.png 의 **텍스트 원본**.
+%% 실제 이미지는 로고를 넣어 따로 디자인하지만, 구조가 무엇인지는 여기 텍스트로 남겨둔다 —
 %% 그림 파일만 있으면 무엇이 왜 그렇게 그려졌는지 diff 로 추적할 수 없다.
+%% 이 파일을 고치면 PNG 도 다시 그려야 한다. 둘이 어긋나면 그림 쪽이 거짓말을 한다.
 flowchart TB
     USER([사용자]):::user
 
-    subgraph SERVE["search-api :8080 · 읽기"]
+    subgraph SERVE["search-api :8080 · 읽기 · WebFlux + Coroutine"]
         direction LR
         API["검색 API<br/>키워드 + 벡터 동시 호출"]:::api
         RRF{{"RRF<br/>랭킹 결합"}}:::logic
+        GUARD["기동 시 계약 대조<br/>어긋나면 뜨지 않는다"]:::guard
     end
 
-    CORE["<b>search-core</b> · 라이브러리<br/>문서 스키마 · 브랜드<br/>임베딩 e5-small · 색인 계약"]:::core
+    CORE["<b>search-core</b> · 라이브러리<br/>문서 스키마 · 브랜드 규칙<br/>임베딩 e5-small · 색인 계약"]:::core
 
-    subgraph INGEST["indexer :8081 · 쓰기"]
+    %% 색인기는 **별도 아티팩트**다 (ADR 0011). 한 상자에 묶으면 런타임 플래그로 나눈 것처럼
+    %% 보이는데, 그게 정확히 이 프로젝트가 그만둔 방식이다. 그래서 서로 다른 최상위 노드로 둔다.
+    subgraph WRITE["indexer-batch :8081 · 쓰기 · Spring Batch + JDBC"]
         direction LR
-        BATCH["batch<br/>전체 · 증분 색인<br/>alias 스왑"]:::logic
-        STREAM["stream<br/>이벤트 색인<br/>Kafka · 구현예정"]:::planned
+        BATCH["전체 · 증분 색인<br/>alias 스왑 · reconcile"]:::logic
+        STAMP["색인 계약 도장 기록<br/>스왑 성공 후"]:::logic
     end
 
-    subgraph ENGINES["검색 인프라 · docker compose &lpar;alias swap 무중단 색인&rpar;"]
+    STREAM["<b>indexer-stream</b> · 별도 아티팩트<br/>이벤트 색인 · Kafka<br/>구현예정"]:::planned
+
+    subgraph ENGINES["검색 인프라 · docker compose · kind · EKS &lpar;alias swap 무중단 색인&rpar;"]
         direction LR
-        ES[("Elasticsearch<br/>키워드 · 자동완성")]:::engine
+        ES[("Elasticsearch<br/>키워드 · 자동완성<br/>psp_index_meta")]:::engine
         QD[("Qdrant<br/>벡터 검색")]:::engine
         RD[("Redis<br/>세션 · 인기 · 구현예정")]:::planned
         PG[("PostgreSQL / PostGIS<br/>원천 창고 · 거리")]:::store
@@ -28,7 +34,7 @@ flowchart TB
 
     SRC["공공데이터포털<br/>상가정보 · 인허가"]:::src
 
-    %% 코드 공유 — 런타임 호출이 아니라 같은 코드가 두 아티팩트에 들어간다.
+    %% 코드 공유 — 런타임 호출이 아니라 같은 코드가 세 아티팩트에 들어간다.
     %% 실선으로 그리면 그림이 거짓말을 한다.
     API -. 코드 공유 .-> CORE
     BATCH -. 코드 공유 .-> CORE
@@ -41,10 +47,15 @@ flowchart TB
     ES -->|순위| RRF
     QD -->|순위| RRF
 
+    SRC -->|적재| PG
     PG -->|원천 읽기| BATCH
     BATCH -->|색인| ES
     BATCH -->|색인| QD
-    SRC -->|적재| PG
+
+    %% 모듈을 쪼개면서 잃은 보호를 런타임에 되찾는 경로 (ADR 0011).
+    %% 색인기가 찍고 질의기가 기동 시 대조한다 — 어긋나면 조용히 틀리는 대신 시끄럽게 실패한다.
+    STAMP -->|도장 기록| ES
+    ES -. 도장 대조 .-> GUARD
 
     classDef user fill:#1e293b,color:#ffffff,stroke:#0f172a,stroke-width:1px;
     classDef api fill:#2563eb,color:#ffffff,stroke:#1e40af,stroke-width:1px;
@@ -52,5 +63,6 @@ flowchart TB
     classDef engine fill:#ffffff,color:#1f2937,stroke:#dfe3e8,stroke-width:1px;
     classDef store fill:#f2fbf5,color:#14532d,stroke:#b6e3c6,stroke-width:1px;
     classDef logic fill:#fffdf2,color:#713f12,stroke:#e6d68a,stroke-width:1px;
+    classDef guard fill:#fef2f2,color:#7f1d1d,stroke:#fca5a5,stroke-width:1.5px;
     classDef src fill:#ffffff,color:#334155,stroke:#dfe3e8,stroke-width:1px;
     classDef planned fill:#ffffff,color:#64748b,stroke:#a9b0b8,stroke-width:1.5px,stroke-dasharray:4 3;

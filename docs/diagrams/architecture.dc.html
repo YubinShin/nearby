@@ -33,6 +33,15 @@
     </div>
   </div>
 
+  <!-- ===== 색인 계약 도장 (ADR 0011) ===== -->
+  <div style="position:absolute; left:100px; top:818px; width:880px; z-index:5; display:flex; gap:12px; align-items:flex-start; background:#fff; border:1px solid #e2e5ea; border-left:3px solid #b91c1c; border-radius:10px; padding:13px 16px; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+    <div style="font-size:12.5px; font-weight:800; color:#7f1d1d; white-space:nowrap; padding-top:1px;">색인 계약 도장</div>
+    <div style="font-size:12px; color:#475569; line-height:1.5;">
+      <b>indexer-batch</b> 가 alias 스왑에 성공한 뒤 <b>psp_index_meta</b> 에 스키마 버전 · 임베딩 모델 · 차원을 기록한다.<br>
+      <b>search-api</b> 는 기동할 때 자기 계약과 대조하고, 어긋나면 <b>뜨지 않는다</b> — 조용히 틀린 결과를 내는 대신.
+    </div>
+  </div>
+
   <!-- ===== LEGEND ===== -->
   <div style="position:absolute; top:34px; right:40px; z-index:5; display:flex; flex-direction:column; gap:7px; background:#fff; border:1px solid #e2e5ea; border-radius:10px; padding:11px 15px; font-size:12px; color:#475569; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
     <div style="font-size:11px; font-weight:700; color:#111827; letter-spacing:0.02em;">범례</div>
@@ -91,7 +100,7 @@
 
   <!-- ===== 질의 앱 ===== -->
   <div style="position:absolute; z-index:3; left:60px; top:266px; width:480px; height:212px; background:#ffffff; border:1.5px solid #cfd2d7; border-radius:16px;">
-    <div style="position:absolute; top:-11px; left:240px; transform:translateX(-50%); background:#fff; padding:0 12px; font-size:15px; font-weight:700; white-space:nowrap; color:#111827;"><span style="font-family:'Helvetica Neue',Arial,sans-serif;">search-api</span> <span style="font-size:12px; color:#6b7280;">:8080 · 읽기</span></div>
+    <div style="position:absolute; top:-11px; left:240px; transform:translateX(-50%); background:#fff; padding:0 12px; font-size:15px; font-weight:700; white-space:nowrap; color:#111827;"><span style="font-family:'Helvetica Neue',Arial,sans-serif;">search-api</span> <span style="font-size:12px; color:#6b7280;">:8080 · 읽기 · WebFlux</span></div>
 
     <div style="position:absolute; left:26px; top:42px; width:202px; height:146px; background:{{accent}}; border-radius:13px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:11px; color:#ffffff; box-shadow:0 3px 10px rgba(37,99,235,0.28); box-sizing:border-box; padding:14px; text-align:center;">
       <div style="display:flex; gap:10px;">
@@ -119,16 +128,16 @@
 
   <!-- ===== 색인 앱 ===== -->
   <div style="position:absolute; z-index:3; left:860px; top:266px; width:480px; height:212px; background:#ffffff; border:1.5px solid #cfd2d7; border-radius:16px;">
-    <div style="position:absolute; top:-11px; left:240px; transform:translateX(-50%); background:#fff; padding:0 12px; font-size:15px; font-weight:700; white-space:nowrap; color:#111827;"><span style="font-family:'Helvetica Neue',Arial,sans-serif;">indexer</span> <span style="font-size:12px; color:#6b7280;">:8081 · 쓰기</span></div>
+    <div style="position:absolute; top:-11px; left:240px; transform:translateX(-50%); background:#fff; padding:0 12px; font-size:15px; font-weight:700; white-space:nowrap; color:#111827;"><span style="font-family:'Helvetica Neue',Arial,sans-serif;">색인</span> <span style="font-size:12px; color:#6b7280;">쓰기 · 별도 아티팩트 2개</span></div>
 
     <div style="position:absolute; left:26px; top:42px; width:202px; height:146px; background:#fffdf2; border:1.2px solid #e6d68a; border-radius:13px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; box-sizing:border-box; padding:14px; text-align:center;">
-      <div style="font-family:'Helvetica Neue',Arial,sans-serif; font-size:12px; font-weight:800; letter-spacing:0.02em; color:#a16207; background:#fef9c3; border:1px solid #eadf9c; border-radius:8px; padding:3px 10px;">batch</div>
+      <div style="font-family:'Helvetica Neue',Arial,sans-serif; font-size:12px; font-weight:800; letter-spacing:0.02em; color:#a16207; background:#fef9c3; border:1px solid #eadf9c; border-radius:8px; padding:3px 10px;">indexer-batch</div>
       <div style="font-size:14.5px; font-weight:700; color:#713f12;">전체 · 증분 색인</div>
-      <div style="font-size:12px; color:#8a6d3b; line-height:1.35;">alias 스왑</div>
+      <div style="font-size:12px; color:#8a6d3b; line-height:1.35;">alias 스왑 · Spring Batch · :8081</div>
     </div>
 
     <div style="position:absolute; left:252px; top:42px; width:202px; height:146px; background:#fff; border:1.5px dashed #a9b0b8; border-radius:13px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; box-sizing:border-box; padding:14px; text-align:center;">
-      <div style="font-family:'Helvetica Neue',Arial,sans-serif; font-size:12px; font-weight:800; letter-spacing:0.02em; color:#64748b; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:8px; padding:3px 10px;">stream</div>
+      <div style="font-family:'Helvetica Neue',Arial,sans-serif; font-size:12px; font-weight:800; letter-spacing:0.02em; color:#64748b; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:8px; padding:3px 10px;">indexer-stream</div>
       <div style="font-size:14.5px; font-weight:700; color:#475569;">이벤트 색인</div>
       <div style="font-size:12px; color:#6b7280; line-height:1.35;">Kafka · 구현예정</div>
     </div>
@@ -136,7 +145,7 @@
 
   <!-- ===== 검색 인프라 ===== -->
   <div style="position:absolute; z-index:3; left:100px; top:544px; width:1200px; height:252px; background:#e9f1fd; border:1.5px solid #b7d1f4; border-radius:18px;">
-    <div style="position:absolute; top:-11px; left:600px; transform:translateX(-50%); background:#fff; padding:0 12px; font-size:15px; font-weight:700; white-space:nowrap; color:#111827;">검색 인프라 · docker compose</div>
+    <div style="position:absolute; top:-11px; left:600px; transform:translateX(-50%); background:#fff; padding:0 12px; font-size:15px; font-weight:700; white-space:nowrap; color:#111827;">검색 인프라 · docker compose · kind · EKS</div>
 
     <div style="position:absolute; top:16px; left:18px; display:flex; align-items:center; gap:8px; background:#fff; color:#374151; border:1.2px solid #dfe3e8; padding:5px 12px 5px 7px; border-radius:20px; font-size:12px; font-weight:600; box-shadow:0 1px 2px rgba(0,0,0,0.04);">
       <span style="font-family:'Helvetica Neue',Arial,sans-serif; font-size:11px; font-weight:800; letter-spacing:0.02em; color:#a16207; background:#fef9c3; border:1px solid #eadf9c; border-radius:6px; padding:2px 7px;">alias swap</span>
@@ -146,7 +155,7 @@
     <div style="position:absolute; left:40px; top:66px; width:262px; height:166px; background:#fff; border:1.2px solid #dfe3e8; border-radius:13px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; box-sizing:border-box; padding:16px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
       <div style="width:50px; height:50px;"><img src="uploads/elasticsearch-logo-svgrepo-com.svg" alt="Elasticsearch" style="width:100%; height:100%; object-fit:contain;"></div>
       <div style="font-size:15px; font-weight:700;">Elasticsearch</div>
-      <div style="font-size:12px; color:#6b7280; line-height:1.35;">키워드 · 자동완성</div>
+      <div style="font-size:12px; color:#6b7280; line-height:1.35;">키워드 · 자동완성<br><span style="color:#7f1d1d;">psp_index_meta · 계약 도장</span></div>
     </div>
     <div style="position:absolute; left:326px; top:66px; width:262px; height:166px; background:#fff; border:1.2px solid #dfe3e8; border-radius:13px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; box-sizing:border-box; padding:16px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
       <div style="width:50px; height:50px;"><img src="uploads/qdrant-e8227184.svg" alt="Qdrant" style="width:100%; height:100%; object-fit:contain;"></div>
