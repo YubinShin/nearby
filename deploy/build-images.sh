@@ -27,7 +27,19 @@ TAG="${TAG:-latest}"
 REGISTRY="${REGISTRY:-}"                 # 있으면 접두어로 붙는다 (ECR 등)
 PLATFORM="${PLATFORM:-}"                 # 비우면 호스트 아키텍처
 PREFIX="${REGISTRY:+$REGISTRY/}"
-PLAT_ARG=("${PLATFORM:+--platform=$PLATFORM}")
+
+# PLATFORM 이 비면 --platform 을 **아예 넘기지 않는다**(호스트 아키텍처).
+# 배열로 하면 안 된다: `PLAT_ARG=("${PLATFORM:+...}")` 는 PLATFORM 이 빌 때 원소 0개가 아니라
+# **빈 문자열 원소 1개**라서 `docker build '' … .` 이 되고, docker 가 컨텍스트를 두 개 받은 걸로
+# 보고 "requires 1 argument" 로 죽는다. 빈 배열로 고쳐도 macOS 기본 bash 3.2 에서는
+# `set -u` 아래 `"${arr[@]}"` 가 unbound 로 죽어서, 분기를 함수 안에 둔다.
+dbuild() {
+  if [ -n "$PLATFORM" ]; then
+    docker build --platform="$PLATFORM" "$@"
+  else
+    docker build "$@"
+  fi
+}
 
 [ -d models/multilingual-e5-small ] || {
   echo "임베딩 모델이 없습니다. ./scripts/fetch_embedding_model.sh 를 먼저 실행하세요." >&2
@@ -42,7 +54,7 @@ echo "==> jar 빌드 (호스트 네이티브)"
 (cd services && ./gradlew :search-api:bootJar :indexer-batch:bootJar -x test -q)
 
 echo "==> ${PREFIX}nearby-model-base:$TAG   (470MB 모델 — 두 앱이 공유할 레이어)"
-docker build "${PLAT_ARG[@]}" -f deploy/model-base/Dockerfile \
+dbuild -f deploy/model-base/Dockerfile \
   -t "${PREFIX}nearby-model-base:$TAG" .
 
 # 앱 이미지는 위 베이스를 FROM 하므로 태그가 맞아야 한다. 태그를 바꿔 쓰려면
@@ -51,11 +63,11 @@ docker tag "${PREFIX}nearby-model-base:$TAG" nearby-model-base:e5-small
 
 for app in search-api indexer-batch; do
   echo "==> ${PREFIX}nearby-$app:$TAG"
-  docker build "${PLAT_ARG[@]}" -f "deploy/$app/Dockerfile" -t "${PREFIX}nearby-$app:$TAG" .
+  dbuild -f "deploy/$app/Dockerfile" -t "${PREFIX}nearby-$app:$TAG" .
 done
 
 echo "==> ${PREFIX}nearby-postgis:$TAG   (원천 64,239행 포함)"
-docker build "${PLAT_ARG[@]}" -f deploy/postgis/Dockerfile \
+dbuild -f deploy/postgis/Dockerfile \
   -t "${PREFIX}nearby-postgis:$TAG" deploy/postgis
 
 echo

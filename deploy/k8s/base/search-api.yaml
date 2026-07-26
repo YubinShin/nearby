@@ -44,6 +44,33 @@ spec:
                 labelSelector:
                   matchLabels: { app: indexer-batch }
                 topologyKey: kubernetes.io/hostname
+      # ES 가 뜨기 전에 시작하면 컨텍스트 refresh 자체가 실패한다 — 부팅 중에 Rest5Client 가
+      # ES 로 요청을 쏘기 때문이다(스택: Rest5Client.performRequest → AsyncConnectExec).
+      # indexer-batch 가 PostGIS 로 겪은 것과 같은 모양이고, 아픈 곳도 같다: CrashLoopBackOff
+      # 의 지수 백오프(10s→20s→40s→80s) 때문에 **ES 가 준비된 뒤에도 몇 분을 더 죽어 있는다.**
+      # EKS 에서는 그게 곧 과금 시간이고, 특히 패스 B 에서 ES 가 노드를 옮기며 EBS 를
+      # 재부착하는 동안 이 백오프에 걸리면 재측정 시작이 그만큼 밀린다.
+      #
+      # Qdrant 는 기다리지 않는다 — 클라이언트가 lazy 라 부팅을 막지 않고, 컬렉션이 없으면
+      # 질의 시점에 500 을 낼 뿐이다(kind 리허설에서 확인). 부팅을 죽이는 것만 기다린다.
+      initContainers:
+        - name: wait-for-elasticsearch
+          image: busybox:1.36
+          # 주소를 여기 하드코딩하지 않고 앱과 **같은 ConfigMap** 에서 받는다 — 안 그러면
+          # backend-wiring.yaml 을 고쳤을 때 둘이 조용히 어긋난다.
+          envFrom:
+            - configMapRef: { name: search-backends }
+          command:
+            - sh
+            - -c
+            # TCP 만 보면 안 된다 — ES 는 클러스터가 서빙 준비되기 전에 9200 을 먼저 연다.
+            # 단일 노드는 복제본이 배정 안 돼 green 이 아니라 **yellow** 가 정상이다.
+            # wait_for_status 로 ES 쪽에서 블록시키니 폴링이 촘촘할 필요도 없다.
+            - |
+              until wget -q -O /dev/null "$SPRING_ELASTICSEARCH_URIS/_cluster/health?wait_for_status=yellow&timeout=5s"; do
+                echo "elasticsearch 대기 중..."
+                sleep 2
+              done
       containers:
         - name: search-api
           image: nearby-search-api:latest
