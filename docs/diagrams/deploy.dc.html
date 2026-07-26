@@ -16,7 +16,7 @@
   body { margin:0; background:#f3f4f6; }
 </style>
 </helmet>
-<div style="position:relative; width:1400px; height:1000px; background:#ffffff; font-family:'Noto Sans KR','Helvetica Neue',Arial,sans-serif; color:#1f2937; box-sizing:border-box; margin:0 auto;">
+<div style="position:relative; width:1400px; height:640px; background:#ffffff; font-family:'Noto Sans KR','Helvetica Neue',Arial,sans-serif; color:#1f2937; box-sizing:border-box; margin:0 auto;">
 
   <!-- ===== TITLE ===== -->
   <div style="position:absolute; top:30px; left:40px; display:flex; align-items:stretch; gap:14px; background:#fff; border:1px solid #e2e5ea; border-radius:12px; padding:14px 18px; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
@@ -25,173 +25,131 @@
       <div style="font-size:23px; font-weight:700; letter-spacing:-0.01em; color:#111827; line-height:1.15;">배포 뷰 · EKS 노드 분리 실험</div>
       <div style="display:flex; align-items:center; gap:8px;">
         <span style="font-size:12px; font-weight:600; color:#475569; background:#f1f5f9; border-radius:5px; padding:2px 9px; letter-spacing:0.01em;">파드 사양 동일 · 배치만 다름</span>
-        <span style="font-size:12px; font-weight:600; color:#475569; background:#f1f5f9; border-radius:5px; padding:2px 9px; letter-spacing:0.01em;">같은 클러스터 · 두 패스</span>
-        <span style="font-size:12px; font-weight:600; color:#475569; background:#f1f5f9; border-radius:5px; padding:2px 9px; letter-spacing:0.01em;">유휴 대비 배수로만 비교</span>
       </div>
     </div>
   </div>
 
   <!-- ===== EKS BADGE ===== -->
-  <div style="position:absolute; top:34px; right:40px; display:flex; align-items:center; gap:12px; background:#fff; border:1px solid #e2e5ea; border-radius:12px; padding:12px 16px; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
-    <div style="width:40px; height:40px;"><img src="uploads/aws-eks.svg" alt="Amazon EKS" style="width:100%; height:100%; object-fit:contain;"></div>
-    <div>
-      <div style="font-size:14px; font-weight:700; font-family:'Helvetica Neue',Arial,sans-serif;">Amazon EKS</div>
-      <div style="font-size:11.5px; color:#6b7280;">노드 2개 · 한 클러스터에서 두 패스 측정</div>
-    </div>
+  <div style="position:absolute; top:34px; right:40px; display:flex; align-items:center; gap:11px; background:#fff; border:1px solid #e2e5ea; border-radius:12px; padding:12px 16px; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+    <div style="width:36px; height:36px;"><img src="uploads/aws-eks.svg" alt="Amazon EKS" style="width:100%; height:100%; object-fit:contain;"></div>
+    <div style="font-size:14px; font-weight:700; font-family:'Helvetica Neue',Arial,sans-serif;">Amazon EKS</div>
   </div>
 
   <!-- ===== 패스 A (분리) ===== -->
-  <div style="position:absolute; z-index:3; left:40px; top:160px; width:645px; height:540px; background:#ffffff; border:1.5px solid #cfd2d7; border-radius:16px;">
+  <div style="position:absolute; z-index:3; left:40px; top:150px; width:645px; height:452px; background:#ffffff; border:1.5px solid #cfd2d7; border-radius:16px;">
     <div style="position:absolute; top:-11px; left:322px; transform:translateX(-50%); background:#fff; padding:0 12px; font-size:15px; font-weight:700; white-space:nowrap; color:#111827;">패스 A · 분리 <span style="font-size:12px; font-weight:600; color:#6b7280; font-family:'Helvetica Neue',Arial,sans-serif;">overlays/eks</span></div>
 
     <!-- 노드: m7i.xlarge (query) -->
-    <div style="position:absolute; left:22px; top:44px; width:601px; height:140px; background:#f8fafc; border:1.2px solid #d7dde5; border-radius:13px; box-sizing:border-box;">
-      <div style="position:absolute; left:16px; right:16px; top:12px; display:flex; align-items:center; gap:7px;">
+    <div style="position:absolute; left:22px; top:40px; width:601px; height:112px; background:#f8fafc; border:1.2px solid #d7dde5; border-radius:13px; box-sizing:border-box;">
+      <div style="position:absolute; left:16px; right:16px; top:10px; display:flex; align-items:center; gap:7px;">
         <div style="width:18px; height:18px;"><img src="uploads/kubernetes.svg" alt="k8s node" style="width:100%; height:100%; object-fit:contain;"></div>
         <span style="font-size:13px; font-weight:700; font-family:'Helvetica Neue',Arial,sans-serif;">m7i.xlarge</span>
         <span style="font-size:11.5px; color:#6b7280;">4 vCPU</span>
         <span style="margin-left:auto; font-size:11px; font-weight:700; font-family:'Helvetica Neue',Arial,sans-serif; color:#1d4ed8; background:#eff6ff; border:1px solid #bfdbfe; border-radius:6px; padding:2px 8px;">role=query</span>
       </div>
-      <div style="position:absolute; left:18px; top:48px; width:177px; height:76px; background:{{accent}}; border-radius:10px; display:flex; align-items:center; gap:9px; box-sizing:border-box; padding:0 10px; box-shadow:0 2px 6px rgba(37,99,235,0.25);">
-        <div style="width:28px; height:28px; background:#fff; border-radius:7px; padding:4px; box-sizing:border-box; flex:none;"><img src="uploads/kotlin.svg" alt="Kotlin" style="width:100%; height:100%; object-fit:contain;"></div>
-        <div><div style="font-size:12.5px; font-weight:700; color:#fff; font-family:'Helvetica Neue',Arial,sans-serif;">search-api</div><div style="font-size:10.5px; color:rgba(255,255,255,0.85);">질의 p50 측정 대상</div></div>
+      <div style="position:absolute; left:18px; top:42px; width:177px; height:54px; background:{{accent}}; border-radius:10px; display:flex; align-items:center; gap:9px; box-sizing:border-box; padding:0 11px; box-shadow:0 2px 6px rgba(37,99,235,0.25);">
+        <div style="width:26px; height:26px; background:#fff; border-radius:7px; padding:4px; box-sizing:border-box; flex:none;"><img src="uploads/kotlin.svg" alt="Kotlin" style="width:100%; height:100%; object-fit:contain;"></div>
+        <div style="font-size:12.5px; font-weight:700; color:#fff; font-family:'Helvetica Neue',Arial,sans-serif;">search-api</div>
       </div>
-      <div style="position:absolute; left:209px; top:48px; width:177px; height:76px; background:#fff; border:1.2px solid #dfe3e8; border-radius:10px; display:flex; align-items:center; gap:9px; box-sizing:border-box; padding:0 10px;">
-        <div style="width:28px; height:28px; flex:none;"><img src="uploads/elasticsearch.svg" alt="Elasticsearch" style="width:100%; height:100%; object-fit:contain;"></div>
-        <div><div style="font-size:12.5px; font-weight:700;">Elasticsearch</div><div style="font-size:10.5px; color:#6b7280;">키워드 질의 · _bulk</div></div>
+      <div style="position:absolute; left:209px; top:42px; width:177px; height:54px; background:#fff; border:1.2px solid #dfe3e8; border-radius:10px; display:flex; align-items:center; gap:9px; box-sizing:border-box; padding:0 11px;">
+        <div style="width:26px; height:26px; flex:none;"><img src="uploads/elasticsearch.svg" alt="Elasticsearch" style="width:100%; height:100%; object-fit:contain;"></div>
+        <div style="font-size:12.5px; font-weight:700;">Elasticsearch</div>
       </div>
-      <div style="position:absolute; left:400px; top:48px; width:177px; height:76px; background:#fff; border:1.2px solid #dfe3e8; border-radius:10px; display:flex; align-items:center; gap:9px; box-sizing:border-box; padding:0 10px;">
-        <div style="width:28px; height:28px; flex:none;"><img src="uploads/qdrant.svg" alt="Qdrant" style="width:100%; height:100%; object-fit:contain;"></div>
-        <div><div style="font-size:12.5px; font-weight:700;">Qdrant</div><div style="font-size:10.5px; color:#6b7280;">벡터 질의</div></div>
+      <div style="position:absolute; left:400px; top:42px; width:177px; height:54px; background:#fff; border:1.2px solid #dfe3e8; border-radius:10px; display:flex; align-items:center; gap:9px; box-sizing:border-box; padding:0 11px;">
+        <div style="width:26px; height:26px; flex:none;"><img src="uploads/qdrant.svg" alt="Qdrant" style="width:100%; height:100%; object-fit:contain;"></div>
+        <div style="font-size:12.5px; font-weight:700;">Qdrant</div>
       </div>
     </div>
 
     <!-- anti-affinity -->
-    <div style="position:absolute; left:50%; top:196px; transform:translateX(-50%); white-space:nowrap; background:#fff; border:1.5px dashed #ef4444; border-radius:18px; padding:6px 15px; font-size:11.5px; font-weight:700; color:#b91c1c;">podAntiAffinity <span style="font-family:'Helvetica Neue',Arial,sans-serif;">required</span> — search-api ✕ indexer-batch 같은 노드 금지</div>
+    <div style="position:absolute; left:50%; top:158px; transform:translateX(-50%); white-space:nowrap; background:#fff; border:1.5px dashed #ef4444; border-radius:18px; padding:5px 14px; font-size:11.5px; font-weight:700; color:#b91c1c; font-family:'Helvetica Neue',Arial,sans-serif;">podAntiAffinity: required</div>
 
     <!-- 노드: c7i.2xlarge (index) -->
-    <div style="position:absolute; left:22px; top:236px; width:601px; height:210px; background:#f8fafc; border:1.2px solid #d7dde5; border-radius:13px; box-sizing:border-box;">
-      <div style="position:absolute; left:16px; right:16px; top:12px; display:flex; align-items:center; gap:7px;">
+    <div style="position:absolute; left:22px; top:196px; width:601px; height:176px; background:#f8fafc; border:1.2px solid #d7dde5; border-radius:13px; box-sizing:border-box;">
+      <div style="position:absolute; left:16px; right:16px; top:10px; display:flex; align-items:center; gap:7px;">
         <div style="width:18px; height:18px;"><img src="uploads/kubernetes.svg" alt="k8s node" style="width:100%; height:100%; object-fit:contain;"></div>
         <span style="font-size:13px; font-weight:700; font-family:'Helvetica Neue',Arial,sans-serif;">c7i.2xlarge</span>
         <span style="font-size:11.5px; color:#6b7280;">8 vCPU</span>
         <span style="margin-left:auto; font-size:11px; font-weight:700; font-family:'Helvetica Neue',Arial,sans-serif; color:#a16207; background:#fffbeb; border:1px solid #fde68a; border-radius:6px; padding:2px 8px;">role=index</span>
       </div>
-      <div style="position:absolute; left:18px; top:76px; width:177px; height:76px; background:#fffdf2; border:1.2px solid #e6d68a; border-radius:10px; display:flex; align-items:center; gap:9px; box-sizing:border-box; padding:0 10px;">
-        <div style="width:28px; height:28px; background:#fff; border-radius:7px; padding:4px; box-sizing:border-box; flex:none;"><img src="uploads/spring.svg" alt="Spring Batch" style="width:100%; height:100%; object-fit:contain;"></div>
-        <div><div style="font-size:12.5px; font-weight:700; color:#713f12; font-family:'Helvetica Neue',Arial,sans-serif;">indexer-batch</div><div style="font-size:10.5px; color:#8a6d3b;">임베딩 추론 · CPU 6/7</div></div>
+      <div style="position:absolute; left:18px; top:71px; width:177px; height:54px; background:#fffdf2; border:1.2px solid #e6d68a; border-radius:10px; display:flex; align-items:center; gap:9px; box-sizing:border-box; padding:0 11px;">
+        <div style="width:26px; height:26px; background:#fff; border-radius:7px; padding:4px; box-sizing:border-box; flex:none;"><img src="uploads/spring.svg" alt="Spring Batch" style="width:100%; height:100%; object-fit:contain;"></div>
+        <div style="font-size:12.5px; font-weight:700; color:#713f12; font-family:'Helvetica Neue',Arial,sans-serif;">indexer-batch</div>
       </div>
-      <div style="position:absolute; left:209px; top:76px; width:177px; height:76px; background:#f2fbf5; border:1.2px solid #b6e3c6; border-radius:10px; display:flex; align-items:center; gap:9px; box-sizing:border-box; padding:0 10px;">
-        <div style="width:28px; height:28px; flex:none;"><img src="uploads/postgresql.svg" alt="PostgreSQL / PostGIS" style="width:100%; height:100%; object-fit:contain;"></div>
-        <div><div style="font-size:11.5px; font-weight:700; color:#14532d;">PostgreSQL / PostGIS</div><div style="font-size:10.5px; color:#3f7355;">원천 읽기</div></div>
+      <div style="position:absolute; left:209px; top:71px; width:177px; height:54px; background:#f2fbf5; border:1.2px solid #b6e3c6; border-radius:10px; display:flex; align-items:center; gap:9px; box-sizing:border-box; padding:0 11px;">
+        <div style="width:26px; height:26px; flex:none;"><img src="uploads/postgresql.svg" alt="PostgreSQL / PostGIS" style="width:100%; height:100%; object-fit:contain;"></div>
+        <div style="font-size:11.5px; font-weight:700; color:#14532d;">PostgreSQL / PostGIS</div>
       </div>
     </div>
 
     <!-- 패스 A 배수 -->
-    <div style="position:absolute; left:22px; top:466px; width:601px; height:52px; background:#f8fafc; border-radius:10px; box-sizing:border-box; display:flex; align-items:center; gap:20px; padding:0 18px; font-size:12px; color:#475569;">
-      <span style="font-weight:700; color:#111827;">질의 p50</span>
-      <span>유휴 53.3ms <b style="font-family:'Helvetica Neue',Arial,sans-serif;">1.00</b></span>
-      <span>키워드 재색인 중 <b style="font-size:14px; font-family:'Helvetica Neue',Arial,sans-serif; color:#111827;">1.07</b></span>
-      <span>벡터 재색인 중 <b style="font-size:14px; font-family:'Helvetica Neue',Arial,sans-serif; color:#047857;">0.90</b></span>
+    <div style="position:absolute; left:22px; top:388px; width:601px; height:44px; background:#f8fafc; border-radius:10px; box-sizing:border-box; display:flex; align-items:center; gap:22px; padding:0 18px; font-size:12px; color:#64748b;">
+      <span>유휴 대비 배수</span>
+      <span>키워드 재색인 <b style="font-size:14px; font-family:'Helvetica Neue',Arial,sans-serif; color:#111827;">1.07</b></span>
+      <span>벡터 재색인 <b style="font-size:14px; font-family:'Helvetica Neue',Arial,sans-serif; color:#047857;">0.90</b></span>
     </div>
   </div>
 
   <!-- ===== 패스 B (합침) ===== -->
-  <div style="position:absolute; z-index:3; left:715px; top:160px; width:645px; height:540px; background:#ffffff; border:1.5px solid #cfd2d7; border-radius:16px;">
+  <div style="position:absolute; z-index:3; left:715px; top:150px; width:645px; height:452px; background:#ffffff; border:1.5px solid #cfd2d7; border-radius:16px;">
     <div style="position:absolute; top:-11px; left:322px; transform:translateX(-50%); background:#fff; padding:0 12px; font-size:15px; font-weight:700; white-space:nowrap; color:#111827;">패스 B · 합침 <span style="font-size:12px; font-weight:600; color:#6b7280; font-family:'Helvetica Neue',Arial,sans-serif;">overlays/eks-colocated</span></div>
 
     <!-- 노드: m7i.xlarge (비어 있음) -->
-    <div style="position:absolute; left:22px; top:44px; width:601px; height:140px; background:#f8fafc; border:1.2px solid #d7dde5; border-radius:13px; box-sizing:border-box;">
-      <div style="position:absolute; left:16px; right:16px; top:12px; display:flex; align-items:center; gap:7px;">
+    <div style="position:absolute; left:22px; top:40px; width:601px; height:112px; background:#f8fafc; border:1.2px solid #d7dde5; border-radius:13px; box-sizing:border-box;">
+      <div style="position:absolute; left:16px; right:16px; top:10px; display:flex; align-items:center; gap:7px;">
         <div style="width:18px; height:18px;"><img src="uploads/kubernetes.svg" alt="k8s node" style="width:100%; height:100%; object-fit:contain;"></div>
         <span style="font-size:13px; font-weight:700; font-family:'Helvetica Neue',Arial,sans-serif;">m7i.xlarge</span>
         <span style="font-size:11.5px; color:#6b7280;">4 vCPU</span>
         <span style="margin-left:auto; font-size:11px; font-weight:700; font-family:'Helvetica Neue',Arial,sans-serif; color:#1d4ed8; background:#eff6ff; border:1px solid #bfdbfe; border-radius:6px; padding:2px 8px;">role=query</span>
       </div>
-      <div style="position:absolute; left:18px; top:48px; width:559px; height:76px; border:1.5px dashed #c3cad3; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:12px; color:#94a3b8;">파드 없음 — 앱 · 엔진 전부 아래 노드로</div>
+      <div style="position:absolute; left:18px; top:42px; width:559px; height:54px; border:1.5px dashed #c3cad3; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:12px; color:#94a3b8;">파드 없음</div>
     </div>
 
     <!-- 배치 규칙 -->
-    <div style="position:absolute; left:50%; top:196px; transform:translateX(-50%); white-space:nowrap; background:#fff; border:1.5px dashed #a9b0b8; border-radius:18px; padding:6px 15px; font-size:11.5px; font-weight:700; color:#475569;">anti-affinity 제거 — nodeSelector 로 전부 <span style="font-family:'Helvetica Neue',Arial,sans-serif;">role=index</span> 에</div>
+    <div style="position:absolute; left:50%; top:158px; transform:translateX(-50%); white-space:nowrap; background:#fff; border:1.5px dashed #a9b0b8; border-radius:18px; padding:5px 14px; font-size:11.5px; font-weight:700; color:#475569;">anti-affinity 제거</div>
 
     <!-- 노드: c7i.2xlarge (전부) -->
-    <div style="position:absolute; left:22px; top:236px; width:601px; height:210px; background:#f8fafc; border:1.2px solid #d7dde5; border-radius:13px; box-sizing:border-box;">
-      <div style="position:absolute; left:16px; right:16px; top:12px; display:flex; align-items:center; gap:7px;">
+    <div style="position:absolute; left:22px; top:196px; width:601px; height:176px; background:#f8fafc; border:1.2px solid #d7dde5; border-radius:13px; box-sizing:border-box;">
+      <div style="position:absolute; left:16px; right:16px; top:10px; display:flex; align-items:center; gap:7px;">
         <div style="width:18px; height:18px;"><img src="uploads/kubernetes.svg" alt="k8s node" style="width:100%; height:100%; object-fit:contain;"></div>
         <span style="font-size:13px; font-weight:700; font-family:'Helvetica Neue',Arial,sans-serif;">c7i.2xlarge</span>
         <span style="font-size:11.5px; color:#6b7280;">8 vCPU</span>
         <span style="margin-left:auto; font-size:11px; font-weight:700; font-family:'Helvetica Neue',Arial,sans-serif; color:#a16207; background:#fffbeb; border:1px solid #fde68a; border-radius:6px; padding:2px 8px;">role=index</span>
       </div>
-      <div style="position:absolute; left:18px; top:40px; width:177px; height:76px; background:{{accent}}; border-radius:10px; display:flex; align-items:center; gap:9px; box-sizing:border-box; padding:0 10px; box-shadow:0 2px 6px rgba(37,99,235,0.25);">
-        <div style="width:28px; height:28px; background:#fff; border-radius:7px; padding:4px; box-sizing:border-box; flex:none;"><img src="uploads/kotlin.svg" alt="Kotlin" style="width:100%; height:100%; object-fit:contain;"></div>
-        <div><div style="font-size:12.5px; font-weight:700; color:#fff; font-family:'Helvetica Neue',Arial,sans-serif;">search-api</div><div style="font-size:10.5px; color:rgba(255,255,255,0.85);">질의 p50 측정 대상</div></div>
+      <div style="position:absolute; left:18px; top:44px; width:177px; height:54px; background:{{accent}}; border-radius:10px; display:flex; align-items:center; gap:9px; box-sizing:border-box; padding:0 11px; box-shadow:0 2px 6px rgba(37,99,235,0.25);">
+        <div style="width:26px; height:26px; background:#fff; border-radius:7px; padding:4px; box-sizing:border-box; flex:none;"><img src="uploads/kotlin.svg" alt="Kotlin" style="width:100%; height:100%; object-fit:contain;"></div>
+        <div style="font-size:12.5px; font-weight:700; color:#fff; font-family:'Helvetica Neue',Arial,sans-serif;">search-api</div>
       </div>
-      <div style="position:absolute; left:209px; top:40px; width:177px; height:76px; background:#fff; border:1.2px solid #dfe3e8; border-radius:10px; display:flex; align-items:center; gap:9px; box-sizing:border-box; padding:0 10px;">
-        <div style="width:28px; height:28px; flex:none;"><img src="uploads/elasticsearch.svg" alt="Elasticsearch" style="width:100%; height:100%; object-fit:contain;"></div>
-        <div><div style="font-size:12.5px; font-weight:700;">Elasticsearch</div><div style="font-size:10.5px; color:#6b7280;">키워드 질의 · _bulk</div></div>
+      <div style="position:absolute; left:209px; top:44px; width:177px; height:54px; background:#fff; border:1.2px solid #dfe3e8; border-radius:10px; display:flex; align-items:center; gap:9px; box-sizing:border-box; padding:0 11px;">
+        <div style="width:26px; height:26px; flex:none;"><img src="uploads/elasticsearch.svg" alt="Elasticsearch" style="width:100%; height:100%; object-fit:contain;"></div>
+        <div style="font-size:12.5px; font-weight:700;">Elasticsearch</div>
       </div>
-      <div style="position:absolute; left:400px; top:40px; width:177px; height:76px; background:#fff; border:1.2px solid #dfe3e8; border-radius:10px; display:flex; align-items:center; gap:9px; box-sizing:border-box; padding:0 10px;">
-        <div style="width:28px; height:28px; flex:none;"><img src="uploads/qdrant.svg" alt="Qdrant" style="width:100%; height:100%; object-fit:contain;"></div>
-        <div><div style="font-size:12.5px; font-weight:700;">Qdrant</div><div style="font-size:10.5px; color:#6b7280;">벡터 질의</div></div>
+      <div style="position:absolute; left:400px; top:44px; width:177px; height:54px; background:#fff; border:1.2px solid #dfe3e8; border-radius:10px; display:flex; align-items:center; gap:9px; box-sizing:border-box; padding:0 11px;">
+        <div style="width:26px; height:26px; flex:none;"><img src="uploads/qdrant.svg" alt="Qdrant" style="width:100%; height:100%; object-fit:contain;"></div>
+        <div style="font-size:12.5px; font-weight:700;">Qdrant</div>
       </div>
-      <div style="position:absolute; left:18px; top:126px; width:177px; height:76px; background:#fffdf2; border:1.2px solid #e6d68a; border-radius:10px; display:flex; align-items:center; gap:9px; box-sizing:border-box; padding:0 10px;">
-        <div style="width:28px; height:28px; background:#fff; border-radius:7px; padding:4px; box-sizing:border-box; flex:none;"><img src="uploads/spring.svg" alt="Spring Batch" style="width:100%; height:100%; object-fit:contain;"></div>
-        <div><div style="font-size:12.5px; font-weight:700; color:#713f12; font-family:'Helvetica Neue',Arial,sans-serif;">indexer-batch</div><div style="font-size:10.5px; color:#8a6d3b;">임베딩 추론 · CPU 6/7</div></div>
+      <div style="position:absolute; left:18px; top:108px; width:177px; height:54px; background:#fffdf2; border:1.2px solid #e6d68a; border-radius:10px; display:flex; align-items:center; gap:9px; box-sizing:border-box; padding:0 11px;">
+        <div style="width:26px; height:26px; background:#fff; border-radius:7px; padding:4px; box-sizing:border-box; flex:none;"><img src="uploads/spring.svg" alt="Spring Batch" style="width:100%; height:100%; object-fit:contain;"></div>
+        <div style="font-size:12.5px; font-weight:700; color:#713f12; font-family:'Helvetica Neue',Arial,sans-serif;">indexer-batch</div>
       </div>
-      <div style="position:absolute; left:209px; top:126px; width:177px; height:76px; background:#f2fbf5; border:1.2px solid #b6e3c6; border-radius:10px; display:flex; align-items:center; gap:9px; box-sizing:border-box; padding:0 10px;">
-        <div style="width:28px; height:28px; flex:none;"><img src="uploads/postgresql.svg" alt="PostgreSQL / PostGIS" style="width:100%; height:100%; object-fit:contain;"></div>
-        <div><div style="font-size:11.5px; font-weight:700; color:#14532d;">PostgreSQL / PostGIS</div><div style="font-size:10.5px; color:#3f7355;">원천 읽기</div></div>
+      <div style="position:absolute; left:209px; top:108px; width:177px; height:54px; background:#f2fbf5; border:1.2px solid #b6e3c6; border-radius:10px; display:flex; align-items:center; gap:9px; box-sizing:border-box; padding:0 11px;">
+        <div style="width:26px; height:26px; flex:none;"><img src="uploads/postgresql.svg" alt="PostgreSQL / PostGIS" style="width:100%; height:100%; object-fit:contain;"></div>
+        <div style="font-size:11.5px; font-weight:700; color:#14532d;">PostgreSQL / PostGIS</div>
       </div>
     </div>
 
     <!-- 패스 B 배수 -->
-    <div style="position:absolute; left:22px; top:466px; width:601px; height:52px; background:#f8fafc; border-radius:10px; box-sizing:border-box; display:flex; align-items:center; gap:20px; padding:0 18px; font-size:12px; color:#475569;">
-      <span style="font-weight:700; color:#111827;">질의 p50</span>
-      <span>유휴 43.2ms <b style="font-family:'Helvetica Neue',Arial,sans-serif;">1.00</b></span>
-      <span>키워드 재색인 중 <b style="font-size:14px; font-family:'Helvetica Neue',Arial,sans-serif; color:#b45309;">1.11</b></span>
-      <span>벡터 재색인 중 <b style="font-size:14px; font-family:'Helvetica Neue',Arial,sans-serif; color:#b45309;">1.09</b></span>
+    <div style="position:absolute; left:22px; top:388px; width:601px; height:44px; background:#f8fafc; border-radius:10px; box-sizing:border-box; display:flex; align-items:center; gap:22px; padding:0 18px; font-size:12px; color:#64748b;">
+      <span>유휴 대비 배수</span>
+      <span>키워드 재색인 <b style="font-size:14px; font-family:'Helvetica Neue',Arial,sans-serif; color:#b45309;">1.11</b></span>
+      <span>벡터 재색인 <b style="font-size:14px; font-family:'Helvetica Neue',Arial,sans-serif; color:#b45309;">1.09</b></span>
     </div>
-  </div>
-
-  <!-- ===== 결과 해석 ===== -->
-  <div style="position:absolute; left:40px; top:730px; width:304px; height:230px; background:#fff; border:1px solid #e2e5ea; border-left:3px solid #64748b; border-radius:12px; box-sizing:border-box; padding:18px 20px; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
-    <div style="font-size:13px; font-weight:800; color:#111827; margin-bottom:9px;">실험 설계</div>
-    <div style="font-size:12px; color:#475569; line-height:1.6;">두 패스의 파드 사양(이미지 · CPU · 메모리)은 전부 같다. 다른 것은 <b>배치 하나</b> — 그래서 두 패스의 배수 차이가 곧 노드 분리의 순효과다.<br>하드웨어가 달라(4 vs 8 vCPU) 절대값 비교는 무효. 각 패스 <b>안의 유휴 대비 배수</b>만 비교한다.</div>
-    <div style="position:absolute; left:20px; bottom:14px; font-size:11px; color:#94a3b8;">실측 2026-07-26 · ADR 0011</div>
-  </div>
-
-  <div style="position:absolute; left:368px; top:730px; width:492px; height:230px; background:#fff; border:1px solid #e2e5ea; border-left:3px solid #047857; border-radius:12px; box-sizing:border-box; padding:18px 22px; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
-    <div style="display:flex; align-items:center; gap:9px;">
-      <span style="font-size:11px; font-weight:700; color:#047857; background:#ecfdf5; border:1px solid #a7f3d0; border-radius:6px; padding:2px 8px;">벡터 재색인 중</span>
-      <span style="font-size:13.5px; font-weight:800; color:#111827;">앱 CPU 경쟁 — 노드 분리로 풀린다 ✅</span>
-    </div>
-    <div style="display:flex; align-items:baseline; gap:12px; margin-top:14px; font-family:'Helvetica Neue',Arial,sans-serif;">
-      <span style="font-size:27px; font-weight:700; color:#9ca3af;">1.09</span>
-      <span style="font-size:20px; color:#9ca3af;">→</span>
-      <span style="font-size:34px; font-weight:800; color:#047857;">0.90</span>
-      <span style="font-size:12px; font-weight:700; color:#047857; background:#ecfdf5; border-radius:6px; padding:2px 8px;">차이 +0.19</span>
-    </div>
-    <div style="font-size:12px; color:#475569; line-height:1.6; margin-top:12px;">색인 비용의 96%가 <b>임베딩 추론 = 순수 앱 CPU</b>. 색인기가 다른 노드로 빠지면 경쟁 자체가 사라져, 질의가 유휴보다도 빨라진다(0.90).</div>
-  </div>
-
-  <div style="position:absolute; left:884px; top:730px; width:476px; height:230px; background:#fff; border:1px solid #e2e5ea; border-left:3px solid #b45309; border-radius:12px; box-sizing:border-box; padding:18px 22px; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
-    <div style="display:flex; align-items:center; gap:9px;">
-      <span style="font-size:11px; font-weight:700; color:#b45309; background:#fffbeb; border:1px solid #fde68a; border-radius:6px; padding:2px 8px;">키워드 재색인 중</span>
-      <span style="font-size:13.5px; font-weight:800; color:#111827;">엔진 공유 경쟁 — 남는다 ❌</span>
-    </div>
-    <div style="display:flex; align-items:baseline; gap:12px; margin-top:14px; font-family:'Helvetica Neue',Arial,sans-serif;">
-      <span style="font-size:27px; font-weight:700; color:#9ca3af;">1.11</span>
-      <span style="font-size:20px; color:#9ca3af;">→</span>
-      <span style="font-size:34px; font-weight:800; color:#b45309;">1.07</span>
-      <span style="font-size:12px; font-weight:700; color:#b45309; background:#fffbeb; border-radius:6px; padding:2px 8px;">차이 +0.04</span>
-    </div>
-    <div style="font-size:12px; color:#475569; line-height:1.6; margin-top:12px;">비용이 공유 Elasticsearch 의 <b>_bulk</b> — 색인기를 어느 노드에 놓든 질의가 쓰는 같은 ES 파드를 때린다. ADR 0002 의 클러스터 분리로만 풀린다.</div>
   </div>
 
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{
-  &quot;$preview&quot;: { &quot;width&quot;: 1400, &quot;height&quot;: 1000 },
+  &quot;$preview&quot;: { &quot;width&quot;: 1400, &quot;height&quot;: 640 },
   &quot;accentColor&quot;: { &quot;editor&quot;: &quot;color&quot;, &quot;default&quot;: &quot;#2563eb&quot;, &quot;options&quot;: [&quot;#2563eb&quot;, &quot;#0284c7&quot;, &quot;#7c3aed&quot;, &quot;#059669&quot;], &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;스타일&quot; }
 }">
 class Component extends DCLogic {
