@@ -142,7 +142,7 @@ Kubernetes로 띄우려면 → [deploy/k8s/README.md](deploy/k8s/README.md)
 ```
 search-core     두 앱이 어긋나면 조용히 틀려지는 것만 (계약)
 ├── search-api      질의  · WebFlux + Coroutine
-├── indexer-batch   색인  · Spring Batch + JDBC
+├── indexer-batch   색인  · Spring Batch + MVC + JDBC
 └── indexer-stream  (예정) 이벤트 색인
 ```
 
