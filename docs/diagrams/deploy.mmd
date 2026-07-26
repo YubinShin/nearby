@@ -1,0 +1,60 @@
+%% docs/diagrams/deploy.png 의 **텍스트 원본**. (배포 뷰 — 논리·데이터 흐름 뷰는 architecture.mmd)
+%% 실제 이미지는 로고를 넣어 따로 디자인하지만, 구조가 무엇인지는 여기 텍스트로 남겨둔다 —
+%% 그림 파일만 있으면 무엇이 왜 그렇게 그려졌는지 diff 로 추적할 수 없다.
+%% 이 파일을 고치면 PNG 도 다시 그려야 한다: ./scripts/render_diagram.sh deploy
+%%
+%% 왜 두 패스를 나란히 다 그리나 — 이 실험의 설계 자체가 "파드 사양은 전부 같고 **배치 하나만**
+%% 다르다"이기 때문이다(commit 83bc469). 한 패스만 그리면 무엇과 비교해 0.90 인지가 사라진다.
+%% 절대값(53.3ms vs 43.2ms)은 하드웨어가 달라 비교 무효 — 각 패스 안의 유휴 대비 배수만 읽는다.
+flowchart TB
+    subgraph PA["패스 A · 분리 — overlays/eks"]
+        direction TB
+        subgraph A_Q["m7i.xlarge · 4 vCPU · role=query"]
+            direction LR
+            A_API["search-api<br/>질의 p50 측정 대상"]:::api
+            A_ES[("Elasticsearch<br/>키워드 질의 · _bulk")]:::engine
+            A_QD[("Qdrant<br/>벡터 질의")]:::engine
+        end
+        subgraph A_I["c7i.2xlarge · 8 vCPU · role=index"]
+            direction LR
+            A_BATCH["indexer-batch<br/>임베딩 추론 · CPU 6/7"]:::logic
+            A_PG[("PostgreSQL / PostGIS<br/>원천 읽기")]:::store
+        end
+        %% 분리를 "권장"이 아니라 "강제"로 만드는 한 줄 — preferred 였다면 스케줄러가
+        %% 여유 있을 때 합쳐버려 실험이 성립하지 않는다.
+        A_API -. "podAntiAffinity required · 같은 노드 금지" .- A_BATCH
+    end
+
+    subgraph PB["패스 B · 합침 — overlays/eks-colocated (anti-affinity 제거)"]
+        direction TB
+        subgraph B_Q["m7i.xlarge · 4 vCPU · role=query"]
+            B_EMPTY["파드 없음 — 전부 아래 노드로"]:::planned
+        end
+        subgraph B_I["c7i.2xlarge · 8 vCPU · role=index"]
+            direction LR
+            B_API["search-api"]:::api
+            B_ES[("Elasticsearch")]:::engine
+            B_QD[("Qdrant")]:::engine
+            B_BATCH["indexer-batch"]:::logic
+            B_PG[("PostgreSQL / PostGIS")]:::store
+        end
+    end
+
+    RA["패스 A 배수 — 유휴 53.3ms (1.00)<br/>키워드 재색인 중 1.07 · 벡터 재색인 중 <b>0.90</b>"]:::resultA
+    RB["패스 B 배수 — 유휴 43.2ms (1.00)<br/>키워드 재색인 중 1.11 · 벡터 재색인 중 <b>1.09</b>"]:::resultB
+    PA --> RA
+    PB --> RB
+
+    %% 결론 (ADR 0011) — 원래 한 줄이던 ❌ 를 둘로 쪼갠 것이 이 실험의 결론이다.
+    C1["앱 CPU 경쟁 (벡터 재색인) — 1.09 → 0.90 ✅ 노드 분리로 풀린다<br/>색인 비용의 96%가 임베딩 추론 = 순수 앱 CPU"]:::resultA
+    C2["엔진 공유 경쟁 (키워드 재색인) — 1.11 → 1.07 ❌ 남는다<br/>비용이 공유 ES 의 _bulk · ADR 0002 클러스터 분리로만 풀린다"]:::resultB
+    RA --> C1
+    RB --> C2
+
+    classDef api fill:#2563eb,color:#ffffff,stroke:#1e40af,stroke-width:1px;
+    classDef engine fill:#ffffff,color:#1f2937,stroke:#dfe3e8,stroke-width:1px;
+    classDef store fill:#f2fbf5,color:#14532d,stroke:#b6e3c6,stroke-width:1px;
+    classDef logic fill:#fffdf2,color:#713f12,stroke:#e6d68a,stroke-width:1px;
+    classDef planned fill:#ffffff,color:#64748b,stroke:#a9b0b8,stroke-width:1.5px,stroke-dasharray:4 3;
+    classDef resultA fill:#ecfdf5,color:#065f46,stroke:#a7f3d0,stroke-width:1.2px;
+    classDef resultB fill:#fffbeb,color:#92400e,stroke:#fde68a,stroke-width:1.2px;

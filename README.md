@@ -146,6 +146,12 @@ search-core     두 앱이 어긋나면 조용히 틀려지는 것만 (계약)
 └── indexer-stream  (예정) 이벤트 색인
 ```
 
+분리의 효과는 EKS 2노드에서 실측했습니다 — 두 패스는 파드 사양이 같고 **배치만 다릅니다**.
+벡터 재색인 중 질의 지연은 1.09 → **0.90**으로 회복되고, 키워드는 1.11 → 1.07로 남습니다.
+방법론 → [ADR 0011](docs/adr/0011-module-split-and-index-contract.md)
+
+![Deployment view](docs/diagrams/deploy.png)
+
 자세히 → [docs/architecture.md](docs/architecture.md)
 
 ---
