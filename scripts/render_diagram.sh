@@ -1,21 +1,23 @@
 #!/usr/bin/env bash
-# 아키텍처 다이어그램을 PNG 로 다시 만든다.
+# 다이어그램(.dc.html)을 PNG 로 다시 만든다.
 #
 #   전제:  Google Chrome 설치
-#   실행:  ./scripts/render_diagram.sh
-#   결과:  docs/diagrams/architecture.png  (원본 캔버스의 2배 해상도)
+#   실행:  ./scripts/render_diagram.sh [이름]     # 기본값 architecture
+#          ./scripts/render_diagram.sh deploy
+#   결과:  docs/diagrams/<이름>.png  (원본 캔버스의 2배 해상도)
 #
 # 왜 스크립트로 두나 — 그림 파일만 커밋해 두면 나중에 "이걸 어떻게 만들었지"가 된다.
-# 원본(`architecture.dc.html`)과 로고(`uploads/`)를 함께 두고 여기서 재생성한다.
+# 원본(`<이름>.dc.html`)과 로고(`uploads/`)를 함께 두고 여기서 재생성한다.
 #
-# 원본은 Claude Design 에서 편집한 뒤 내려받아 `docs/diagrams/architecture.dc.html` 로
+# 원본은 Claude Design 에서 편집한 뒤 내려받아 `docs/diagrams/<이름>.dc.html` 로
 # 덮어쓰면 된다. 그 파일은 Design 런타임용 태그(`<x-dc>`·`{{accent}}`)를 담고 있어서,
 # 이 스크립트가 그것들을 걷어내고 순수 HTML 로 만든 뒤 렌더링한다.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
-SRC="docs/diagrams/architecture.dc.html"
-OUT="docs/diagrams/architecture.png"
+NAME="${1:-architecture}"
+SRC="docs/diagrams/${NAME}.dc.html"
+OUT="docs/diagrams/${NAME}.png"
 CHROME="${CHROME:-/Applications/Google Chrome.app/Contents/MacOS/Google Chrome}"
 
 [ -f "$SRC" ] || { echo "원본이 없습니다: $SRC" >&2; exit 1; }
