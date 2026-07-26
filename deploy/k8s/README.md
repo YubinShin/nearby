@@ -8,6 +8,9 @@
 >
 > EKS 클러스터 자체(노드그룹 구성 · AZ · NAT · EBS CSI)의 결정 근거는
 > [deploy/eks/README.md](../eks/README.md).
+>
+> 파드가 안 뜨거나 OOMKilled 가 나면 [docs/troubleshooting.md](../../docs/troubleshooting.md) —
+> 매니페스트의 각 줄이 왜 있는지를 증상 기준으로 모아뒀다.
 
 ```
 deploy/k8s/

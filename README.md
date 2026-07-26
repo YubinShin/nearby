@@ -232,6 +232,7 @@ search-core     두 앱이 어긋나면 조용히 틀려지는 것만 (계약)
 | [api-spec.md](docs/api-spec.md) | API 명세 |
 | [adr/](docs/adr/) | 설계 결정 13편 |
 | [architecture-review.md](docs/architecture-review.md) | 예상과 다른 결과·한계 |
+| [troubleshooting.md](docs/troubleshooting.md) | 증상별 원인과 조치 — 그 줄이 왜 있는지 |
 | [search-modes-comparison.md](docs/search-modes-comparison.md) | 세 검색 방식 비교 |
 | [data-model.md](docs/data-model.md) | 데이터 모델·원천 출처 |
 | [roadmap.md](docs/roadmap.md) | 로드맵 |
