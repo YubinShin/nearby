@@ -1,27 +1,9 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-# EKS(진짜 멀티 노드)용 — **패스 A(분리)** 다. kind 와 결정적으로 다른 한 가지:
-# anti-affinity 를 **required 로 굳혀** 색인기와 질의기를 강제로 다른 노드에 놓는다.
-# 이게 분리의 마지막 조각이다 — 앱을 쪼갰어도 같은 노드에 얹히면 색인기의 CPU 버스트가
-# 질의 지연을 끌어올린다.
-#
-# 대조군은 `overlays/eks-colocated`(패스 B)다. 같은 클러스터에서 전부 한 노드에 몰아놓고
-# 다시 잰다 — 파드 스펙이 전부 같고 배치만 달라서, 두 패스의 **유휴 대비 배수** 차이가
-# 곧 노드 분리의 순효과다.
-#
-# ⚠️ 예전 값 11.5 → 23.4ms 를 대조군으로 쓰지 말 것. 그건 **로컬 docker-compose** 에서
-#    **리액티브 색인기**로 잰 값이다(ADR 0011·README 는 "로컬"이라고 정확히 적고 있고,
-#    측정 커밋이 Spring Batch 리팩터보다 앞선다). 그대로 비교하면 런타임·환경·토폴로지가
-#    한꺼번에 바뀐다 — cluster.yaml 이 세운 "한 번에 하나만 바꾼다" 원칙에 어긋난다.
-#
-# 전제: 노드가 2개 이상이고, 이미지는 ECR 같은 레지스트리에 push 돼 있어야 한다.
-# ⚠️ nearby-postgis 는 amd64(postgis/postgis:16-3.4 기반)라 노드가 x86 이어야 한다(Graviton 불가).
-
 resources:
   - ../../base
 
-# 로컬 이미지 이름 → 레지스트리 경로. <ACCOUNT> 를 실제 ECR 계정으로 바꾼다.
 images:
   - name: nearby-search-api
     newName: <ACCOUNT>.dkr.ecr.ap-northeast-2.amazonaws.com/nearby-search-api
@@ -37,15 +19,6 @@ images:
     newTag: 9.4.2
 
 patches:
-  # ── 노드 고정 (role 라벨은 deploy/eks/cluster.yaml 의 노드그룹이 붙인다) ──
-  #
-  # anti-affinity 만으로는 **실험이 오염된다.** 두 앱이 서로 다른 노드에 가는 것만 보장되고,
-  # ES·Qdrant·PostGIS 가 어디로 갈지는 스케줄러가 정한다. 하필 ES 가 색인 노드에 얹히면
-  # "질의 노드의 지연"을 재는 의미가 사라진다.
-  #
-  # 그래서 배치를 못박는다:
-  #   role=query → search-api + elasticsearch + qdrant   (질의 경로 전체 = 지연을 재는 노드)
-  #   role=index → indexer-batch + postgis               (원천 읽기를 노드 내부로 가둔다)
   - target: { kind: Deployment, name: search-api }
     patch: |
       - op: add
@@ -72,31 +45,6 @@ patches:
         path: /spec/template/spec/nodeSelector
         value: { role: index }
 
-  # ── 색인기에 CPU 를 몰아준다 (ADR 0013) ──
-  #
-  # base 는 `limits.cpu: "2"` 다. kind(단일 노드)에서 다른 파드에 자리를 내주려 묶은 값인데,
-  # 그게 곧 kind 재색인 32분 43초의 원인이었다 — 임베딩이 색인 시간의 96.1%이고 **CPU 에
-  # 거의 선형**이라, 코어를 5분의 1로 묶으면 4배 느려진다(로컬 10코어 512초 → kind 2코어 1,963초).
-  #
-  # 여기선 색인기가 노드를 독차지하므로 8 vCPU 중 7 을 준다.
-  #
-  # ⚠️ **"3점으로 고정한다"는 원래 계획은 폐기했다.** 2026-07-26 실측이 275초로 나왔는데
-  # 예측은 ~700초였다. 세 점을 한 직선에 놓으려면 변수가 코어 수 하나여야 하는데,
-  # 실제로는 **아키텍처가 셋 다 달랐다**:
-  #
-  #   2코어  kind          arm64, Docker Desktop VM 안   1,963초 · 코어당 16.4건/초
-  #   10코어 로컬          arm64 네이티브 (M4)              512초 · 코어당 12.6건/초
-  #   7코어  EKS c7i       x86-64 Sapphire Rapids          275초 · 코어당 33.3건/초
-  #
-  # 7코어가 10코어보다 1.86배 빠르다. 코어를 늘리면 보통 코어당 처리량이 내려가는데
-  # (16.4 → 12.6) EKS 만 33.3 으로 튄다 — 병렬 효율로는 설명이 안 되고, 남는 설명은
-  # 명령어 집합이다(c7i 는 AMX / AVX-512 VNNI, M4 는 NEON. 임베딩 비용은 대부분 행렬곱이다).
-  #
-  # 즉 위 세 줄은 **코어 수의 선형성이 아니라 "환경별 실측"으로만 읽어야 한다.**
-  # 여기서 코어 수로 보간하면 ADR 0011 의 옛 대조군 표와 같은 함정을 새로 심는 셈이다.
-  #
-  # **메모리는 일부러 안 건드린다.** 메모리 제한을 바꾸면 MaxRAMPercentage=40 을 통해 힙 크기가
-  # 따라 변하고, 그러면 이 실험에 변수가 둘이 된다. 한 번에 하나만 바꾼다.
   - target: { kind: Deployment, name: indexer-batch }
     patch: |
       - op: replace
@@ -106,17 +54,6 @@ patches:
         path: /spec/template/spec/containers/0/resources/limits/cpu
         value: "7"
 
-  # ── 색인기 롤링 업데이트에서 서지를 끈다 ──
-  # `requests.cpu: 6` 은 8 vCPU 노드(할당가능 ~7.9)의 3/4 이다. Deployment 기본 전략은
-  # **새 파드를 먼저 띄우고** 옛 파드를 내리는데, 그러면 잠깐 12 vCPU 가 필요해 새 파드가
-  # 영원히 Pending 이 된다. 그리고 새 파드가 Ready 가 아니니 옛 파드도 안 내려간다 —
-  # 쿠버네티스가 감지하지 않는 **순환 대기**라 기다려도 안 풀린다.
-  #
-  # 2026-07-26 패스 A→B 전환에서 실제로 밟았고, 옛 파드를 손으로 지워서 풀었다.
-  # 노드 절반 이상을 요청하는 파드에는 서지가 성립하지 않는다.
-  #
-  # 색인기는 상시 응답하는 물건이 아니라 job 을 받아 도는 쪽이라, 교체 중 잠깐 끊겨도 된다.
-  # (`spec.strategy` 는 파드 템플릿이 아니므로 이 값을 고쳐도 롤아웃이 새로 돌지 않는다.)
   - target: { kind: Deployment, name: indexer-batch }
     patch: |
       - op: add
@@ -125,7 +62,6 @@ patches:
           type: RollingUpdate
           rollingUpdate: { maxSurge: 0, maxUnavailable: 1 }
 
-  # 질의기: 색인기와 **반드시** 다른 노드에. preferred → required.
   - target: { kind: Deployment, name: search-api }
     patch: |
       - op: replace
@@ -135,7 +71,6 @@ patches:
             - labelSelector:
                 matchLabels: { app: indexer-batch }
               topologyKey: kubernetes.io/hostname
-  # 색인기: 질의기와 **반드시** 다른 노드에.
   - target: { kind: Deployment, name: indexer-batch }
     patch: |
       - op: replace
@@ -145,7 +80,6 @@ patches:
             - labelSelector:
                 matchLabels: { app: search-api }
               topologyKey: kubernetes.io/hostname
-  # 상태 백엔드는 EKS 기본 스토리지클래스(gp3)를 쓰게 명시. (kind 는 standard 라 base 에 안 박았다.)
   - target: { kind: StatefulSet, name: elasticsearch }
     patch: |
       - op: add
