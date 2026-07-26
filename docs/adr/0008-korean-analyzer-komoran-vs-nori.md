@@ -265,3 +265,18 @@ MM 1.81%p · XSN 1.55%p** — 전부 "공격적" 정책에서 추가한 것들�
   현재는 사전을 바꾸면 **전체 재색인**이 필요해요 — alias 무중단 교체(ADR 0002)로 처리하지만,
   "사전 버전"을 인덱스 메타데이터에 박아 불일치를 감지하는 장치는 아직 없어요.
 - 플러그인을 설치한 **커스텀 ES 이미지**를 만들어 docker compose와 K8s에서 동일하게 써요.
+
+## 구현 위치
+
+코드에는 주석을 두지 않는다. 이 결정의 배경은 **이 문서와 아래 커밋 메시지**에 있다.
+경로는 `services/<모듈>/src/{main,test}/kotlin/dev/yubin/search/` 이하다.
+
+| 모듈 | 파일 | 확정 커밋 | 날짜 |
+|---|---|---|---|
+| `indexer-batch` | `indexer/ReindexScheduler.kt` | `e84d153` | 2026-07-25 |
+| `search-api` | `query/PlaceSearchService.kt` | `b723e27` | 2026-07-25 |
+| `search-api` | `query/QueryLog.kt` | `5f983e8` | 2026-07-24 |
+| `search-core` | `core/brand/Brands.kt` | `205d39e` | 2026-07-24 |
+| `search-core` | `core/embed/EmbeddingModel.kt` | `f12a9bb` | 2026-07-25 |
+
+커밋 메시지를 보려면: `git show <해시>`

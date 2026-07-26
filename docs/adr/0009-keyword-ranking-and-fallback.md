@@ -103,3 +103,15 @@ BM25 의 길이 정규화가 1바이트로 양자화돼 있어서 짧은 이름�
   온전히 돌려주는 걸 계약으로 삼아요 (ADR 0003).
 - 인기도 신호가 생기면 자동완성의 `name_length` 자리를 그것으로 교체해요. `function_score` 구조는
   그대로 두고 함수만 바꾸면 돼요.
+
+## 구현 위치
+
+코드에는 주석을 두지 않는다. 이 결정의 배경은 **이 문서와 아래 커밋 메시지**에 있다.
+경로는 `services/<모듈>/src/{main,test}/kotlin/dev/yubin/search/` 이하다.
+
+| 모듈 | 파일 | 확정 커밋 | 날짜 |
+|---|---|---|---|
+| `search-api` | `vector/PlaceVectors.kt` | `110e179` | 2026-07-24 |
+| `search-core` | `core/embed/PlaceVectorText.kt` | `110e179` | 2026-07-24 |
+
+커밋 메시지를 보려면: `git show <해시>`

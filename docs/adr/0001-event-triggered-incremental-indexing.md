@@ -44,3 +44,19 @@
 - 같은 이벤트가 두 번 와도 결과가 같도록 **멱등(idempotent)** 하게 설계해요. 색인 실패 시 재처리도 안전하게.
 - 이 흐름은 '천천히 차선'이에요. 콘텐츠(장소 정보)는 느리게 바뀌니 이 차선으로,
   사용자 행동처럼 순간순간 바뀌는 건 별도의 '빠른 차선(Redis)'으로 나눠서 다뤄요.
+
+## 구현 위치
+
+코드에는 주석을 두지 않는다. 이 결정의 배경은 **이 문서와 아래 커밋 메시지**에 있다.
+경로는 `services/<모듈>/src/{main,test}/kotlin/dev/yubin/search/` 이하다.
+
+| 모듈 | 파일 | 확정 커밋 | 날짜 |
+|---|---|---|---|
+| `indexer-batch` | `indexer/ReindexScheduler.kt` | `e84d153` | 2026-07-25 |
+| `indexer-batch` | `indexer/batch/KeywordBulkWriter.kt` | `f12a9bb` | 2026-07-25 |
+| `indexer-batch` | `indexer/batch/KeywordIndexJobConfig.kt` | `e84d153` | 2026-07-25 |
+| `indexer-batch` | `indexer/index/EsBulkIndexer.kt` | `f12a9bb` | 2026-07-25 |
+| `indexer-batch` | `indexer/index/PlaceSource.kt` | `e84d153` | 2026-07-25 |
+| `indexer-batch` | `indexer/vector/QdrantIndexStore.kt` | `e84d153` | 2026-07-25 |
+
+커밋 메시지를 보려면: `git show <해시>`

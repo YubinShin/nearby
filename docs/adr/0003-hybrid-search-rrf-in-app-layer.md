@@ -132,3 +132,19 @@ ES mget 한 번으로 채워요(실측 2.1ms). 이 조회가 실패해도 검색
 이게 개선인지 개악인지 **판정할 정답 데이터가 없어요** (아키텍처 크리틱 #11). `k`·채널 가중치도
 같은 이유로 기본값(60, 1:1)에서 움직이지 못했어요. 질의–클릭 로그가 쌓여 nDCG 를 계산할 수
 있어야 비로소 튜닝 대상이 돼요. **손잡이는 설정으로 빼뒀지만, 근거 없이 돌리지 않았어요.**
+
+## 구현 위치
+
+코드에는 주석을 두지 않는다. 이 결정의 배경은 **이 문서와 아래 커밋 메시지**에 있다.
+경로는 `services/<모듈>/src/{main,test}/kotlin/dev/yubin/search/` 이하다.
+
+| 모듈 | 파일 | 확정 커밋 | 날짜 |
+|---|---|---|---|
+| `search-api` | `hybrid/HybridModels.kt` | `b1c222f` | 2026-07-23 |
+| `search-api` | `hybrid/HybridSearchService.kt` | `5f983e8` | 2026-07-24 |
+| `search-api` | `hybrid/Rrf.kt` | `b1c222f` | 2026-07-23 |
+| `search-api` | `query/PlaceSearchService.kt` | `b723e27` | 2026-07-25 |
+| `search-api` | `vector/PlaceVectorSearchService.kt` | `f12a9bb` | 2026-07-25 |
+| `search-api` | `hybrid/RrfTest.kt` *(테스트)* | `b1c222f` | 2026-07-23 |
+
+커밋 메시지를 보려면: `git show <해시>`

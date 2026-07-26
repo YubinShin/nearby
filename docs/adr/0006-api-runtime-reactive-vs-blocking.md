@@ -47,3 +47,16 @@
 - 데이터 접근은 리액티브(논블로킹) 드라이버를 우선해요.
 - 리액티브에선 로그 추적 정보(트레이싱)가 끊기기 쉬워서, 코루틴 컨텍스트에 맞게 전파를 설정해요.
 - 이 결정은 API 서비스 범위에 한정돼요. 나중에 특정 모듈이 단순 블로킹으로 판명되면 그 부분만 (B)로 분리할 수 있어요.
+
+## 구현 위치
+
+코드에는 주석을 두지 않는다. 이 결정의 배경은 **이 문서와 아래 커밋 메시지**에 있다.
+경로는 `services/<모듈>/src/{main,test}/kotlin/dev/yubin/search/` 이하다.
+
+| 모듈 | 파일 | 확정 커밋 | 날짜 |
+|---|---|---|---|
+| `search-api` | `query/SearchController.kt` | `5f983e8` | 2026-07-24 |
+| `search-api` | `query/SearchModels.kt` | `205d39e` | 2026-07-24 |
+| `search-api` | `vector/QdrantSearchStore.kt` | `f12a9bb` | 2026-07-25 |
+
+커밋 메시지를 보려면: `git show <해시>`

@@ -8,14 +8,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-/**
- * 랭킹 규칙을 **JSON 으로 고정**한다. ES 없이 도는 순수 단위 테스트다.
- *
- * "이렇게 짰다"가 아니라 "이 질의가 나가야 한다"를 못 박는 게 목적 —
- * 나중에 필드 가중치를 손댔을 때 의도치 않은 변화가 여기서 걸린다.
- */
 class PlaceQueriesTest {
-
 	private fun json(q: Query): String = JsonpUtils.toJsonString(q, SimpleJsonpMapper.INSTANCE)
 
 	@Test
@@ -31,7 +24,7 @@ class PlaceQueriesTest {
 	fun `상호명 가중치가 가장 높고 주소는 보조다`() {
 		assertEquals("name^5", PlaceQueries.SEARCH_FIELDS.first())
 		assertTrue("road_address" in PlaceQueries.SEARCH_FIELDS)
-		// 카테고리·행정동은 keyword 원본이 아니라 형태소 분석된 .txt 로 매칭해야 부분 단어가 걸린다.
+
 		assertTrue(PlaceQueries.SEARCH_FIELDS.any { it.startsWith("category_small.txt") })
 		assertTrue(PlaceQueries.SEARCH_FIELDS.any { it.startsWith("dong.txt") })
 	}
@@ -49,7 +42,7 @@ class PlaceQueriesTest {
 
 		assertTrue("\"operator\":\"and\"" in strict)
 		assertFalse("\"operator\":\"and\"" in relaxed)
-		// 3단어면 2단어는 맞아야 한다 — 완전히 풀어버리면 폴백 결과가 소음이 된다.
+
 		assertTrue("\"minimum_should_match\":\"70%\"" in relaxed, "폴백 임계값이 바뀌었다: $relaxed")
 	}
 
@@ -85,8 +78,7 @@ class PlaceQueriesTest {
 		val q = json(PlaceQueries.suggest(SuggestRequest.of("스타")))
 
 		assertTrue("function_score" in q, q)
-		// 매칭 대상은 `name` 이 아니라 `label`(브랜드+상호명)이다. 상호명에서 브랜드가 빠져 있던
-		// 가게가 '스타'로 걸리려면 이 필드여야 한다 — 되돌아가면 스타벅스가 다시 안 뜬다.
+
 		assertTrue("\"label\"" in q, "자동완성은 label 로 매칭해야 한다: $q")
 		assertTrue("\"name\"" !in q, "name 으로 되돌아가면 브랜드 복원이 무의미해진다: $q")
 		assertTrue("prefix" in q, "이름이 그 글자로 시작하면 올려야 한다: $q")
@@ -96,7 +88,6 @@ class PlaceQueriesTest {
 
 	@Test
 	fun `자동완성 접두 매칭은 대소문자를 가리지 않는다`() {
-		// name_raw 에 lowercase normalizer 를 걸었으므로 질의도 소문자로 맞춰야 걸린다.
 		assertTrue("starbucks" in json(PlaceQueries.suggest(SuggestRequest.of("StarBucks"))))
 	}
 }

@@ -6,12 +6,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-/**
- * 바깥에서 들어온 값이 안전한 범위로 접히는지 — 검색 API 의 첫 방어선.
- * 여기가 뚫리면 `size=100000` 한 방이 클러스터 부하가 된다.
- */
 class SearchRequestTest {
-
 	@Test
 	fun `size 는 상한으로 클램핑되고 page 도 범위 안으로 접힌다`() {
 		val req = SearchRequest.of(q = "커피", size = 10_000, page = -3)
@@ -22,7 +17,7 @@ class SearchRequestTest {
 	@Test
 	fun `기본값은 첫 페이지 관련도순`() {
 		val req = SearchRequest.of(q = " 커피 ")
-		assertEquals("커피", req.q)               // 앞뒤 공백 제거
+		assertEquals("커피", req.q)
 		assertEquals(SearchRequest.DEFAULT_SIZE, req.size)
 		assertEquals(0, req.from)
 		assertEquals(SortBy.RELEVANCE, req.sort)
@@ -39,7 +34,7 @@ class SearchRequestTest {
 		val req = SearchRequest.of(q = "커피", lat = 37.5, lon = null, radiusM = 500)
 		assertFalse(req.hasGeo)
 		assertNull(req.lat)
-		assertNull(req.radiusM)   // 반경만 남아 조용히 잘못 걸리는 일이 없도록
+		assertNull(req.radiusM)
 	}
 
 	@Test
@@ -57,7 +52,6 @@ class SearchRequestTest {
 
 	@Test
 	fun `좌표 없이 거리순을 요청하면 관련도순으로 되돌린다`() {
-		// 기준점이 없으면 거리 정렬은 정의되지 않는다 → 에러 대신 조용히 안전한 기본으로.
 		assertEquals(SortBy.RELEVANCE, SearchRequest.of(q = "커피", sort = "distance").sort)
 		assertEquals(SortBy.DISTANCE, SearchRequest.of(q = "커피", lat = 37.5, lon = 127.0, sort = "DISTANCE").sort)
 	}

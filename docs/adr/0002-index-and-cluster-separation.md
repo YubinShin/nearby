@@ -48,3 +48,19 @@
 - 인덱스마다 데이터 담는 방식(매핑)을 따로 관리해요.
 - 새 버전으로 바꿀 때 서비스가 안 끊기도록 **별칭(alias)을 새 인덱스로 바꿔치기**하는 무중단 교체를 써요.
 - 자원(메모리·노드)을 용도별로 격리해서, 한쪽 부하가 전체를 흔들지 않게 해요.
+
+## 구현 위치
+
+코드에는 주석을 두지 않는다. 이 결정의 배경은 **이 문서와 아래 커밋 메시지**에 있다.
+경로는 `services/<모듈>/src/{main,test}/kotlin/dev/yubin/search/` 이하다.
+
+| 모듈 | 파일 | 확정 커밋 | 날짜 |
+|---|---|---|---|
+| `indexer-batch` | `indexer/batch/KeywordIndexJobConfig.kt` | `e84d153` | 2026-07-25 |
+| `indexer-batch` | `indexer/index/IndexAdminService.kt` | `e84d153` | 2026-07-25 |
+| `indexer-batch` | `indexer/vector/QdrantIndexStore.kt` | `e84d153` | 2026-07-25 |
+| `search-api` | `query/PlaceSuggestService.kt` | `5f983e8` | 2026-07-24 |
+| `search-api` | `vector/QdrantSearchStore.kt` | `f12a9bb` | 2026-07-25 |
+| `search-core` | `core/place/PlaceDocuments.kt` | `205d39e` | 2026-07-24 |
+
+커밋 메시지를 보려면: `git show <해시>`

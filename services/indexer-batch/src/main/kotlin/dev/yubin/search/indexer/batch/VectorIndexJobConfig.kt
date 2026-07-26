@@ -28,23 +28,6 @@ import org.springframework.transaction.PlatformTransactionManager
 import java.time.OffsetDateTime
 import javax.sql.DataSource
 
-/**
- * 벡터 색인 job 두 개 — **전체 재색인**과 **증분**. (ADR 0013)
- *
- * 키워드 색인([KeywordIndexJobConfig])과 **일부러 따로 돌린다.**
- * - 임베딩 추론이 ES bulk 보다 훨씬 느리다(키워드 15.6초 vs 벡터 8분 32초). 한 파이프라인에 묶으면
- *   느린 쪽이 빠른 쪽의 발목을 잡는다.
- * - 모델을 바꾸면 벡터만 전부 다시 만들어야 한다. 그때 키워드 인덱스까지 재색인할 이유가 없다.
- *
- * 그래서 job 도 체크포인트도 따로다 ([CheckpointStore.PLACE_VECTOR]). 구조는 키워드와 같은
- * prepare → load → promote 세 단계이고, 공유하는 적재 step 하나로 전체·증분을 모두 처리한다.
- *
- * ### 여기서 Spring Batch 가 가장 크게 값을 한다
- * 벡터 전체 재색인은 실측 8분 32초(kind 환경 32분)다. 전에는 이게 **HTTP 요청 하나의 수명**에
- * 매달려 있어서 `curl` 을 끊으면 색인이 죽었고, 취소 경로에서 r2dbc 커넥션 누수(`DataRow.release()`
- * 누락)까지 냈다. 지금은 job 스레드에서 돌고 요청은 즉시 202 로 끝난다 — 진행 상황은
- * `GET /admin/jobs/{id}` 로 따로 본다.
- */
 @Configuration
 @ConditionalOnProperty(
 	name = ["psp.vector.enabled"],
@@ -65,9 +48,6 @@ class VectorIndexJobConfig(
 	@Value("\${psp.index.fetch-size}") private val fetchSize: Int,
 	@Value("\${psp.index.keep-versions:2}") private val keepVersions: Int,
 ) {
-
-	// ---- job ----
-
 	@Bean
 	fun vectorRebuildJob(): Job =
 		JobBuilder(IndexJobs.VECTOR_REBUILD, jobRepository)
@@ -85,12 +65,8 @@ class VectorIndexJobConfig(
 			.next(vectorIncrementalPromoteStep())
 			.build()
 
-	// ---- 적재 step (두 job 이 공유) ----
-
-	/** 구조는 키워드 적재 step 과 같다 — 새 `ChunkOrientedStep` 경로. 이유는 [KeywordIndexJobConfig]. */
 	@Bean
 	fun vectorLoadStep(): Step {
-		// 키워드 적재 step 과 같은 이유로 두 얼굴을 각각 등록한다 ([ChunkProgressLogger] 주석).
 		val progress = ChunkProgressLogger("벡터 색인")
 		return StepBuilder(IndexJobs.STEP_VECTOR_LOAD, jobRepository)
 			.chunk<PlaceRow, PlaceRow>(chunkSize)
@@ -103,7 +79,6 @@ class VectorIndexJobConfig(
 			.build()
 	}
 
-	/** 키워드 리더와 같은 규칙 — `since` 가 있으면 델타, 없으면 전체. 이유는 [KeywordIndexJobConfig]. */
 	@Bean
 	@StepScope
 	fun vectorPlaceReader(
@@ -119,7 +94,6 @@ class VectorIndexJobConfig(
 		return if (since == null) {
 			builder.sql(PlaceSql.SELECT_ALL).build()
 		} else {
-			// 키워드 리더와 같은 이유로 생값 그대로 넘긴다 ([PlaceSql.SELECT_SINCE] 주석).
 			val watermark = OffsetDateTime.parse(since)
 			builder.sql(PlaceSql.SELECT_SINCE)
 				.preparedStatementSetter { ps -> ps.setObject(1, watermark) }
@@ -138,17 +112,12 @@ class VectorIndexJobConfig(
 		embedBatch,
 	)
 
-	// ---- 전체 재색인: 준비 / 승격 ----
-
 	@Bean
 	fun vectorRebuildPrepareStep(): Step =
 		StepBuilder("${IndexJobs.VECTOR_REBUILD}.${IndexJobs.STEP_PREPARE}", jobRepository)
 			.tasklet({ _, chunkContext ->
 				val ctx = chunkContext.stepContext.stepExecution.jobExecution.executionContext
 
-				// 새 컬렉션을 만들기 **전에** 크래시가 남긴 고아를 치운다 — 이유는 키워드 쪽과 같다
-				// ([QdrantIndexStore.sweepOrphansAbove]). 벡터 고아는 64k 점을 통째로 들고 있어
-				// PVC 를 갉아먹기까지 한다.
 				val swept = qdrant.sweepOrphansAbove(alias)
 				if (swept.isNotEmpty()) log.warn("이전 실행이 남긴 고아 컬렉션 {}개 정리 {}", swept.size, swept.sorted())
 
@@ -169,17 +138,11 @@ class VectorIndexJobConfig(
 
 				qdrant.swapAlias(alias, newCollection)
 
-				// 여기부터 이 컬렉션은 **서빙 중**이다 — 아래에서 실패해도 고아 정리 대상이 아니다.
 				ctx.putString(IndexJobs.Ctx.PROMOTED, newCollection)
 
 				val removed = qdrant.reconcile(alias, keepVersions)
 				ctx.putString(IndexJobs.Ctx.REMOVED, removed.sorted().joinToString(","))
 
-				/*
-				 * 스왑 성공 후 버전 도장 (ADR 0011). 여기 남기는 값은 설정이 아니라 **실제로 로드된
-				 * 모델**이다 — 설정만 맞고 파일이 다른 경우까지 잡으려는 것. 질의기가 기동할 때
-				 * 자기 모델과 대조하고, 다르면 뜨지 않는다.
-				 */
 				meta.write(
 					IndexMeta.PIPELINE_VECTOR,
 					IndexMeta.stamp(embeddingModel = embeddings.modelId, embeddingDim = embeddings.dimension),
@@ -198,8 +161,6 @@ class VectorIndexJobConfig(
 			}, transactionManager)
 			.build()
 
-	// ---- 증분: 준비 / 승격 ----
-
 	@Bean
 	fun vectorIncrementalPrepareStep(): Step =
 		StepBuilder("${IndexJobs.VECTOR_INCREMENTAL}.${IndexJobs.STEP_PREPARE}", jobRepository)
@@ -209,19 +170,10 @@ class VectorIndexJobConfig(
 				qdrant.collectionsBehind(alias).firstOrNull()
 					?: error("alias 미설정: $alias — 먼저 벡터 전체 재색인이 필요합니다")
 
-				/*
-				 * **증분은 살아있는 컬렉션에 그대로 덮어쓴다.** 그래서 모델이 바뀐 채로 증분을 돌리면
-				 * 한 컬렉션 안에 옛 모델 벡터와 새 모델 벡터가 섞인다 — 그리고 그 상태는 오류를 내지
-				 * 않는다. 384차원끼리라면 유사도 계산은 멀쩡히 되고, 숫자만 의미를 잃는다.
-				 *
-				 * 섞인 걸 나중에 감지하는 것보다 **애초에 못 섞이게** 막는 쪽이 싸다 (ADR 0011).
-				 * 모델을 바꿨으면 답은 하나뿐이다 — 전체 재색인.
-				 */
 				meta.requireCompatible(
 					IndexMeta.PIPELINE_VECTOR,
 					IndexMeta.stamp(embeddingModel = embeddings.modelId, embeddingDim = embeddings.dimension),
-					// 경로는 VectorAdminController 의 실제 매핑과 같아야 한다 — 이 문자열이 그대로
-					// `GET /admin/jobs/{id}` 의 failure 로 나가 온콜이 복붙하는 명령이 된다.
+
 					remedy = INCREMENTAL_REMEDY,
 				)
 
@@ -256,7 +208,6 @@ class VectorIndexJobConfig(
 	private companion object {
 		val log = LoggerFactory.getLogger(VectorIndexJobConfig::class.java)
 
-		/** `VectorAdminController` 의 `@RequestMapping("/admin/vector")` + `@PostMapping("/reindex")` 와 일치. */
 		const val INCREMENTAL_REMEDY =
 			"POST /admin/vector/reindex 로 전체 재색인하세요. 증분으로는 섞인 컬렉션이 됩니다."
 	}

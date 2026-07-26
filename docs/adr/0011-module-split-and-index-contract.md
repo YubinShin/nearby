@@ -413,3 +413,29 @@ Kotlin 모듈 없는 Jackson 2 는 `val` 뿐인 data class 를 만나면 합성 
   **가능하게** 만든 데까지다.
 - **`indexer-batch` 자신은 도장을 기동 시 대조하지 않는다.** 증분 시작 전에만 본다. 색인기는
   어긋나도 "전체 재색인" 이라는 정당한 복구 경로가 있어서, 기동을 막으면 복구 수단까지 막힌다.
+
+## 구현 위치
+
+코드에는 주석을 두지 않는다. 이 결정의 배경은 **이 문서와 아래 커밋 메시지**에 있다.
+경로는 `services/<모듈>/src/{main,test}/kotlin/dev/yubin/search/` 이하다.
+
+| 모듈 | 파일 | 확정 커밋 | 날짜 |
+|---|---|---|---|
+| `indexer-batch` | `indexer/IndexerBatchApplication.kt` | `e84d153` | 2026-07-25 |
+| `indexer-batch` | `indexer/ReindexScheduler.kt` | `e84d153` | 2026-07-25 |
+| `indexer-batch` | `indexer/admin/AdminController.kt` | `e84d153` | 2026-07-25 |
+| `indexer-batch` | `indexer/batch/KeywordIndexJobConfig.kt` | `e84d153` | 2026-07-25 |
+| `indexer-batch` | `indexer/batch/VectorIndexJobConfig.kt` | `e84d153` | 2026-07-25 |
+| `search-api` | `SearchApiApplication.kt` | `5f983e8` | 2026-07-24 |
+| `search-api` | `startup/IndexContractGuard.kt` | `f12a9bb` | 2026-07-25 |
+| `search-api` | `vector/PlaceVectors.kt` | `205d39e` | 2026-07-24 |
+| `search-core` | `core/brand/Brands.kt` | `205d39e` | 2026-07-24 |
+| `search-core` | `core/embed/EmbeddingModel.kt` | `f12a9bb` | 2026-07-25 |
+| `search-core` | `core/es/EsJsonpMapperConfig.kt` | `9c854d5` | 2026-07-24 |
+| `search-core` | `core/index/IndexVersion.kt` | `b723e27` | 2026-07-25 |
+| `search-core` | `core/meta/IndexMeta.kt` | `bb3f1ad` | 2026-07-24 |
+| `search-core` | `core/meta/IndexMetaStore.kt` | `f12a9bb` | 2026-07-25 |
+| `search-core` | `core/vector/QdrantContract.kt` | `f12a9bb` | 2026-07-25 |
+| `search-core` | `core/vector/PlaceVectorDocTest.kt` *(테스트)* | `f12a9bb` | 2026-07-25 |
+
+커밋 메시지를 보려면: `git show <해시>`

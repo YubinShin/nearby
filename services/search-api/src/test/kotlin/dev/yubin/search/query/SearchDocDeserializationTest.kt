@@ -9,21 +9,8 @@ import org.springframework.boot.test.context.SpringBootTest
 import java.io.ByteArrayInputStream
 import kotlin.test.assertEquals
 
-/**
- * ES `_source` 가 [SearchDoc] 으로 **제대로 채워지는지** 잰다.
- *
- * 이게 깨지면 증상이 고약하다: 질의는 성공하고 total 도 맞고 하이라이트도 나오는데
- * (그건 ES 메타데이터라서) `_source` 에서 오는 이름·주소만 빈 문자열이 된다. 200 OK 에
- * 에러 로그도 없다. 실측에서 `/v1/search?q=CU` 가 187건을 돌려주면서 이름이 전부 `""` 인
- * 걸 보고 만든 테스트다.
- *
- * 앱이 실제로 쓰는 [JsonpMapper] 를 그대로 쓴다 — 별도 ObjectMapper 로 재면 "테스트는
- * 통과하는데 앱은 비어 있는" 상황을 못 잡는다. 이 클래스가 Kotlin data class(`val` 뿐,
- * 세터 없음)라 Jackson 의 Kotlin 모듈이 빠지면 조용히 기본값으로 채워진다.
- */
 @SpringBootTest
 class SearchDocDeserializationTest {
-
 	@Autowired
 	private lateinit var es: ElasticsearchClient
 

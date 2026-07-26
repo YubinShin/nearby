@@ -94,3 +94,17 @@ Qdrant는 오픈소스 Rust 프로젝트예요. Rust를 읽을 수 있으면 **H
 - 개념(HNSW·필터링·하이브리드)이 이식 가능하므로, 규모가 커지면 Milvus로 전환하는 선택지를 열어둬요.
   되돌릴 수 없는 결정이 아니에요.
 - 벡터 검색 결과는 키워드 검색(ES)과 애플리케이션 레이어에서 RRF로 결합해요 (ADR 0003).
+
+## 구현 위치
+
+코드에는 주석을 두지 않는다. 이 결정의 배경은 **이 문서와 아래 커밋 메시지**에 있다.
+경로는 `services/<모듈>/src/{main,test}/kotlin/dev/yubin/search/` 이하다.
+
+| 모듈 | 파일 | 확정 커밋 | 날짜 |
+|---|---|---|---|
+| `indexer-batch` | `indexer/vector/QdrantIndexStore.kt` | `e84d153` | 2026-07-25 |
+| `search-api` | `vector/PlaceVectorSearchService.kt` | `f12a9bb` | 2026-07-25 |
+| `search-api` | `vector/QdrantSearchStore.kt` | `f12a9bb` | 2026-07-25 |
+| `search-core` | `core/vector/QdrantContract.kt` | `f12a9bb` | 2026-07-25 |
+
+커밋 메시지를 보려면: `git show <해시>`

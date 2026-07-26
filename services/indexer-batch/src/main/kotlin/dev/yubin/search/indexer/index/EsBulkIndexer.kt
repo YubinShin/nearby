@@ -7,7 +7,6 @@ import co.elastic.clients.elasticsearch.core.bulk.IndexOperation
 import co.elastic.clients.elasticsearch.core.bulk.OperationType
 import org.springframework.stereotype.Component
 
-/** 색인 동작 한 건: 문서를 넣거나(Upsert) 지운다(Delete). 둘 다 id 기준이라 재실행에 안전(멱등). */
 sealed interface BulkAction {
 	val id: String
 
@@ -15,21 +14,10 @@ sealed interface BulkAction {
 	data class Delete(override val id: String) : BulkAction
 }
 
-/** bulk 한 번의 적용 결과. */
 data class BulkStats(val upserted: Int, val deleted: Int)
 
-/**
- * ES `_bulk` 로 색인 동작 뭉텅이를 한 번에 적용한다.
- * 같은 id upsert 는 덮어쓰기, delete 는 제거 — 둘 다 멱등이라 재처리/재전송에 안전 (ADR 0001).
- *
- * **블로킹이다** (ADR 0013). 전에는 `withContext(Dispatchers.IO)` 로 감싸 코루틴에서 부를 수
- * 있게 했지만, 감싸는 안쪽의 `ElasticsearchClient` 는 원래부터 동기 클라이언트였다 — 스레드를
- * 하나 잡고 기다리는 일이 IO 디스패처로 옮겨졌을 뿐 사라진 게 아니었다. 지금은 부르는 쪽이
- * Spring Batch 의 chunk writer(= job 스레드)뿐이라, 그 스레드에서 그냥 기다린다.
- */
 @Component
 class EsBulkIndexer(private val es: ElasticsearchClient) {
-
 	fun bulk(index: String, actions: List<BulkAction>): BulkStats {
 		if (actions.isEmpty()) return BulkStats(0, 0)
 
@@ -46,7 +34,6 @@ class EsBulkIndexer(private val es: ElasticsearchClient) {
 
 		val resp = es.bulk(BulkRequest.of { it.operations(ops) })
 		if (resp.errors()) {
-			// 없는 문서 삭제(404)는 정상(멱등) — 진짜 실패만 예외로.
 			val fatal = resp.items().firstOrNull {
 				it.error() != null && !(it.operationType() == OperationType.Delete && it.status() == 404)
 			}

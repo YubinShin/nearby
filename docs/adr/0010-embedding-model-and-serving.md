@@ -312,3 +312,18 @@ alias 를 v2↔v3 로 **20회 왕복 스왑**하는 동안 검색을 계속 던�
 관계없는 질의 다섯 개(`회 먹을 데`·`머리 자르는 곳`·`혼밥하기 좋은 집`·`브런치 먹을 곳`·
 `역삼동 카페`)의 건수와 상위 결과는 그대로였고, 엉터리 질의(`ㅁㄴㅇㄹ` 0건, `차 고치는 곳` 1건)도
 변화가 없었다.
+
+## 구현 위치
+
+코드에는 주석을 두지 않는다. 이 결정의 배경은 **이 문서와 아래 커밋 메시지**에 있다.
+경로는 `services/<모듈>/src/{main,test}/kotlin/dev/yubin/search/` 이하다.
+
+| 모듈 | 파일 | 확정 커밋 | 날짜 |
+|---|---|---|---|
+| `search-api` | `startup/IndexContractGuard.kt` | `f12a9bb` | 2026-07-25 |
+| `search-api` | `vector/PlaceVectorSearchService.kt` | `f12a9bb` | 2026-07-25 |
+| `search-core` | `core/embed/EmbeddingModel.kt` | `f12a9bb` | 2026-07-25 |
+| `search-core` | `core/embed/PlaceVectorText.kt` | `205d39e` | 2026-07-24 |
+| `search-core` | `core/meta/IndexMeta.kt` | `bb3f1ad` | 2026-07-24 |
+
+커밋 메시지를 보려면: `git show <해시>`

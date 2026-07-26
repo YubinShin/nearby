@@ -166,3 +166,32 @@ core 의 `QdrantStore` 가 `WebClient` 를 쓰는 바람에, **core 를 쓰는 �
 - **원천이 CDC 스트림으로 바뀔 때.** ADR 0001 의 이벤트 트리거가 실제 스트림(Debezium 등)이 되면
   그건 `indexer-stream` 이라는 **다른 앱**이고, 거기서는 리액티브가 맞다. 이 ADR 은 배치 색인기에
   대한 것이다.
+
+## 구현 위치
+
+코드에는 주석을 두지 않는다. 이 결정의 배경은 **이 문서와 아래 커밋 메시지**에 있다.
+경로는 `services/<모듈>/src/{main,test}/kotlin/dev/yubin/search/` 이하다.
+
+| 모듈 | 파일 | 확정 커밋 | 날짜 |
+|---|---|---|---|
+| `indexer-batch` | `indexer/ReindexScheduler.kt` | `e84d153` | 2026-07-25 |
+| `indexer-batch` | `indexer/admin/AdminController.kt` | `e84d153` | 2026-07-25 |
+| `indexer-batch` | `indexer/batch/BatchConfig.kt` | `e84d153` | 2026-07-25 |
+| `indexer-batch` | `indexer/batch/BatchSchema.kt` | `f12a9bb` | 2026-07-25 |
+| `indexer-batch` | `indexer/batch/IndexJobService.kt` | `e84d153` | 2026-07-25 |
+| `indexer-batch` | `indexer/batch/IndexJobs.kt` | `e84d153` | 2026-07-25 |
+| `indexer-batch` | `indexer/batch/KeywordIndexJobConfig.kt` | `e84d153` | 2026-07-25 |
+| `indexer-batch` | `indexer/batch/LoadProgress.kt` | `f12a9bb` | 2026-07-25 |
+| `indexer-batch` | `indexer/batch/VectorIndexJobConfig.kt` | `e84d153` | 2026-07-25 |
+| `indexer-batch` | `indexer/index/CheckpointStore.kt` | `f12a9bb` | 2026-07-25 |
+| `indexer-batch` | `indexer/index/EsBulkIndexer.kt` | `f12a9bb` | 2026-07-25 |
+| `indexer-batch` | `indexer/index/IndexAdminService.kt` | `e84d153` | 2026-07-25 |
+| `indexer-batch` | `indexer/index/PlaceSource.kt` | `e84d153` | 2026-07-25 |
+| `indexer-batch` | `indexer/observability/IndexLagMetrics.kt` | `f12a9bb` | 2026-07-25 |
+| `search-api` | `vector/PlaceVectorSearchService.kt` | `f12a9bb` | 2026-07-25 |
+| `search-api` | `vector/QdrantSearchStore.kt` | `f12a9bb` | 2026-07-25 |
+| `search-core` | `core/embed/EmbeddingModel.kt` | `f12a9bb` | 2026-07-25 |
+| `search-core` | `core/meta/IndexMetaStore.kt` | `f12a9bb` | 2026-07-25 |
+| `search-core` | `core/vector/QdrantContract.kt` | `f12a9bb` | 2026-07-25 |
+
+커밋 메시지를 보려면: `git show <해시>`

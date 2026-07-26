@@ -7,28 +7,7 @@ import org.springframework.stereotype.Repository
 import java.sql.ResultSet
 import java.time.OffsetDateTime
 
-/**
- * PostGIS 원천 창고에서 장소를 읽는 **SQL 과 매핑**. (ADR 0013)
- *
- * ### 왜 여기엔 '읽는 루프'가 없나
- * 전에는 `PlaceR2dbcReader` 가 `Flow<PlaceRow>` 를 돌려주고, 서비스가 그 흐름을 모아서 배치로
- * 잘라 쓰는 루프를 직접 갖고 있었다. 지금은 그 루프가 **Spring Batch 의 chunk** 다 —
- * 읽기는 `JdbcCursorItemReader`(프레임워크), 잘라 쓰기는 chunk 크기 설정이 맡는다.
- *
- * 그래서 이 파일에 남는 건 프레임워크가 알 수 없는 것뿐이다: **어떤 SQL 을 던지고, 한 행을
- * 어떻게 [PlaceRow] 로 옮기는가.** 리더 조립은 `KeywordIndexJobConfig`·`VectorIndexJobConfig` 에서 한다.
- *
- * ### 커서로 읽는다 — 64k 행을 메모리에 올리지 않는다
- * `JdbcCursorItemReader` 는 커넥션 하나를 스텝 내내 붙잡고 `ResultSet` 을 커서로 훑는다.
- * 단, postgres JDBC 드라이버는 **autoCommit=false 이고 fetchSize 가 설정돼 있을 때만** 진짜
- * 커서를 쓴다. 둘 중 하나만 빠지면 드라이버가 결과 전체를 조용히 메모리에 올린다 — 그래서
- * 리더를 조립하는 쪽에서 `connectionAutoCommit(false)` 와 `fetchSize` 를 **둘 다** 준다.
- */
 object PlaceSql {
-
-	// place_brand 는 **우리가 만든 파생 테이블**이라 left join 이다 — 없는 게 정상이다.
-	// 주의: 브랜드만 바뀌면 place.updated_at 이 안 움직여 증분 색인이 못 잡는다.
-	//       지금은 전체 재색인으로만 반영된다 (셀프 크리틱 #20).
 	private val SELECT_BASE = """
 		select p.place_id, p.name, p.branch, b.brand,
 		       p.category_large, p.category_mid, p.category_small,
@@ -38,61 +17,14 @@ object PlaceSql {
 		left join public.place_brand b using (place_id)
 	""".trimIndent()
 
-	/** 전체 재색인용 — 살아있는(삭제 안 된) 행만 읽는다. 전체 재색인이 곧 tombstone 청소. */
 	val SELECT_ALL = "$SELECT_BASE\nwhere p.deleted_at is null\norder by p.place_id"
 
-	/**
-	 * 증분 색인용 — checkpoint '이후'에 바뀐 행만. 삭제된 행도 포함(그래야 ES에서 지울 수 있음).
-	 *
-	 * ### 왼쪽에 `date_trunc` 를 걸지 않는다 — 걸면 행이 조용히 사라진다
-	 * 한때 `where date_trunc('milliseconds', p.updated_at) > ?` 였다. watermark 의 출처가 둘이고
-	 * (저장된 체크포인트는 원천에서 온 **마이크로초**, 첫 실행 폴백인 `IndexAdminService.maxUpdatedAt`
-	 * 은 ES date 라 **밀리초**) 정밀도를 맞추려던 것이었다. 그런데 그 자름이 **같은 밀리초 안의
-	 * 뒷행을 영영 못 읽게** 만든다:
-	 *
-	 * ```
-	 * 행 A 10:00:00.123456 색인됨 → watermark = 10:00:00.123456
-	 * 행 B 10:00:00.123656 (200µs 뒤, 커서가 막 지나간 직후 수정)
-	 *   date_trunc(ms, B) > watermark  ⇒  10:00:00.123 > 10:00:00.123456  ⇒ false ❌
-	 * ```
-	 *
-	 * 바인딩 값을 같이 잘라도 **결과가 바뀌지 않는다.** `date_trunc` 결과는 항상 밀리초 격자 위에
-	 * 있고, 격자 위 값이 `W` 보다 크다는 것과 `trunc(W)` 보다 크다는 것은 같은 집합이기 때문이다
-	 * (`> trunc(W)` 는 곧 `≥ trunc(W)+1ms`). 즉 자름은 여기서 **no-op** 이고 B 는 그대로 빠진다.
-	 *
-	 * ### 정밀도가 다른 건 자를 게 아니라 그냥 둬도 되는 문제였다
-	 * 폴백 watermark 는 `Instant.ofEpochMilli(millis.toLong())` — **내림**이라 원천 생값보다 항상
-	 * 작거나 같다. 굵은 watermark 가 만드는 결과는 "경계 행 몇 개를 다시 읽음"뿐이고, 색인은
-	 * 멱등이라(ADR 0001) 덮어쓰기로 끝난다. 게다가 그 회차가 끝나면 체크포인트가 원천 생값으로
-	 * 올라가 다음 회차부터 저절로 정상화된다. **재처리는 싸고 누락은 조용히 틀린다.**
-	 *
-	 * `>=` 로 바꿔 경계 밀리초를 통째로 다시 읽는 길도 있지만 이 데이터에는 위험하다 — 대량 적재
-	 * 탓에 `updated_at` 고유값이 4개뿐이고 한 값에 64,236행이 몰려 있어, watermark 가 그 무리에
-	 * 걸리면 증분마다 6만 건을 다시 읽는다. (운영에선 단조 증가 version 컬럼이 이 모든 것보다 안전)
-	 *
-	 * R2DBC 의 이름 있는 바인딩(`:since`)과 달리 JDBC 는 `?` 위치 바인딩이다 — 인자는 하나뿐이다.
-	 */
 	val SELECT_SINCE = "$SELECT_BASE\nwhere p.updated_at > ?\norder by p.place_id"
 
-	/**
-	 * 원천에서 가장 최근에 바뀐 시각. 색인 lag 지표의 기준점이다.
-	 * `place_updated_at_idx` 덕에 인덱스 끝만 읽으면 되는 값싼 질의다.
-	 *
-	 * max() 대신 정렬+limit 1 — 인덱스 끝을 바로 집고, 빈 테이블이면 'null 값을 담은 한 행'이
-	 * 아니라 아예 0행이 와서 널 처리가 단순해진다.
-	 */
 	const val SELECT_MAX_UPDATED_AT = "select updated_at from public.place order by updated_at desc limit 1"
 }
 
-/**
- * `ResultSet` 한 행 → [PlaceRow].
- *
- * 널 가능한 숫자 컬럼(lon/lat)은 `getDouble` 이 널을 **0.0 으로 뭉개기** 때문에 `wasNull()` 로
- * 되돌려야 한다. 좌표가 없는 장소를 (0,0) — 기니 만 앞바다 — 로 색인하면 반경 검색이 조용히
- * 틀린다. R2DBC 에선 `Number?` 로 받아 자연스럽게 널이 보존됐던 자리다.
- */
 object PlaceRowMapper : RowMapper<PlaceRow> {
-
 	override fun mapRow(rs: ResultSet, rowNum: Int): PlaceRow = PlaceRow(
 		placeId = rs.getString("place_id"),
 		name = rs.getString("name"),
@@ -116,19 +48,11 @@ object PlaceRowMapper : RowMapper<PlaceRow> {
 		getDouble(column).takeUnless { wasNull() }
 }
 
-/**
- * 색인 루프 밖에서 원천에 던지는 **단발 질의**들. (스트리밍 읽기는 ItemReader 가 맡는다)
- *
- * 블로킹이다 — 부르는 쪽이 lag 지표 스케줄러(전용 스레드)와 job 스레드뿐이라 기다려도 된다.
- */
 @Repository
 class PlaceSourceDao(private val jdbc: JdbcClient) {
-
-	/** 원천 최신 변경 시각. 비어있으면 null. */
 	fun maxUpdatedAt(): OffsetDateTime? =
 		jdbc.sql(PlaceSql.SELECT_MAX_UPDATED_AT)
-			// 컬럼 하나뿐이라 인덱스로 집는다. 타입 변환을 드라이버에 맡기지 않고 못박아,
-			// timestamptz → OffsetDateTime 이 확실히 오프셋을 갖고 오게 한다.
+
 			.query { rs, _ -> rs.getObject(1, OffsetDateTime::class.java) }
 			.optional()
 			.orElse(null)
