@@ -1,17 +1,10 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-# 로컬 kind 검증용. 노트북 한 대(단일 노드)에서 전부 뜨는 게 목표라,
-#   · base 의 preferred anti-affinity 를 그대로 둔다(단일 노드라 실제로는 안 나뉘지만 스케줄은 된다).
-#   · ES 힙과 자원 요청을 줄여 한 노드에 다 얹는다.
-# 이미지는 kind load 로 넣은 로컬 이미지(base 가 이미 imagePullPolicy: IfNotPresent).
-
 resources:
   - ../../base
 
-# 노트북에 맞춘 자원 축소. base 를 안 건드리고 여기서만 덮는다.
 patches:
-  # ES 힙 1g → 512m (단일 노드에서 다른 컨테이너에 자리를 내준다)
   - target: { kind: StatefulSet, name: elasticsearch }
     patch: |
       - op: replace

@@ -1,34 +1,17 @@
-# place-search-platform — 로컬 검색 엔진 스택
-#
-# 한 번에 띄우기:  docker compose -f deploy/docker-compose.yml up -d
-# 내리기:         docker compose -f deploy/docker-compose.yml down
-# (데이터까지 지우기: docker compose -f deploy/docker-compose.yml down -v)
-#
-# 구성 (설계 근거):
-#   - elasticsearch : 키워드 검색 엔진 (ADR 0002). 1단계에서 KOMORAN 플러그인 커스텀 이미지로 교체 (ADR 0008).
-#   - qdrant        : 벡터(뜻) 검색 엔진 (ADR 0007)
-#   - redis         : 빠른 차선 — 세션 흐름/인기 캐시 (ADR 0004, 0005)
-#   - postgis       : 원천 창고 — 장소 원본 + 거리 계산 (아키텍처 문서)
-
 services:
   elasticsearch:
-    # KOMORAN 플러그인 설치 커스텀 이미지 (ADR 0008). deploy/elasticsearch/Dockerfile.
-    # 빌드 전 komoran-analysis.zip 을 deploy/elasticsearch/ 로 복사해야 함 → deploy/up.sh 사용 권장.
     build:
       context: ./elasticsearch
     image: psp-elasticsearch-komoran:9.4.2
     container_name: psp-elasticsearch
     environment:
       - discovery.type=single-node
-      - xpack.security.enabled=false          # 로컬 전용. 운영에서는 절대 끄지 않음.
-      - ES_JAVA_OPTS=-Xms1g -Xmx1g            # 노트북(M4 16GB) 기준. 힙은 컨테이너 메모리 절반 이하로.
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
     ports:
       - "9200:9200"
     volumes:
       - es-data:/usr/share/elasticsearch/data
-      # KOMORAN 사용자 사전. 이미지에 굽지 않고 마운트하는 이유: 사전은 원천 데이터에서 **생성되는
-      # 산출물**이라 자주 바뀐다 (scripts/build_komoran_dict.py). 이미지 재빌드 없이 갈아끼우되,
-      # 반영에는 인덱스 재생성이 필요하다 — 색인과 검색이 같은 사전을 봐야 하기 때문 (ADR 0008).
       - ./elasticsearch/analysis:/usr/share/elasticsearch/config/analysis:ro
     healthcheck:
       test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1"]
@@ -40,8 +23,8 @@ services:
     image: qdrant/qdrant:v1.12.4
     container_name: psp-qdrant
     ports:
-      - "6333:6333"   # REST
-      - "6334:6334"   # gRPC
+      - "6333:6333"
+      - "6334:6334"
     volumes:
       - qdrant-data:/qdrant/storage
 
@@ -59,7 +42,7 @@ services:
     environment:
       - POSTGRES_DB=place
       - POSTGRES_USER=place
-      - POSTGRES_PASSWORD=place            # 로컬 전용
+      - POSTGRES_PASSWORD=place
     ports:
       - "5432:5432"
     volumes:

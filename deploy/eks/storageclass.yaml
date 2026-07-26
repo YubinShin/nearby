@@ -1,33 +1,16 @@
-# gp3 StorageClass — **오버레이가 이 이름을 요구한다.**
-#
-# `overlays/eks/kustomization.yaml` 이 세 StatefulSet 에 `storageClassName: gp3` 을 넣는데,
-# EKS 가 기본으로 주는 건 `gp2` 다. 이 파일을 먼저 적용하지 않으면 PVC 3개가
-# "storageclass.storage.k8s.io \"gp3\" not found" 로 Pending 에 머문다.
-#
-# gp3 를 쓰는 이유: gp2 는 용량에 IOPS 가 묶여 있어 3Gi 볼륨이 최소 IOPS 밖에 못 낸다.
-# gp3 는 용량과 무관하게 기본 3,000 IOPS 를 준다 — ES 색인 쓰기가 디스크에 발목 잡히면
-# "노드 분리 효과"를 재는 실험에 디스크 잡음이 섞인다.
 ---
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
   name: gp3
   annotations:
-    # 기본 클래스로 지정. (up.sh 가 gp2 의 default 표시를 떼어낸다 — 기본이 둘이면 K8s 가
-    # 어느 쪽도 선택하지 않고 PVC 를 Pending 에 둔다.)
     storageclass.kubernetes.io/is-default-class: "true"
 provisioner: ebs.csi.aws.com
 
-# **이 값이 핵심이다.** `Immediate` 로 두면 파드 스케줄링 전에 볼륨이 만들어지고, 하필 다른
-# AZ 에 생기면 파드가 그 노드로 갈 수 없어 영구 Pending 이 된다. 우리는 `nodeSelector` 로
-# 노드를 못박아 두었으니(role=query / role=index) 그 충돌이 실제로 일어날 조건이 갖춰져 있다.
-# `WaitForFirstConsumer` 는 "스케줄러가 노드를 먼저 고르고, 그 AZ 에 볼륨을 만든다".
 volumeBindingMode: WaitForFirstConsumer
 
 allowVolumeExpansion: true
 
-# 실험 클러스터라 `Delete` 다. 네임스페이스를 지우면 EBS 볼륨도 함께 사라진다 —
-# `Retain` 이면 클러스터를 삭제한 뒤에도 볼륨이 남아 조용히 과금된다 (down.sh 주석 참고).
 reclaimPolicy: Delete
 
 parameters:

@@ -1,12 +1,3 @@
-# PostGIS — 원천 창고 (장소 원본 + 거리 계산). **색인기만** 여기 붙는다; 질의기는 붙지 않는다.
-#
-# 이미지: nearby-postgis:seeded  — 강남 64,239행이 initdb 단계에서 이미 구워져 있다
-# (deploy/postgis/Dockerfile). 그래서 파드가 뜨는 순간 데이터가 있다: k8s 로 CSV 를 옮기거나
-# 적재 Job 을 돌릴 필요가 없다.
-#
-# ⚠️ 아키텍처: 이 이미지는 postgis/postgis:16-3.4(amd64 전용) 기반이라 amd64 다. Apple Silicon
-#    kind(arm64 노드)에서는 에뮬레이션으로 뜬다 — 느리지만 데모엔 충분. 안 뜨면 멀티아치
-#    PostGIS 로 교체(README 참고). EKS 는 x86 노드면 네이티브.
 ---
 apiVersion: v1
 kind: Service
@@ -38,13 +29,11 @@ spec:
       containers:
         - name: postgis
           image: nearby-postgis:seeded
-          imagePullPolicy: IfNotPresent   # kind 로 load 한 로컬 이미지.
+          imagePullPolicy: IfNotPresent
           env:
-            # compose 와 동일. 로컬/데모 전용 크리덴셜(운영이면 Secret 으로).
             - { name: POSTGRES_DB, value: place }
             - { name: POSTGRES_USER, value: place }
             - { name: POSTGRES_PASSWORD, value: place }
-            # PVC 재부착 시 initdb 재실행을 막고, 시드 경로와 데이터 경로를 분리한다.
             - { name: PGDATA, value: /var/lib/postgresql/data/pgdata }
           ports:
             - { name: postgres, containerPort: 5432 }
