@@ -29,6 +29,9 @@ dependencies {
 	implementation("ai.djl.huggingface:tokenizers:$djlVersion")
 	runtimeOnly("ai.djl.onnxruntime:onnxruntime-engine:$djlVersion")
 
+	// --- API 문서: Swagger UI (/swagger-ui.html) — WebFlux 용 springdoc ---
+	implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:3.0.0")
+
 	// --- 공통 ---
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	// 질의 지연·색인 lag 지표 노출 (/actuator/prometheus)
