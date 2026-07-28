@@ -9,6 +9,7 @@ import dev.yubin.search.query.SearchResponse
 import dev.yubin.search.query.SortBy
 import dev.yubin.search.vector.PlaceVectorSearchService
 import dev.yubin.search.vector.PlaceVectors
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import org.slf4j.LoggerFactory
@@ -86,6 +87,7 @@ class HybridSearchService(
 			val response = block()
 			ChannelRun(ChannelReport(name, response.hits.size, elapsedMs(startedAt)), response.hits)
 		} catch (e: Exception) {
+			if (e is CancellationException) throw e
 			log.warn("hybrid channel '{}' failed, degrading", name, e)
 			ChannelRun(ChannelReport(name, 0, elapsedMs(startedAt), failed = true), emptyList())
 		} finally {
