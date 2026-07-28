@@ -140,7 +140,7 @@ Kubernetes로 띄우려면 → [deploy/k8s/README.md](deploy/k8s/README.md)
 따로 배포되며 어긋나는 것은 **런타임 버전 도장**으로 막습니다.
 
 ```
-search-core     두 앱이 어긋나면 조용히 틀려지는 것만 (계약)
+search-core     공유 계약 (문서 스키마 · 브랜드 규칙 · 임베딩 모델)
 ├── search-api      질의  · WebFlux + Coroutine
 ├── indexer-batch   색인  · Spring Batch + MVC + JDBC
 └── indexer-stream  (예정) 이벤트 색인
@@ -206,8 +206,7 @@ search-core     두 앱이 어긋나면 조용히 틀려지는 것만 (계약)
 | [0012](docs/adr/0012-manifests-in-monorepo.md) | 배포 매니페스트를 모노레포에 | 구현 |
 | [0013](docs/adr/0013-indexer-runtime-spring-batch.md) | 색인기를 Spring Batch로 | 구현 |
 
-각 ADR 하단에 **「구현 위치」 표**(파일 → 확정 커밋)가 있습니다. 결정의 근거는 ADR과 커밋
-메시지가 갖고, 코드는 주석 없이 둡니다.
+각 ADR 하단에 **「구현 위치」 표**(파일 → 확정 커밋)가 있습니다.
 
 예상과 달랐던 결과와 설계상 한계는 [Architecture Review](docs/architecture-review.md)에
 따로 모았습니다.
@@ -238,7 +237,7 @@ search-core     두 앱이 어긋나면 조용히 틀려지는 것만 (계약)
 | [api-spec.md](docs/api-spec.md) | API 명세 |
 | [adr/](docs/adr/) | 설계 결정 13편 |
 | [architecture-review.md](docs/architecture-review.md) | 예상과 다른 결과·한계 |
-| [troubleshooting.md](docs/troubleshooting.md) | 증상별 원인과 조치 — 그 줄이 왜 있는지 |
+| [troubleshooting.md](docs/troubleshooting.md) | 증상별 원인과 조치 |
 | [search-modes-comparison.md](docs/search-modes-comparison.md) | 세 검색 방식 비교 |
 | [data-model.md](docs/data-model.md) | 데이터 모델·원천 출처 |
 | [roadmap.md](docs/roadmap.md) | 로드맵 |
