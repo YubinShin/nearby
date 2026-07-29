@@ -15,7 +15,7 @@ class SearchDocDeserializationTest {
 	private lateinit var es: ElasticsearchClient
 
 	@Test
-	fun `_source 가 SearchDoc 으로 채워진다`() {
+	fun `_source is deserialized into SearchDoc`() {
 		val source = """
 			{
 			  "place_id": "MA010120220800117084",

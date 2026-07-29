@@ -9,18 +9,18 @@ class IndexMetaTest {
 	private val model = "multilingual-e5-small"
 
 	@Test
-	fun `같은 도장이면 통과한다`() {
+	fun `an identical stamp passes`() {
 		val stamp = IndexMeta.stamp(model, 384)
 		assertEquals(IndexMeta.Verdict.Ok, IndexMeta.verify(stamp, stamp))
 	}
 
 	@Test
-	fun `도장이 없으면 막지 않고 Missing 이다`() {
+	fun `a missing stamp reports Missing instead of blocking`() {
 		assertEquals(IndexMeta.Verdict.Missing, IndexMeta.verify(null, IndexMeta.stamp()))
 	}
 
 	@Test
-	fun `스키마 버전이 다르면 막는다`() {
+	fun `a different schema version blocks`() {
 		val indexed = IndexMeta.Stamp(schema_version = IndexMeta.SCHEMA_VERSION - 1)
 		val verdict = IndexMeta.verify(indexed, IndexMeta.stamp())
 
@@ -32,7 +32,7 @@ class IndexMetaTest {
 	}
 
 	@Test
-	fun `임베딩 모델이 다르면 막는다`() {
+	fun `a different embedding model blocks`() {
 		val verdict = IndexMeta.verify(IndexMeta.stamp("ko-sroberta", 384), IndexMeta.stamp(model, 384))
 
 		val mismatch = assertIs<IndexMeta.Verdict.Mismatch>(verdict)
@@ -41,13 +41,13 @@ class IndexMetaTest {
 	}
 
 	@Test
-	fun `임베딩 차원이 다르면 막는다`() {
+	fun `a different embedding dimension blocks`() {
 		val verdict = IndexMeta.verify(IndexMeta.stamp(model, 768), IndexMeta.stamp(model, 384))
 		assertIs<IndexMeta.Verdict.Mismatch>(verdict)
 	}
 
 	@Test
-	fun `어긋난 항목이 여럿이면 전부 담는다`() {
+	fun `every mismatched field is collected`() {
 		val indexed = IndexMeta.Stamp(IndexMeta.SCHEMA_VERSION - 1, "ko-sroberta", 768)
 		val verdict = IndexMeta.verify(indexed, IndexMeta.stamp(model, 384))
 
@@ -55,13 +55,13 @@ class IndexMetaTest {
 	}
 
 	@Test
-	fun `키워드 파이프라인은 임베딩 정보를 비교하지 않는다`() {
+	fun `the keyword pipeline does not compare embedding information`() {
 		val keywordStamp = IndexMeta.stamp()
 		assertEquals(IndexMeta.Verdict.Ok, IndexMeta.verify(keywordStamp, IndexMeta.stamp(model, 384)))
 	}
 
 	@Test
-	fun `벡터를 끄고 뜬 질의기는 벡터 도장과 부딪히지 않는다`() {
+	fun `a querier started with vectors off does not clash with a vector stamp`() {
 		assertEquals(
 			IndexMeta.Verdict.Ok,
 			IndexMeta.verify(IndexMeta.stamp(model, 384), IndexMeta.stamp()),

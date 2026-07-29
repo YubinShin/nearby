@@ -14,15 +14,15 @@ class RrfTest {
 	private fun ids(fused: List<Rrf.Fused>) = fused.map { it.id }
 
 	@Test
-	fun `두 채널이 모두 찾은 문서가 한 채널 1등보다 앞선다`() {
+	fun `a document found by both channels outranks a single channel top hit`() {
 		val fused = Rrf.fuse(listOf(keyword("B", "A"), vector("C", "A")))
 
-		assertEquals("A", fused.first().id, "합의가 단독 1등을 이겨야 한다 — 이게 RRF 를 쓰는 이유다")
+		assertEquals("A", fused.first().id, "consensus must beat a single top hit — this is why we use RRF")
 		assertEquals(listOf("A", "B", "C"), ids(fused))
 	}
 
 	@Test
-	fun `k 가 작으면 합의보다 단독 1등이 이긴다`() {
+	fun `a small k lets a single channel top hit beat consensus`() {
 		val channels = listOf(keyword("B", "x", "x2", "x3", "A"), vector("y", "y2", "y3", "y4", "A"))
 
 		assertEquals("B", Rrf.fuse(channels, k = 0).first().id)
@@ -31,29 +31,29 @@ class RrfTest {
 	}
 
 	@Test
-	fun `한 채널이 비어도 나머지 순서를 그대로 보존한다`() {
+	fun `an empty channel preserves the order of the other one`() {
 		val fused = Rrf.fuse(listOf(keyword("A", "B", "C"), vector()))
 
 		assertEquals(listOf("A", "B", "C"), ids(fused))
 	}
 
 	@Test
-	fun `양쪽 다 비면 결과도 비어 있다`() {
+	fun `both channels empty yields an empty result`() {
 		assertTrue(Rrf.fuse(listOf(keyword(), vector())).isEmpty())
 	}
 
 	@Test
-	fun `채널별 등수를 1-base 로 남기고 못 찾은 채널은 키가 없다`() {
+	fun `per channel ranks are recorded 1-based and a channel that missed has no key`() {
 		val fused = Rrf.fuse(listOf(keyword("A", "B"), vector("B")))
 
 		val a = fused.single { it.id == "A" }
 		val b = fused.single { it.id == "B" }
-		assertEquals(mapOf("keyword" to 1), a.ranks, "벡터가 못 찾았으면 키 자체가 없어야 한다")
+		assertEquals(mapOf("keyword" to 1), a.ranks, "if the vector channel missed it, the key must not exist at all")
 		assertEquals(mapOf("keyword" to 2, "vector" to 1), b.ranks)
 	}
 
 	@Test
-	fun `가중치를 0 으로 주면 그 채널은 순위에 영향을 주지 못한다`() {
+	fun `a channel weighted 0 has no influence on the ranking`() {
 		val fused = Rrf.fuse(listOf(keyword("A"), vector("B", weight = 0.0)))
 
 		assertEquals(listOf("A", "B"), ids(fused))
@@ -61,50 +61,50 @@ class RrfTest {
 	}
 
 	@Test
-	fun `가중치를 높인 채널의 등수가 더 세게 반영된다`() {
+	fun `ranks from a channel with a raised weight count more strongly`() {
 		val even = Rrf.fuse(listOf(keyword("K"), vector("V")))
 		val vectorHeavy = Rrf.fuse(listOf(keyword("K"), vector("V", weight = 2.0)))
 
-		assertEquals("K", even.first().id, "동점일 땐 id 순으로 결정적이어야 한다")
+		assertEquals("K", even.first().id, "ties must break deterministically by id")
 		assertEquals("V", vectorHeavy.first().id)
 	}
 
 	@Test
-	fun `점수가 같으면 항상 같은 순서가 나온다`() {
+	fun `equal scores always produce the same order`() {
 		val once = Rrf.fuse(listOf(keyword("B", "A"), vector("A", "B")))
 		val again = Rrf.fuse(listOf(vector("A", "B"), keyword("B", "A")))
 
-		assertEquals(ids(once), ids(again), "채널을 넣은 순서가 결과 순서를 바꾸면 안 된다")
+		assertEquals(ids(once), ids(again), "the order channels are passed in must not change the result order")
 		assertEquals(listOf("A", "B"), ids(once))
 	}
 
 	@Test
-	fun `같은 채널이 같은 문서를 두 번 줘도 한 번만 센다`() {
+	fun `the same document twice from one channel counts once`() {
 		val fused = Rrf.fuse(listOf(keyword("A", "A", "B")))
 
 		assertEquals(listOf("A", "B"), ids(fused))
-		assertEquals(mapOf("keyword" to 1), fused.first().ranks, "첫 등수만 인정한다")
+		assertEquals(mapOf("keyword" to 1), fused.first().ranks, "only the first rank counts")
 		assertEquals(1.0 / 61, fused.first().score)
 	}
 
 	@Test
-	fun `점수 스케일이 아니라 등수만 쓴다`() {
+	fun `only ranks are used, not the score scale`() {
 		val fused = Rrf.fuse(listOf(keyword("A", "B"), vector("B", "A")))
 
 		val a = fused.single { it.id == "A" }
 		val b = fused.single { it.id == "B" }
-		assertEquals(a.score, b.score, "1등+2등 과 2등+1등 은 같은 점수여야 한다")
+		assertEquals(a.score, b.score, "rank 1 + rank 2 must score the same as rank 2 + rank 1")
 	}
 
 	@Test
-	fun `깊은 후보를 가져와야 결합의 이득이 생긴다`() {
+	fun `fusion only pays off with a deep candidate pool`() {
 		val deep = (1..50).map { "K$it" }
 		val fused = Rrf.fuse(listOf(Rrf.Channel("keyword", deep), vector("K50")))
 
-		assertEquals("K50", fused.first().id, "두 채널이 함께 가리키면 단독 1등(K1)을 넘어선다")
+		assertEquals("K50", fused.first().id, "when both channels point at it, it beats the single top hit (K1)")
 
 		val shallow = Rrf.fuse(listOf(Rrf.Channel("keyword", deep.take(10)), vector("K50")))
-		assertEquals(1, shallow.single { it.id == "K50" }.ranks.size, "한 채널에서만 걸린 셈이 된다")
+		assertEquals(1, shallow.single { it.id == "K50" }.ranks.size, "it ends up matched by only one channel")
 		assertTrue(shallow.first().id == "K1")
 	}
 }
