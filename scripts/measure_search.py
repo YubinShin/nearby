@@ -63,6 +63,48 @@ def stamps(es_url):
     return out
 
 
+STAGES = ["keyword", "vector", "hydrate", "fuse"]
+
+
+def stage_snapshot(base):
+    """`psp.query.stage.latency{channel=hybrid,stage=...}` 의 (count, 누적초).
+
+    HybridSearchService.search()·present() 가 이미 Micrometer 로 남기는 값이다
+    (QueryMetrics.stage/timer). 새 계측을 앱에 추가하지 않고, 이 실행 전후로
+    같은 카운터를 두 번 읽어 **차분**하면 "이번 회귀 루프 동안"의 평균이 나온다
+    (ADR 0003 이 손으로 하던 걸 스크립트 안으로 옮긴 것).
+    """
+    out = {}
+    for stage in STAGES:
+        url = (
+            f"{base}/actuator/metrics/psp.query.stage.latency"
+            f"?tag=channel:hybrid&tag=stage:{stage}"
+        )
+        try:
+            with urllib.request.urlopen(url, timeout=5) as r:
+                body = json.load(r)
+            measurements = {m["statistic"]: m["value"] for m in body["measurements"]}
+            out[stage] = (measurements.get("COUNT", 0.0), measurements.get("TOTAL_TIME", 0.0))
+        except Exception:
+            out[stage] = (0.0, 0.0)
+    return out
+
+
+def stage_breakdown(before, after):
+    """스냅샷 두 장의 차분을 채널 평균 ms 로. count 가 그대로면(호출 없었으면) None."""
+    out = {}
+    for stage in STAGES:
+        c0, t0 = before[stage]
+        c1, t1 = after[stage]
+        dcount = c1 - c0
+        if dcount <= 0:
+            out[stage] = None
+            continue
+        avg_ms = (t1 - t0) / dcount * 1000
+        out[stage] = (dcount, avg_ms)
+    return out
+
+
 def percentile(values, p):
     if not values:
         return float("nan")
@@ -101,6 +143,7 @@ def main():
     print(header)
     print("-" * (16 + 14 * len(CHANNELS)))
 
+    stage_before = stage_snapshot(args.base)
     for q in queries:
         cells = []
         for name, path in CHANNELS:
@@ -133,6 +176,18 @@ def main():
         if not vals:
             continue
         print(f"  {name:<10}{statistics.median(vals):>8.1f}ms{percentile(vals, 95):>8.1f}ms{max(vals):>8.1f}ms")
+
+    stage_after = stage_snapshot(args.base)
+    breakdown = stage_breakdown(stage_before, stage_after)
+    print("\n=== 하이브리드 단계 breakdown (Actuator 카운터 차분, 이 실행 동안 평균) ===")
+    print(f"  {'단계':<10}{'호출':>8}{'평균':>10}")
+    for stage in STAGES:
+        entry = breakdown[stage]
+        if entry is None:
+            print(f"  {stage:<10}{'(호출 없음)':>10}")
+            continue
+        dcount, avg_ms = entry
+        print(f"  {stage:<10}{dcount:>7.0f}회{avg_ms:>8.2f}ms")
 
     if failures:
         print(f"\n=== 실패 {len(failures)}건 ===")

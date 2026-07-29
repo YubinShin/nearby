@@ -198,6 +198,11 @@ def main():
     ap.add_argument("--admin", default="http://localhost:8081", help="indexer-batch")
     ap.add_argument("--idle", type=int, default=30, help="기준선 측정 시간(초)")
     ap.add_argument("--skip-vector", action="store_true", help="8분짜리 벡터 재색인을 건너뛴다")
+    ap.add_argument(
+        "--workers", type=int, default=4,
+        help="채널을 두들기는 동시 스레드 수. 재색인 소요가 짧은 환경(EKS 등)에서 총 요청 수를 "
+             "키우려면 올린다 — 소요 시간은 색인 자체가 정하므로 늘릴 수 있는 건 동시성뿐이다.",
+    )
     args = ap.parse_args()
 
     for name, url in (("search-api", args.base), ("indexer-batch", args.admin)):
@@ -206,11 +211,12 @@ def main():
         except Exception as e:                          # noqa: BLE001
             sys.exit(f"{name} 에 연결할 수 없습니다 ({url}): {e}")
 
-    runs = [measure(args.base, seconds=args.idle, label="① 유휴 (기준선)")]
+    runs = [measure(args.base, seconds=args.idle, workers=args.workers, label="① 유휴 (기준선)")]
 
     runs.append(measure(
         args.base,
         trigger=reindex(args.admin, "/admin/reindex"),
+        workers=args.workers,
         label="② 키워드 전체 재색인 중",
     ))
 
@@ -218,6 +224,7 @@ def main():
         runs.append(measure(
             args.base,
             trigger=reindex(args.admin, "/admin/vector/reindex"),
+            workers=args.workers,
             label="③ 벡터 전체 재색인 중 (임베딩 추론이 CPU 를 태운다)",
         ))
 
