@@ -1,5 +1,6 @@
 package dev.yubin.search.hybrid
 
+import dev.yubin.search.backend.BackendFailure
 import dev.yubin.search.observability.QueryMetrics
 import dev.yubin.search.query.PlaceHit
 import dev.yubin.search.query.PlaceSearchService
@@ -87,7 +88,7 @@ class HybridSearchService(
 			val response = block()
 			ChannelRun(ChannelReport(name, response.hits.size, elapsedMs(startedAt)), response.hits)
 		} catch (e: Exception) {
-			if (e is CancellationException) throw e
+			if (e is CancellationException || !BackendFailure.causedBy(e)) throw e
 			log.warn("hybrid channel '{}' failed, degrading", name, e)
 			ChannelRun(ChannelReport(name, 0, elapsedMs(startedAt), failed = true), emptyList())
 		} finally {
