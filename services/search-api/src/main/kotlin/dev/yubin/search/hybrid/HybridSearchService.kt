@@ -65,7 +65,7 @@ class HybridSearchService(
 		}
 
 		val page = fused.drop(req.from).take(req.size)
-		val hits = present(page, kw.hits, vec.hits, req)
+		val hits = present(page, kw.hits, vec.hits, req, hydrate = !kw.report.failed)
 
 		val tookMs = (System.nanoTime() - startedAt) / 1_000_000
 		queryLog.search(req.q, fused.size.toLong(), relaxed = false, tookMs = tookMs, channel = CHANNEL)
@@ -87,11 +87,13 @@ class HybridSearchService(
 		return try {
 			val response = block()
 			ChannelRun(ChannelReport(name, response.hits.size, elapsedMs(startedAt)), response.hits)
+		} catch (e: CancellationException) {
+			throw e
 		} catch (e: Exception) {
-			if (e is CancellationException || !BackendFailure.causedBy(e)) throw e
+			if (!BackendFailure.causedBy(e)) throw e
 			log.warn("hybrid channel '{}' failed, degrading", name, e)
 			ChannelRun(ChannelReport(name, 0, elapsedMs(startedAt), failed = true), emptyList())
-		} finally {
+		}.also {
 			metrics.timer(CHANNEL, name).record(System.nanoTime() - startedAt, TimeUnit.NANOSECONDS)
 		}
 	}
@@ -101,13 +103,15 @@ class HybridSearchService(
 		keywordHits: List<PlaceHit>,
 		vectorHits: List<PlaceHit>,
 		req: SearchRequest,
+		hydrate: Boolean,
 	): List<HybridHit> {
 		if (page.isEmpty()) return emptyList()
 
 		val fromKeyword = keywordHits.associateBy { it.placeId }
 		val fromVector = vectorHits.associateBy { it.placeId }
 
-		val needsLookup = page.map { it.id }.filterNot { fromKeyword.containsKey(it) }
+		val needsLookup =
+			if (!hydrate) emptyList() else page.map { it.id }.filterNot { fromKeyword.containsKey(it) }
 		val hydrated = if (needsLookup.isEmpty()) {
 			emptyMap()
 		} else {

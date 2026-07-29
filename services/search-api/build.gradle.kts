@@ -10,6 +10,8 @@ plugins {
 /** DJL(Deep Java Library) — 임베딩 모델(ONNX) 추론 (ADR 0010). */
 val djlVersion = "0.36.0"
 
+val mockitoAgent: Configuration by configurations.creating
+
 dependencies {
 	// --- 색인기와 공유하는 계약: 문서 스키마·브랜드 규칙·임베딩 모델 (ADR 0011) ---
 	implementation(project(":search-core"))
@@ -49,6 +51,11 @@ dependencies {
 	testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
 	testImplementation("io.projectreactor:reactor-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+	// EmbeddingModel.poolSize 는 final val 이라 inline mock maker 가 있어야 스텁된다.
+	// 에이전트를 직접 걸지 않으면 Mockito 가 JVM self-attach 로 붙는데, 그 경로는 곧 막힌다.
+	testImplementation("org.mockito:mockito-core")
+	mockitoAgent("org.mockito:mockito-core") { isTransitive = false }
 }
 
 kotlin {
@@ -59,4 +66,7 @@ kotlin {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+	jvmArgumentProviders.add(
+		CommandLineArgumentProvider { listOf("-javaagent:${mockitoAgent.asPath}") },
+	)
 }
