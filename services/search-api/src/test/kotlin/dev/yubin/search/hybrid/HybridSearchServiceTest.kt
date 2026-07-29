@@ -23,7 +23,7 @@ import kotlin.test.assertTrue
 
 class HybridSearchServiceTest {
 	@Test
-	fun `두 채널이 모두 성공하면 합친 결과를 degrade 없이 반환한다`() = runBlocking {
+	fun `both channels succeeding returns the fused result without degrading`() = runBlocking {
 		val service = hybridService(
 			keyword = { SearchResponse(it.q, 1, it.page, it.size, 0, hits = listOf(hit("A"))) },
 			vector = { SearchResponse(it.q, 1, it.page, it.size, 0, hits = listOf(hit("B"))) },
@@ -37,7 +37,7 @@ class HybridSearchServiceTest {
 	}
 
 	@Test
-	fun `키워드 채널에 없는 결과는 byIds 로 본문을 채워 반환한다`() = runBlocking {
+	fun `hits missing from the keyword channel are hydrated through byIds`() = runBlocking {
 		val lookups = mutableListOf<List<String>>()
 		val service = hybridService(
 			keyword = { SearchResponse(it.q, 1, it.page, it.size, 0, hits = listOf(hit("A"))) },
@@ -55,7 +55,7 @@ class HybridSearchServiceTest {
 	}
 
 	@Test
-	fun `백엔드 장애로 한 채널이 실패해도 나머지 채널 결과로 degrade 응답을 돌려준다`() = runBlocking {
+	fun `one channel failing on a backend outage still returns a degraded response from the other`() = runBlocking {
 		val service = hybridService(
 			keyword = { SearchResponse(it.q, 1, it.page, it.size, 0, hits = listOf(hit("A"))) },
 			vector = { throw IOException("connection refused") },
@@ -69,7 +69,7 @@ class HybridSearchServiceTest {
 	}
 
 	@Test
-	fun `키워드 채널이 죽으면 같은 ES 로 하이드레이트하지 않고 벡터 결과만 돌려준다`() = runBlocking {
+	fun `a dead keyword channel skips hydration through the same ES and returns vector hits only`() = runBlocking {
 		val lookups = mutableListOf<List<String>>()
 		val service = hybridService(
 			keyword = { throw IOException("connection refused") },
@@ -89,10 +89,10 @@ class HybridSearchServiceTest {
 	}
 
 	@Test
-	fun `백엔드와 무관한 버그는 degrade 로 감추지 않고 요청 전체를 실패시킨다`() {
+	fun `a bug unrelated to the backend fails the whole request instead of hiding behind degradation`() {
 		val service = hybridService(
 			keyword = { SearchResponse(it.q, 1, it.page, it.size, 0, hits = listOf(hit("A"))) },
-			vector = { throw IllegalStateException("null pointer 같은 진짜 버그") },
+			vector = { throw IllegalStateException("a real bug like a null pointer") },
 		)
 
 		assertFailsWith<IllegalStateException> {
@@ -101,7 +101,7 @@ class HybridSearchServiceTest {
 	}
 
 	@Test
-	fun `요청 취소는 채널 실패로 기록하지 않고 그대로 전파한다`() {
+	fun `request cancellation propagates instead of being recorded as a channel failure`() {
 		val service = hybridService(
 			keyword = { SearchResponse(it.q, 1, it.page, it.size, 0, hits = listOf(hit("A"))) },
 			vector = { throw CancellationException("client disconnected") },

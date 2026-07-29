@@ -29,42 +29,42 @@ class PlaceVectorDocTest {
 	)
 
 	@Test
-	fun `임베딩 문장은 이름 카테고리 지역을 담는다`() {
+	fun `the embedding text carries name, category and region`() {
 		assertEquals("스타벅스 강남역점. 커피점/카페 카페. 강남구 역삼동", PlaceVectorText.of(row()))
 	}
 
 	@Test
-	fun `복원한 브랜드는 이름 맨 앞에 들어간다`() {
+	fun `the recovered brand goes at the very front of the name`() {
 		val text = PlaceVectorText.of(row(name = "신사역", branch = null, brand = "스타벅스"))
 		assertEquals("스타벅스 신사역. 커피점/카페 카페. 강남구 역삼동", text)
 	}
 
 	@Test
-	fun `브랜드가 없으면 문장이 달라지지 않는다`() {
+	fun `no brand leaves the text unchanged`() {
 		assertEquals(PlaceVectorText.of(row()), PlaceVectorText.of(row(brand = null)))
 	}
 
 	@Test
-	fun `payload 에도 브랜드가 실린다`() {
+	fun `the payload carries the brand too`() {
 		assertEquals("스타벅스", PlaceVectorPayload.of(row(brand = "스타벅스"))["brand"])
 
 		assertTrue("brand" !in PlaceVectorPayload.of(row(name = "먹어도")))
 	}
 
 	@Test
-	fun `주소는 임베딩하지 않는다`() {
+	fun `the address is not embedded`() {
 		val text = PlaceVectorText.of(row())
 		assertTrue("123-4" !in text && "테헤란로" !in text, text)
 	}
 
 	@Test
-	fun `빈 값은 조용히 빠지고 구분자만 남지 않는다`() {
+	fun `empty values drop out quietly without leaving bare separators`() {
 		val text = PlaceVectorText.of(row(branch = null, categoryMid = null, categorySmall = null, dong = null))
 		assertEquals("스타벅스. 강남구", text)
 	}
 
 	@Test
-	fun `payload 에는 필터 필드와 표시 필드가 들어간다`() {
+	fun `the payload holds filter fields and display fields`() {
 		val p = PlaceVectorPayload.of(row())
 		assertEquals("P1", p["place_id"])
 		assertEquals("강남구", p["sigungu"])
@@ -72,12 +72,12 @@ class PlaceVectorDocTest {
 	}
 
 	@Test
-	fun `좌표가 없으면 location 키 자체가 없다`() {
+	fun `no coordinates means no location key at all`() {
 		assertTrue("location" !in PlaceVectorPayload.of(row(lat = null, lon = null)))
 	}
 
 	@Test
-	fun `점 id 는 place_id 로부터 결정적으로 만들어진다`() {
+	fun `the point id is derived deterministically from place_id`() {
 		assertEquals(QdrantContract.pointId("P1"), QdrantContract.pointId("P1"))
 		assertTrue(QdrantContract.pointId("P1") != QdrantContract.pointId("P2"))
 	}

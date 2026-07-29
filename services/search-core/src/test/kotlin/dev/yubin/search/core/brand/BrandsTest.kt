@@ -20,23 +20,23 @@ class BrandsTest {
 	)
 
 	@Test
-	fun `색인 문서와 임베딩 문장과 payload 가 같은 브랜드를 쓴다`() {
+	fun `the search doc, the embedding text and the payload use the same brand`() {
 		val dictionaryOnly = row(name = "씨유역삼점")
 		val recoveredOnly = row(name = "신사역", brand = "스타벅스")
 
 		for (r in listOf(dictionaryOnly, recoveredOnly)) {
 			val expected = Brands.resolve(r.brand, r.name, r.branch)
-			assertEquals(expected, PlaceDocuments.searchDoc(r)["brand"], "색인 문서: ${r.name}")
+			assertEquals(expected, PlaceDocuments.searchDoc(r)["brand"], "search doc: ${r.name}")
 			assertEquals(expected, PlaceVectorPayload.of(r)["brand"], "payload: ${r.name}")
 			assertTrue(
 				PlaceVectorText.of(r).startsWith("$expected "),
-				"임베딩 문장에 브랜드가 없다: ${PlaceVectorText.of(r)}",
+				"the embedding text has no brand: ${PlaceVectorText.of(r)}",
 			)
 		}
 	}
 
 	@Test
-	fun `브랜드가 없으면 세 경로 모두 아무것도 넣지 않는다`() {
+	fun `no brand means none of the three paths add anything`() {
 		val r = row(name = "먹어도")
 		assertTrue("brand" !in PlaceDocuments.searchDoc(r))
 		assertTrue("brand" !in PlaceVectorPayload.of(r))
@@ -44,7 +44,7 @@ class BrandsTest {
 	}
 
 	@Test
-	fun `표시와 임베딩은 규칙이 다르다`() {
+	fun `display and embedding follow different rules`() {
 		assertEquals("씨유역삼점", Brands.display("CU", "씨유역삼점"))
 		assertEquals("CU 씨유역삼점", Brands.embedText("CU", "씨유역삼점"))
 
@@ -53,7 +53,7 @@ class BrandsTest {
 	}
 
 	@Test
-	fun `표기가 갈린 브랜드를 하나로 모은다`() {
+	fun `split spellings of a brand collapse into one canonical form`() {
 		assertEquals("CU", Brands.canonical("씨유역삼점"))
 		assertEquals("CU", Brands.canonical("CU청담"))
 		assertEquals("GS25", Brands.canonical("지에스25학동"))
@@ -63,62 +63,62 @@ class BrandsTest {
 	}
 
 	@Test
-	fun `검색용 문자열엔 모든 표기가 들어간다`() {
+	fun `the search text contains every spelling`() {
 		val text = Brands.searchText("CU")
 		assertTrue("CU" in text && "씨유" in text, text)
 	}
 
 	@Test
-	fun `긴 표기가 짧은 표기보다 먼저 매칭된다`() {
+	fun `a longer alias matches before a shorter one`() {
 		assertEquals("매머드커피", Brands.canonical("매머드익스프레스역삼신한점"))
 		assertEquals("매머드커피", Brands.canonical("매머드커피강남대로점"))
 	}
 
 	@Test
-	fun `이름 앞에 와야 브랜드로 본다`() {
+	fun `only a leading alias counts as a brand`() {
 		assertNull(Brands.canonical("우리집CU앞분식"))
-		assertNull(Brands.canonical("행복한커피빈스토리"), "커피빈이 뒤에 있으면 아니다")
+		assertNull(Brands.canonical("행복한커피빈스토리"), "not a brand when the alias comes later in the name")
 	}
 
 	@Test
-	fun `공백과 대소문자는 무시한다`() {
+	fun `whitespace and letter case are ignored`() {
 		assertEquals("CU", Brands.canonical("cu 역삼"))
 		assertEquals("투썸플레이스", Brands.canonical("투썸 플레이스 강남"))
 	}
 
 	@Test
-	fun `복원분이 사전보다 우선이다`() {
+	fun `the recovered brand wins over the dictionary`() {
 		assertEquals("스타벅스", Brands.resolve("스타벅스", "씨유역삼점"))
 		assertEquals("CU", Brands.resolve(null, "씨유역삼점"))
-		assertEquals("CU", Brands.resolve("  ", "씨유역삼점"), "빈 문자열은 없는 것으로 본다")
+		assertEquals("CU", Brands.resolve("  ", "씨유역삼점"), "a blank string is treated as absent")
 	}
 
 	@Test
-	fun `브랜드가 아닌 가게는 null 이다`() {
+	fun `a place that is not a brand resolves to null`() {
 		assertNull(Brands.canonical("먹어도"))
 		assertNull(Brands.canonical("혼밥대왕"))
 		assertNull(Brands.canonical(""))
 	}
 
 	@Test
-	fun `지점명까지 이어 붙여 본다`() {
+	fun `the branch name is appended before matching`() {
 		assertEquals("CU", Brands.canonical("씨유", "역삼점"))
 	}
 
 	@Test
-	fun `이름이 이미 브랜드로 시작하면 라벨에 두 번 붙이지 않는다`() {
+	fun `a name already starting with the brand is not prefixed twice in the label`() {
 		assertEquals("CU역삼점", PlaceDocuments.label(row(name = "CU역삼점")))
 		assertEquals("씨유역삼점", PlaceDocuments.label(row(name = "씨유역삼점")))
 	}
 
 	@Test
-	fun `이름에서 빠져 있던 브랜드는 라벨 앞에 세운다`() {
+	fun `a brand missing from the name is put in front of the label`() {
 		assertEquals("스타벅스 신사역", PlaceDocuments.label(row(name = "신사역", brand = "스타벅스")))
 	}
 
 	@Test
-	fun `시드에 중복 표기가 없다`() {
+	fun `the seed has no duplicate spellings`() {
 		val all = Brands.aliases.values.flatten().map { it.replace(" ", "").lowercase() }
-		assertEquals(all.size, all.toSet().size, "중복 표기: ${all.groupBy { it }.filter { it.value.size > 1 }.keys}")
+		assertEquals(all.size, all.toSet().size, "duplicate spellings: ${all.groupBy { it }.filter { it.value.size > 1 }.keys}")
 	}
 }

@@ -11,15 +11,15 @@ import kotlin.test.assertTrue
 @EnabledIf("modelPresent")
 class EmbeddingModelTest {
 	@Test
-	fun `벡터는 384차원이고 길이가 1이다`() {
+	fun `the vector is 384 dimensional and unit length`() {
 		val v = model.embedQuery("강남 브런치 카페")
 		assertEquals(384, v.size)
 		val norm = Math.sqrt(v.sumOf { (it * it).toDouble() })
-		assertTrue(abs(norm - 1.0) < 1e-3, "정규화가 안 됨: |v| = $norm")
+		assertTrue(abs(norm - 1.0) < 1e-3, "not normalized: |v| = $norm")
 	}
 
 	@Test
-	fun `뜻이 가까운 장소가 먼 장소보다 점수가 높다`() {
+	fun `a semantically closer place scores higher than a distant one`() {
 		val q = model.embedQuery("회 먹을 데")
 		val (near, far) = model.embedPassages(
 			listOf(
@@ -29,21 +29,21 @@ class EmbeddingModelTest {
 		)
 		val nearScore = cosine(q, near)
 		val farScore = cosine(q, far)
-		assertTrue(nearScore > farScore, "횟집 $nearScore <= 필라테스 $farScore")
+		assertTrue(nearScore > farScore, "sashimi $nearScore <= pilates $farScore")
 	}
 
 	@Test
-	fun `같은 문장은 항상 같은 벡터가 된다`() {
+	fun `the same sentence always becomes the same vector`() {
 		assertTrue(model.embedQuery("스타벅스").contentEquals(model.embedQuery("스타벅스")))
 	}
 
 	@Test
-	fun `질의 접두어와 문서 접두어는 다른 벡터를 만든다`() {
+	fun `the query prefix and the passage prefix produce different vectors`() {
 		val asQuery = model.embedQuery("카페")
 		val asPassage = model.embedPassages(listOf("카페")).single()
 		assertTrue(!asQuery.contentEquals(asPassage))
 
-		assertTrue(cosine(asQuery, asPassage) > 0.8, "접두어만 다른데 뜻이 멀다: ${cosine(asQuery, asPassage)}")
+		assertTrue(cosine(asQuery, asPassage) > 0.8, "only the prefix differs but the meanings are far apart: ${cosine(asQuery, asPassage)}")
 	}
 
 	private fun cosine(a: FloatArray, b: FloatArray): Double =

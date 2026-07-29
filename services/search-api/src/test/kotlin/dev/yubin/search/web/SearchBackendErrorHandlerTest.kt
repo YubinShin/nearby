@@ -25,7 +25,7 @@ import kotlin.test.Test
 
 class SearchBackendErrorHandlerTest {
 	@Test
-	fun `ES 연결 실패는 500이 아니라 503으로 매핑된다`() {
+	fun `an ES connection failure maps to 503 rather than 500`() {
 		val client = clientThrowing(IOException("connection refused"))
 
 		client.get().uri("/v1/search?q=test")
@@ -36,7 +36,7 @@ class SearchBackendErrorHandlerTest {
 	}
 
 	@Test
-	fun `색인 전이라 별칭이 없으면 503으로 매핑된다`() {
+	fun `a missing alias before indexing maps to 503`() {
 		val notFound = ElasticsearchException(
 			"search",
 			ErrorResponse.of { r ->
@@ -53,8 +53,8 @@ class SearchBackendErrorHandlerTest {
 	}
 
 	@Test
-	fun `백엔드 예외를 감싼 예외도 원인을 따라가 503으로 매핑된다`() {
-		val client = clientThrowing(IllegalStateException("추론 실패", IOException("model file unreadable")))
+	fun `an exception wrapping a backend exception follows the cause and maps to 503`() {
+		val client = clientThrowing(IllegalStateException("inference failed", IOException("model file unreadable")))
 
 		client.get().uri("/v1/search?q=test")
 			.exchange()
@@ -64,7 +64,7 @@ class SearchBackendErrorHandlerTest {
 	}
 
 	@Test
-	fun `우리가 보낸 잘못된 쿼리로 인한 ES 4xx는 503으로 감춰지지 않는다`() {
+	fun `ES 4xx caused by a bad query we sent is not hidden behind 503`() {
 		val badRequest = ElasticsearchException(
 			"search",
 			ErrorResponse.of { r ->
@@ -79,8 +79,8 @@ class SearchBackendErrorHandlerTest {
 	}
 
 	@Test
-	fun `백엔드와 무관한 버그는 503으로 감춰지지 않고 500으로 드러난다`() {
-		val client = clientThrowing(IllegalStateException("null pointer 같은 진짜 버그"))
+	fun `a bug unrelated to the backend surfaces as 500 instead of hiding behind 503`() {
+		val client = clientThrowing(IllegalStateException("a real bug like a null pointer"))
 
 		client.get().uri("/v1/search?q=test")
 			.exchange()
@@ -88,7 +88,7 @@ class SearchBackendErrorHandlerTest {
 	}
 
 	@Test
-	fun `Qdrant 장애는 벡터 엔드포인트에서 qdrant 이름으로 503이 된다`() {
+	fun `a Qdrant outage becomes a 503 named qdrant on the vector endpoint`() {
 		val e = WebClientResponseException.create(503, "Service Unavailable", HttpHeaders.EMPTY, ByteArray(0), null)
 		val controller = VectorSearchController(ThrowingVectorService(e))
 		val client = WebTestClient.bindToController(controller)
