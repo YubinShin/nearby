@@ -349,7 +349,7 @@ ctx 에 적힌 새 인덱스 두 개를 고아로 판정해 삭제를 시도합�
   있는 인덱스는 어떤 경우에도 삭제 목록에 넣지 않습니다.
 
 ### #28 채널 보호막이 **취소 신호**까지 삼킨다 → Fixed (2026-07-28)
-`runChannel` 의 `catch (e: Exception)` (`HybridSearchService.kt:89`)은 부분 실패를 죽음 대신
+`runChannel` 의 `catch (e: Exception)` (`HybridSearchService.kt:92`)은 부분 실패를 죽음 대신
 `degraded: true` 로 승격시키는 좋은 장치입니다 — 문제는 `CancellationException` **까지** 잡는다는
 것. 코루틴에서 취소는 실패가 아니라 **예외의 탈을 쓴 제어 신호**라 다시 던져야 합니다.
 
@@ -365,6 +365,9 @@ ctx 에 적힌 새 인덱스 두 개를 고아로 판정해 삭제를 시도합�
   **유령 채널 실패**가 쌓이고, `finally` 의 타이머는 취소된 런을 지연 지표에 섞습니다.
 - **해결 (2026-07-28):** catch 첫 줄에 `if (e is CancellationException) throw e` — 취소는 다시
   던지고, 진짜 채널 실패만 `degraded` 로 승격합니다. 단위 테스트 36건 통과 확인.
+- **후속 (2026-07-29):** 취소 처리를 별도 `catch (e: CancellationException)` 절로 분리하고,
+  타이머를 `finally` 에서 `.also` 로 옮겼습니다. 취소된 런은 이제 지연 지표에 섞이지 않습니다.
+  단위 테스트 66건 통과 확인.
 - 같은 실험의 A/B 로 `runChannel` 의 효과도 확인: 보호막 안에서 던지면 200 + `degraded: true`,
   밖에서 던지면 형제 취소 + 500.
 
@@ -390,4 +393,4 @@ ctx 에 적힌 새 인덱스 두 개를 고아로 판정해 삭제를 시도합�
 | #22 브랜드 갱신 경로 이원화 · #23 인허가 원천 미사용 · #24 복원 결과 검토 불가 | Deferred (리뷰 신규) |
 | #26 Jackson 2/3 혼재로 `_source` 가 전부 빈 값 | Fixed (ADR 0011 실측에서 발견, 분리 이전부터 있던 버그) |
 | #27 실패 정리 리스너가 서빙 인덱스를 삭제 대상에 넣음 | Deferred — 신규 (디버거로 재현 — 삭제 근거를 도장이 아닌 alias 현실로) |
-| #28 채널 catch 가 취소 신호를 삼킴 | Fixed (catch 첫 줄 rethrow, 2026-07-28) |
+| #28 채널 catch 가 취소 신호를 삼킴 | Fixed (2026-07-28 rethrow, 2026-07-29 별도 catch 절 + 타이머 분리) |
