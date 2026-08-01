@@ -47,7 +47,8 @@ class PlaceVectorSearchService(
 		val wanted = (req.from + req.size).coerceAtLeast(MIN_CANDIDATES).coerceAtMost(MAX_FETCH)
 		val matches = metrics.stage(CHANNEL, "ann") { qdrant.query(alias, vector, wanted, filter) }
 
-		val floor = if (filter == null) minScore else NO_FLOOR
+		val narrowed = filter != null && narrowsCandidates(filter)
+		val floor = if (narrowed) NO_FLOOR else minScore
 		val passed = matches.filter { it.score >= floor }
 
 		val hits = passed.drop(req.from).take(req.size).map { toHit(it, req) }
@@ -65,6 +66,9 @@ class PlaceVectorSearchService(
 			hits = hits,
 		)
 	}
+
+	private suspend fun narrowsCandidates(filter: Map<String, Any?>): Boolean =
+		metrics.stage(CHANNEL, "narrow") { qdrant.narrows(alias, filter) }
 
 	private suspend fun embedQuery(q: String): FloatArray {
 		queryVectors[q]?.let { return it }
