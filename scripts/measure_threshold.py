@@ -35,7 +35,7 @@ def load_groups(path):
             current = stripped.strip("# =")
         elif stripped and not stripped.startswith("#"):
             if current is None:
-                sys.exit(f"{path}: 무더기 표시(# === REAL ===) 앞에 질의가 있다 — {stripped}")
+                sys.exit(f"{path}: 부류 표시(# === REAL ===) 앞에 질의가 있다 — {stripped}")
             groups[current].append(stripped)
     return groups
 

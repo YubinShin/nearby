@@ -48,10 +48,27 @@ class QdrantSearchStore(
 		}
 	}
 
+	suspend fun narrows(collection: String, filter: Map<String, Any?>): Boolean {
+		val body = mapOf(
+			"filter" to mapOf("must_not" to listOf(filter)),
+			"limit" to 1,
+			"with_payload" to false,
+			"with_vector" to false,
+		)
+		val resp = http.post().uri("/collections/{name}/points/scroll", collection)
+			.bodyValue(body)
+			.retrieve().awaitBody<ScrollResponse>()
+
+		return resp.result.points.isNotEmpty()
+	}
+
 	private companion object {
 		const val MAX_RESPONSE_BYTES = 16 * 1024 * 1024
 	}
 }
+
+internal data class ScrollResponse(val result: ScrollResult)
+internal data class ScrollResult(val points: List<Map<String, Any?>>)
 
 internal data class QueryResponse(val result: QueryResult)
 internal data class QueryResult(val points: List<ScoredPoint>)
