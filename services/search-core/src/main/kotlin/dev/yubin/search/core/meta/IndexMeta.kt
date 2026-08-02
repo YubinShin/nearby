@@ -1,7 +1,9 @@
 package dev.yubin.search.core.meta
 
 object IndexMeta {
-	const val SCHEMA_VERSION = 1
+	// 2: 중복 판정(place_duplicate)이 색인 대상에서 빠지기 시작한 판. 문서 모양은 그대로지만
+	//    수록 대상이 달라졌다 — 증분으로는 이미 색인된 중복 문서를 걷어내지 못한다.
+	const val SCHEMA_VERSION = 2
 
 	const val ES_INDEX = "psp_index_meta"
 

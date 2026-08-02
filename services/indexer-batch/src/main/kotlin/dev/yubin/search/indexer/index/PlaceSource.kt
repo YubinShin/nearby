@@ -12,13 +12,16 @@ object PlaceSql {
 		select p.place_id, p.name, p.branch, b.brand,
 		       p.category_large, p.category_mid, p.category_small,
 		       p.sido, p.sigungu, p.dong, p.jibun_address, p.road_address,
-		       p.lon, p.lat, p.updated_at, p.deleted_at
+		       p.lon, p.lat, p.updated_at, p.deleted_at, d.survivor_id
 		from public.place p
 		left join public.place_brand b using (place_id)
+		left join public.place_duplicate d using (place_id)
 	""".trimIndent()
 
-	val SELECT_ALL = "$SELECT_BASE\nwhere p.deleted_at is null\norder by p.place_id"
+	// 전체 재색인은 빈 인덱스에 쌓으므로 지울 것이 없다 — 소프트 삭제와 마찬가지로 아예 안 읽는다.
+	val SELECT_ALL = "$SELECT_BASE\nwhere p.deleted_at is null and d.place_id is null\norder by p.place_id"
 
+	// 증분은 살아 있는 인덱스에 덧쓴다. 중복으로 판정된 행도 읽어야 이미 들어간 문서를 지운다.
 	val SELECT_SINCE = "$SELECT_BASE\nwhere p.updated_at > ?\norder by p.place_id"
 
 	const val SELECT_MAX_UPDATED_AT = "select updated_at from public.place order by updated_at desc limit 1"
@@ -42,6 +45,7 @@ object PlaceRowMapper : RowMapper<PlaceRow> {
 		lat = rs.nullableDouble("lat"),
 		updatedAt = rs.getObject("updated_at", OffsetDateTime::class.java),
 		deletedAt = rs.getObject("deleted_at", OffsetDateTime::class.java),
+		duplicateOf = rs.getString("survivor_id"),
 	)
 
 	private fun ResultSet.nullableDouble(column: String): Double? =
