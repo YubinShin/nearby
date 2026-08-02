@@ -20,4 +20,7 @@ data class PlaceRow(
 	val lat: Double?,
 	val updatedAt: OffsetDateTime,
 	val deletedAt: OffsetDateTime?,
-)
+	val duplicateOf: String? = null,
+) {
+	val indexable: Boolean get() = deletedAt == null && duplicateOf == null
+}

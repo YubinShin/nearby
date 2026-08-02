@@ -37,5 +37,5 @@ open class KeywordBulkWriter(
 	}
 
 	private fun action(row: PlaceRow, doc: (PlaceRow) -> Map<String, Any?>): BulkAction =
-		if (row.deletedAt != null) BulkAction.Delete(row.placeId) else BulkAction.Upsert(row.placeId, doc(row))
+		if (row.indexable) BulkAction.Upsert(row.placeId, doc(row)) else BulkAction.Delete(row.placeId)
 }

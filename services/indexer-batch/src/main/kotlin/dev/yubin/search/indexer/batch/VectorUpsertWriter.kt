@@ -28,7 +28,7 @@ open class VectorUpsertWriter(
 		val rows = chunk.items
 		if (rows.isEmpty()) return
 
-		val (alive, dead) = rows.partition { it.deletedAt == null }
+		val (alive, dead) = rows.partition { it.indexable }
 
 		var embedNanos = 0L
 		alive.chunked(embedBatch).forEach { batch ->
