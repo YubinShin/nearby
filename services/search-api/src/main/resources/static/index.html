@@ -3,7 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>place-search-platform — 세 채널 비교</title>
+<title>Nearby — 세 채널 비교</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+	integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin="">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+	integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin=""></script>
 <style>
 	/*
 	 * 검색 데모가 아니라 **비교 도구**다.
@@ -72,9 +76,44 @@
 	.chip:hover { border-color: var(--ink); color: var(--ink); }
 	.chip small { opacity: .7; margin-left: 5px; }
 
+	/* ---- 무대: 왼쪽 3열 + 오른쪽 붙박이 지도 ---- */
+	.stage {
+		--stageh: min(620px, calc(100vh - 150px));
+		display: grid; grid-template-columns: minmax(0, 1fr) 420px; gap: 14px; align-items: start;
+	}
+	@media (max-width: 1100px) { .stage { grid-template-columns: 1fr; --stageh: 420px; } }
+
+	/* ---- 지도 ---- */
+	.mapwrap { overflow: hidden; position: sticky; top: 14px; }
+	.maphead { padding: 11px 13px; border-bottom: 1px solid var(--line); font-size: 14px; }
+	.maphead .sub { display: block; margin-top: 3px; font-weight: 400; font-size: 12px; color: var(--dim); }
+	.maplegend { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+	.mapkey {
+		cursor: pointer; font-size: 12px; padding: 3px 9px; border-radius: 999px;
+		border: 1px solid var(--line); background: transparent; color: var(--ink);
+		display: inline-flex; align-items: center; gap: 5px; font-variant-numeric: tabular-nums;
+	}
+	.mapkey:not(.on) { opacity: .4; }
+	.ghostn { color: var(--dim); margin-left: 3px; }
+	#map { height: var(--stageh); background: var(--bg); }
+	.leaflet-container { font: inherit; background: var(--bg); }
+	.leaflet-popup-content { margin: 9px 12px; line-height: 1.5; }
+	.leaflet-popup-content em { font-style: normal; font-size: 12px; color: var(--dim); }
+	@media (prefers-color-scheme: dark) {
+		.leaflet-popup-content-wrapper, .leaflet-popup-tip { background: var(--panel); color: var(--ink); }
+		.leaflet-control-zoom a { background: var(--panel); color: var(--ink); border-color: var(--line); }
+		.leaflet-control-attribution { background: rgba(31,31,35,.75); color: var(--dim); }
+		.leaflet-control-attribution a { color: var(--dim); }
+	}
+
 	/* ---- 결과 3열 ---- */
-	.cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; align-items: start; }
-	@media (max-width: 900px) { .cols { grid-template-columns: 1fr; } }
+	.cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: start; }
+	@media (max-width: 700px) { .cols { grid-template-columns: 1fr; } }
+
+	/* 결과 수가 채널마다 달라도 세 칼럼이 나란히 유지되도록 높이를 지도에 맞추고 각자 스크롤한다. */
+	.col { display: flex; flex-direction: column; height: var(--stageh); }
+	.col > h2 { flex: none; }
+	.col > div { flex: 1; overflow-y: auto; min-height: 0; }
 
 	.col > h2 {
 		display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
@@ -88,8 +127,19 @@
 	h2 .sub { font-weight: 400; font-size: 12px; color: var(--dim); }
 
 	.hits { list-style: none; margin: 0; padding: 0; }
-	.hit { padding: 10px 13px; border-bottom: 1px solid var(--line); }
+	.hit {
+		padding: 10px 13px; border-bottom: 1px solid var(--line);
+		display: grid; grid-template-columns: 18px minmax(0, 1fr); column-gap: 8px;
+	}
+	.hit > :not(.rank) { grid-column: 2; }
+	.hit .rank { grid-column: 1; grid-row: 1; align-self: start; color: var(--dim); font-size: 12px; text-align: right; font-variant-numeric: tabular-nums; }
 	.hit:last-child { border-bottom: 0; }
+	/* 같은 가게가 세 칼럼에 동시에 켜진다 — '이걸 어느 채널이 찾았나' 가 한 번에 보인다.
+	   강조선 색은 그 칼럼의 채널 색이라 지도 마커 색과 바로 이어진다. */
+	.hit.on { background: color-mix(in srgb, var(--ink) 8%, transparent); }
+	.col[data-c="keyword"] .hit.on { box-shadow: inset 3px 0 0 var(--kw); }
+	.col[data-c="vector"] .hit.on { box-shadow: inset 3px 0 0 var(--vec); }
+	.col[data-c="hybrid"] .hit.on { box-shadow: inset 3px 0 0 var(--hyb); }
 	.hit .name { font-weight: 600; }
 	/* 상호명에서 빠져 있던 브랜드를 복원한 표시. 이게 없으면 '스타벅스' 검색 결과가
 	   '개포동'으로만 보여서 맞는 결과인데 틀린 것처럼 읽힌다. */
@@ -120,7 +170,7 @@
 <div class="wrap">
 
 <header>
-	<h1>place-search-platform — 세 채널 비교</h1>
+	<h1>Nearby — 세 채널 비교</h1>
 	<p>같은 질의를 <b>글자 검색</b>·<b>뜻 검색</b>·<b>둘을 합친 것</b>에 동시에 던져 나란히 봅니다. 강남구 상가정보 64,239건.</p>
 </header>
 
@@ -154,7 +204,8 @@
 	<div class="row chips" id="chips"><b>실측에서 나온 예시</b></div>
 </form>
 
-<div class="cols">
+<div class="stage">
+<div class="cols" id="cols">
 	<section class="panel col" data-c="keyword">
 		<h2><span class="dot"></span>키워드 <span class="sub">글자</span><span class="meta" id="m-keyword">–</span></h2>
 		<div id="r-keyword"><p class="note">검색어를 입력하세요.</p></div>
@@ -167,6 +218,15 @@
 		<h2><span class="dot"></span>하이브리드 <span class="sub">RRF 결합</span><span class="meta" id="m-hybrid">–</span></h2>
 		<div id="r-hybrid"><p class="note">–</p></div>
 	</section>
+</div>
+
+<section class="panel mapwrap" id="mapwrap">
+	<div class="maphead">
+		지도 <span class="sub">실선은 그 채널의 상위 10개, 점선은 하이브리드가 올렸지만 그 채널에선 10위 밖이던 가게예요. 원이 겹치면 여러 채널이 같은 가게를 찾은 겁니다</span>
+		<span class="maplegend" id="maplegend"></span>
+	</div>
+	<div id="map"></div>
+</section>
 </div>
 
 <footer>
@@ -256,8 +316,9 @@ function renderHits(channel, body) {
 			? "문턱(0.84)을 넘은 결과가 없어요."
 			: "글자가 겹치는 문서가 없어요."}</p>`;
 	}
-	return `<ul class="hits">` + hits.map((h) => `
-		<li class="hit">
+	return `<ul class="hits">` + hits.map((h, i) => `
+		<li class="hit" data-place="${esc(h.placeId)}">
+			<span class="rank">${i + 1}</span>
 			<div class="name">${brandBadge(h)}${esc(h.name)}${h.branch ? `<em>${esc(h.branch)}</em>` : ""}</div>
 			<div class="cat">${esc(h.category ?? "–")} · ${esc(h.dong ?? h.sigungu ?? "–")}${
 				h.distanceM != null ? ` · ${h.distanceM}m` : ""}</div>
@@ -289,6 +350,205 @@ function renderChannel(channel, result) {
 	box.innerHTML = head + renderHits(channel, body);
 }
 
+/*
+ * 지도 — 세 채널 결과를 한 화면에 겹친다.
+ * 3열 목록으로는 '벡터가 키워드보다 멀리서 끌어온다' 같은 공간적 차이가 안 보인다.
+ * 채널마다 반지름을 다르게 줘서, 같은 가게를 여러 채널이 찾으면 과녁처럼 겹쳐 보이게 했다.
+ */
+const CHANNELS = ["keyword", "vector", "hybrid"];
+const CH = {
+	keyword: { label: "키워드", color: "#2563eb", r: 9, fill: .10 },
+	vector: { label: "벡터", color: "#9333ea", r: 6, fill: .18 },
+	hybrid: { label: "하이브리드", color: "#059669", r: 3.5, fill: .95 },
+};
+const GANGNAM = [37.4973, 127.0684];
+
+let map = null, refLayer = null;
+const layers = {};
+
+/*
+ * 지도와 목록을 place_id 로 묶는다.
+ * 이게 없으면 목록의 '카페808' 이 지도의 어느 점인지 팝업을 하나씩 열어 확인하는 수밖에 없다.
+ * 같은 가게가 세 칼럼에 동시에 켜지므로 '어느 채널이 이걸 찾았나' 도 같이 드러난다.
+ */
+let markersByPlace = {}, focusedPlace = null, hoveredPlace = null;
+
+const hitsOf = (placeId) => document.querySelectorAll(`.hit[data-place="${CSS.escape(placeId)}"]`);
+
+function paint(placeId, on) {
+	for (const m of markersByPlace[placeId] || []) {
+		m.setStyle({ weight: on ? m._w + 3 : m._w });
+		if (on) m.bringToFront();
+	}
+	for (const el of hitsOf(placeId)) el.classList.toggle("on", on);
+}
+
+/*
+ * 켜진 곳을 한 군데만 기억한다.
+ * mouseover 에 짝이 되는 mouseout 이 항상 오지는 않는다 — 목록 DOM 이 커서 아래에서 통째로
+ * 교체되면 나가는 이벤트 없이 들어오는 이벤트만 온다. 새로 켤 때 이전 것을 끄면 스스로 교정된다.
+ */
+function setHover(placeId) {
+	if (hoveredPlace === placeId) return;
+	if (hoveredPlace && hoveredPlace !== focusedPlace) paint(hoveredPlace, false);
+	hoveredPlace = placeId;
+	if (placeId && placeId !== focusedPlace) paint(placeId, true);
+}
+
+function focusPlace(placeId) {
+	if (focusedPlace && focusedPlace !== placeId) paint(focusedPlace, false);
+	focusedPlace = placeId;
+	paint(placeId, true);
+	for (const el of hitsOf(placeId)) el.scrollIntoView({ block: "nearest" });
+}
+
+function marker(latlng, style, placeId, html) {
+	const m = L.circleMarker(latlng, style).bindPopup(html);
+	m._w = style.weight;
+	m.on("mouseover", () => setHover(placeId));
+	m.on("mouseout", () => setHover(null));
+	m.on("click", () => focusPlace(placeId));
+	(markersByPlace[placeId] ??= []).push(m);
+	return m;
+}
+
+function initMap() {
+	if (map || typeof L === "undefined") return map;
+	map = L.map("map", { scrollWheelZoom: false }).setView(GANGNAM, 13);
+	const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+	L.tileLayer(`https://{s}.basemaps.cartocdn.com/${dark ? "dark" : "light"}_all/{z}/{x}/{y}{r}.png`, {
+		subdomains: "abcd", maxZoom: 19,
+		attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+	}).addTo(map);
+	// 페이지를 스크롤하다 지도 위에서 멋대로 확대되는 걸 막는다. 지도를 한 번 누르면 켜진다.
+	map.on("click", () => map.scrollWheelZoom.enable());
+	map.on("mouseout", () => map.scrollWheelZoom.disable());
+	for (const c of CHANNELS) layers[c] = L.layerGroup().addTo(map);
+	refLayer = L.layerGroup().addTo(map);
+	addEventListener("resize", () => map.invalidateSize());
+	return map;
+}
+
+function popup(channel, h, rank, score, note) {
+	const cfg = CH[channel];
+	const sub = [h.category, h.dong ?? h.sigungu].filter(Boolean).map(esc).join(" · ");
+	return `<b>${brandBadge(h)}${esc(h.name)}</b>${h.branch ? ` <em>${esc(h.branch)}</em>` : ""}` +
+		(sub ? `<br>${sub}` : "") +
+		`<br><span style="color:${cfg.color};font-weight:600">${cfg.label} #${rank}</span>` +
+		` · score ${num(score, channel === "keyword" ? 1 : 3)}` +
+		(note ? ` · ${note}` : "") +
+		(h.distanceM != null ? ` · ${h.distanceM}m` : "");
+}
+
+function plotChannel(channel, body, pts, plotted) {
+	const cfg = CH[channel], g = layers[channel];
+	g.clearLayers();
+	let n = 0;
+	(body.hits || []).forEach((h, i) => {
+		if (h.lat == null || h.lon == null) return;
+		marker([h.lat, h.lon], {
+			radius: cfg.r, color: cfg.color, weight: 2, opacity: .9,
+			fillColor: cfg.color, fillOpacity: cfg.fill,
+		}, h.placeId, popup(channel, h, i + 1, h.score)).addTo(g);
+		pts.push([h.lat, h.lon]);
+		plotted.add(h.placeId);
+		n++;
+	});
+	return n;
+}
+
+/*
+ * 하이브리드가 본 순위로 지도를 보강한다.
+ * 각 채널 레이어는 자기 top-N 만 그리는데 하이브리드는 채널당 후보 50건을 보고 판단한다.
+ * 그래서 'KW #2 · VEC #36 · 두 채널 합의' 인 결과가 지도에선 링 하나로만 보여, 배지와 지도가
+ * 서로 다른 말을 하게 된다. 화면 밖 순위를 점선 링으로 덧그려 둘을 같은 말로 맞춘다.
+ */
+function plotGhosts(body, plotted, pts) {
+	const ghosts = {};
+	for (const h of body.hits || []) {
+		if (h.lat == null || h.lon == null) continue;
+		for (const c of ["keyword", "vector"]) {
+			const rank = h.ranks?.[c];
+			if (rank == null || plotted[c].has(h.placeId)) continue;
+			const cfg = CH[c];
+			marker([h.lat, h.lon], {
+				radius: cfg.r, color: cfg.color, weight: 1.5, opacity: .9,
+				dashArray: "3 3", fill: false,
+			}, h.placeId, popup(c, h, rank, h.scores?.[c], "하이브리드가 올린 가게")).addTo(layers[c]);
+			pts.push([h.lat, h.lon]);
+			ghosts[c] = (ghosts[c] ?? 0) + 1;
+		}
+	}
+	return ghosts;
+}
+
+/** 기준점과 반경 원. 반경 필터가 실제로 얼마나 넓은지는 숫자보다 원을 봐야 안다. */
+function plotRef(pts) {
+	refLayer.clearLayers();
+	const geo = $("geo").value;
+	if (!geo) return;
+	const [lat, lon] = geo.split(",").map(Number);
+	const radius = Number($("radius").value || 500);
+	const circle = L.circle([lat, lon], { radius, color: "#6b6b73", weight: 1, dashArray: "4 4", fillOpacity: .05 }).addTo(refLayer);
+	L.circleMarker([lat, lon], { radius: 4, color: "#6b6b73", weight: 2, fillColor: "#fff", fillOpacity: 1 })
+		.bindPopup(`기준점 · 반경 ${radius}m`).addTo(refLayer);
+	const b = circle.getBounds();
+	pts.push([b.getNorth(), b.getEast()], [b.getSouth(), b.getWest()]);
+}
+
+function renderLegend(counts, ghosts = {}) {
+	const box = $("maplegend");
+	box.innerHTML = CHANNELS.map((c) =>
+		`<button type="button" class="mapkey on" data-c="${c}" style="border-color:${CH[c].color}">
+			<span class="dot" style="background:${CH[c].color}"></span>${CH[c].label} ${counts[c] ?? 0}${
+				ghosts[c] ? `<span class="ghostn">+${ghosts[c]}</span>` : ""}
+		</button>`).join("");
+	box.querySelectorAll(".mapkey").forEach((el) => {
+		el.onclick = () => {
+			const c = el.dataset.c;
+			if (el.classList.toggle("on")) layers[c].addTo(map);
+			else map.removeLayer(layers[c]);
+		};
+	});
+}
+
+function renderMap(results) {
+	if (!initMap()) return;
+	// Leaflet 은 컨테이너 크기를 캐시한다. 창이 바뀐 뒤면 stale 값으로 fitBounds 가 계산돼
+	// 결과가 한쪽 구석에 뭉친 채 확대가 덜 된다.
+	map.invalidateSize();
+	markersByPlace = {};
+	focusedPlace = hoveredPlace = null;
+	for (const el of document.querySelectorAll(".hit.on")) el.classList.remove("on");
+	const pts = [], counts = {}, plotted = {};
+	CHANNELS.forEach((c, i) => {
+		const r = results[i];
+		plotted[c] = new Set();
+		if (r.status === "fulfilled") counts[c] = plotChannel(c, r.value.body, pts, plotted[c]);
+		else { layers[c].clearLayers(); counts[c] = 0; }
+	});
+	// 세 채널을 다 그린 뒤라야 어느 가게가 이미 실선으로 있는지 알 수 있다.
+	const hyb = results[CHANNELS.indexOf("hybrid")];
+	const ghosts = hyb.status === "fulfilled" ? plotGhosts(hyb.value.body, plotted, pts) : {};
+	plotRef(pts);
+	if (pts.length) map.fitBounds(L.latLngBounds(pts).pad(.15), { maxZoom: 17 });
+	renderLegend(counts, ghosts);
+}
+
+$("cols").addEventListener("mouseover", (e) => {
+	const el = e.target.closest(".hit");
+	if (el) setHover(el.dataset.place);
+});
+$("cols").addEventListener("mouseleave", () => setHover(null));
+
+if (initMap()) {
+	renderLegend({});
+} else {
+	// 타일도 스크립트도 외부에서 받는다. 못 받으면 지도만 접고 목록 비교는 그대로 살린다.
+	$("map").style.height = "auto";
+	$("map").innerHTML = `<p class="note">지도를 불러오지 못했어요 — 오프라인이거나 CDN이 막혀 있어요. 아래 목록 비교는 그대로 됩니다.</p>`;
+}
+
 async function search() {
 	const q = $("q").value.trim();
 	if (!q) return;
@@ -305,6 +565,7 @@ async function search() {
 		call("/v1/search", p), call("/v1/vsearch", p), call("/v1/hsearch", p),
 	]);
 	["keyword", "vector", "hybrid"].forEach((c, i) => renderChannel(c, results[i]));
+	renderMap(results);
 
 	if (results.every((r) => r.status === "rejected")) {
 		$("banner").textContent = "세 채널 모두 실패했어요. 앱이 떠 있는지 확인해 주세요 (./gradlew bootRun).";
