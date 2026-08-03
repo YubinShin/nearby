@@ -3,6 +3,7 @@
 > **키워드 · 벡터 · 하이브리드 검색을 한 플랫폼에서.**
 > 여러 서비스가 공통으로 쓰도록 설계한 지역 검색·추천 플랫폼입니다.
 
+[![build](https://github.com/YubinShin/nearby/actions/workflows/build.yml/badge.svg)](https://github.com/YubinShin/nearby/actions/workflows/build.yml)
 ![Kotlin](https://img.shields.io/badge/Kotlin-JVM%2021-7F52FF?logo=kotlin&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4-6DB33F?logo=springboot&logoColor=white)
 ![Elasticsearch](https://img.shields.io/badge/Elasticsearch-9.4.2-005571?logo=elasticsearch&logoColor=white)

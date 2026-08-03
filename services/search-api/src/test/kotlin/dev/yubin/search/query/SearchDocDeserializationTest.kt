@@ -4,6 +4,7 @@ import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient
 import co.elastic.clients.elasticsearch.ElasticsearchClient
 import co.elastic.clients.json.JsonpMapper
 import dev.yubin.search.core.place.SearchDoc
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -11,6 +12,7 @@ import java.io.ByteArrayInputStream
 import kotlin.test.assertEquals
 import kotlin.test.assertSame
 
+@Tag("infra")
 @SpringBootTest
 class SearchDocDeserializationTest {
 	@Autowired

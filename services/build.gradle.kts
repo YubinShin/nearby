@@ -25,7 +25,9 @@ subprojects {
 			}
 		}
 		tasks.withType<Test> {
-			useJUnitPlatform()
+			useJUnitPlatform {
+				if (System.getenv("CI") != null) excludeTags("infra")
+			}
 		}
 	}
 }

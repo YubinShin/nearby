@@ -1,0 +1,35 @@
+name: build
+
+# GitHub Actions 가 CI=true 를 넣으므로 @Tag("infra") 테스트(ES·Qdrant·PostGIS 가
+# 살아 있어야 뜨는 Spring 컨텍스트 3종)는 제외된다 — services/build.gradle.kts 참조.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: KOMORAN 분석 플러그인
+        working-directory: es-analysis-komoran
+        run: ./gradlew pluginZip
+
+      - name: services 빌드·테스트
+        working-directory: services
+        run: ./gradlew build
