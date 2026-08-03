@@ -1,6 +1,6 @@
 package dev.yubin.search.hybrid
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient
+import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient
 import dev.yubin.search.core.embed.EmbeddingModel
 import dev.yubin.search.observability.QueryMetrics
 import dev.yubin.search.query.PlaceHit
@@ -136,7 +136,7 @@ class HybridSearchServiceTest {
 		private val result: (SearchRequest) -> SearchResponse,
 		private val lookup: (List<String>) -> Map<String, PlaceHit>,
 	) : PlaceSearchService(
-		Mockito.mock(ElasticsearchClient::class.java),
+		Mockito.mock(ElasticsearchAsyncClient::class.java),
 		QueryMetrics(SimpleMeterRegistry()),
 		QueryLog(),
 		"test",

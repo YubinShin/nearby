@@ -1,6 +1,6 @@
 package dev.yubin.search.web
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient
+import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient
 import co.elastic.clients.elasticsearch._types.ElasticsearchException
 import co.elastic.clients.elasticsearch._types.ErrorResponse
 import dev.yubin.search.core.embed.EmbeddingModel
@@ -106,7 +106,7 @@ class SearchBackendErrorHandlerTest {
 		val controller = SearchController(
 			searchService = ThrowingSearchService(exception),
 			suggestService = PlaceSuggestService(
-				Mockito.mock(ElasticsearchClient::class.java),
+				Mockito.mock(ElasticsearchAsyncClient::class.java),
 				QueryMetrics(SimpleMeterRegistry()),
 				QueryLog(),
 				"test",
@@ -118,7 +118,7 @@ class SearchBackendErrorHandlerTest {
 	}
 
 	private class ThrowingSearchService(private val exception: Throwable) : PlaceSearchService(
-		Mockito.mock(ElasticsearchClient::class.java),
+		Mockito.mock(ElasticsearchAsyncClient::class.java),
 		QueryMetrics(SimpleMeterRegistry()),
 		QueryLog(),
 		"test",

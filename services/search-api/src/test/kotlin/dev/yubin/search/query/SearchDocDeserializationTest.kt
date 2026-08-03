@@ -1,5 +1,6 @@
 package dev.yubin.search.query
 
+import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient
 import co.elastic.clients.elasticsearch.ElasticsearchClient
 import co.elastic.clients.json.JsonpMapper
 import dev.yubin.search.core.place.SearchDoc
@@ -8,11 +9,15 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import java.io.ByteArrayInputStream
 import kotlin.test.assertEquals
+import kotlin.test.assertSame
 
 @SpringBootTest
 class SearchDocDeserializationTest {
 	@Autowired
 	private lateinit var es: ElasticsearchClient
+
+	@Autowired
+	private lateinit var esAsync: ElasticsearchAsyncClient
 
 	@Test
 	fun `_source is deserialized into SearchDoc`() {
@@ -45,5 +50,11 @@ class SearchDocDeserializationTest {
 		assertEquals("선릉역점", doc.branch)
 		assertEquals("강남구", doc.sigungu)
 		assertEquals(37.505079192706, doc.location?.lat)
+	}
+
+	@Test
+	fun `async client shares the transport and JsonpMapper of the sync client`() {
+		assertSame(es._transport(), esAsync._transport())
+		assertSame(es._jsonpMapper(), esAsync._jsonpMapper())
 	}
 }

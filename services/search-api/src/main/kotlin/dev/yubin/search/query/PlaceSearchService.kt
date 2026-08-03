@@ -1,7 +1,7 @@
 package dev.yubin.search.query
 
 import dev.yubin.search.core.place.SearchDoc
-import co.elastic.clients.elasticsearch.ElasticsearchClient
+import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient
 import co.elastic.clients.elasticsearch._types.DistanceUnit
 import co.elastic.clients.elasticsearch._types.SortOrder
 import co.elastic.clients.elasticsearch._types.query_dsl.Query
@@ -10,15 +10,14 @@ import co.elastic.clients.elasticsearch.core.search.Highlight
 import co.elastic.clients.elasticsearch.core.search.HighlightField
 import co.elastic.clients.util.NamedValue
 import dev.yubin.search.observability.QueryMetrics
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.future.await
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import kotlin.math.roundToLong
 
 @Service
 class PlaceSearchService(
-	private val es: ElasticsearchClient,
+	private val es: ElasticsearchAsyncClient,
 	private val metrics: QueryMetrics,
 	private val queryLog: QueryLog,
 	@Value("\${psp.index.search-alias}") private val alias: String,
@@ -35,58 +34,55 @@ class PlaceSearchService(
 		result
 	}
 
-	private suspend fun execute(req: SearchRequest, query: Query, relaxed: Boolean): SearchResponse =
-		withContext(Dispatchers.IO) {
-			val resp: EsSearchResponse<SearchDoc> = es.search({ s ->
-				s.index(alias)
-					.query(query)
-					.from(req.from)
-					.size(req.size)
-					.trackTotalHits { t -> t.enabled(true) }
-					.highlight(HIGHLIGHT)
-				if (req.sort == SortBy.DISTANCE) {
-					s.sort { so ->
-						so.geoDistance { g ->
-							g.field("location")
-								.location(PlaceQueries.geoPoint(req.lat!!, req.lon!!))
-								.order(SortOrder.Asc)
-								.unit(DistanceUnit.Meters)
-						}
+	private suspend fun execute(req: SearchRequest, query: Query, relaxed: Boolean): SearchResponse {
+		val resp: EsSearchResponse<SearchDoc> = es.search({ s ->
+			s.index(alias)
+				.query(query)
+				.from(req.from)
+				.size(req.size)
+				.trackTotalHits { t -> t.enabled(true) }
+				.highlight(HIGHLIGHT)
+			if (req.sort == SortBy.DISTANCE) {
+				s.sort { so ->
+					so.geoDistance { g ->
+						g.field("location")
+							.location(PlaceQueries.geoPoint(req.lat!!, req.lon!!))
+							.order(SortOrder.Asc)
+							.unit(DistanceUnit.Meters)
 					}
 				}
-				s
-			}, SearchDoc::class.java)
+			}
+			s
+		}, SearchDoc::class.java).await()
 
-			SearchResponse(
-				query = req.q,
-				total = resp.hits().total()?.value() ?: 0,
-				page = req.page,
-				size = req.size,
-				tookMs = resp.took(),
-				relaxed = relaxed,
-				hits = resp.hits().hits().mapNotNull { h ->
-					h.source()?.let { doc ->
-						toHit(
-							doc = doc,
-							score = h.score() ?: 0.0,
+		return SearchResponse(
+			query = req.q,
+			total = resp.hits().total()?.value() ?: 0,
+			page = req.page,
+			size = req.size,
+			tookMs = resp.took(),
+			relaxed = relaxed,
+			hits = resp.hits().hits().mapNotNull { h ->
+				h.source()?.let { doc ->
+					toHit(
+						doc = doc,
+						score = h.score() ?: 0.0,
 
-							distanceM = h.sort().firstOrNull()?.doubleValue()?.roundToLong()
-								?.takeIf { req.sort == SortBy.DISTANCE },
-							highlight = h.highlight().values.flatten(),
-						)
-					}
-				},
-			)
-		}
+						distanceM = h.sort().firstOrNull()?.doubleValue()?.roundToLong()
+							?.takeIf { req.sort == SortBy.DISTANCE },
+						highlight = h.highlight().values.flatten(),
+					)
+				}
+			},
+		)
+	}
 
 	suspend fun byIds(ids: List<String>): Map<String, PlaceHit> {
 		if (ids.isEmpty()) return emptyMap()
-		return withContext(Dispatchers.IO) {
-			es.mget({ m -> m.index(alias).ids(ids) }, SearchDoc::class.java)
-				.docs()
-				.mapNotNull { item -> item.takeIf { it.isResult }?.result()?.source() }
-				.associate { doc -> doc.place_id to toHit(doc, score = 0.0) }
-		}
+		return es.mget({ m -> m.index(alias).ids(ids) }, SearchDoc::class.java).await()
+			.docs()
+			.mapNotNull { item -> item.takeIf { it.isResult }?.result()?.source() }
+			.associate { doc -> doc.place_id to toHit(doc, score = 0.0) }
 	}
 
 	private fun toHit(
