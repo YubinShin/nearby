@@ -46,7 +46,7 @@ class VectorIndexJobConfig(
 	@Value("\${psp.vector.batch-size}") private val chunkSize: Int,
 	@Value("\${psp.embedding.batch-size}") private val embedBatch: Int,
 	@Value("\${psp.index.fetch-size}") private val fetchSize: Int,
-	@Value("\${psp.index.keep-versions:2}") private val keepVersions: Int,
+	@Value("\${psp.index.keep-versions}") private val keepVersions: Int,
 ) {
 	@Bean
 	fun vectorRebuildJob(): Job =

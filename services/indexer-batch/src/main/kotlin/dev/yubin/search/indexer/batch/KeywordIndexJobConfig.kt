@@ -43,7 +43,7 @@ class KeywordIndexJobConfig(
 	@Value("\${psp.index.suggest-alias}") private val suggestAlias: String,
 	@Value("\${psp.index.batch-size}") private val chunkSize: Int,
 	@Value("\${psp.index.fetch-size}") private val fetchSize: Int,
-	@Value("\${psp.index.keep-versions:2}") private val keepVersions: Int,
+	@Value("\${psp.index.keep-versions}") private val keepVersions: Int,
 ) {
 	@Bean
 	fun keywordRebuildJob(): Job =

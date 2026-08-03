@@ -25,7 +25,7 @@ class AdminController(
 	private val admin: IndexAdminService,
 	@Value("\${psp.index.search-alias}") private val searchAlias: String,
 	@Value("\${psp.index.suggest-alias}") private val suggestAlias: String,
-	@Value("\${psp.index.keep-versions:2}") private val keepVersions: Int,
+	@Value("\${psp.index.keep-versions}") private val keepVersions: Int,
 ) {
 	@PostMapping("/reindex")
 	@ResponseStatus(HttpStatus.ACCEPTED)

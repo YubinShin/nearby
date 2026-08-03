@@ -23,7 +23,7 @@ class VectorAdminController(
 	private val jobs: IndexJobService,
 	private val qdrant: QdrantIndexStore,
 	@Value("\${psp.vector.alias}") private val alias: String,
-	@Value("\${psp.index.keep-versions:2}") private val keepVersions: Int,
+	@Value("\${psp.index.keep-versions}") private val keepVersions: Int,
 ) {
 	@PostMapping("/reindex")
 	@ResponseStatus(HttpStatus.ACCEPTED)
