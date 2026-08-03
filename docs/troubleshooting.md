@@ -35,8 +35,12 @@ until wget -q -O /dev/null \
   "$SPRING_ELASTICSEARCH_URIS/_cluster/health?wait_for_status=yellow&timeout=5s"
 ```
 
-- **`yellow` 가 정상입니다.** 단일 노드는 복제본이 배정되지 않아 `green` 이 될 수 없습니다.
-  `green` 을 기다리면 영원히 안 끝납니다.
+- **`yellow` 가 정상입니다.** `green` 을 기다리면 영원히 안 끝납니다.
+  단일 노드라서가 아니라 **레플리카를 요구하는 인덱스가 섞여 있어서**입니다. ES 는 레플리카를
+  프라이머리와 같은 노드에 두지 않으므로, 노드가 하나면 그 샤드가 계속 `UNASSIGNED` 로 남습니다.
+  `place_search_*` · `place_suggest_*` 는 `es/place_search.json` 이 `replicas: 0` 을 지정해
+  단일 노드에서도 green 입니다. 클러스터를 yellow 로 만드는 것은 매핑 파일 없이
+  **ES 가 암묵 생성**해 기본값(replicas=1)을 받은 `psp_index_meta` · `psp_index_checkpoint` 둘입니다.
 - `wait_for_status` 가 **ES 쪽에서 블록**해 주므로 폴링이 촘촘할 필요가 없습니다.
 
 ### 주소를 initContainer 에 하드코딩하지 않는 이유
