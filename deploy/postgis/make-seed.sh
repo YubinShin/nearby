@@ -3,7 +3,7 @@
 #
 #   전제:  로컬 스택 기동 + 적재 완료 (deploy/up.sh, scripts/load_*.sh)
 #   실행:  ./deploy/postgis/make-seed.sh
-#   결과:  deploy/postgis/seed.sql.gz  (약 3.6MB, git 에는 안 올라감)
+#   결과:  deploy/postgis/seed.sql.gz  (서울 전체 기준 약 35MB, git 에는 안 올라감)
 #
 # ── 왜 덤프를 git 에 안 넣나 ────────────────────────────────────────────────
 # 이 저장소는 원천 데이터를 git 에 두지 않는다(1.4GB CSV). 덤프는 3.6MB 라 넣을 수도
@@ -21,6 +21,10 @@
 #
 # spatial_ref_sys(7MB)도 뺀다 — public 에 있지만 좌표계 정의는 확장이 채우는 것이라
 # 덤프의 행과 부딪힌다.
+#
+# batch_* 도 뺀다 — Spring Batch 메타데이터는 원천이 아니라 **이 노트북의 실행 이력**이다.
+# 구워 넣으면 새로 뜨는 배포마다 남의 잡 이력을 물려받는다. 이 테이블들은 앱이 직접
+# 만든다 (ADR 0013).
 #
 # 확장 자체는 pg_dump 가 `CREATE EXTENSION IF NOT EXISTS` 로 뽑아주므로 충돌하지 않는다.
 set -euo pipefail
@@ -41,6 +45,7 @@ docker exec "$CONTAINER" pg_dump -U place -d place \
   --no-owner --no-privileges \
   --exclude-schema=tiger --exclude-schema=tiger_data --exclude-schema=topology \
   --exclude-table=spatial_ref_sys \
+  --exclude-table='batch_*' \
   | gzip -9 > "$OUT"
 
 echo "생성 완료: $OUT ($(du -h "$OUT" | cut -f1), place $rows 행)"
