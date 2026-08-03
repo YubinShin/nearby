@@ -506,7 +506,7 @@ java.lang.IllegalStateException: [search] 색인된 데이터와 이 프로세�
 
 | 모듈 | 파일 | 확정 커밋 | 날짜 |
 |---|---|---|---|
-| `search-core` | `core/analysis/AnalyzerFingerprint.kt` | `f6e0cb1` | 2026-08-03 |
+| `search-core` | `core/analysis/AnalyzerFingerprint.kt` | `7dafc54` | 2026-08-03 |
 | `indexer-batch` | `indexer/IndexerBatchApplication.kt` | `e0478c0` | 2026-07-25 |
 | `indexer-batch` | `indexer/ReindexScheduler.kt` | `e0478c0` | 2026-07-25 |
 | `indexer-batch` | `indexer/admin/AdminController.kt` | `e0478c0` | 2026-07-25 |

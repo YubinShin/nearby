@@ -45,11 +45,16 @@ ES 자바 클라이언트는 동기·비동기 양쪽 다 소켓 수준에서는
 
 ## 결과
 
-- **상시 규칙 하나:** 불가피한 블로킹 호출은 `withContext(Dispatchers.IO) { ... }`로 격리해서
-  이벤트 루프를 막지 않습니다. 이 경계를 코드 리뷰 체크리스트에 넣습니다.
-  질의 경로에는 이제 해당하는 곳이 없습니다. 남은 정당한 사용처는 기동 시 한 번 도는
-  `IndexContractGuard` 이며, 이쪽은 core 의 동기 클라이언트를 씁니다(core 는 ADR 0011·0013 에
-  따라 동기로 남습니다).
+- **상시 규칙 하나:** 불가피한 블로킹 호출은 전용 디스패처로 격리해서 이벤트 루프를 막지
+  않습니다. 이 경계를 코드 리뷰 체크리스트에 넣습니다. 질의 경로에 남은 곳은 두 군데입니다.
+
+| 위치 | 블로킹 대상 | 격리 방식 |
+|---|---|---|
+| `PlaceVectorSearchService.embedQuery` | DJL 추론(CPU 바운드) | `Dispatchers.Default.limitedParallelism(poolSize)` |
+| `QueryLog` | 질의 로그 파일 쓰기 | logback `AsyncAppender` — 호출부는 큐 적재로 끝납니다 |
+
+  기동 시 한 번 도는 `IndexContractGuard` 는 search-api 에 있고, 부트가 자동 구성한 동기
+  `ElasticsearchClient` 를 주입받습니다.
 - 데이터 접근은 리액티브(논블로킹) 드라이버를 우선합니다.
 - 리액티브에서는 로그 추적 정보(트레이싱)가 끊기기 쉬우므로, 코루틴 컨텍스트에 맞게 전파를 설정합니다.
 - 이 결정은 API 서비스 범위에 한정됩니다. 이후 특정 모듈이 단순 블로킹으로 판명되면 그 부분만 (B)로 분리할 수 있습니다.
@@ -123,3 +128,5 @@ ES 가 응답할 때까지 잡혀 있습니다. 비동기 클라이언트는 취
 | `search-api` | `es/EsAsyncClientConfig.kt` | `7bc9ded` | 2026-08-03 |
 | `search-api` | `query/PlaceSearchService.kt` | `7bc9ded` | 2026-08-03 |
 | `search-api` | `query/PlaceSuggestService.kt` | `7bc9ded` | 2026-08-03 |
+| `search-api` | `hybrid/HybridSearchService.kt` | `ee94ad0` | 2026-08-03 |
+| `search-api` | `query/SearchDocDeserializationTest.kt` *(테스트)* | `7bc9ded` | 2026-08-03 |
