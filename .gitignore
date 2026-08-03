@@ -25,4 +25,3 @@ logs/
 # 임베딩 모델 가중치(470MB 바이너리). 재현은 scripts/fetch_embedding_model.sh 로.
 models/
 __pycache__/
-__pycache__/
