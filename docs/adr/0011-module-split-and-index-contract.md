@@ -476,6 +476,26 @@ Caused by: java.lang.IllegalStateException: [search] 색인된 데이터와 이 
 
 `build_komoran_dict.py` 가 사전에 넣으려는 오분석(`논현` → `놓/ㄴ/현`)이 지문을 바꿉니다.
 
+전체 재색인(job #5, 531,528건, 115.6초)을 돌린 뒤 도장에 찍힌 값이 위 표의 앞 두 줄과 같았습니다. 색인기 안에서 돈 계산과 밖에서 ES 에 직접 물어 얻은 값이 일치합니다.
+
+```
+search   {"schema_version": 2, ..., "analyzer_fingerprint": "6985af8f19f6"}
+suggest  {"schema_version": 2, ..., "analyzer_fingerprint": "98bd512b40b3"}
+```
+
+### 불일치 차단 (negative test)
+
+도장의 지문을 틀린 값으로 바꾸고 증분을 던졌습니다. **prepare 에서 거부됐습니다** (job #6 FAILED, 53ms).
+
+```
+java.lang.IllegalStateException: [search] 색인된 데이터와 이 프로세스의 계약이 다릅니다.
+  - 분석기 지문: 색인=deadbeef0000, 질의=6985af8f19f6
+  이 상태로는 오류 없이 결과만 조용히 틀려집니다.
+  → POST /admin/reindex 로 전체 재색인하세요. 증분으로는 섞인 인덱스가 됩니다.
+```
+
+53ms 는 prepare 단계라 원천을 한 행도 읽기 전이고, 살아 있는 인덱스에 아무것도 쓰지 않습니다. 도장을 원복한 뒤 증분이 다시 통과하는 것(job #7 COMPLETED, read=0)까지 확인했습니다.
+
 ### 한계
 
 - 프로브 문장은 고정입니다. 바꾸면 모든 지문이 바뀌어 전체 재색인이 강제됩니다. `SCHEMA_VERSION` 과 같은 급으로 다뤄야 합니다.
