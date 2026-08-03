@@ -2,11 +2,16 @@ package dev.yubin.search.vector
 
 import dev.yubin.search.core.vector.QdrantContract
 import dev.yubin.search.core.vector.VectorMatch
+import jakarta.annotation.PreDestroy
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
+import reactor.netty.http.client.HttpClient
+import reactor.netty.resources.ConnectionProvider
+import java.time.Duration
 
 @Component
 @ConditionalOnProperty(
@@ -17,10 +22,25 @@ import org.springframework.web.reactive.function.client.awaitBody
 class QdrantSearchStore(
 	@Value("\${psp.qdrant.url}") baseUrl: String,
 ) {
+	private val connections = ConnectionProvider.builder("qdrant")
+		.maxConnections(MAX_CONNECTIONS)
+		.pendingAcquireMaxCount(PENDING_MAX)
+		.pendingAcquireTimeout(ACQUIRE_TIMEOUT)
+		.maxIdleTime(MAX_IDLE)
+		.maxLifeTime(MAX_LIFE)
+		.evictInBackground(EVICT_INTERVAL)
+		.build()
+
 	private val http = WebClient.builder()
 		.baseUrl(baseUrl)
+		.clientConnector(ReactorClientHttpConnector(HttpClient.create(connections)))
 		.codecs { it.defaultCodecs().maxInMemorySize(MAX_RESPONSE_BYTES) }
 		.build()
+
+	@PreDestroy
+	fun close() {
+		connections.disposeLater().block(DISPOSE_TIMEOUT)
+	}
 
 	suspend fun query(
 		collection: String,
@@ -64,6 +84,14 @@ class QdrantSearchStore(
 
 	private companion object {
 		const val MAX_RESPONSE_BYTES = 16 * 1024 * 1024
+		const val MAX_CONNECTIONS = 100
+		const val PENDING_MAX = 1000
+
+		val ACQUIRE_TIMEOUT: Duration = Duration.ofSeconds(5)
+		val MAX_IDLE: Duration = Duration.ofSeconds(20)
+		val MAX_LIFE: Duration = Duration.ofMinutes(5)
+		val EVICT_INTERVAL: Duration = Duration.ofSeconds(30)
+		val DISPOSE_TIMEOUT: Duration = Duration.ofSeconds(5)
 	}
 }
 

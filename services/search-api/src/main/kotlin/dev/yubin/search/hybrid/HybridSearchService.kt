@@ -91,7 +91,9 @@ class HybridSearchService(
 			throw e
 		} catch (e: Exception) {
 			if (!BackendFailure.causedBy(e)) throw e
-			log.warn("hybrid channel '{}' failed, degrading", name, e)
+			val root = generateSequence(e as Throwable) { it.cause }.last()
+			log.warn("hybrid channel '{}' failed, degrading — {}: {}", name, root.javaClass.simpleName, root.message)
+			log.debug("hybrid channel '{}' 실패 상세", name, e)
 			ChannelRun(ChannelReport(name, 0, elapsedMs(startedAt), failed = true), emptyList())
 		}.also {
 			metrics.timer(CHANNEL, name).record(System.nanoTime() - startedAt, TimeUnit.NANOSECONDS)
@@ -116,9 +118,16 @@ class HybridSearchService(
 			emptyMap()
 		} else {
 			metrics.stage(CHANNEL, "hydrate") {
-				runCatching { keyword.byIds(needsLookup) }
-					.onFailure { log.warn("hybrid hydrate failed for {} ids", needsLookup.size, it) }
-					.getOrDefault(emptyMap())
+				try {
+					keyword.byIds(needsLookup)
+				} catch (e: CancellationException) {
+					throw e
+				} catch (e: Exception) {
+					val root = generateSequence(e as Throwable) { it.cause }.last()
+					log.warn("hybrid hydrate failed for {} ids — {}: {}", needsLookup.size, root.javaClass.simpleName, root.message)
+					log.debug("hybrid hydrate 실패 상세", e)
+					emptyMap()
+				}
 			}
 		}
 
