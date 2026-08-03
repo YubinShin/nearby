@@ -47,14 +47,14 @@ curl -G localhost:8080/v1/hsearch --data-urlencode "q=회 먹을 데"
 레이어에서 **RRF(등수 결합)** 로 합칩니다. 한 채널이 죽어도 나머지 반쪽으로 답합니다
 (`degraded: true`).
 
-브라우저에서 `localhost:8080` 을 열면 같은 질의를 **세 방식으로 나란히 비교**할 수 있습니다.
+브라우저에서 `localhost:8080` 을 열면 같은 질의를 **세 방식으로 나란히 비교**합니다.
 
 ---
 
 ## 빠른 시작
 
 ```bash
-# 1. 인프라 (Elasticsearch + Qdrant + PostGIS)
+# 1. 인프라 (Elasticsearch + Qdrant + PostGIS + Redis)
 ./deploy/up.sh
 
 # 2. 원천 데이터와 임베딩 모델
@@ -64,8 +64,8 @@ curl -G localhost:8080/v1/hsearch --data-urlencode "q=회 먹을 데"
 # 3. 색인기 (8081) — 원천을 읽어 검색 엔진에 밀어넣습니다
 cd services && ./gradlew :indexer-batch:bootRun
 
-curl -XPOST localhost:8081/admin/reindex          # 키워드 · 15.6초
-curl -XPOST localhost:8081/admin/vector/reindex   # 벡터 · 8분 32초
+curl -XPOST localhost:8081/admin/reindex          # 키워드 · 15.6초 (2026-07-25 실측)
+curl -XPOST localhost:8081/admin/vector/reindex   # 벡터 · 8분 32초 (2026-07-25 실측)
 
 # 4. 검색기 (8080)
 ./gradlew :search-api:bootRun
@@ -145,7 +145,7 @@ Kubernetes로 띄우려면 → [deploy/k8s/README.md](deploy/k8s/README.md)
 search-core     공유 계약 (문서 스키마 · 브랜드 규칙 · 임베딩 모델)
 ├── search-api      질의  · WebFlux + Coroutine
 ├── indexer-batch   색인  · Spring Batch + MVC + JDBC
-└── indexer-stream  (예정) 이벤트 색인
+└── indexer-stream  (TBD) 이벤트 색인
 ```
 
 분리의 효과는 EKS 2노드에서 실측했습니다 — 두 패스는 파드 사양이 같고 **배치만 다릅니다**.
@@ -228,7 +228,7 @@ search-core     공유 계약 (문서 스키마 · 브랜드 규칙 · 임베딩
 | 원천 | PostgreSQL / PostGIS |
 | 배포 | Docker Compose · Kubernetes (kustomize · kind · EKS) |
 | 관측 | Micrometer · Prometheus |
-| 세션 · 인기 | Redis *(예정)* |
+| 세션 · 인기 | Redis *(TBD)* |
 
 ---
 
