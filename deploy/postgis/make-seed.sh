@@ -2,8 +2,15 @@
 # 로컬에 적재된 원천 데이터를 **시드 덤프**로 뽑는다.
 #
 #   전제:  로컬 스택 기동 + 적재 완료 (deploy/up.sh, scripts/load_*.sh)
-#   실행:  ./deploy/postgis/make-seed.sh
-#   결과:  deploy/postgis/seed.sql.gz  (서울 전체 기준 약 35MB, git 에는 안 올라감)
+#   실행:  DB=place_gangnam ./deploy/postgis/make-seed.sh
+#   결과:  deploy/postgis/seed.sql.gz  (강남 기준 약 3.5MB, git 에는 안 올라감)
+#
+# ── 어느 DB 를 떠야 하나 ────────────────────────────────────────────────────
+# **k8s 시드는 강남 기준이어야 한다.** 기록된 색인·질의 실측이 전부 강남 6만 건
+# 기준(ADR 0010)이라, 서울 전체(53만 건)로 뜨면 그 수치가 재현되지 않는다.
+# 서울 데이터는 로컬 실험용이므로 `place` 에 두고, 시드는 `place_gangnam` 에서 뜬다.
+# 기본값이 `place` 인 것은 기존 사용법을 안 깨려는 것뿐이다 — 완료 메시지에 찍히는
+# DB 이름을 반드시 확인할 것.
 #
 # ── 왜 덤프를 git 에 안 넣나 ────────────────────────────────────────────────
 # 이 저장소는 원천 데이터를 git 에 두지 않는다(1.4GB CSV). 덤프는 3.6MB 라 넣을 수도
@@ -31,21 +38,22 @@ set -euo pipefail
 
 cd "$(dirname "$0")/../.."
 CONTAINER="${POSTGIS_CONTAINER:-psp-postgis}"
+DB="${DB:-place}"
 OUT="deploy/postgis/seed.sql.gz"
 
-docker exec "$CONTAINER" pg_isready -U place -d place >/dev/null 2>&1 || {
+docker exec "$CONTAINER" pg_isready -U place -d "$DB" >/dev/null 2>&1 || {
   echo "PostGIS 컨테이너($CONTAINER)가 없거나 준비되지 않았습니다. deploy/up.sh 로 먼저 띄우세요." >&2
   exit 1
 }
 
-rows=$(docker exec "$CONTAINER" psql -U place -d place -tAc "select count(*) from public.place")
+rows=$(docker exec "$CONTAINER" psql -U place -d "$DB" -tAc "select count(*) from public.place")
 [ "$rows" -gt 0 ] || { echo "public.place 가 비어 있습니다. scripts/load_place.sh 를 먼저 실행하세요." >&2; exit 1; }
 
-docker exec "$CONTAINER" pg_dump -U place -d place \
+docker exec "$CONTAINER" pg_dump -U place -d "$DB" \
   --no-owner --no-privileges \
   --exclude-schema=tiger --exclude-schema=tiger_data --exclude-schema=topology \
   --exclude-table=spatial_ref_sys \
   --exclude-table='batch_*' \
   | gzip -9 > "$OUT"
 
-echo "생성 완료: $OUT ($(du -h "$OUT" | cut -f1), place $rows 행)"
+echo "생성 완료: $OUT ($(du -h "$OUT" | cut -f1), DB=$DB, place $rows 행)"

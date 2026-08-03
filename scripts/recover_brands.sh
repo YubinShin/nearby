@@ -6,12 +6,14 @@
 #
 # 전제: ./scripts/load_localdata.sh 까지 끝나 있어야 함.
 # 사용:  ./scripts/recover_brands.sh
+#        DB=place_gangnam ./scripts/recover_brands.sh   # 다른 DB 에서 실행
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-PSQL=(docker exec -i psp-postgis psql -U place -d place)
+DB="${DB:-place}"
+PSQL=(docker exec -i psp-postgis psql -U place -d "$DB")
 
 # 같은 브랜드가 최소 몇 번 나와야 인정할지. 진짜 브랜드는 여러 매장에서 반복되고,
 # 우연히 앞말이 붙은 잡음은 대체로 한 번만 나온다 — 빈도 자체가 신뢰도 신호다.

@@ -4,12 +4,14 @@
 # 전제: 스택 기동(deploy/up.sh) + 경계 적재(scripts/load_boundaries.sh)
 #       + 원본 CSV 가 data/raw 에 있어야 함 (data-model.md 의 출처).
 # 사용:  ./scripts/load_localdata.sh
+#        DB=place_gangnam ./scripts/load_localdata.sh   # 다른 DB 에 적재
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-PSQL=(docker exec -i psp-postgis psql -U place -d place)
+DB="${DB:-place}"
+PSQL=(docker exec -i psp-postgis psql -U place -d "$DB")
 
 echo "▶ 1/5  정제 (cp949→utf-8, 폐업 제거, 관리번호 중복 제거)"
 python3 scripts/clean_localdata.py

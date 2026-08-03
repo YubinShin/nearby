@@ -4,6 +4,7 @@
 # 전제: ./scripts/load_place.sh 와 ./scripts/recover_brands.sh 까지 끝나 있어야 함.
 #       (브랜드 복원 결과를 생존자 선정에 쓴다 — 아래 우선순위 참고)
 # 사용:  ./scripts/build_dedup.sh
+#        DB=place_gangnam ./scripts/build_dedup.sh   # 다른 DB 에서 실행
 #
 # 실행 후에는 **전체 재색인이 필요하다.** 이 스크립트는 place.updated_at 을 건드리지
 # 않으므로, 이미 색인된 중복 문서를 증분 색인은 집어내지 못한다.
@@ -12,7 +13,8 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-PSQL=(docker exec -i psp-postgis psql -U place -d place)
+DB="${DB:-place}"
+PSQL=(docker exec -i psp-postgis psql -U place -d "$DB")
 
 echo "▶ 1/2  스키마 적용 (public.place_duplicate)"
 "${PSQL[@]}" -q < deploy/postgis/dedup.sql
