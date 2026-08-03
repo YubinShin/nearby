@@ -62,7 +62,8 @@ ES 자바 클라이언트는 동기·비동기 양쪽 다 소켓 수준에서는
 ## 측정 — 동기 클라이언트 + `Dispatchers.IO` 대 비동기 클라이언트
 
 2026-08-03. 지연을 고정한 스텁 ES 에 같은 `Rest5ClientTransport`(같은 커넥션 풀·같은
-`JsonpMapper`)로 두 클라이언트를 번갈아 물려 측정했습니다.
+`JsonpMapper`)로 두 클라이언트를 번갈아 물려 측정했습니다. 벤치마크 코드는 `scripts/bench` 이며
+`./gradlew -p scripts/bench run --args="sync 64 40 20 50"` 로 돌립니다.
 
 - 처리량과 지연은 두 방식이 같습니다.
 - 처리량 병목은 클라이언트 방식이 아니라 커넥션 풀입니다.
