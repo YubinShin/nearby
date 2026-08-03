@@ -37,7 +37,7 @@ class IndexContractGuard(
 				"색인기와 질의기의 배포 버전이 어긋나 있을 수도 있습니다."
 
 		const val REMEDY_VECTOR =
-			"색인기(indexer-batch)에서 POST /admin/vector/rebuild 로 전체 재색인한 뒤 다시 띄우세요. " +
+			"색인기(indexer-batch)에서 POST /admin/vector/reindex 로 전체 재색인한 뒤 다시 띄우세요. " +
 				"임베딩 모델이 다르면 유사도 점수가 의미를 잃습니다 (ADR 0010)."
 
 		val log = LoggerFactory.getLogger(IndexContractGuard::class.java)
