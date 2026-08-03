@@ -1,6 +1,7 @@
 package dev.yubin.search.indexer.batch
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient
+import dev.yubin.search.core.analysis.AnalyzerFingerprint
 import dev.yubin.search.core.meta.IndexMeta
 import dev.yubin.search.core.meta.IndexMetaStore
 import dev.yubin.search.core.place.PlaceRow
@@ -147,9 +148,8 @@ class KeywordIndexJobConfig(
 				val removed = admin.reconcile(searchAlias, keepVersions) + admin.reconcile(suggestAlias, keepVersions)
 				ctx.putString(IndexJobs.Ctx.REMOVED, removed.sorted().joinToString(","))
 
-				val stamp = IndexMeta.stamp()
-				meta.write(IndexMeta.PIPELINE_SEARCH, stamp)
-				meta.write(IndexMeta.PIPELINE_SUGGEST, stamp)
+				meta.write(IndexMeta.PIPELINE_SEARCH, searchStamp(newSearch))
+				meta.write(IndexMeta.PIPELINE_SUGGEST, suggestStamp(newSuggest))
 
 				LoadProgress.ofJob(step).maxUpdatedAt?.let {
 					checkpoints.set(CheckpointStore.PLACE_PIPELINE, it)
@@ -172,9 +172,8 @@ class KeywordIndexJobConfig(
 				admin.indicesBehind(suggestAlias).firstOrNull()
 					?: error("alias 미설정: $suggestAlias")
 
-				val stamp = IndexMeta.stamp()
-				meta.requireCompatible(IndexMeta.PIPELINE_SEARCH, stamp, remedy = INCREMENTAL_REMEDY)
-				meta.requireCompatible(IndexMeta.PIPELINE_SUGGEST, stamp, remedy = INCREMENTAL_REMEDY)
+				meta.requireCompatible(IndexMeta.PIPELINE_SEARCH, searchStamp(searchAlias), remedy = INCREMENTAL_REMEDY)
+				meta.requireCompatible(IndexMeta.PIPELINE_SUGGEST, suggestStamp(suggestAlias), remedy = INCREMENTAL_REMEDY)
 
 				ctx.putString(IndexJobs.Ctx.SEARCH_INDEX, searchAlias)
 				ctx.putString(IndexJobs.Ctx.SUGGEST_INDEX, suggestAlias)
@@ -206,6 +205,14 @@ class KeywordIndexJobConfig(
 				RepeatStatus.FINISHED
 			}, transactionManager)
 			.build()
+
+	private fun searchStamp(index: String) = IndexMeta.stamp(
+		analyzerFingerprint = AnalyzerFingerprint.of(es, index, AnalyzerFingerprint.SEARCH_ANALYZER),
+	)
+
+	private fun suggestStamp(index: String) = IndexMeta.stamp(
+		analyzerFingerprint = AnalyzerFingerprint.of(es, index, AnalyzerFingerprint.SUGGEST_ANALYZER),
+	)
 
 	private companion object {
 		val log = LoggerFactory.getLogger(KeywordIndexJobConfig::class.java)

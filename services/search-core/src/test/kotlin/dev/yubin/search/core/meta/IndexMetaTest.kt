@@ -61,6 +61,24 @@ class IndexMetaTest {
 	}
 
 	@Test
+	fun `a different analyzer fingerprint blocks`() {
+		val indexed = IndexMeta.stamp(analyzerFingerprint = "a1b2c3d4e5f6")
+		val verdict = IndexMeta.verify(indexed, IndexMeta.stamp(analyzerFingerprint = "0f1e2d3c4b5a"))
+
+		val mismatch = assertIs<IndexMeta.Verdict.Mismatch>(verdict)
+		assertEquals(1, mismatch.differences.size)
+		assertTrue("a1b2c3d4e5f6" in mismatch.differences[0], mismatch.differences[0])
+	}
+
+	@Test
+	fun `an index stamped before fingerprints existed does not block`() {
+		val indexed = IndexMeta.Stamp(IndexMeta.SCHEMA_VERSION)
+		val verdict = IndexMeta.verify(indexed, IndexMeta.stamp(analyzerFingerprint = "a1b2c3d4e5f6"))
+
+		assertEquals(IndexMeta.Verdict.Ok, verdict)
+	}
+
+	@Test
 	fun `a querier started with vectors off does not clash with a vector stamp`() {
 		assertEquals(
 			IndexMeta.Verdict.Ok,

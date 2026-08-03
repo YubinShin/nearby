@@ -15,10 +15,14 @@ object IndexMeta {
 		val schema_version: Int = 0,
 		val embedding_model: String? = null,
 		val embedding_dim: Int? = null,
+		val analyzer_fingerprint: String? = null,
 	)
 
-	fun stamp(embeddingModel: String? = null, embeddingDim: Int? = null) =
-		Stamp(SCHEMA_VERSION, embeddingModel, embeddingDim)
+	fun stamp(
+		embeddingModel: String? = null,
+		embeddingDim: Int? = null,
+		analyzerFingerprint: String? = null,
+	) = Stamp(SCHEMA_VERSION, embeddingModel, embeddingDim, analyzerFingerprint)
 
 	sealed interface Verdict {
 		data object Ok : Verdict
@@ -37,6 +41,7 @@ object IndexMeta {
 			}
 			compare("임베딩 모델", actual.embedding_model, expected.embedding_model)?.let(::add)
 			compare("임베딩 차원", actual.embedding_dim, expected.embedding_dim)?.let(::add)
+			compare("분석기 지문", actual.analyzer_fingerprint, expected.analyzer_fingerprint)?.let(::add)
 		}
 		return if (differences.isEmpty()) Verdict.Ok else Verdict.Mismatch(differences)
 	}
