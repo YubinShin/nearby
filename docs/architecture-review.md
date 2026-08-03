@@ -409,6 +409,51 @@ ctx 에 적힌 새 인덱스 두 개를 고아로 판정해 삭제를 시도합�
 - 같은 실험의 A/B 로 `runChannel` 의 효과도 확인: 보호막 안에서 던지면 200 + `degraded: true`,
   밖에서 던지면 형제 취소 + 500.
 
+## 부하 측정(8/3, 동시 1,000)에서 드러난 것
+
+### #29 취소 삼킴이 **hydrate 경로에 그대로 남아 있었다** → Fixed (2026-08-03)
+#28 은 `runChannel` 만 고쳤습니다. 같은 파일 `present()` 의 hydrate 는
+`runCatching { keyword.byIds(...) }` 라 `Throwable` 을 잡아 `CancellationException` 까지
+삼키고 있었습니다.
+
+- **발견 계기:** 부하 측정 중 콘솔이 눈으로 못 따라갈 속도로 흘렀습니다. 내용은
+  `hybrid hydrate failed for N ids` + `JobCancellationException: MonoCoroutine was cancelled` —
+  클라이언트가 끊을 때마다 경고와 스택트레이스를 찍고 취소를 무시한 채 진행하고 있었습니다.
+- **해결:** `runChannel` 과 같은 형태로 `catch (e: CancellationException) { throw e }` 를 앞에 두고
+  나머지만 삼키도록 교체. 단위 테스트 70건 통과.
+- **교훈:** 결함을 한 자리에서 고칠 때 **같은 패턴이 파일 안에 몇 군데 더 있는지** 세지 않으면
+  남습니다. `runCatching` 은 코루틴에서 취소를 삼키는 기본 함정입니다.
+
+### #30 WebClient 기본 커넥션 풀이 **코어 수에서 유도된다** → Fixed (2026-08-03)
+`QdrantSearchStore` 는 `WebClient.builder().baseUrl(...).build()` 로 끝나 커넥션 풀을 지정하지
+않았습니다. Reactor Netty 기본값은 `maxConnections = max(코어, 8) × 2`, 대기 큐는 그 2배입니다 —
+10코어 머신에서 **동시 20개 처리 · 40개 대기**가 상한이었습니다.
+
+- **발견 계기:** 벡터 채널이 부하에서 조용히 빠졌습니다. HTTP 는 전부 200 이고 본문의
+  `degraded: true` 로만 드러납니다.
+- **두 단계로 나왔습니다.** 처음엔 `PrematureCloseException` (서버가 끊은 idle 커넥션을 풀이 그대로
+  재사용), 커넥션 수명을 설정해 그걸 막자 다음 한계인 `PoolAcquirePendingLimitException`
+  (`Pending acquire queue has reached its maximum size of 40`) 이 드러났습니다.
+- **실측** (서울 531,528건, 요청 수 5,000 고정):
+
+  | 동시성 | degraded 전 | degraded 후 | 로그 줄수 전 → 후 |
+  |---|---|---|---|
+  | 100 | 14건 (0.3%) | **0** | 5,650 → 0 |
+  | 500 | 288건 (5.8%) | **0** | 115,774 → 0 |
+  | 1000 | 845건 (16.9%) | **0** | 320,670 → 0 |
+
+- **해결:** `ConnectionProvider` 에 `maxConnections(100)` · `pendingAcquireMaxCount(1000)` ·
+  `pendingAcquireTimeout(5초)` 와 `maxIdleTime(20초)` · `maxLifeTime(5분)` ·
+  `evictInBackground(30초)` 를 명시. 풀을 직접 만들었으므로 `@PreDestroy` 로 정리합니다.
+- **상태 코드만 보는 부하 도구로는 안 잡힙니다.** `ab` 는 반쪽 응답을 성공으로 세므로 같은 구간에서
+  "실패 0" 이 나옵니다. 응답 본문의 `degraded` 와 `channels[].failed` 를 세는 측정기로 바꾼 뒤에야
+  보였습니다.
+- **남은 한계:** 로그 축약(경고 1건당 385줄 → 1줄, 상세는 DEBUG)은 코드에 넣었지만 이번 측정에서는
+  실패가 0이라 효과를 재지 못했습니다.
+- **처리량 천장은 별개입니다.** 동시성을 10배 올려도 하이브리드는 350~420 RPS 로 제자리고 지연만
+  선형으로 늘었습니다. 한 대(MacBook Air M4)에 ES·Qdrant·PostGIS·앱이 함께 올라간 배치의 몫이며,
+  하드웨어와 배치를 가르는 실험은 ADR 0011 의 EKS 노드 분리입니다.
+
 ## 요약
 
 | 항목 | 상태 |
@@ -433,3 +478,5 @@ ctx 에 적힌 새 인덱스 두 개를 고아로 판정해 삭제를 시도합�
 | #26 Jackson 2/3 혼재로 `_source` 가 전부 빈 값 | Fixed (ADR 0011 실측에서 발견, 분리 이전부터 있던 버그) |
 | #27 실패 정리 리스너가 서빙 인덱스를 삭제 대상에 넣음 | **Fixed** (2026-08-03 — 삭제 근거를 도장이 아닌 alias 현실로, 적재 완료분은 보존) |
 | #28 채널 catch 가 취소 신호를 삼킴 | Fixed (2026-07-28 rethrow, 2026-07-29 별도 catch 절 + 타이머 분리) |
+| #29 hydrate 의 `runCatching` 이 취소를 삼킴 | Fixed (2026-08-03 — #28 이 놓친 같은 결함의 두 번째 자리) |
+| #30 Qdrant WebClient 기본 풀이 코어 수 유도값 | Fixed (2026-08-03 — 동시 1,000 에서 degraded 16.9% → 0%) |
