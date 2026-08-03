@@ -6,21 +6,31 @@
 --   - 인허가    → **법정동** (역삼동)  ※ 지번주소에 법정동만 들어 있다
 -- 이름만 보고는 역삼동이 역삼1동인지 2동인지 가릴 수 없다(강남구 기준 14 → 22로 갈라진다).
 -- 가릴 수 있는 정보는 **위치**뿐이라, 좌표를 경계에 떨어뜨려(ST_Contains) 판정한다.
+--
+-- 컬럼 설명은 COMMENT ON 으로 둔다 (이유는 schema.sql 머리말).
 
 CREATE EXTENSION IF NOT EXISTS postgis;
 
 DROP TABLE IF EXISTS public.adm_dong;
 
 CREATE TABLE public.adm_dong (
-    adm_cd  text PRIMARY KEY,                   -- 행정동코드 (adm_cd2, 10자리)
-    adm_nm  text NOT NULL,                      -- '서울특별시 강남구 역삼1동'
+    adm_cd  text PRIMARY KEY,
+    adm_nm  text NOT NULL,
     sido    text NOT NULL,
     sigungu text NOT NULL,
-    dong    text NOT NULL,                      -- '역삼1동' — place.dong 과 맞춰 쓰는 값
+    dong    text NOT NULL,
     -- 원본이 CRS84(=WGS84)라 변환 없이 4326 으로 들어온다. place.geom 과 같은 좌표계여야
     -- 공간 조인에서 ST_Transform 이 매 행마다 붙지 않는다.
     geom    geometry(MultiPolygon, 4326) NOT NULL
 );
+
+COMMENT ON TABLE  public.adm_dong         IS '행정동 경계 폴리곤. 좌표를 행정동으로 판정하는 공간 조인에 쓴다.';
+COMMENT ON COLUMN public.adm_dong.adm_cd  IS '행정동코드 (adm_cd2, 10자리)';
+COMMENT ON COLUMN public.adm_dong.adm_nm  IS '행정동 전체 이름. 예: 서울특별시 강남구 역삼1동';
+COMMENT ON COLUMN public.adm_dong.sido    IS '시도명';
+COMMENT ON COLUMN public.adm_dong.sigungu IS '시군구명';
+COMMENT ON COLUMN public.adm_dong.dong    IS '행정동명. 예: 역삼1동 — place.dong 과 맞춰 쓰는 값';
+COMMENT ON COLUMN public.adm_dong.geom    IS '경계 폴리곤. SRID 4326 = WGS84, place.geom 과 같은 좌표계';
 
 CREATE INDEX adm_dong_geom_gix ON public.adm_dong USING GIST (geom);
 CREATE INDEX adm_dong_dong_idx ON public.adm_dong (sigungu, dong);
