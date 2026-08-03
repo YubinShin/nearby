@@ -120,6 +120,6 @@ ES 가 응답할 때까지 잡혀 있습니다. 비동기 클라이언트는 취
 | `search-api` | `query/SearchController.kt` | `770218d` | 2026-07-24 |
 | `search-api` | `query/SearchModels.kt` | `824f361` | 2026-07-24 |
 | `search-api` | `vector/QdrantSearchStore.kt` | `ca99720` | 2026-07-25 |
-| `search-api` | `es/EsAsyncClientConfig.kt` | (미커밋) | 2026-08-03 |
-| `search-api` | `query/PlaceSearchService.kt` | (미커밋) | 2026-08-03 |
-| `search-api` | `query/PlaceSuggestService.kt` | (미커밋) | 2026-08-03 |
+| `search-api` | `es/EsAsyncClientConfig.kt` | `7bc9ded` | 2026-08-03 |
+| `search-api` | `query/PlaceSearchService.kt` | `7bc9ded` | 2026-08-03 |
+| `search-api` | `query/PlaceSuggestService.kt` | `7bc9ded` | 2026-08-03 |
