@@ -25,6 +25,17 @@ done
 [ -d models/multilingual-e5-small ] || { echo "임베딩 모델 없음 → ./scripts/fetch_embedding_model.sh" >&2; exit 1; }
 [ -f deploy/postgis/seed.sql.gz ]   || { echo "시드 덤프 없음 → ./deploy/postgis/make-seed.sh" >&2; exit 1; }
 
+# 시드가 있기만 하면 되는 게 아니다. 스키마 파일이 새 테이블을 만들었는데 덤프가 그 전에
+# 떠진 것이면 **파드는 뜨고 색인만 첫 질의에서 죽는다** — place_duplicate 가 빠진 채로
+# 9일 있었다(PlaceSource 가 무조건 조인한다). 있어야 할 테이블이 다 있는지 본다.
+seed_has="$(gzip -dc deploy/postgis/seed.sql.gz | sed -n 's/^CREATE TABLE public\.\([a-z0-9_]*\) .*/\1/p')"
+stale=""
+while read -r t; do
+	[ -n "$t" ] || continue
+	printf '%s\n' "$seed_has" | grep -qx -- "$t" || stale="$stale $t"
+done < <(sed -n 's/^CREATE TABLE public\.\([a-z0-9_]*\) .*/\1/p' deploy/postgis/*.sql | sort -u)
+[ -z "$stale" ] || { echo "시드가 낡았습니다 (빠진 테이블:$stale) → ./deploy/postgis/make-seed.sh" >&2; exit 1; }
+
 ACCOUNT="$(aws sts get-caller-identity --query Account --output text)"
 ECR="${ACCOUNT}.dkr.ecr.${REGION}.amazonaws.com"
 echo "▶ 계정 ${ACCOUNT} · 리전 ${REGION} · 레지스트리 ${ECR}"
