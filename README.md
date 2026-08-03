@@ -10,7 +10,10 @@
 ![PostGIS](https://img.shields.io/badge/PostGIS-source-336791?logo=postgresql&logoColor=white)
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-kind%20%C2%B7%20EKS-326CE5?logo=kubernetes&logoColor=white)
 
-![Architecture](docs/diagrams/architecture.png)
+![세 채널 비교](docs/screenshots/three-channel-comparison.png)
+
+*`회 먹을 데` — 키워드는 0건, 벡터와 하이브리드는 50건. 화면의 ms 는 세 채널을 동시에 호출한
+값이라 아래 [실측](#실측)의 채널별 수치와 다릅니다.*
 
 ---
 
@@ -22,7 +25,7 @@
 | | |
 | --- | --- |
 | **결과 0건 질의** | 키워드 7/20 → 하이브리드 **0/20** |
-| **응답 시간** | 하이브리드 중앙값 **7.5ms** (RRF 결합 자체는 평균 0.02ms) |
+| **응답 시간** | 하이브리드 중앙값 **9.7ms** (RRF 결합 자체는 평균 0.04ms · 2026-08-03 실측) |
 | **무중단 재색인** | 20만+ 요청 동안 **실패 0 · 빈 결과 0** (EKS·Spring Batch 색인기 실측) |
 | **노드 분리 효과** | 벡터 재색인 중 질의 지연 **1.09 → 0.90** (EKS 실측) |
 | **이미지 공유** | 두 앱 합산 1,403MB → **917MB** |
@@ -134,6 +137,8 @@ Kubernetes로 띄우려면 → [deploy/k8s/README.md](deploy/k8s/README.md)
 원천(PostGIS)은 체크포인트를 watermark로 삼아 바뀐 행만 증분 색인하고, Alias Swap으로
 무중단 교체합니다.
 
+![Architecture](docs/diagrams/architecture.png)
+
 **색인기와 질의기는 별도 아티팩트입니다.** 자원 성격이 반대이고(색인은 CPU 버스트 — 벡터
 재색인의 96%가 임베딩 추론, 질의는 저지연 상시), 한 프로세스에 두면 색인 쪽 OOM 한 번이 곧
 검색 장애가 됩니다. 런타임도 다릅니다 — 질의기는 WebFlux + Coroutine, 색인기는 Spring Batch.
@@ -162,13 +167,13 @@ search-core     공유 계약 (문서 스키마 · 브랜드 규칙 · 임베딩
 
 측정 방법과 전체 결과는 문서에 있습니다. 대표값만 옮깁니다.
 
-**검색 품질** — 실제로 칠 법한 질의 20개(`scripts/queries_regression.txt`)
+**검색 품질** — 실제로 칠 법한 질의 20개(`scripts/queries_regression.txt`), 2026-08-03 실측
 
 | 방식 | 결과 0건 질의 | 중앙값 | p95 |
 | --- | --- | --- | --- |
-| 키워드 | 7 / 20 | 3.6ms | 5.3ms |
-| 벡터 | 2 / 20 | 4.0ms | 5.2ms |
-| **하이브리드** | **0 / 20** | **7.5ms** | 12.5ms |
+| 키워드 | 7 / 20 | 5.3ms | 9.1ms |
+| 벡터 | 2 / 20 | 4.4ms | 5.0ms |
+| **하이브리드** | **0 / 20** | **9.7ms** | 16.2ms |
 
 세 경로가 같은 질의에 *왜* 다르게 답하는지 → [search-modes-comparison.md](docs/search-modes-comparison.md)
 하이브리드 내부 keyword/vector/hydrate/fuse 단계별 평균 → [ADR 0011](docs/adr/0011-module-split-and-index-contract.md)
