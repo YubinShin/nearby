@@ -1,6 +1,7 @@
 package dev.yubin.search.indexer.index
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient
+import co.elastic.clients.elasticsearch._types.ElasticsearchException
 import dev.yubin.search.core.index.IndexVersion
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
@@ -21,8 +22,8 @@ class IndexAdminService(private val es: ElasticsearchClient) {
 	fun indicesBehind(alias: String): Set<String> =
 		try {
 			es.indices().getAlias { it.name(alias) }.aliases().keys.toSet()
-		} catch (_: Exception) {
-			emptySet()
+		} catch (e: ElasticsearchException) {
+			if (e.status() == HTTP_NOT_FOUND) emptySet() else throw e
 		}
 
 	fun swapAlias(alias: String, newIndex: String): Set<String> {
@@ -74,5 +75,9 @@ class IndexAdminService(private val es: ElasticsearchClient) {
 		val millis = resp.aggregations()["max_ts"]?.max()?.value()
 		return if (millis == null || millis.isNaN() || millis <= 0.0) null
 		else Instant.ofEpochMilli(millis.toLong()).atOffset(ZoneOffset.UTC)
+	}
+
+	private companion object {
+		const val HTTP_NOT_FOUND = 404
 	}
 }
