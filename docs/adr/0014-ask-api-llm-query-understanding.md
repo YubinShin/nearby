@@ -24,6 +24,7 @@
 | 2 | Gemini Flash · `responseSchema` · `temperature 0` | 스키마 강제로 파서 방어 표면 축소. temperature 0 으로 편차를 줄이되, 회귀는 픽스처로 고정 |
 | 3 | 설정 오류는 기동 실패, 런타임 장애는 degraded | 배포 시점 실패가 트래픽 시점 실패보다 쌈 (ADR 0011 결정 4) |
 | 4 | 좌표 해석 없음. `geo_anchor` 는 원문 유지 | 지오코더 재료가 저장소에 없음. LLM 에 좌표를 물으면 1레인의 안전성이 깨짐 |
+| 5 | 코퍼스에 없는 속성은 어휘 대조로 판정해 `applied.unsupported` 로 반환 | `expects_empty` 는 불리언이라 무엇이 버려졌는지 알 수 없음. 속성 집합이 스키마로 닫혀 있어 어휘로 판정 가능 |
 
 ### 1. Module boundary
 
@@ -102,6 +103,33 @@ LLM 장애와 검색 채널 장애를 구분할 수 있도록 `degradedBy`를 �
 `dong.txt`·`category_small.txt` 는 키워드 검색 대상 필드이기에 문자열 검색에는 걸립니다. (`PlaceQueries.SEARCH_FIELDS`) 
 무엇이 파라미터로 못 옮겨졌는지는 응답의 `applied.unmapped` 로 반환하게 합니다.
 
+### 5. Unsupported filters
+
+코퍼스에 데이터가 없어 거를 수 없는 속성은 이름을 `applied.unsupported` 로 반환합니다.
+검색 결과는 좁히지 않습니다.
+
+```
+"평점 4.5 이상 카페"  →  q = "카페" · unsupported = ["평점"]   (하이브리드 89건)
+```
+
+판정은 원문 질의와 `corpus/unsupported-filters.json` 의 어휘를 대조합니다.
+
+| | `expects_empty` (LLM) | 어휘 대조 (코드) |
+|---|---|---|
+| 출력 | 불리언 | 속성 이름 |
+| 결정성 | `temperature 0` 이 결정적이지 않음 | 결정적 |
+| 프롬프트 변경 시 | 픽스처 27건 재녹화 | 무관 |
+
+**실측** (2026-08-04, 강남 6.4만)
+
+| 항목 | 값 |
+|---|---|
+| 회귀 20개 오탐 | 0 |
+| 상호명 116개 오탐 | 1 (`씨유강남거평점`) |
+| 골든셋 트랩 탐지 | 4/5 |
+
+미탐 1건 `제주도 흑돼지 맛집` 은 지리 범위라 색인의 행정동 어휘가 필요합니다(Platform gap ①).
+
 ## Platform gaps
 
 ask-api 를 붙여 보니 플랫폼에서 비어 있는 부분이 보였습니다.
@@ -121,6 +149,20 @@ ask-api 를 붙여 보니 플랫폼에서 비어 있는 부분이 보였습니�
 라벨을 만들기 전까지는 정확도 수치를 주장하지 않습니다.
 
 `category_hint` 가 키워드 채널의 `AND` 조건을 좁혀 0건을 늘릴 가능성은 **미실측**입니다.
+
+**트랩 5건은 실제로 0건을 반환하지 않습니다.** 합성 질의를 `/v1/hsearch` 에 넣어 잰 값입니다
+(2026-08-04, 강남 6.4만).
+
+| 트랩 | 합성 `q` | 하이브리드 |
+|---|---|---|
+| 평점 4.5 이상 카페 | `카페` | 89 |
+| 지금 문 연 약국 | `약국` | 91 |
+| 배달 되는 치킨집 | `치킨집` | 1 |
+| 1만원 이하 파스타 | `파스타 이탈리아음식` | 33 |
+| 제주도 흑돼지 맛집 | `제주도 흑돼지 맛집 돼지고기구이` | 50 |
+
+`expects_empty` 와 `unsupported` 는 결과를 좁히지 않고 알리기만 합니다. 0건이 옳은 응답인지는
+골든셋 라벨을 채운 뒤 판단합니다.
 
 **`temperature 0` 은 결정적이지 않습니다.** 바이트가 같은 입력을 8회 보내 `세탁소` → `세타포` 7회,
 `세탁소` 1회를 관측했습니다(2026-08-04, `gemini-3.5-flash`). 흔한 단어가 다수 회차에서 다른 글자로
@@ -165,7 +207,9 @@ ask-api 를 붙여 보니 플랫폼에서 비어 있는 부분이 보였습니�
 | `ask-api` | `ask/AskController.kt` | `5d37107` | 2026-08-04 |
 | `ask-api` | `ask/AskModels.kt` | `5d37107` | 2026-08-04 |
 | `ask-api` | `ask/AskQueryPlanner.kt` | `5d37107` | 2026-08-04 |
-| `ask-api` | `ask/AskService.kt` | `5d37107` | 2026-08-04 |
+| `ask-api` | `ask/AskService.kt` | `5d37107` · `b57d6bd` | 2026-08-04 |
+| `ask-api` | `ask/corpus/UnsupportedFilters.kt` | `b57d6bd` | 2026-08-04 |
+| `ask-api` | `corpus/unsupported-filters.json` | `b57d6bd` | 2026-08-04 |
 | `ask-api` | `ask/llm/AskPromptSpec.kt` | `5d37107` | 2026-08-04 |
 | `ask-api` | `ask/llm/FixtureLlmClient.kt` | `5d37107` | 2026-08-04 |
 | `ask-api` | `ask/llm/GeminiClient.kt` | `5d37107` | 2026-08-04 |
@@ -175,4 +219,5 @@ ask-api 를 붙여 보니 플랫폼에서 비어 있는 부분이 보였습니�
 | `ask-api` | `ask/web/SearchPlatformErrorHandler.kt` | `5d37107` | 2026-08-04 |
 | `ask-api` | `ask/AskMappingTest.kt` *(테스트)* | `5d37107` | 2026-08-04 |
 | `ask-api` | `ask/AskQueryPlannerTest.kt` *(테스트)* | `5d37107` | 2026-08-04 |
+| `ask-api` | `ask/corpus/UnsupportedFiltersTest.kt` *(테스트)* | `b57d6bd` | 2026-08-04 |
 | `ask-api` | `ask/llm/GeminiWireTest.kt` *(테스트)* | `5d37107` | 2026-08-04 |
