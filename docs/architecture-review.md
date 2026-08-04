@@ -74,7 +74,7 @@ JD의 "용도별 멀티클러스터 운영"은 로컬에서 ES 2대 + 용도별 
 ### #8 관측성이 없다 → Fixed (Step 4)
 색인 lag, 질의 지연 등 지표가 전무했습니다. JD가 강조하는 "지표 기반 병목·장애 진단"의 근거가 없었습니다.
 - **해결:** Micrometer + `/actuator/prometheus`. **채널별** 질의 지연(`psp_query_latency_seconds`,
-  태그 `channel=keyword|suggest|vector`, `outcome`)과 **색인 lag**(`psp_index_lag_seconds`).
+  태그 `channel=keyword|suggest|vector|hybrid`, `outcome`)과 **색인 lag**(`psp_index_lag_seconds`).
 - **5단계에서 한 겹 더 쪼갰습니다.** 채널 지연만 보면 "벡터가 느리다"까지만 압니다. 임베딩 추론과
   ANN 탐색은 고치는 방법이 완전히 다르므로(모델 교체·캐시 vs `ef`·샤딩) `psp_query_stage_latency_seconds`
   (`stage=embed|ann`)로 나눠 잽니다. 실제로 이 분해가 **"27ms"가 워밍업 오염이었다**는 걸 드러냈습니다.

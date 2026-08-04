@@ -65,4 +65,17 @@ class UnsupportedFiltersTest @Autowired constructor(private val filters: Unsuppo
 	fun `the known collision is a branch name ending in 점`() {
 		assertTrue("평점" in filters.detect("씨유강남거평점"))
 	}
+
+	@Test
+	fun `an exception term keeps a common adverb from tripping the attribute`() {
+		assertEquals(emptyList(), filters.detect("강남역에서 얼마나 가까운 카페"))
+		assertEquals(emptyList(), filters.detect("인기척 없는 조용한 카페"))
+	}
+
+	@Test
+	fun `the exception does not swallow the term it protects`() {
+		assertEquals(listOf("가격"), filters.detect("이거 얼마예요"))
+		assertEquals(listOf("가격"), filters.detect("얼마나 저렴한지"))
+		assertEquals(listOf("인기도"), filters.detect("인기 많은 카페"))
+	}
 }

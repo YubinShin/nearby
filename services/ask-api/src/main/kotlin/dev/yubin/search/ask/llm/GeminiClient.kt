@@ -2,14 +2,16 @@ package dev.yubin.search.ask.llm
 
 import dev.yubin.search.ask.ParsedQuery
 import jakarta.annotation.PreDestroy
+import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.awaitBody
+import org.springframework.web.reactive.function.client.WebClientResponseException
 import reactor.netty.http.client.HttpClient
 import reactor.netty.resources.ConnectionProvider
+import reactor.util.retry.Retry
 import tools.jackson.databind.ObjectMapper
 import java.time.Duration
 
@@ -25,7 +27,8 @@ class GeminiClient(
 ) : LlmClient {
 	init {
 		require(apiKey.isNotBlank()) {
-			"GEMINI_API_KEY is not set. export it, or start with --psp.ask.llm=fixture to replay recorded responses."
+			"GEMINI_API_KEY is not set. export it, or replay recorded responses with " +
+				"--psp.ask.llm=fixture --psp.ask.fixtures.location=file:src/test/resources/fixtures/"
 		}
 	}
 
@@ -56,15 +59,23 @@ class GeminiClient(
 			.uri("/v1beta/models/{model}:generateContent", model)
 			.bodyValue(prompt.request(query))
 			.retrieve()
-			.awaitBody<GeminiResponse>()
+			.bodyToMono(GeminiResponse::class.java)
+			.retryWhen(
+				Retry.backoff(MAX_RETRIES, RETRY_BACKOFF)
+					.filter { it is WebClientResponseException.TooManyRequests }
+					.onRetryExhaustedThrow { _, signal -> signal.failure() },
+			)
+			.awaitSingle()
 		return GeminiWire.decode(response, mapper)
 	}
 
 	private companion object {
 		const val API_KEY_HEADER = "x-goog-api-key"
 		const val MAX_CONNECTIONS = 20
+		const val MAX_RETRIES = 2L
 
 		val ACQUIRE_TIMEOUT: Duration = Duration.ofSeconds(5)
 		val DISPOSE_TIMEOUT: Duration = Duration.ofSeconds(5)
+		val RETRY_BACKOFF: Duration = Duration.ofMillis(200)
 	}
 }

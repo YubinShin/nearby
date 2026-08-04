@@ -78,16 +78,17 @@ SDK 의 블로킹·자체 비동기 모델을 WebFlux + 코루틴 위에 얹으�
 API 키는 `GEMINI_API_KEY` 에서 읽고 저장소에 넣지 않습니다. 부재 시 애플리케이션이 시작되지 않습니다.
 
 ```
-GEMINI_API_KEY is not set. export it, or start with --psp.ask.llm=fixture to replay recorded responses.
+GEMINI_API_KEY is not set. export it, or replay recorded responses with --psp.ask.llm=fixture --psp.ask.fixtures.location=file:src/test/resources/fixtures/
 ```
 
-| 무엇이 죽었나 | 응답 |
+| 장애 지점 | 응답 |
 |---|---|
 | LLM | `200` · `degradedBy: ["llm"]` · 원문 질의로 검색 |
 | 하이브리드 채널 하나 | `200` · `degradedBy: ["search"]` (하류 `degraded` 를 전파) |
+| `search-api` 가 4xx·5xx 로 거절 | `502` · `{"upstream": "search-api", ...}` |
 | `search-api` 전체 | `503` · `{"upstream": "search-api", ...}` |
 
-LLM 이 죽었을 때의 결과는 `/v1/hsearch` 를 직접 부른 것과 같습니다. 
+LLM 장애 시의 결과는 `/v1/hsearch` 를 직접 부른 것과 같습니다. 
 실패 시 LLM 만 빠지고 기존 검색만 수행합니다.
 LLM 장애와 검색 채널 장애를 구분할 수 있도록 `degradedBy`를 배열로 뒀습니다.
 
@@ -111,6 +112,9 @@ LLM 장애와 검색 채널 장애를 구분할 수 있도록 `degradedBy`를 �
 ```
 "평점 4.5 이상 카페"  →  q = "카페" · unsupported = ["평점"]   (하이브리드 89건)
 ```
+
+이 보장은 파싱이 성립한 경로에만 적용합니다. LLM 장애 시에는 원문 질의를 그대로 검색하므로
+속성어가 질의문에 남고 결과가 좁아집니다. 응답의 `degradedBy: ["llm"]` 으로 구분합니다.
 
 판정은 원문 질의와 `corpus/unsupported-filters.json` 의 어휘를 대조합니다.
 
@@ -207,9 +211,9 @@ ask-api 를 붙여 보니 플랫폼에서 비어 있는 부분이 보였습니�
 | `ask-api` | `ask/AskController.kt` | `5d37107` | 2026-08-04 |
 | `ask-api` | `ask/AskModels.kt` | `5d37107` | 2026-08-04 |
 | `ask-api` | `ask/AskQueryPlanner.kt` | `5d37107` | 2026-08-04 |
-| `ask-api` | `ask/AskService.kt` | `5d37107` · `b57d6bd` | 2026-08-04 |
-| `ask-api` | `ask/corpus/UnsupportedFilters.kt` | `b57d6bd` | 2026-08-04 |
-| `ask-api` | `corpus/unsupported-filters.json` | `b57d6bd` | 2026-08-04 |
+| `ask-api` | `ask/AskService.kt` | `5d37107` · `5f5644a` | 2026-08-04 |
+| `ask-api` | `ask/corpus/UnsupportedFilters.kt` | `5f5644a` | 2026-08-04 |
+| `ask-api` | `corpus/unsupported-filters.json` | `5f5644a` | 2026-08-04 |
 | `ask-api` | `ask/llm/AskPromptSpec.kt` | `5d37107` | 2026-08-04 |
 | `ask-api` | `ask/llm/FixtureLlmClient.kt` | `5d37107` | 2026-08-04 |
 | `ask-api` | `ask/llm/GeminiClient.kt` | `5d37107` | 2026-08-04 |
@@ -219,5 +223,5 @@ ask-api 를 붙여 보니 플랫폼에서 비어 있는 부분이 보였습니�
 | `ask-api` | `ask/web/SearchPlatformErrorHandler.kt` | `5d37107` | 2026-08-04 |
 | `ask-api` | `ask/AskMappingTest.kt` *(테스트)* | `5d37107` | 2026-08-04 |
 | `ask-api` | `ask/AskQueryPlannerTest.kt` *(테스트)* | `5d37107` | 2026-08-04 |
-| `ask-api` | `ask/corpus/UnsupportedFiltersTest.kt` *(테스트)* | `b57d6bd` | 2026-08-04 |
+| `ask-api` | `ask/corpus/UnsupportedFiltersTest.kt` *(테스트)* | `5f5644a` | 2026-08-04 |
 | `ask-api` | `ask/llm/GeminiWireTest.kt` *(테스트)* | `5d37107` | 2026-08-04 |

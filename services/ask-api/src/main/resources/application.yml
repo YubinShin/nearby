@@ -9,10 +9,17 @@ management:
   endpoints:
     web:
       exposure:
-        include: health, info
+        include: health, info, metrics, prometheus
   metrics:
     tags:
       application: ask-api
+    distribution:
+      percentiles-histogram:
+        psp.ask.latency: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
 
 psp:
   ask:

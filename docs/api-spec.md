@@ -464,8 +464,18 @@ ES·Qdrant 가 답하지 못하는 상태와 우리 코드의 버그를 **다른
 | 지표 | 태그 | 뜻 |
 |---|---|---|
 | `psp_query_latency_seconds` | `channel=keyword\|suggest\|vector\|hybrid`, `outcome` | 채널별 질의 지연·실패 |
-| `psp_query_stage_latency_seconds` | `channel`, `stage=embed\|ann\|keyword\|vector\|fuse\|hydrate` | 채널 **안에서** 단계별 분해. 벡터가 느릴 때 모델 문제인지 탐색 문제인지, 하이브리드가 느릴 때 어느 채널 탓인지 가려준다 |
-| `psp_index_lag_seconds` | – | 원천 최신 변경과 색인 체크포인트의 차이(초). **0이면 따라잡음**, -1이면 체크포인트 없음 |
+| `psp_query_stage_latency_seconds` | `channel`, `stage=embed\|ann\|narrow\|keyword\|vector\|fuse\|hydrate` | 채널 **안에서** 단계별 분해. 벡터가 느릴 때 모델 문제인지 탐색 문제인지, 하이브리드가 느릴 때 어느 채널 탓인지 가려준다 |
+| `psp_index_lag_seconds` | `pipeline=keyword\|vector` | 원천 최신 변경과 색인 체크포인트의 차이(초). **0이면 따라잡음**, -1이면 체크포인트 없음 |
+
+## `ask-api` 지표 (8082)
+
+자연어 질의 이해 모듈의 지표입니다. 자세한 것은 ADR 0014 를 참고합니다.
+
+| 지표 | 태그 | 뜻 |
+|---|---|---|
+| `psp_ask_latency_seconds` | `stage=llm\|search`, `outcome` | 구간별 소요. LLM 왕복과 `/v1/hsearch` 호출을 나눠 잰다 |
+| `psp_ask_degraded_total` | `stage=llm`, `reason=config\|rate_limit\|upstream\|request\|payload\|unreachable` | LLM 실패로 원문 질의를 그대로 검색한 횟수. `reason=config` 는 키·설정 문제라 재시도로 낫지 않는다 |
+| `psp_ask_degraded_total` | `stage=search`, `reason=channel` | 하류 하이브리드 채널 하나가 degrade 한 횟수 |
 
 ## 앱은 둘이다 (ADR 0011)
 

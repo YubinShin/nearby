@@ -21,7 +21,7 @@ class FixtureLlmClient(
 ) : LlmClient {
 	override val vendor = "fixture"
 
-	private val index: FixtureIndex by lazy { loadIndex() }
+	private val index: FixtureIndex = loadIndex()
 
 	override suspend fun parse(query: String): ParsedQuery {
 		val key = normalize(query)
@@ -43,11 +43,13 @@ class FixtureLlmClient(
 			)
 		}
 		val loaded = mapper.readValue(read(resource), FixtureIndex::class.java)
-		if (loaded.promptVersion != prompt.version) {
+		val stale = loaded.entries.filterValues { it.promptVersion != prompt.version }.keys
+		if (loaded.promptVersion != prompt.version || stale.isNotEmpty()) {
 			log.warn(
-				"fixtures were recorded with prompt version {} but this build carries {} — re-record them",
-				loaded.promptVersion,
+				"fixtures do not match prompt version {} (index says {}) — re-record {}",
 				prompt.version,
+				loaded.promptVersion,
+				stale.joinToString(", ").ifEmpty { "them" },
 			)
 		}
 		return loaded.copy(entries = loaded.entries.mapKeys { normalize(it.key) })
@@ -76,4 +78,4 @@ data class FixtureIndex(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class FixtureEntry(val file: String, val source: String? = null)
+data class FixtureEntry(val file: String, val source: String? = null, val promptVersion: String? = null)

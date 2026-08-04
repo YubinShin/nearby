@@ -25,7 +25,7 @@ class UnsupportedFilters(
 		if (loaded.isEmpty() || loaded.any { it.name.isBlank() || it.terms.isEmpty() }) {
 			throw IllegalStateException("corpus lexicon ${resource.description} has an empty attribute or term list")
 		}
-		attributes = loaded.map { it.copy(terms = it.terms.map(::fold)) }
+		attributes = loaded.map { it.copy(terms = it.terms.map(::fold), exceptions = it.exceptions.map(::fold)) }
 	}
 
 	val names: List<String> get() = attributes.map { it.name }
@@ -33,7 +33,12 @@ class UnsupportedFilters(
 	fun detect(query: String): List<String> {
 		val folded = fold(query)
 		if (folded.isEmpty()) return emptyList()
-		return attributes.filter { attribute -> attribute.terms.any { it in folded } }.map { it.name }
+		return attributes
+			.filter { attribute ->
+				val text = attribute.exceptions.fold(folded) { acc, exception -> acc.replace(exception, "") }
+				attribute.terms.any { it in text }
+			}
+			.map { it.name }
 	}
 
 	private companion object {
@@ -46,4 +51,8 @@ class UnsupportedFilters(
 internal data class CorpusLexicon(val attributes: List<CorpusAttribute> = emptyList())
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-internal data class CorpusAttribute(val name: String = "", val terms: List<String> = emptyList())
+internal data class CorpusAttribute(
+	val name: String = "",
+	val terms: List<String> = emptyList(),
+	val exceptions: List<String> = emptyList(),
+)

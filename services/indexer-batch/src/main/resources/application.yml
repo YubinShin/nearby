@@ -27,6 +27,10 @@ management:
   metrics:
     tags:
       application: indexer-batch
+  prometheus:
+    metrics:
+      export:
+        enabled: true
 
 psp:
   index:

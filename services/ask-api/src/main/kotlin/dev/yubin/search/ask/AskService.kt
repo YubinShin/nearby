@@ -2,6 +2,8 @@ package dev.yubin.search.ask
 
 import dev.yubin.search.ask.corpus.UnsupportedFilters
 import dev.yubin.search.ask.llm.LlmClient
+import dev.yubin.search.ask.llm.LlmFailures
+import dev.yubin.search.ask.observability.AskMetrics
 import dev.yubin.search.ask.search.SearchPlatform
 import kotlinx.coroutines.CancellationException
 import org.slf4j.LoggerFactory
@@ -13,6 +15,7 @@ class AskService(
 	private val llm: LlmClient,
 	private val unsupportedFilters: UnsupportedFilters,
 	private val search: SearchPlatform,
+	private val metrics: AskMetrics,
 	@Value("\${psp.ask.size}") private val defaultSize: Int,
 ) {
 	suspend fun ask(q: String?, size: Int? = null, lat: Double? = null, lon: Double? = null): AskResponse {
@@ -34,12 +37,15 @@ class AskService(
 		)
 
 		val searchStartedAt = System.nanoTime()
-		val result = search.hsearch(plan)
+		val result = metrics.record(SEARCH) { search.hsearch(plan) }
 		val searchTookMs = elapsedMs(searchStartedAt)
 
 		val degradedBy = buildList {
 			if (raw.isNotBlank() && parsed == null) add(LLM)
-			if (result.degraded) add(SEARCH)
+			if (result.degraded) {
+				add(SEARCH)
+				metrics.degraded(SEARCH, "channel")
+			}
 		}
 
 		return AskResponse(
@@ -56,12 +62,18 @@ class AskService(
 	}
 
 	private suspend fun parse(raw: String): ParsedQuery? = try {
-		llm.parse(raw)
+		metrics.record(LLM) { llm.parse(raw) }
 	} catch (e: CancellationException) {
 		throw e
 	} catch (e: Exception) {
-		log.warn("{} parse failed, falling back to the raw query — {}: {}", llm.vendor, e.javaClass.simpleName, e.message)
-		log.debug("llm parse failure detail", e)
+		val reason = LlmFailures.reasonOf(e)
+		metrics.degraded(LLM, reason)
+		if (reason == LlmFailures.CONFIG) {
+			log.error("{} rejected the credentials — every query runs without understanding until this is fixed", llm.vendor, e)
+		} else {
+			log.warn("{} parse failed, falling back to the raw query — {}: {}", llm.vendor, e.javaClass.simpleName, e.message)
+			log.debug("llm parse failure detail", e)
+		}
 		null
 	}
 

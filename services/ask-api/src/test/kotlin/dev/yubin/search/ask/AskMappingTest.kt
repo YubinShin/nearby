@@ -45,8 +45,8 @@ class AskMappingTest @Autowired constructor(
 	fun `a plain category query is passed through without extra tokens`() = runTest {
 		val response = ask.ask("카페")
 
-		assertEquals("카페", platform.lastPlan?.q)
-		assertNull(response.parsed?.categoryHint)
+		assertEquals("카페", assertNotNull(platform.lastPlan).q)
+		assertNull(assertNotNull(response.parsed).categoryHint)
 		assertEquals(emptyList(), response.applied.unmapped)
 	}
 
@@ -70,11 +70,11 @@ class AskMappingTest @Autowired constructor(
 	@Test
 	fun `a parsed radius reaches hsearch only when the caller sent coordinates`() = runTest {
 		val without = ask.ask("강남역 500m 안에 편의점")
-		assertNull(platform.lastPlan?.radius)
+		assertNull(assertNotNull(platform.lastPlan).radius)
 		assertTrue("radius_m" in without.applied.unmapped)
 
 		val with = ask.ask("강남역 500m 안에 편의점", lat = 37.4979, lon = 127.0276)
-		assertEquals(500, platform.lastPlan?.radius)
+		assertEquals(500, assertNotNull(platform.lastPlan).radius)
 		assertTrue("radius_m" !in with.applied.unmapped)
 	}
 
@@ -117,6 +117,7 @@ class AskMappingTest @Autowired constructor(
 		assertNull(response.parsed)
 		assertEquals(listOf("llm"), response.degradedBy)
 		assertEquals(listOf("평점"), response.applied.unsupported)
+		assertEquals("평점 높은 녹화되지 않은 질의", assertNotNull(platform.lastPlan).q)
 	}
 
 	@Test

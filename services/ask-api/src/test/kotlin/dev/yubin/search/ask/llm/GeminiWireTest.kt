@@ -56,6 +56,21 @@ class GeminiWireTest @Autowired constructor(
 	}
 
 	@Test
+	fun `decomposed hangul is composed before it reaches the search platform`() {
+		val decomposed = "\u1109\u1166\u1110\u1161\u11A8\u1109\u1169"
+		assertEquals(7, decomposed.length)
+
+		val parsed = GeminiWire.decode(
+			envelope("""{"keyword":"$decomposed","category_hint":"$decomposed","expects_empty":false}"""),
+			mapper,
+		)
+
+		assertEquals(3, parsed.keyword.length)
+		assertEquals("\uC138\uD0C1\uC18C", parsed.keyword)
+		assertEquals(parsed.keyword, parsed.categoryHint)
+	}
+
+	@Test
 	fun `a blocked prompt with no candidate is an llm failure`() {
 		val failure = assertFailsWith<LlmException> { GeminiWire.decode(GeminiResponse(), mapper) }
 		assertTrue(failure.message!!.contains("no candidate"))

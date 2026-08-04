@@ -50,14 +50,14 @@ class SearchApiClient(
 		val body = http.get()
 			.uri { builder ->
 				builder.path(HSEARCH)
-					.queryParam("q", plan.q)
+					.queryParam("q", "{q}")
 					.queryParam("size", plan.size)
 					.apply {
 						plan.lat?.let { queryParam("lat", it) }
 						plan.lon?.let { queryParam("lon", it) }
 						plan.radius?.let { queryParam("radius", it) }
 					}
-					.build()
+					.build(mapOf("q" to plan.q))
 			}
 			.retrieve()
 			.awaitBody<JsonNode>()

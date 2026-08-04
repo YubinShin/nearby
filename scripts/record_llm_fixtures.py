@@ -141,9 +141,11 @@ def main():
     index = json.loads(index_path.read_text(encoding="utf-8")) if index_path.exists() else {}
     entries = index.get("entries", {})
 
-    stale_prompt = index.get("promptVersion") not in (None, version)
-    if stale_prompt:
-        print(f"프롬프트 버전이 {index.get('promptVersion')} → {version} 로 바뀌었습니다. 전부 다시 녹화합니다.")
+    outside = [query for query in entries if query not in queries]
+    queries += outside
+
+    if index.get("promptVersion") not in (None, version):
+        print(f"인덱스 프롬프트 버전이 {index.get('promptVersion')} → {version} 로 바뀌었습니다.")
 
     todo = []
     for query in queries:
@@ -152,13 +154,17 @@ def main():
             entry is not None
             and entry.get("source") == "recorded"
             and entry.get("model") == model
+            and entry.get("promptVersion") == version
             and (args.fixtures / entry["file"]).exists()
         )
-        if recorded and not args.force and not stale_prompt:
+        if recorded and not args.force:
             continue
         todo.append(query)
 
-    print(f"골든셋 {len(queries)}개 · 녹화 대상 {len(todo)}개 · 모델 {model} · 프롬프트 v{version}")
+    print(
+        f"질의 {len(queries)}개(골든셋 {len(queries) - len(outside)} · 인덱스 전용 {len(outside)}) · "
+        f"녹화 대상 {len(todo)}개 · 모델 {model} · 프롬프트 v{version}"
+    )
     if not todo:
         print("전부 녹화돼 있습니다. 다시 부르려면 --force.")
         return 0
@@ -188,15 +194,16 @@ def main():
         (args.fixtures / name).write_text(
             json.dumps(raw, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
         )
-        entries[query] = {"file": name, "source": "recorded", "model": model}
+        entries[query] = {"file": name, "source": "recorded", "model": model, "promptVersion": version}
         print(f"  [{i}/{len(todo)}] {name}  {query}  →  {parsed_text(raw)}")
 
         if i < len(todo):
             time.sleep(args.sleep)
 
+    stale = [query for query, entry in entries.items() if entry.get("promptVersion") != version]
     index_path.write_text(
         json.dumps(
-            {"promptVersion": version, "model": model, "entries": entries},
+            {"promptVersion": index.get("promptVersion") if stale else version, "model": model, "entries": entries},
             ensure_ascii=False,
             indent=2,
         )
@@ -204,6 +211,9 @@ def main():
         encoding="utf-8",
     )
     print(f"\n{index_path.relative_to(ROOT)} 갱신 · 항목 {len(entries)}개")
+
+    if stale:
+        print(f"프롬프트 v{version} 로 녹화되지 않은 항목 {len(stale)}개: {', '.join(stale)}")
 
     if failures:
         print(f"\n실패 {len(failures)}건 — 다시 실행하면 실패분만 부릅니다.")

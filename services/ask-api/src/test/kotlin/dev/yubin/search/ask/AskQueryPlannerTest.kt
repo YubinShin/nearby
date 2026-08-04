@@ -51,6 +51,23 @@ class AskQueryPlannerTest {
 	}
 
 	@Test
+	fun `coordinates without a parsed radius report the radius the platform applies`() {
+		val plan = plan(
+			raw = "미용실",
+			parsed = ParsedQuery(keyword = "미용실"),
+			lat = 37.4979,
+			lon = 127.0276,
+		)
+		assertEquals(AskQueryPlanner.DEFAULT_RADIUS_M, plan.radius)
+	}
+
+	@Test
+	fun `a failed parse with coordinates reports the platform radius too`() {
+		val plan = plan(raw = "미용실", parsed = null, lat = 37.4979, lon = 127.0276)
+		assertEquals(AskQueryPlanner.DEFAULT_RADIUS_M, plan.radius)
+	}
+
+	@Test
 	fun `the radius is clamped like the platform clamps it`() {
 		val plan = plan(
 			raw = "편의점",

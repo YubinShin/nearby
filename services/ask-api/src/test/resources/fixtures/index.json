@@ -5,137 +5,164 @@
     "회 먹을 데": {
       "file": "b6d953805326.json",
       "source": "recorded",
-      "model": "gemini-3.5-flash"
+      "model": "gemini-3.5-flash",
+      "promptVersion": "1"
     },
     "카페": {
       "file": "53cc9fb21b36.json",
       "source": "recorded",
-      "model": "gemini-3.5-flash"
+      "model": "gemini-3.5-flash",
+      "promptVersion": "1"
     },
     "스타벅스": {
       "file": "6f80c60267f6.json",
       "source": "recorded",
-      "model": "gemini-3.5-flash"
+      "model": "gemini-3.5-flash",
+      "promptVersion": "1"
     },
     "역삼동 조용히 공부할 곳": {
       "file": "c53063faca07.json",
       "source": "recorded",
-      "model": "gemini-3.5-flash"
+      "model": "gemini-3.5-flash",
+      "promptVersion": "1"
     },
     "강남역 500m 안에 편의점": {
       "file": "c0d858c14d50.json",
       "source": "recorded",
-      "model": "gemini-3.5-flash"
+      "model": "gemini-3.5-flash",
+      "promptVersion": "1"
     },
     "평점 4.5 이상 카페": {
       "file": "efa440329630.json",
       "source": "recorded",
-      "model": "gemini-3.5-flash"
+      "model": "gemini-3.5-flash",
+      "promptVersion": "1"
     },
     "브런치 먹을 곳": {
       "file": "22d8762bc24d.json",
       "source": "recorded",
-      "model": "gemini-3.5-flash"
+      "model": "gemini-3.5-flash",
+      "promptVersion": "1"
     },
     "머리 자르는 곳": {
       "file": "64944f032760.json",
       "source": "recorded",
-      "model": "gemini-3.5-flash"
+      "model": "gemini-3.5-flash",
+      "promptVersion": "1"
     },
     "혼밥하기 좋은 집": {
       "file": "841c90b1cd15.json",
       "source": "recorded",
-      "model": "gemini-3.5-flash"
+      "model": "gemini-3.5-flash",
+      "promptVersion": "1"
     },
     "매운 거 먹고 싶다": {
       "file": "8dc5c1267ab2.json",
       "source": "recorded",
-      "model": "gemini-3.5-flash"
+      "model": "gemini-3.5-flash",
+      "promptVersion": "1"
     },
     "차 고치는 곳": {
       "file": "bd98fcb06671.json",
       "source": "recorded",
-      "model": "gemini-3.5-flash"
+      "model": "gemini-3.5-flash",
+      "promptVersion": "1"
     },
     "조용히 공부할 곳": {
       "file": "0d418f31b4f8.json",
       "source": "recorded",
-      "model": "gemini-3.5-flash"
+      "model": "gemini-3.5-flash",
+      "promptVersion": "1"
     },
     "고기 구워 먹는 데": {
       "file": "ac5124328ff8.json",
       "source": "recorded",
-      "model": "gemini-3.5-flash"
+      "model": "gemini-3.5-flash",
+      "promptVersion": "1"
     },
     "편의점": {
       "file": "590f2a3e6ebd.json",
       "source": "recorded",
-      "model": "gemini-3.5-flash"
+      "model": "gemini-3.5-flash",
+      "promptVersion": "1"
     },
     "세탁소": {
       "file": "8f1ae7341b09.json",
       "source": "recorded",
-      "model": "gemini-3.5-flash"
+      "model": "gemini-3.5-flash",
+      "promptVersion": "1"
     },
     "약국": {
       "file": "15f1e20a3b64.json",
       "source": "recorded",
-      "model": "gemini-3.5-flash"
+      "model": "gemini-3.5-flash",
+      "promptVersion": "1"
     },
     "미용실": {
       "file": "9f4f9d50afd9.json",
       "source": "recorded",
-      "model": "gemini-3.5-flash"
+      "model": "gemini-3.5-flash",
+      "promptVersion": "1"
     },
     "치킨": {
       "file": "8823f1c30d14.json",
       "source": "recorded",
-      "model": "gemini-3.5-flash"
+      "model": "gemini-3.5-flash",
+      "promptVersion": "1"
     },
     "삼겹살": {
       "file": "cf1d1af8e04e.json",
       "source": "recorded",
-      "model": "gemini-3.5-flash"
+      "model": "gemini-3.5-flash",
+      "promptVersion": "1"
     },
     "노래방": {
       "file": "81119c5e7735.json",
       "source": "recorded",
-      "model": "gemini-3.5-flash"
+      "model": "gemini-3.5-flash",
+      "promptVersion": "1"
     },
     "CU": {
       "file": "875d76572424.json",
       "source": "recorded",
-      "model": "gemini-3.5-flash"
+      "model": "gemini-3.5-flash",
+      "promptVersion": "1"
     },
     "파리바게뜨": {
       "file": "7dfea7361415.json",
       "source": "recorded",
-      "model": "gemini-3.5-flash"
+      "model": "gemini-3.5-flash",
+      "promptVersion": "1"
     },
     "이디야": {
       "file": "0dc8558d4e8f.json",
       "source": "recorded",
-      "model": "gemini-3.5-flash"
+      "model": "gemini-3.5-flash",
+      "promptVersion": "1"
     },
     "지금 문 연 약국": {
       "file": "1c204db7e27d.json",
       "source": "recorded",
-      "model": "gemini-3.5-flash"
+      "model": "gemini-3.5-flash",
+      "promptVersion": "1"
     },
     "배달 되는 치킨집": {
       "file": "4fafa1c3c14a.json",
       "source": "recorded",
-      "model": "gemini-3.5-flash"
+      "model": "gemini-3.5-flash",
+      "promptVersion": "1"
     },
     "1만원 이하 파스타": {
       "file": "4d16c29c0ee4.json",
       "source": "recorded",
-      "model": "gemini-3.5-flash"
+      "model": "gemini-3.5-flash",
+      "promptVersion": "1"
     },
     "제주도 흑돼지 맛집": {
       "file": "f2312df4e77f.json",
       "source": "recorded",
-      "model": "gemini-3.5-flash"
+      "model": "gemini-3.5-flash",
+      "promptVersion": "1"
     }
   }
 }

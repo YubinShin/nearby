@@ -36,7 +36,7 @@ API 키가 없으면 애플리케이션이 시작되지 않습니다.
 
 | 이름 | 타입 | 기본값 | 설명 |
 |---|---|---|---|
-| `q` | string | (필수) | 자연어 질의 |
+| `q` | string | (필수) | 자연어 질의. 없거나 공백이면 `400` |
 | `size` | int | `20` | `psp.ask.size`. 1~50 으로 잘린다 |
 | `lat`, `lon` | double | – | 기준 좌표. 둘 다 있어야 `radius_m` 이 전달된다 |
 
@@ -68,7 +68,8 @@ API 키가 없으면 애플리케이션이 시작되지 않습니다.
 
 `applied.unsupported` 는 코퍼스에 데이터가 없어 거를 수 없는 속성입니다. 검색 결과는 좁히지
 않고 이름만 알립니다 — `평점 4.5 이상 카페` 는 `q=카페` 로 검색하고 `unsupported: ["평점"]` 을
-답합니다.
+답합니다. LLM 장애 시(`degradedBy: ["llm"]`)에는 원문 질의를 그대로 검색하므로 이 보장이
+적용되지 않습니다.
 [결정 5](../../docs/adr/0014-ask-api-llm-query-understanding.md#5-unsupported-filters).
 
 ## Golden set labeling

@@ -20,12 +20,16 @@ management:
   metrics:
     tags:
       application: search-api
-  distribution:
-    percentiles-histogram:
-      psp.query.latency: true
-      psp.query.stage.latency: true
-    slo:
-      psp.query.latency: 10ms, 25ms, 50ms, 100ms, 250ms, 500ms
+    distribution:
+      percentiles-histogram:
+        psp.query.latency: true
+        psp.query.stage.latency: true
+      slo:
+        psp.query.latency: 10ms, 25ms, 50ms, 100ms, 250ms, 500ms
+  prometheus:
+    metrics:
+      export:
+        enabled: true
 
 psp:
   vector:

@@ -2,6 +2,7 @@ package dev.yubin.search.ask
 
 object AskQueryPlanner {
 	const val MAX_SIZE = 50
+	const val DEFAULT_RADIUS_M = 2_000
 	const val MAX_RADIUS_M = 50_000
 
 	fun plan(
@@ -22,6 +23,7 @@ object AskQueryPlanner {
 				size = resolvedSize,
 				lat = lat.takeIf { hasGeo },
 				lon = lon.takeIf { hasGeo },
+				radius = DEFAULT_RADIUS_M.takeIf { hasGeo },
 				unsupported = unsupported,
 			)
 		}
@@ -33,7 +35,7 @@ object AskQueryPlanner {
 			size = resolvedSize,
 			lat = lat.takeIf { hasGeo },
 			lon = lon.takeIf { hasGeo },
-			radius = parsed.radiusM?.coerceIn(1, MAX_RADIUS_M)?.takeIf { hasGeo },
+			radius = if (hasGeo) (parsed.radiusM ?: DEFAULT_RADIUS_M).coerceIn(1, MAX_RADIUS_M) else null,
 			unmapped = unmapped(parsed, hasGeo),
 			unsupported = unsupported,
 		)

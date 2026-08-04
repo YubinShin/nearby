@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import dev.yubin.search.ask.ParsedQuery
 import tools.jackson.databind.ObjectMapper
+import java.text.Normalizer
 
 object GeminiWire {
 	fun decode(response: GeminiResponse, mapper: ObjectMapper): ParsedQuery {
@@ -21,13 +22,15 @@ object GeminiWire {
 			throw LlmException("gemini returned an empty keyword: $text")
 		}
 		return ParsedQuery(
-			keyword = parsed.keyword.trim(),
-			categoryHint = parsed.categoryHint?.trim()?.ifBlank { null },
-			geoAnchor = parsed.geoAnchor?.trim()?.ifBlank { null },
+			keyword = normalize(parsed.keyword),
+			categoryHint = parsed.categoryHint?.let(::normalize)?.ifBlank { null },
+			geoAnchor = parsed.geoAnchor?.let(::normalize)?.ifBlank { null },
 			radiusM = parsed.radiusM,
 			expectsEmpty = parsed.expectsEmpty,
 		)
 	}
+
+	private fun normalize(text: String) = Normalizer.normalize(text.trim(), Normalizer.Form.NFC)
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
