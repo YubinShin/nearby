@@ -1,0 +1,32 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\"keyword\":\"약국\",\"category_hint\":null,\"geo_anchor\":null,\"radius_m\":null,\"expects_empty\":false}",
+            "thoughtSignature": "EtsFCtgFARFNMg8jnSCpoO0kdRAROKxyP0FOo5zsMHmpdDQR3zS8im4wjEv1N6PLZ9YKByjECDVFFIlB5i+WpcNSm5dOZMtoLXorZwY3QeNvol9tvGVNNYKlq1EnZ/qhxJ/0KnzoHWv+Wa6rjLZfZi58JRuUcZi/xUkSKPmZDuc7Lq1g7ecMURY4x6DcUKDKvty3ZumaamEHvVMbNYk2TO1/vLyb9Gw35aqPEUN34FajbMEvSmvnZ3YtKI2dTH/00vOfcSEkKMQkklFoEsgSE5mV/yXGWLRA7QVLneiORaRyNSgbIr3TfOQ60TGVMEr9RUOjpRetDA5cSfBeZVRlzqRPRnyI2+vqpNVju2lr8/+rcudQ9OrtNsm1t7aET+Ytx57il3MktaJoQPOeHf+Y7ia0l81oX0CzNgon36KYWa67BEMqj1PXwwaB0Xg6wLbVHIff7CL3h51xa0Foux7xLqSLQPDMGCzoTLQy2imdf74hC4sWkmFyB7qiDMh4QymWGLpI/I84Ou0zYcFBCQiecxkaui69UtZdHqcFmKwDBkNm99e1Ecb4gcmYzRbvlv3rWd1oLvO//qVauX0JLTgD1Cc0gfjDwKl3Ll3knldfWvVVN1MB7hwNoUJURyVd6J7qbiyyn2ZnuawaFwVfcEN50o35e+uY7xVjsDN6Mx6CVqxED8snkW12CCP1DSsnFICwrlj0qcOsWiRjqd+sAFLraMn9CoKbMdDnLyH2MAdkq05Y4tsjSuqc29Lu47p9tDGT9L2O1tN9UYaWqYAnrhbtAKEtYEM1l+MlKSlfv80nuPF/kdzdvxObeinPfoX56R2761Y+gApxHzZxdwCSXfqNgtYekZGLriFp9rEAyZjseLmObiaIX2fD1BgCO98BkHlDuWf6FmZfEwOrjfzr+xWM2TUXRu6juocfUhE7LXu2ijPj4HhnPk3WkUuNdxodc+LUQgu1obUh0GZVgA0rncg="
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 309,
+    "candidatesTokenCount": 30,
+    "totalTokenCount": 537,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 309
+      }
+    ],
+    "thoughtsTokenCount": 198,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "ca5xat_8IpPN1e8Phs6zoA8"
+}

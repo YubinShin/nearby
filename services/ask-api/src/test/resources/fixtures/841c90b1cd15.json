@@ -1,0 +1,32 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\"keyword\":\"혼밥하기 좋은 집\",\"category_hint\":\"음식점\",\"geo_anchor\":null,\"radius_m\":null,\"expects_empty\":true}",
+            "thoughtSignature": "EpQGCpEGARFNMg9kwFm43W2dSj4b/iq/DV/jZ9WpFaprmFohcW9S5Ufx/3r3dVFEN5zbKhgX+OHU5ZsQCn9Kii12ugOsHG2N4zX1PUp9KPlBlnHOyQuYqp5BoKbO/CrdsFlkoia8BM1OkELDfr/VW7A1TJ7i+12nAP7YkMu9KEYknSECX7EBwuefQHY/GCWrKoF5KpqQtepGkRCIybn6/VWmCAKXUAJJIuM7w3ubuZI2iwRZW1TzU9qr+JTzdTTK/DbrIaLT7SF3pmnZDaOl1bSsEFGrNXXby3xkQ9lUKasfIECm2RvePBY0/LWfUp+lXrErbZgAJjnMwvm2FzztwMas9lkJD4JcpB9Cr7SMcVn0jQGxB51Rf28hsNmdziGOf6CJ/LyG5z333pa1JpuIY1fgGIwLKNhg5MtOl7BMRlyL/ySJXSBw7BHZKchOyf3iWBAiIWVvi7m/vIoOc9pvPY20bUA9wkJvwkemdZJrvJ5VwcacZRa0YVnm7h0XBDQyGz2AHJ2Rp09UU4oFIbPGdBoKxv5Yn1SdSb+Ple7/Of1USwMgKQbpyGDZXiN2YNqLwQR+hvGxBwp9LWgyQ2NsrHE/KIf8oFdjUyIeINtfKbLtiPtK5YTACNHR3t3uG9Hon9Q6TPQrj+oU5N/oZE6wSJdmsthx6IbaljW4aQSmrhddeyEWkBJZqsUnBFggcKIdaR1j1cZZ3NgjU2GNriLy8XCirp8wOPt1Tkpp1WJCPwOVhagNpCAzuLIMIusKv3Meb3Vno2YpJh6VkHCGJIZMbTqUqj7M2tYpjSCPbW0EYup0DV68BruHUnVzXRde2p218xU2tB05Pl7VMaCNlYCuaZ8fJPrM0P/ZUG9WhSvr6UDqsX/XPt+No18L8CuxnuM/ONeX8bPMn3y6f7lxqwa6VV3JbyGdsd0iVzaJS9aeImwRsBVwUiDGWgWs9LFD4ZjK1xhDGv9qWe4PUdLSAde3t/uIUtF5X+WglV6Xv6S4ry3k7ls53goErM+CKy92eF1acumytJPN7Lt0s8jIbq93mPtskbLVhGQ="
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 312,
+    "candidatesTokenCount": 35,
+    "totalTokenCount": 553,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 312
+      }
+    ],
+    "thoughtsTokenCount": 206,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "HK5xaqnfL_Ow0-kPze_68Ao"
+}

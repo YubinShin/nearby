@@ -1,0 +1,32 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\"keyword\":\"이디야\",\"category_hint\":\"카페\",\"geo_anchor\":null,\"radius_m\":null,\"expects_empty\":false}",
+            "thoughtSignature": "Eo8HCowHARFNMg8pvwhR9+uSs451Dj078vdkDfWcyHi33GwyKqDF24c9e3uOsdSczHjrTJLR1X+IqeX+ItnotkOIF7RGVxkeieX+XbjRf5gN+qqrOSGCtWTMKV5mnbFkUpFw7keF4FfWu4/JOnUdqjprq5AdXJmQELtHDEWol4AVQgCX2TKOnRJ9rXQ/smuUZ16SUm9KcH9Q1lGoUas2a97ZsdAIFwLctoR1WoESkJ7ejlm6NTk+p8zoeHqdaE4nbNpHkAHWAY/Rs/ADhX5K4jal95wYzwdZmJM4guTTJNzkQH7bHcSLCv5+zA1mh5mx0h9k2JLnPFZrISaSURPlKrP2eorBqGDV1yZ8PaAO55DeZxYqUjfm/z4WXZ7jsA8TcLiHf7S9c3igbHm4aCDzGILqLFa+6q65jCZ//Qecab9hNRatTXBkIYraudIqI8P2E9SAV1dP9Z9Pl/J6IscqHFTP9tALo6bpMQ97M0JR4cH8xcqpQGzbWYPGptXNP3mPLok8h+lurkULGtQ1F+AS/3wu0os3iaMXm5mgQdhslourGnKYDFJ/RxYdDvr6HBOv2jc+D2hkr2Z/AR/6CYPL7qy/BRmt7wbl3BKsJg5p5f2FdTgwNejPEKrLmBWECPbIqOXxdYv+qJSa1AsV3B2jEClLGKoxlgJ/m+pXiDVq+mlkezHke3/E7M86FB2e001Jg0h1sD8OVQcRQ7LavMWcajOb9s61UqCCVew/57g7pZilkfCxG0t8NL2t9U/rPC1YeijOuXMrn7UAOKCjrPAV4HU87O5FXVCBQrglHsUAdjDsK5RB9eldO8c/D3CsyUcYg1JDocG6ZhuhPeQlXMKxF7Q6khDJEKQi5QuEB1NFcp4GJ4OcfwuDY4lilkA/friXu8GnvWtp3r2zPt2AeVBTKSbFFd9Sl6OIhSD5m8y0I3TN4TcBeEQKzvxesb1TBfN067BA11x56b1AVjdTuDnoTFIaJ0wa5e8vanEwEbWRupff/Dn2F3NCkcGgizFh10e5XyV1TNqXNylkC/CfpFnc7TedLyh1IsuU+/CIqrTnYjSJ3WhCJXBjblPKWZSOMESUQfOqcg2pW+I86RvxkDWPotEMj3v2constIQ8inWbdoh6FiuB6zpR/dp4MRN3fFPFlXY3AUgicGfeVIOtEOoJhymvq/82LfBG1FGS28GDxx7uvNnWRlS03sgY9A5iYmeiTUA="
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 310,
+    "candidatesTokenCount": 31,
+    "totalTokenCount": 598,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 310
+      }
+    ],
+    "thoughtsTokenCount": 257,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "ia5xapeOJPrp2roPqrGYkAU"
+}

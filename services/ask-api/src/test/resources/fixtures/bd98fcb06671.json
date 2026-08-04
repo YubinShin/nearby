@@ -1,0 +1,32 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\"keyword\":\"차 고치는 곳\",\"category_hint\":\"자동차 정비\",\"geo_anchor\":null,\"radius_m\":null,\"expects_empty\":false}",
+            "thoughtSignature": "EvwECvkEARFNMg8mNa/rXRO4J/2PiDSwvtszgct42TSDd6H6qWTvG/U1hwy0VEJuec4Vdm+Su2OacOD3WuX443YFAnD5fXn7GlSpqiCUxDZZHCabwt7SnOMCrOmiMabukT1/SwivxClUawPSa1snnnhMxpfHV9kB85nvE+ZAMtrea9uen/R5D2KGA1uLTaSd/RPlZ+LDkoQ03FLpFk6FDqFZJ94DPfU+iFuUpnZPpsqA7AoCgpnOFDWTezJ1YohqV/atPTvx+xKFOwjAgBVwRz/vKhqlBgQT+ex/ucptJF1atjCXhrCpPrGGuKTykBpVv3sYDqbVmGl986G4oDNum6Q+xwUJ2OjO35C3aQS78Ugr938yKi05di5CgAtAIHOTwgFQn9g9Im2w8zIQSACIV96l5MDGSDDnFXVKgu4nP/8gWSwgTLNAlAA6my37pV9kSKMfDwDJVRHnekSm2cEdvly3lj7x1lFC8aYWILamqWlDyNi2iecVe17ndX/b3XMpbXV7ulp0yuv9yYw/Zx6RuKFhktRUP34KMtOfKnzOjSZU6G1XnbfiFeQIV2wyDkLYMC2XBTzMOr6CtTh5Es/KZoplASy5PD98LOmRybgNuwthCNX/7gdaBoH2y28VM7lVHZDWQLMxaJFn5K1fMSvUelDpU/p4tzkvJXZeF73qrsLgbjvZowfKSRkR1+68yqDpDtyYjhFUAjlaZQR45dxRPEznoAyPjBqGmVG723/HpDdHSHLu6PepNS+BKrWu6D9WdP7pZVN7W+pQnorTev45Wfo3lN7v9Kzc7dTNlm/ubIvQEnxAC7hqid03xnnH2w2jKVYDdRnASi306LDkV5vw"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 311,
+    "candidatesTokenCount": 34,
+    "totalTokenCount": 511,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 311
+      }
+    ],
+    "thoughtsTokenCount": 166,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "I65xasiEOJif2roP-b_0uAU"
+}

@@ -1,0 +1,32 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\"keyword\":\"편의점\",\"category_hint\":null,\"geo_anchor\":null,\"radius_m\":null,\"expects_empty\":false}",
+            "thoughtSignature": "EpgFCpUFARFNMg9z96WKaih0Oq3mh3IyVU2G3CGscHPQ2K7aXCmNUAhbzh0hU1Yc5KK9tJWIdE2cbNoNIIsxYIu3Q5lOJY4dCZK1jZ7kPrlBpzj+BHKvU0vk77KQXHMuM8iLcFiO+BIzWSZz3p+MWZfd0Z0HQ9JaqUl86RN8Z9Vs/JfWISg/ZBA0sv4kzSvC4PJCbSz7OMgFNASUu5Sl+fiXfQ7iFZ/EvOAQo2c+P/RSnRomaWqk/vT+RVmhzmxE6EjyjXaYv9Rn8XfDNlF4Kgli2KJqq9E2067cHyQKEiGJku094x5sJdGgFBcQOTJVYnilrvA+uAYOl125MXFsSG5w4YMMlsBIrAN6rvkIbY9bhzt7azcGMOTrbkvWM8S4soVkMOS5B5jUJN5sWx7Yd2zIZrxbbLRQ0pzTEZGx5i3tEOidU/KAn0qUpcJ/yEzND518GG9EXjoN4fVOs3Ja/LmJLxWafIR1WCZGYz4zKvbLONdYvlHLq8qfemWumHlxEttVdKm5XPcwiXXH1wzhR2TacHaXRsYplmTtR+6annNuPf3e3I5wDotOxm4RwatP8/9yK+ga3JF+rr2f6k9qUjiGdxiIQZYNtbia4Qsob0GP/905Ex5pI9SprXW1cbMSRY3jq4mXGAU5iWE8XHU0vN/39P+O2nm9pqnQMompCrJa0jAr6jhpcES/KkPwEbWHFMA77jWfyvTsqv/eYai6GugTY6PX6348IHj3Zl9LtgFc4ooDgV4kJ3L9o0OnRcwPH0nMYOghtDlCZGmXPysAMfL97GDqS/eCgKprfceaOjvfrXMyU+EVqFD4x/tGfnWp+QF0fZxs+kgPms6Yfg4pH8KU/t/ZjCBYlyiWrKdeU9CqhvZQxp4u29W/eA=="
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 310,
+    "candidatesTokenCount": 31,
+    "totalTokenCount": 528,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 310
+      }
+    ],
+    "thoughtsTokenCount": 187,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "a65xaoL7F_vd1e8Ph-Pp2Q8"
+}

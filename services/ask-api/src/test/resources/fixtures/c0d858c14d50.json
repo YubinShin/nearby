@@ -1,0 +1,32 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\"keyword\":\"편의점\",\"category_hint\":null,\"geo_anchor\":\"강남역\",\"radius_m\":500,\"expects_empty\":false}",
+            "thoughtSignature": "EscCCsQCARFNMg+dkCMWY80GjEOTklxYvcRBh8Z5BQKMpXPJ8exTCpwhhrz0ZD55GtDSGFT62WXUpFdTMZULzsXVS0YGf39IbvJHmXfHvKWCgD77aQrN5MpScKcwZTtgmJWRDLZtoF+1g+m2muCkVnC+mtAFq6unYnad0UNGyZ32aft5IVwM+jwFiyOJE39yVJtBh5ouyQv0cEyNqR9k4Sa52HLOwDKHuFRSZmmZXxNnnSESyqfU0FmpciY9AEj9i9awKkdB1U5D3ZmQQs07qnI0PfTKc0GmSUW6Uh8rSN4xCXzkMBD2qeu1Av0qo5fI9gTKJlZE0TcuMAtCTqMCbpQXAdbpjBgowqo560h6VZPOo5wsx96mJCShmE0rxKre2nFxn9L8wUPaZ78KaVi7xpOq1y3sZYnPdyBww2GINCWZjsF7Ayzv5LZD"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 319,
+    "candidatesTokenCount": 35,
+    "totalTokenCount": 442,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 319
+      }
+    ],
+    "thoughtsTokenCount": 88,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "PrFxavnNF8mm2roP3KbxoA4"
+}

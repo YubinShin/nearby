@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: ask-api
+
+server:
+  port: 8082
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  metrics:
+    tags:
+      application: ask-api
+
+psp:
+  ask:
+    llm: gemini
+    size: 20
+
+    search:
+      base-url: http://localhost:8080
+      timeout-ms: 5000
+
+    gemini:
+      base-url: https://generativelanguage.googleapis.com
+      model: gemini-3.5-flash
+      api-key: ${GEMINI_API_KEY:}
+      timeout-ms: 10000
+
+    fixtures:
+      location: classpath:fixtures/

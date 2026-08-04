@@ -1,0 +1,32 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\"keyword\":\"매운 거\",\"category_hint\":\"음식점\",\"geo_anchor\":null,\"radius_m\":null,\"expects_empty\":false}",
+            "thoughtSignature": "EvMKCvAKARFNMg9SsRNQjU8rbQ2ZL3BYtZ+hXgRe74Ixshz3NFYK+epsFkIEpYs/bpj4sm13nT2zbKkClkvdDALfmWJutGb1higT2zJBfpZjWs1t1Ln3MUMZqOy8azCw5bzBgST4cc/3VsNy/OBlXBnRN5PyyVH646sAJkb8f0TyEqTYrcxuhLR6bQ59luSqAsvEcyHe6yRt0KHX+aMNPeOG9l09c2oHrYd7DTCKx6sMDH9M+IQW5mqptYOL3BC4mzdQl74ZHWLhwZOxNZhOBzxogsiX9jFbhWtsgTC19Ath1Vwt9xhoABKu4GeosBj/zyIbYeq1eFM+VvIWTn3oHOjqsNBr27xd4xHn/R8UdI6+Sa6I3hiJzaBKjjGvcSx4hCg6X4p3kBfJHCH4HmGea9uvT7EpBnccTL132CZ/dHdnq0my8yBV8jpmv1jRco2lefqIoVC3EacJUzEO9pLbZALC9clS0XR2FJTCAjfsr0vnJWB1xNRLWitxGprXw5ywWWlSVWOI0qStEWbnt2jRPJefA9tKfQFhfqP6jWYwfIb9xefLI/Dzjwb4c19E51T0xlyqWMc7HOS6Wu2c5vrllGqBUKBApKXHKknz08WS4tZNVFTTw3EwLOowJ1Ix3wEPKWj4vET1SetawP9GCqX/JDCBpiHPj/6IjC9pxcXE1xY4dWTrHKVYxh06Ps/epoiRTECe5fIy598fRjD7e5Q+fgR6OWykr4naHXmxFzZhMF7mnwQ+gUx+QO+QvNduZs3K+tFodlEfG0U4XxsLvEGTvH03pY5ffDUMqOQvI+wqrhOgluTZuXIWbyaUSDYO2HFIaM3Qy3gXvtxOBjOvKB2zYu3A27n3536wydffihshuuoOjgNrVQbStPYfD4x3oA9aNUd/2UKQrumz1sTCpcIgsJaAJVVrwT7w8eNMtziYiEKRPzcYINSKrSFyknIukYaz5Ten+xCrXfSYvUN9vlTQshGAYCcait9RXzhmJw0rLeUnIRN8+JpTBLA1lC17fY7UzllBR63zwX6trM2XzPjgDDfsUSi+QfELmQJGWZodLZ2VSAnmOVFFeFeoFps0ha7uIX+2fCpUp96NV/Zl5M6Bz+sL9VvBP6m/eFQn41sQ7W6eqC77tEpVYGRL9Y6hqc5EygkzpSoKob3swyJWqCJEqI1DRWBndPJKp0vik7RwjAQSTBtCIt8Ppaybcrp6WcLUcTAjM36IEvsqws58A3lz7HerNe2V415UK+F5PlPY/2Yqx0tomFNrehGpEhDMzoBubAnSXS5GuQkUhcBmMmsYRMt2o2/9eqWgRlqMW5agXnWjO9PeAsAbE4VGGqSpKuPDkjYL9EW/eaJnj/3BbSlL4Ah3bp4e1jTfWzoemDuWlyV5xPzG+s4Balm+gjAdfllckDxCvuiPAq+R59OJm7a4CHyhoPrHcIclxYDbSAnZre++FoJ8+qeudd40qV5z+QlQRfEJkmt5cHvCf58BzpRCX93MpbItsPvdDnVArT/P8g6uIIR9asE2vdCgGbz9Tv2dhXFae8KIGCzxm4WxBvTXBi0+nqBrKC5fsvQADLoSYuwt7s7woQjF9pwFDhhKFkkiSEO8AFixqNOfRDBESSxhCnyctj8VZd6GtMYPLgPH+OFMbCiwwcr2KpCCfTZbNGnWWDH4lPF+nn3ZkfrZcl8B8b6Q6ecPg6xZWH08evJg9S16KopiV4/y635MwfGIwvsE3rqiKTounO6jp1bTE73awjrEKsVDCJ4f8FIyPMElssEv5emKrw9tiQQNn9OWtJcFuD8NCPvxvDSeQfrqkn8IpwspK6SJy8BC0BZq1jbdLw+KaYRCjbo7Q4wS4y+P+vEkqMU9UZWF"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 314,
+    "candidatesTokenCount": 33,
+    "totalTokenCount": 752,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 314
+      }
+    ],
+    "thoughtsTokenCount": 405,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "H65xas7iLNao2roPm7OFYQ"
+}

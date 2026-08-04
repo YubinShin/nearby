@@ -1,0 +1,32 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\"keyword\":\"삼겹살\",\"category_hint\":\"고깃집\",\"geo_anchor\":null,\"radius_m\":null,\"expects_empty\":false}",
+            "thoughtSignature": "Et0JCtoJARFNMg+pjAVEpiS7NjMZt2d9JcVqwLIWpf29Y3a7Y0oG8zmM1+M96OcUX4GT+tuSDizAl35xJWImLzwxIPff5t3IvyK5o6h8ZvfP9iJByWDHAxwk/C54Pd7q5ayutSwRFighR+x1vDbF0yheQ03dvwHKw1HLuZXDPdVPNalZWsE3F+U4BrtKtVfkcyYaEO7fvOGP0sdk7PARKs4WghWLe3tLs5hSbwZmeOa6ZYZvsIq2jfw4E3sxa4U46PyE1dzZpuCWHqyA5NDzHC9N5H/28lPNXB//qYxtmAF1gLFRCythlJovVwlOBnxHQYg7rtClbJ55uk+LsN+L1kTF7HQdr88/twTN71aSrzL7eNI0+9865/u9u0mW3FeNiWhof3FoYMHZMDeVZMj4EkWjCUkDJtWU+g/2VtQR+0MqfP7BooS8Ioj39Z5BliU5vqaUSYQqINqvzj7Y6SAESoNLBUWsJL+0HYz9INGGTWZAfDl02P11BgOT3mFyr+dZ6Nv7jYeghdMipd7XJPQgKd+3d5iGd29AKxBV9osChmvWLbBVDb/vk7iE05yKU6ufNxnMKc7sNoLvxTBHL6Q+LSuYpuVMPKwQnoORX0PU86hqU3XKOWvoQtQHGYl2jnkX4njShgEnvNWxlixs48WTQH7tLhOcdDKZ15CHYTARkFK1LIi4TuUZNi93TPCda2cYe1AmTeGuTp9VtUrbaxHiOd9xaGsWlvDCQpSWUagUIsSXCCrrm4tDlxAOduTE6B0z8yxPdW2GORZ46nbSAoeV9WFqCWSIL078XEsKBDd3d0Fvx6IMg8y5ByKbcYcyILpLhNNjvivmh5OF94bt/FwU9XA/KB3nT5O4AaDidOiT7x7kd1BQ9h6YqmCH2fqH52xKtvzDelQUySi3vq5Fe6TJAUx57ZMbvkym/v8FPWy9f+VnhvyfCNOkmTUen1JO8Ti7cD71oC5pGSIwfG9NCqoomvN/E/kLI4DOVaOAnkzj7yrLqMYpZMxYxIpR3Zl/koXgt1XtfmUbGauf5c+HhWFUdhSRdGFJSOtRPlWSODi5YGlpllEva30hGt+cHex7x/36NDOQ8g3w2IM72ATzZtz8V+rYMJk2Hw8dziGcyhmVmKQJPCyFHr9eU6Opk1Nf0Dut/gitw0INOj7ULbarf9EacR9YjzEdJoh/qGhcrGF0s9s5P/XCMqQRFXL98Qdd3apj/6KTZLcZWnlRgCNqBuDt8QvHHHZ2Zq2N/Opa/6cUoXTK1s79NF4XL5Jr1jTGrg1Q9ubYp4LOd+kpMAjDfhk33iRBxy5qokQEssOxPfMG8KKVAcWAfCLP1N6CMLBCBAzzKagS52mMavf+LT7W1d1YQJ5lw/nIc/87rB0WVY0uuIi8hcEWEnHgprcLteg3qEM8QcSI4Eml7nKAUkUAn3d28zKupfFz4UBBKEFsa/cwK1S+8V717v1J+0QM/4hBoph6I5nkKnwMjYDHG2YSa5JyaEe9CHJzzx9uX7djldXsoVtepJVhZrp29pb58BNL0YFNeN13m39HrxAVoEIV9yIn/X8D/7GIvyxD9JB7Dh9ez8ugsjCCb86er+befkyE2UQ/TTVMVXevrzScrNYjv+++gNyw+hqRyU9wOYsjONt0CiIwYTxiYCd+wG/MW7QVMC4Y"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 310,
+    "candidatesTokenCount": 33,
+    "totalTokenCount": 699,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 310
+      }
+    ],
+    "thoughtsTokenCount": 356,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "ea5xavn9O46gvr0P0fvjsQ4"
+}

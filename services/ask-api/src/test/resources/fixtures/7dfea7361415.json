@@ -1,0 +1,32 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\"keyword\":\"파리바게뜨\",\"category_hint\":\"제과점\",\"geo_anchor\":null,\"radius_m\":null,\"expects_empty\":false}",
+            "thoughtSignature": "Er0FCroFARFNMg+o/abQB5fbHmnRj46pJSr5/0CZMFH9vW9xlLfaVf/nkKOkiRGIaRcN9qXwpQjDlO4PnxQ3/uu62qSMVEdJ5nxhzBQp1zUHej1DuJbdhTxEjQwabk2Avy937hOv0NsGr1pOzexCYeVCQe08IAyz5Ni/nsAbVDJSsgMwG9wxYlpvc/NRpho+S3grMH0fDM7HpSLaGOu4Kk/M/7FN2rYRi3Icn/t5i2/s9ERqJofnJAcDu1hjiDIQWEwY+jSskfTcwU/8yh81dmG9MM/zsoV7Qq31Q2SkTQlKUWes6LsDbSqN7n40SfMEDuytYU4yLgZopVje/VykncxnqbfDe79zk8yS0vSjFyz8FkLwL+OPfccFK8+NLYUvUks9Dhl0IhVqEj5AiVVXaZddM/hN4wx3uLqoHSUkPELf/hR2qi8RRx858khyOIxxX6TOXAB9ur4knDNUuCbPhd6aNA8bNrXOBmH51tNYvE6Qtt+QbNwqi0m4MiL4/K6vHBNas39ogoGLRaz92k0zRmKCWJlp7l7GVgAnjQbr2Bwth8Mo+OQ/fXGgZc4/bwY1nMswxS2DGA9UaNlqeCOuzvoJOfmFqBM8IVysnvt6u4uAE3WCeJWsX8a/NAfBCjuta8lhmN0LZTIqvOX93Ime0eua6WD6gIqh0Dov7e/CSgvnvkLgAAwpIAmBk7ZVyZbXZVDszVlPkP0Ku8Kb1uCeQdxmKQzVEcJ8Z3w20DyBDZyemBXurENDGb3mTkIFlxLK9l1IVOd+LqOB8JjLI6FJ7WJvp70HwNI7b3pMPp1mE+tdb2xKlbX9VCUQ0nx85UDa4FDgOdQk6DCZwAM2PdCXwGtUgrPnIkRQ84JezrKzPSuo7vCH7SYQHDxgc6kWCEcQZRi+sQSjrhJErAvZ9MXBskTVOGQ1VltG34q83WqPjnY="
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 312,
+    "candidatesTokenCount": 35,
+    "totalTokenCount": 556,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 312
+      }
+    ],
+    "thoughtsTokenCount": 209,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "hq5xauPzG4OI1e8Pjp-okA8"
+}

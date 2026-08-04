@@ -1,0 +1,32 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\"keyword\":\"고기 구워 먹는 데\",\"category_hint\":\"고깃집\",\"geo_anchor\":null,\"radius_m\":null,\"expects_empty\":false}",
+            "thoughtSignature": "EqsFCqgFARFNMg9n/8Eh/mznKQcROEW+GbqnMqZ4RVQqaM2vugDZoEr4BaLoTJO5X9zYPgDa6Xs7xOlpLyqbY3biHWxhjFgweuo6dZTdBYWY99TZAEATvRz/sLwzII3Yh9GFZIUu5zoCXsU+RQxy1E+0InwSrOCSohR71ZI1SvRudN7rtz1tlo4POjF4zQLrvTunnOsRB54Te/YF8Gdjl41N9qNoyhH9Ma54+vDI410/ZAEaIQ9Uht51IrFK9uawm/8qLGWx3E15KBeCVR3B4LFVKDJMhLkCudUeitFUegz3x1m8TEc6letYxpZdyFeUwG9HSE9K3cmFLXofUARLTBFDTlLbPct2guzFrt/+gqgP9wq7B0Mfww5NYPngl615FpxDhx6K3/oDACSf2l484Las6TF7r9FTlUvQnr23RMS7YL+Qw7Dpit5IWpsKqAOv+6xiz6NzWGME09FZhuwbyqGLfnht0G/6YeL6W4epQ+xnQT1G594WZ9sQpj/xcTEv0WXJneYCF+VQhcmgvwMNP0/qZvvQH+kCK8mLzD40mSWSSQpFwzHsD17hPNDl2JljOzKC7Xf8NgXDco/4SZvSjnXsm0y9lJP6WIIam9TtyS2Htz5JPJxGUyDpXhibm9WjRwQQcdNIq0paz0paml48f7pt7hypAZKEs8Zv3Zdc/Ic/obrEMm7qfxXUDZWPiAPYzMb1XVOfPhetXNeHr8u44NVhyaMAHgbaXTcKm+Hu0/yz/PTusQEqfR3h5pXXNnEbOERD2nqu7TWuNmFEzO7J+cHoZD7HGGGi1EvfpyPjziTZ5KfvjR0/Ugjt2EE3LxflmLFu9A/5UUlXQSr2tcTARZ9AGqIbo5kBGVmKfhghYWqIin6vf6iNmbW8F+kfSb2dI9HouFi30TBkuMMpBWU="
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 314,
+    "candidatesTokenCount": 37,
+    "totalTokenCount": 546,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 314
+      }
+    ],
+    "thoughtsTokenCount": 195,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "K65xaoL0DcbK2roPuvLyoA4"
+}

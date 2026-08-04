@@ -1,0 +1,32 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\"keyword\":\"회\",\"category_hint\":\"횟집\",\"geo_anchor\":null,\"radius_m\":null,\"expects_empty\":false}",
+            "thoughtSignature": "EswECskEARFNMg8/wHK5wwF02VCRuqe5AlwIQPiP54CxjJWWeKWLmIDpp+kS/FKtcYJ4dxVwSL5aqeiE3ySoD8fea5J3q+PcYoQDvHXZbE9Mz6cKvG/dnsHQELwdNCWvrIYQgtx9X5DSfsHTuW7aHnvcpWH0+MQD3YL+dfcjItNx1Kn6PoM4p5vn+2zxYk2mtDpzIJ7MuI/9R7fwFYIEfBMLwUGjfgoAQBcFvLTcM1jgdiX4dRz0kQideDJeJq/a9ZJrR2AsIu/kL1UdGxmNLmSWamFej6rfosY/CwfB3tfubK5vgRk2MiUmdbFyQ+5TuxKjmIpsD6UMsPhjaUR54FZ4Myc59Tj7+VsQVCveBx91MEh7fr+8bvyotK/iLMBhDA6to/o5en5rTmnJnBHYJaFswgSf6c7E6zbk1/u0IMM94WgBRM4dOeM3kqtQrs0ZVpXVb+1kl4En/NOKJWLWUQCgD9swmpFDeYgQJtrpUjLmOkgPNLn5xSsgo6EmFQjF0BFiLjuG2o2C6jsPkUYYg8wCkEd3BvG/AgaX0gwdri6TEYErhomHWBCVCfLL99otz8F4SSIvdK7wrg0620HKVu9W3S+3FHjpKTbEuee/Bj05+a2yRQqA1s5ArXf6N/fY7BFB0ZED1A1iFh59kZD6VBvxHg2v76VNXHVgPiT4nevGMu6d0UIvAMZOeqdNTdHsDE2V1lfYlBNx3X/IhHulAt+O9zWqt18O2zsJzAvnJQJsLu94VKZgIl5GVWQAabkjm/hrzE4CPDkYcUt+EUJF"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 311,
+    "candidatesTokenCount": 30,
+    "totalTokenCount": 508,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 311
+      }
+    ],
+    "thoughtsTokenCount": 167,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "E65xasXlMJHR2roP44aC8QI"
+}

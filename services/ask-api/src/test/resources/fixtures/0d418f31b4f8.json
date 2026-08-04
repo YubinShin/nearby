@@ -1,0 +1,32 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"keyword\": \"조용히 공부할 곳\",\n  \"category_hint\": \"스터디카페\",\n  \"geo_anchor\": null,\n  \"radius_m\": null,\n  \"expects_empty\": true\n}",
+            "thoughtSignature": "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"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 313,
+    "candidatesTokenCount": 54,
+    "totalTokenCount": 911,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 313
+      }
+    ],
+    "thoughtsTokenCount": 544,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "Jq5xas6kK4fy2roPse_B4AE"
+}

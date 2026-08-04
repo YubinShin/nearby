@@ -1,0 +1,32 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\"keyword\":\"공부할 곳\",\"category_hint\":\"스터디카페\",\"geo_anchor\":\"역삼동\",\"radius_m\":null,\"expects_empty\":true}",
+            "thoughtSignature": "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"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 316,
+    "candidatesTokenCount": 36,
+    "totalTokenCount": 830,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 316
+      }
+    ],
+    "thoughtsTokenCount": 478,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "OrFxao3XI6bU2roP2rKh6QE"
+}

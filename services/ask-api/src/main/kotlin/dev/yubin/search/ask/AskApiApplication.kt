@@ -1,0 +1,11 @@
+package dev.yubin.search.ask
+
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.runApplication
+
+@SpringBootApplication
+class AskApiApplication
+
+fun main(args: Array<String>) {
+	runApplication<AskApiApplication>(*args)
+}

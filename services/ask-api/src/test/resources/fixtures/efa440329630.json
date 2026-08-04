@@ -1,0 +1,32 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\"keyword\":\"카페\",\"category_hint\":null,\"geo_anchor\":null,\"radius_m\":null,\"expects_empty\":true}",
+            "thoughtSignature": "EvgICvUIARFNMg+Q03lVNjyqJMmKAqiBSeXyjKlAmKyeb79pdHdYqBnIcBuh5mnUktqxm/iyeudp1UrZrT2IrQlyp0QWgmPLtpq0GXiwaDEtm5dvyudLyMR0skv7+ruDdR12DH1sWZh6m70pZ8vTJBUm58r+28S9kH3zkHozMQoK0/sayEp8WJhtFoB74IlbJVrGrEnzgSoBucU3ZpJB33923qEEc0HQQ5zNXi50wuGSiA7EEHBJat93kLMqKhvU4mgeNzEIiRewKP2+m8u6HS9Vwo/ZOa9/Lz5Os3Dx1GFSIDbPYdQvD7BXgPkJHxuguqcUAP1X/UHhXXYHtAxbaBG6gabtOy7W1drTfh4gXGXc/ijT9tGWYV28PfMeghAlzPg4Kt3VPVbt+fJ2OmLyPJt1QKWgrEpYmHBhrUXLERyCypNmwP5kHUcsOOKCR3TeTMTIdn+oa45pgXF4XX7V/ZcFVTH7FcFBmvu/w54UfG91RgugxWu1u1ur5gtgOuMZiGIj6HuWtHuF0H2xpyezgK4om/yIZ5dVlAmgFmsW/GG2/8/A7zKR0HbHnKNmwHzGcUio0gaKmiBL1wrJwKQ67fhKkVZ9LZCe+Lw8D9qg+BBdHt5vBiUZ4XP7UttXeWZ2aozmElzlqEdwlDDVoPyglmN4S5UzeXLDDMRkX52/z7ByPRhfwx1NeE6M0rcOo0iIZ6GuGJY22h7++//JVJUAqLEkbGnxQF7jJxLeHNGQGJKMiSfm0VjiaFx9viz6LVew4LHRlehWrCtR8H6PoR+mq5NWBQ8wDtiOBJuE2d9OsaXvFRQhyK6Zyd+Igpndm0UpeMgI5UEOd147lJYOh1TgRA0+vBzLb3+3SxIpd6Io29NXLDc3vTjKKgcUDuWjkBLZOLYwmIw9Ro1kTX1s51NAP+gWmZ0zOPgH115Cai43bmvdfOo1A2HxKj3eDr5ZJoZAD0ZjYibr7Bsd6Mku+fWSm6VaRZhl4G3ZDbRXn4Z+5XJO0X1/GGqVlwMmn3OvIfAVc8pW+qfsCewLGVR6WyJeA+Mattqgr5dDK9KYxKY1MVFdNL56Z3qa9Axec7bwSq97lGwUZ5ymV9dt8eVlAgEL2XIaPhChS13kFrrOmvGTjDpEpsccI7HIA2ShjXYGlwU/J2FcMSEF5i58R/gA6UUAjaCIPTq3Vjtd5t7FJ5pXcX5Ws+Qge9iKrdtptkYYsfTddueoRfYtjk9ogMzxOraG68lsUYPnKiAGMAN7jThGCypnZdyDYa+lzrPNGQUSe2DZkohGWsA8eNz3lSBWVkGRuGfU6XPFLrWNbJRg3E1rZ0r1y3HW/ZnX6FCEwC1yC0gzELiIDP/PsMj+wQZF/Ps30TrvonTw8gN48OEVmZwlFDcjSqO0u84w4nEh+pANwnE/cXv6AxwrD4ajMHvMpzAak7Yu/QL0pHNtXPy+eqnH6i3Adc9g96Z0OD0GzwC479rrq2LTXm9OE9U6JsP5jPC2fP1L9mZraw8OF6GUnMcAFqQ2ANwB4StWpQMEIA=="
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 315,
+    "candidatesTokenCount": 29,
+    "totalTokenCount": 681,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 315
+      }
+    ],
+    "thoughtsTokenCount": 337,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "jK5xaoqCJci-vr0PiqmeuA4"
+}

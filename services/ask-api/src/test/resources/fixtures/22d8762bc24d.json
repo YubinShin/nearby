@@ -1,0 +1,32 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\"keyword\":\"브런치\",\"category_hint\":\"브런치카페\",\"geo_anchor\":null,\"radius_m\":null,\"expects_empty\":false}",
+            "thoughtSignature": "EqAFCp0FARFNMg+RhxEPHSOXKEvJKiZDL1T1RuVmUrMq3yw0Z9UkBmHX7VB8YpQQ3I722bcHKd3ORHAYcgWHBf/auTCGjKNQMbTB+AcEJOYIBg6B2JAcHbyO0zv5Kio3tavJAfwtKzkJf7LC8/x/z42aXAiXWSOAV/7uKK+b82F+/+GkpVgCULA1s91M1wggef4nMR7Y/Q1WQ/A09zDcQXH5flOlunNXSVy8Z5SFnJ2xvt/23bbUKNYAUS9wwfqYhkAe46xiAXBI+9j5UMo6my/PDnRXM6GsVoGJrLSQPh80PaH8h5I+pUaR2nMocxqR1HxGGeiXRh1wXQ4oGIx0lH1iKZEJkjPwRiTuzn7kSXnCcHi6VtZaBEs7SJjJntH9LrY+4mq4uyluis1twy3o4xRuVlw6+5pSaW9syDsci7VXvX4I09dKIilKebrjAjshcjKh+QcfUOHkM1xYzbvZldHAaVbgcvWBTB6Yul8JBxa6zbEF6Jep80rZ8SjemDl8bYHjILuVEBV66Dw1rEuh+p90EhQdWyJsi0iOjbMMatfECuaiYsADOk/i4V0JAtKd52KU/s0YmbQducZGqdwXmjliiGD4F55KGur2Nsd9jVgx6VjAKKvKkSdKShQbTlrWz9EhgI7O2m/6YEqfErE2dUqD5nRVAEE+hrXRktRRnUTPj7NoEDyGwHTvD/9j3XhiSXAI6C8D9fXBEz6MPSO6wurWYqL7tvABQra6jJ075CKTIWT/qNdeU6uGTjaVNqcGcmIUQSWO/F55r6yhPEuO8oUtF3xgSzJROXaymrt/Kezapr5jlKnEAeWmjRbnZdkUgqMCoXr0ZOitGWRjtCz2r3yFd7ibvA7/aew8CmZjvue5uN+4B1z8FUB6yVCs1isO3K4t"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 312,
+    "candidatesTokenCount": 32,
+    "totalTokenCount": 527,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 312
+      }
+    ],
+    "thoughtsTokenCount": 183,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "Fq5xarfeIsPu2roPzrWbmQ4"
+}

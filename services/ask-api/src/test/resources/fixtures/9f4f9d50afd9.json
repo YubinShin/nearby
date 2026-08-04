@@ -1,0 +1,32 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\"keyword\":\"미용실\",\"category_hint\":null,\"geo_anchor\":null,\"radius_m\":null,\"expects_empty\":false}",
+            "thoughtSignature": "ErMFCrAFARFNMg+by8CgJCKIOCh903G9rRaWHKn0sUEFrjdxdUGaaPsnADuQ/wxJFzxBBOVtD8vwdxD3a6PCtsz/BkPG/z/TIttCIoWrhNFlsQ7y8X3fMkm0DuYzfumbXQgNOSVfamRROejn2OPiIyYqHRaVRykcG2njvH3GNXng/Qfb8J872/BWgpuIzK4i3AJmr1ck1T+pwVyd8uoGhzmMSZWzBVYQIXp/tDVAmCS3YAMGkOHCfCsdy18Pq+YYP/iKWLJGBKdVNPDRvJ2Ed0C9Dv2efKXJaWBuyI5qnl6PBbIR9nc2SwumdB0XY+rCWWQq/szSrDqmVLVM3g1mrctIVdTocDqhYBNBwHeIJAewzQnHnxH0mjd5HCMz9LUsFEKX3ra0aplaeeN6VKGuCcO9oInTwEwJLWdlYal1Rs4iFdmacBCaJnp5+VwEwaqIqS1z2544P2/t8Mfqu/qyQxlitjQ/gy+ptK9OZL35Alg7rgh6EJCwIO5PgAqjkg0caKYbhRhT5V0codXGfdx5jmfRG6oS5ZnHQsx0F+x2clgHY0qM3aWPpdpME8aMtcX56skhE3K67GgHBn/Grp7wA+DVtI3ddAlCO0sFaXXkA3DideqwMMhe57e8p9uYqxepHq13FBrk71tUUZVpYU8wg6ILdVsLC0xKfGdo6XivwZHw/ADnAZ6fI1sKIzeTU6BhT8BQfuJhytKLB785Nfji8hrLuV7CM+VH/Q2Z2vk+GX+wLsZPAyjIgI2oLbF83eBCQffOfNU8GiI60lgI6en1J3KN828gnwsQBw800qWLtg/ncryCXZ8y4s3IHrrxYHZ0h8hsASKRSOUo8EkW1+NkMUqAUNlAVMHS9KxuVvcqJQurhKj2SdMjPd07+99yyN4YSh9uEDR2hdXcdkuS0hmC4BcT6fWfYA=="
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 310,
+    "candidatesTokenCount": 31,
+    "totalTokenCount": 526,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 310
+      }
+    ],
+    "thoughtsTokenCount": 185,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "dK5xas_PGPimvr0PoLS5qQ4"
+}

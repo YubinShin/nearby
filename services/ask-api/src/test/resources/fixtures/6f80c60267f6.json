@@ -1,0 +1,32 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"keyword\": \"스타벅스\",\n  \"category_hint\": \"카페\",\n  \"geo_anchor\": null,\n  \"radius_m\": null,\n  \"expects_empty\": false\n}",
+            "thoughtSignature": "EuUGCuIGARFNMg+5nNAL0E1X8Vh8HkHHLkdcnoLTep8ZLWxomRuMCwzRswJpoIVDcUsUBtHT6iaIDIcRojWFzbZ7gJILLxzqAXlCkmOZAOIbN4a0VWRNxdxB73nrKpHih0GU8QtmP+lf3KhIgE4loUsLMtpMZKVfeiBEMgc8ObSzlEqPm66tRUtieS3NlKnNocZsNJnIvTlbxnIB92CA4fEuI6Ketu8qSlRwLt5dXjTDsyVlUL/wWOskksN57Vn3kkzT2Jw5KYoj8nBfzjppbqYj6OTusBrp2HqZZAIqtzxe8oihoRWhALDV4OqxXMf71o3MrV5W37Po+2utHs1NRRGc8dc9BJ76JSfD+yi4cDCdRLL5+lmy/zi8ZPbuhbyxqRHFzxzQVIkvOIM4X2PYI/5Sx4Cw1Fjoueq73bxDTQilUN/IGo8sno7ulhidF7w1mvFhKEhgGcO68nfqHllCfIsZL2jnQaTmMplZwmDGj8mjz2hyeE1VGUID5NRTIj1U4WaCFJ1TInvPW3psyCoByNcSbpexZ2coW5xhcQG6oFZ3zZZ0kIJJHPaVA/gTckSIDAGCHJ6zXzNQD4cfvoHwaOt2dkHAtoSRcRSUpBT4lgApI3lq5eyca5td/frlajuk3Bvqxy6T4GUBfeRfPs19P7ZcrxQG1dHb+nfSmPYzJ6MT9gnpYC0L0aff6g5ENp4A1aFug6DTBugt1yDftc45NF1Gx54dwJJE+To4oB3fiOM+QRys1C+2MqXIZ6BIBvsxbgqk486XbpXrkqMnupb1bxr7eExTlWz1FHdyEKT96yWdbLbOdH74JvCMIEUeU87pTXQ3l56oo+JfH9MH/+JjS1ZO/q11/Lv9GCun96MTkXdJCeq/O4dthhAVUxg2/tFDS/bnMTInjetZWY+K0gDnSdt4Y6Sf7qMQicnnrxzWAobtWvIkUKYeoG+KX4A4BoqoO/w8fVY3hIBpKowv2epX0xiTxq4f/3tE22cJT3Vi1y1nzrt5rbW9cYGEjJdV67C/xrvi8Vwco+76dw5WaKiylmA2kvSt2ao70aRQWFFtjRdTTHAX75nGMgX4h1S8dfeV9bBHI4BRC1lvcYRS4pmmgP5HvsVAvsIz5TkXNJWQ6hH3BmcdoLn92+CekGu+LsWVRGUnBLaWho8="
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 310,
+    "candidatesTokenCount": 49,
+    "totalTokenCount": 606,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 310
+      }
+    ],
+    "thoughtsTokenCount": 247,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "gK5xarz8Gf2c2roP7eTw4AE"
+}

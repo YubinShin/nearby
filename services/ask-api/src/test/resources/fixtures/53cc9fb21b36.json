@@ -1,0 +1,32 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\"keyword\":\"카페\",\"category_hint\":null,\"geo_anchor\":null,\"radius_m\":null,\"expects_empty\":false}",
+            "thoughtSignature": "Eu4FCusFARFNMg9yzOta+JeTSw9KcQyXWMrRGuB3As12B7tTWGtS4muXMZhs0afdRurZx/0Gvjr9mjtAH4lqDtKcGl3bwLqFagpzfCicy7fHwzHwdHQJCLBh3IY/HuWQevlrLk+JP1kB2PWNm/bzbztE68bOzFjA6xyzqi+pKIOdD98hoQlnqTEqviAYr5PJA7uBnicqSGH69lBhxyj4qSvDdYxrsK1Tdaww0aalK1wYjsBASWnBqBoQFBqrdV9fdvQXxTNWmyV10uAVkAsha/mywQO6rbHN60yC/1qYs7I9e2XsGoy3e1+bEljA8luzyOvmjdQVFFuaz2zEQ1QNPnmOKhtNmPb6p9qzeTuMbjLjayI9Jcez5HTnJ9TKgx+lROtFgTr9mC5uryIvi0uRxNnV+It0e9Gns81Q2NCSjCgBb1LGZSZYELTfi8XarVgZaqyEPSZWTW+mQAU4cCRiy4TTC0ArQzr5f+mg8wl2kn1u59+FAius7CJTOUdqP2O5WRLrU9+OH7S1zZSSjWdo9Q6ChmWY0brnkpcojKfpiIxtKgRvcZspauxx9/s6pMlDYnyQiCcU8TXtO2jooapMiC5b4+/OBRakW/F5r8Wy0AEo3BvV+VofVvToqEvwHFY1Mqtrl7NDTbiMcx+j7wXKXD45BiyZz162Vi3COkTWbefQO2DYhxoIy8lxRUn0D4Qdo90yWSyB8H3SpHVnCvBMSOxRcQ519iXOJ+ThjrV+VPdcqKyv/u0IVmSltslgIoOZREKapsRgFV/NOqBxn5KDF3wso3Cw07+on/G1eM5jMVjqsv81ghq5FN3TXUm3RTVOZTyN6RvjLOPGhjx275rY/NhDH4waf0RqskWqyldT51LDTcBfjQQHFU29zxdMiHPnnyHJjedNR2QkvMzgOD6nggG1D0tWpGwVt4/wre2nhERn/YlmlKZEf3v+dZmIeKQ4S2rOlh3HnGKdTDGllOh4cbQwwsVDw/crkL5dI1s9J8Y5"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 308,
+    "candidatesTokenCount": 29,
+    "totalTokenCount": 539,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 308
+      }
+    ],
+    "thoughtsTokenCount": 202,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "0K9xapeyNN-h2roPp7-7kQU"
+}

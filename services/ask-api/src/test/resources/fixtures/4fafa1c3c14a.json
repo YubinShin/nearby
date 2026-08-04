@@ -1,0 +1,32 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\"keyword\":\"치킨집\",\"category_hint\":null,\"geo_anchor\":null,\"radius_m\":null,\"expects_empty\":true}",
+            "thoughtSignature": "ErMLCrALARFNMg/FUkpsxyS5H5BBwMbucMtPL2rlOZK78sWy/Au7e3kTYdZQRfrVrox75fi5CQ+gnEYthN3nJEMOl76vh+ZcC7fJHclLu/2u6CFL4YYa+8TsV7UfsmUBdaE2Hhq5xFHFTO0qSE5tJDzWCvgJT6UI3cskQuJ7zeqkr3qb3FAnzKiR/zHh0RQslxci2MCe7idU2uSoLMjoZlwFgOcb4u7oQ1ZGSx8XsaGT7RhjNatK1lbS34TIrWzDOKVzaVrrJRYYwqBrpIdt7l+xRaweWx1/pbflULN/u2YPeDflcbLQ4osXq1fgwXaUNMqV7gdNvl1fZu5NxTNni9IeHUNnCUPqtTldIdLgTQunh1f3SSpYtt3RY5K6n+ZmFFfY89Qpcn7J6zr02srkzO2SZjs28ugMQ0rtP7b2uhEEarCLtuGw/RXB+LnHOyId0xUiY2m7KWQjqaRjdXUZUrHofC0iWzKu33Qe+mo3x96w/zPxB424VmJlZWOxrqtsL4VB0mcEUI/h8WKltTacGnEPeu4tHr4nPGGvjzEXm2gkS9rrt+j7JMfSdyFixsbta67niduYisDymS/X4XNqif0gvdw1bGHkzm2hFfIXRKeIMkU+ASxRH0XUoxAnrRXgLtx268P+AWruNHaIJrYB8XUZ8TJoLPGQGYlfbxRp2ITbs0VV+JcmnkFxGd9BLnNg+k9DtqegwmCJ3kltuCXTOKbB1F5mYWZqFIhl0qJGG94oLFGWpUi2FVk1rY3tMyXRUnc8AfUBZf3sWbKYmAr1/LkkL05V5tEKv2GbtgispmDqSiUAglZsK1q+mK/zZqYFLZq2pBqGAxIPliCpa5l0COHETjSl1y7uRLN0ZRTpPGez7qLxQHuvIVhew2sQbgoxEOF6/VV+atZugIMzeEMova9TWAjq52aj+5b9tsKxJKQTZuF4jnS4Z/YXMVi5Ic/ek7Cn4yRt4wBWA8nK4kGsbJXAGIxKE8lP46yMfTGUvV/idXAJSbm4jKX6Q5cgCnrvypin583AByYmgotoMWhF//VSE6X5K2AJ7tcErW7JSUZdOOBA1tzecNj1n2c+VYM+dejSEjwh0E+jrfj3YGvSR3P+I5RPc3YYpDnlUZNSPRIrEA75FXQ9ITD4qy6BTIwZ5hCVIsJ/mWgbUXO65ih9k6ga4Y6mLOQvG1rL9BSJOsVuvLW4bRugWeCQVdtjfIvlhpYYB0gLSXdswHMufOhWZLCHfL+0H/Aja+bZ6KEObnu2YEbOrnwkuM7xHXDVZYOP0Sdn5su29m1m8HxbJQtAFtcHnYOw1mESicsrAIzBDE1ncYN+IJLh1bzCAz8iETTMsfE8kViR1bWD3JpYBy9RPBXWpFv9HMLoH3zUfQX1IPz8n23NrUthTNNKRAAPWUbj1OFaaupefTphXL3r9FWe5pZN61elPV3EEEqnMlcPMn9ORkOZi7RZ+PwnyVtCej5XGwlKAX8LSBM3gy8eo0CQ/6E2KC/QP1JMtCspaGsPfGx8J+fBgHMKvOar8KIeEk3DbhaXbo7lYkpYs4j21jUELHF89SXOIqgq2h6CaqnsC4fpTEBxxYDquiXQlRqWljtfZQJPcx2uOVVicx5/paWRKpZmXKYGigsmAPjtSor3ywyV9yiJim9huryDS85b2OUTL2pG8W4OIlh5MjhSsQvj6MGDeUv7wQTeZSGxijBAT6Cd1n+8neWlRJyztg5SGOBRIwSKsw0NGAoOhceKBo4TPdqQdiw8inG4kduz3iAv/qCshyA8wBI9FIGaJ46sZ79dt3RMRag60OjcwljpIF8Ot41Ay21p5Ncovyd1nVqQtgStdWeIWdazlgsHd5iieKstnt++uwVRMWwUO58T4POQwnkeSJubwcdLOrV+BVoPpokwiPimBajnOuydoYhRixlWtizJdAy6t/mCDBzh6xGQ5NC1QRYu5Q=="
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 313,
+    "candidatesTokenCount": 31,
+    "totalTokenCount": 740,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 313
+      }
+    ],
+    "thoughtsTokenCount": 396,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "kq5xapXxNt_k1e8PkKnByAM"
+}

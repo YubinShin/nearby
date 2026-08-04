@@ -1,0 +1,32 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\"keyword\":\"치킨\",\"category_hint\":null,\"geo_anchor\":null,\"radius_m\":null,\"expects_empty\":false}",
+            "thoughtSignature": "ErIFCq8FARFNMg/eo0QTZWfN8MbfOm5Ws9wj/RpdHJI3Vyl1zZeNIumyB1Bvtmso2cApj/i4udDIIHkcJkDD0aL42mGKOd7MWn5ViaLxraLaVP+OxD+HiDvXMwb/Yy3qmtGUzL1l7wszKu+eZBxhGSnqpmOEeJgwDFsfS32/9r1pT198pyleHZ539u7uBqMy9CKbPl89HTrL+R65mRYTrZ4trtChpNQolijQ9gkUwmtQiukW8bRq6laulU9ycV/QqVNPkcanXU7ZyVy459LxYgpy6AMP8AuqBaESb+CLlm8PQJe3Jf/nhr4khYHxiUkbmN6ZNKHB/k0YM/fwDaQD5qljkFzmySIJOGm5qV/CMolfPfF9uos4BPecacvDro+yE4P4eLYm2kXrRcIypiTEUqvLaTCQjkxrygJbvPFzS9pPRzyicQ1A7jh1PDThn+yoH72/a6C8crKDbmvONqLgjIDvA+gECFJXVBdK9vo2CzCyGcyxhev3FbZvengLAncmiqgOgYp1PxvVW+55Hl6/0GWrf9cRBCktmAgnaos0td88zVb3V8STgG5zgUrTYnIpzo5GpzhP4B7Oj9pI2nd+GZI+I94IapJx0IpaXjeWnx7t0iBLR8pJ0hFVMLK078nlZUqayOPnnsTGGdXzCg4Lp5p2cCsybqx3nXDXn3aszdXJGDqb5C6vtiVA4dGD2fMnc2114uCzdJC6tEPuqpdL6X3DjMK0NSCsxq4HIGRRojlWI56veRA4yQ2KKrnuB6/GMmkLMHLovM33sjEgD4rTB7oJcHquAkmRqz43dTNYMQI4eqStDX6rx3RFhet6jQ1i8blKu+Nv64+iRhXAS/fkLHhX+LOZF96RxfL3bQxPBKKxQ/HiIUZFEFW69oYMAnfnp2fMqU6c3GgMtMBBNQSOQ9mgrbs2"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 309,
+    "candidatesTokenCount": 30,
+    "totalTokenCount": 530,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 309
+      }
+    ],
+    "thoughtsTokenCount": 191,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "d65xau20C5bF0-kPyr2GuQU"
+}

@@ -1,0 +1,32 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\"keyword\":\"약국\",\"category_hint\":null,\"geo_anchor\":null,\"radius_m\":null,\"expects_empty\":true}",
+            "thoughtSignature": "EsgGCsUGARFNMg9NFvNAiS1iL//pzF/4+SWKABimjo4quRz2rGZVjBd+1MNzuWI/Wfn/OqHSPu2lZYiizWHEKO12yjL/nEwzYm/YIlAs8j+cBhjC7AmhSvbNLuEUW3Z4Gd0o5v/dp96SfedNo2ayXRqtdKedg2i8CYSafScqd2vHBEZmQalJBXay9CrIAMgvBre++AQVzWMnCkMRCmrsgTOexfMQ9GWDC61EwAam6W4Nkf7azVMGIxSQHJtDKsUZUHekkn1u/oPwc+bP9CLXWlZY4VZnwT9GXvveIcAHrxyJMtTHtqMGxf1x9jAIUM/I7n5NUVGyW9HhIFP3Ex40fjs76K5QHAwiA0c1MofC8PItMHUeHo7wPPiT7kgZmLfaCS5vp1k1VhpzPpquPJTFWIIZYgJTKWLWLXUmC/9MIGu9c0SfgJpikdZGyTW6hmwK/K+kVjjWJoXf7X9It7WCwxtesb9yFy4L2SJHLjYP/U6P0KBG0Y/MyDAojAFIpx3LVJfUDzAlwlHb+8LLU3f/eWTnX1JBf9DqAEvnlUZbjBFRoiFXYbE46f5R7g2v1ZBhG3lqK4VsmTwwdfnuwl+xa6NbalfWBvsUHQ9hSQmLccLO+VveyY+jlWQA6us3SSMZmvlTxDBkhAfGj0Vncr2Zu1qk6c+0etFpUGHYWJVaYxeNHFw/Y6a8kJWw3qbVu/hUXJCw1PpPDYKVsD7KIsIJJLjvZqeJcQS3bV73sQpROxOoK7WbJ+nXWnSicJZdiiLWC0J9fT22DHsU6UFmRS/GDZaUgNu1GFLkyhr+fb3b459j2MEmQoH+bUR3QcbQ2cErTy4dSkfBshfZQx9XoHvJQK4mOqr5Pqkd3VMTWkSpYA2gdHEIBIG0Wgvmn1iOGiYMD9epKhlQDU5yCRQsy3aJrh8dSyYoYbnvsBC4tyHyWKCSr07ItwGGrZvzvf9up1F1+/q/To2ynSiSOIVj9J4wLpyLwW8FzSdQTM9ebhym3Wu1AIkJaHsFClEPnxysm7fU6+dOhHpyO0zvN0Tn+iD5NLW4/HwzrVCvxDS4hS5gRV8Dy/faq30UtRdTZbwTu34N1/WNgfadZxNw6pggVgTMs+VWtPtxBRXGmXMO"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 312,
+    "candidatesTokenCount": 30,
+    "totalTokenCount": 565,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 312
+      }
+    ],
+    "thoughtsTokenCount": 223,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "j65xav60NMPu2roPzrWbmQ4"
+}

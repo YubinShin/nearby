@@ -1,0 +1,32 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\"keyword\":\"노래방\",\"category_hint\":null,\"geo_anchor\":null,\"radius_m\":null,\"expects_empty\":false}",
+            "thoughtSignature": "Es4FCssFARFNMg8TvVe2OGRUXKHeRyQTKp3Fz+QMwrazNeTlLgS6gha1MKmXh8BbGZw81/sclUX5DFb1VOuteFTAunJpXu07RMuReK7LrPyKOkju+uZ6n48duCgUJfaBjWcvK4F6xjiNsGuul1VTvxq7BwsJyCR8jHiY4moGtHftc3UNjsMFO6Ql/3tb2Oc8gyYkka8Uc4x5LZMp2+fu1i4YxcWBvgQumkNyWVMe+HymHzgoa3Y+pGKjROfU1WhSunhUoKx1j5OAvkWRrCrM2YX75T9xqOUWjtzfkazyheQc8QmMvyufq64MAPM4WaNBbRR3+QtDgMgzq2+NPfUVdxAa64mTlyyAZ2eceCGEqPPnWiVD5tlkokgsZC5O+bpcWPvezGw1zhaYIOq1YU0P6sf8dgF1POIb04Kx508mD08X9G17bQFi11ktbYea4WCopWPiFgTks+LLqK3+ftfEP9mhqklmGPxnRYe/7JOI1tWDFkazCI4b6xw7XUpt9t0Ic/I/mM9OQLS4H8JWmHVnoJ6M7ClC8Z6+cltusPE3rnt4qikXqIL7NO7UWzKuwFXB9Jv9rT5kdm+0tlDyr0Y9oO6w6lhcoYDLyznvUDZfSJWr/8MXmyXzFqD3arf0DZkkTsBHDznFE62b7W87k+EV/ghefreL4BHQYw3naE2eA/JJGXzG8KrIM/ePeN/OA6IC27i5A58mzMnzEgOKK5/b6wq7lljkrZXKSvkNnd5Pc29TOUvBJzA4KStykG1VsndQP8UBgwVIcOhIJlLDT4oXIK/4hNvt2y2RpXAWmO0VnK4uyLNmr1+dha2wExbrCYRpaQI2Rxa/Hc5d3dhv0wT1LW3JJypAZl7GlPQ65RzeZEDMA44cbfc3JmBHUYYRzllYivRU/iCG5ESnHB+6bP00DRXLDUSqixOFm+OhooIcyJv6u7hAo+jpHWh2iMpkK5ejgw=="
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 310,
+    "candidatesTokenCount": 31,
+    "totalTokenCount": 541,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 310
+      }
+    ],
+    "thoughtsTokenCount": 200,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "fa5xatPTIbiPosUP55XqoQ4"
+}

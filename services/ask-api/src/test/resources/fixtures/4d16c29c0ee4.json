@@ -1,0 +1,32 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\"keyword\":\"파스타\",\"category_hint\":\"이탈리아음식\",\"geo_anchor\":null,\"radius_m\":null,\"expects_empty\":true}",
+            "thoughtSignature": "EuYHCuMHARFNMg9+nZRehI6R28tScosTB6NvWat8eqjhEYA+wseUvO2mvxquBlXmei2vN7Eg7WbKGoBTa9FmA3J5hiKe4NhavZ3z4IyhKquh10awInSc7gyWKaViZt+6bDktW1vQ5quaRRBPzLUSq9mCJxxLXIBGBoA/sOtjHlOm3PGmjiPnzsZw31Jv7seW3Og6kCDXMgi+AddjnfcfgQbOwu8d9O4v+hD05PouAbF5yjhyVFiOaYBRFOEZVZ2g1SxA9hgQwD5+xlW3IQx6CDBl1k+dNP7zBymR5Kr99Cn5d1YKkQkOWgsViwB4NA4GUuMVAhbMf0X6VJfLeIUDFZli6VEuRfPdlP7ksvJ+VOqKgPZVJEr1fu8gzvlu2zfyar44brctvm66DRar4Xt5KnGd3UgNmZvcdH+kStfvARXm4RJxQ7rbMaRuravI0VjVUJpnToG5EL9ETYJS3qFP751sQ9fKlsocccWpP8rU1wzez7b+NpqLKERyAhsNHdvwMKmWqslzUuVFa4Zf/efNublgZvEsLm1aZ5ci4cVqdFHbq5fW2uwGCqO86hJ3qwPoBBv+E7npSpdTMujgk65eZ7xRDm/k/APqCwn7rn4+czCyXWNwn7qbhD8GLlHZUYj0dWGMiEJLMdjnek/AktEodYXxbNNHrYPHmeEI3KE8KJCcUwHxXrXhEbG9+DqVCj6uCffAL9lqBDh34OCRaU/OQ95cwCkWBXFrZI3qMZnSPqXpgQGqQF7Icmmp7zAgBQ9I6uuhGhzPSgEDU5BBfieVRuczIH0M79ItA/0N6JFkmaVdLZhxfF3kV92r1ToAYVXuRSDs8OrWp+rZF/MMjYHY/xvuk9bu8Xs61S0HWK7YWW4alRYclDmIAmDGaDZo5APqoqfamlnE8kDpAOgom6a6Oz+nxpllCLWVw/s77WERoH68ePKTyPGORGLlitO8ig5ncMoKYtclc7t25r/RrUZA64VH0KT4zYYNr1Ylh2RA4x+RMYZ3N6wBGTiuFOsuYMFgRgKAerTxvwQyYCIEX/nCqQImT0HMSzbKoi8fYlDIPf6Hp8OpBdf0Ai8j7jmL/43wKgOc+Gxyc00kIGc75S1busepwQRHr1D0dSmez/BIA9Ec4TBF+FNNGFar5cwZgNIHmJ6RSLxx5l16fxJzRW4xyN9nStJ807uAdkmgO1cQt91HQAuiEWpBA5QnPnKgZE+gnY/wmO+X0lNDWLlBBgwdZMXJEQaH1UQ0u678GOgEst4qm7U//nXS4q8e0YybtnaY6pCe3ddmu8lirNTFsO6IeZu2/Qa+b6nHthgUBs22ruR8GNXSy6Bvb+s="
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 312,
+    "candidatesTokenCount": 34,
+    "totalTokenCount": 621,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 312
+      }
+    ],
+    "thoughtsTokenCount": 275,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "lq5xasPzIfW_0-kPvJf2-A4"
+}

@@ -1,0 +1,32 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\"keyword\":\"CU\",\"category_hint\":\"편의점\",\"geo_anchor\":null,\"radius_m\":null,\"expects_empty\":false}",
+            "thoughtSignature": "EtMDCtADARFNMg/aPywRcT+IyAIVyQ/T5lmdKY0gBG0UQmjyUB8LZ7tds2mWiLDgQkGoIdhRDyjf7F2VirlMm/QUrFPsrlz6F6N6LA9kaHZ3YQkTjpsEMOphu3xWkevzFzP8tG8LjVJe85iFjuh4VvQxAmibnRsPOX+cHy28S5iUzeD7jBiIPKxQxZLNdvGLPi8Aw5oWrj5icB2OUAl5pCrvc2fl3K43vcjZ03YUf4/Sa9Rhsifogazoj712gMI02mN2veGZyuhLBbPNG0lPbZ09s3MoyONu2Gut1IXGqjR/uVBj65xk+FcWxA+ZZpdMHKos/Afb0mokZPU9R32n8Gy1/rCj7xV+YqkRPMqEPpsRch3lNr5K5Kfb0785qtYNKPJXaEqjZ4yPYu4IQI27NDFmQTXZZH+5IORy2IKBTTIf6bx7uc1pn2itXO+OPI/kh+Sk2hP7mFdUd7O4/YDcr6D2xKSdG/8NhOMIW0V7lw5R04CzjXci0NWd7AKdUud6m7MKKCte42x8gSBWNq94g7XO42/8m5wnHcgdOWNV3xWFf+cRwiv12aVY3X759JJvxEHwhm5BndpZzbJrq8M4NBuZhEj6+Cb0PDi7r8pJqlgDHMbjjHc="
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 308,
+    "candidatesTokenCount": 31,
+    "totalTokenCount": 475,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 308
+      }
+    ],
+    "thoughtsTokenCount": 136,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "g65xatvIJuy4vr0PmYqroQ8"
+}

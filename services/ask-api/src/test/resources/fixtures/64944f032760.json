@@ -1,0 +1,32 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\"keyword\":\"머리 자르는 곳\",\"category_hint\":\"미용실\",\"geo_anchor\":null,\"radius_m\":null,\"expects_empty\":false}",
+            "thoughtSignature": "EpIJCo8JARFNMg9WBTyYmbm8yVrmuBWXwaSItf+nVX94vOlmvGmUPnI7EC+Li4WNpb3pB4y8N3sCcEZCcXIIW6ks12u8Xenx640jvx9/v+gBKya97DCts59dFcMUI65JiYQO1OneEHTytvy9Lij2SMVcF7dPvGeRIlrO8r+bidEUBTqz53sT23uOhLhZVB4FtPK8i5BdR4ycRi7CTXQ5w0J2tboNxCUEg3CYAodY4V1FIL5TCmARkTWEpDf5eIuNmSHYNcl7yFn9gek+TYmX6YtPfWF7RGa5nNrx0/9p1/Pd0E0yyJRuoI54Xmnj1GvW1Om8k5AVNUpRiEuoXWw52eGjRQOe3ajT0J3T9NTgUYxntwLjUm5WMsgkePPSfTThzv5foxrm2lNSSoHUi+u0ypBTvKOqoccMIZiB/e5e/2gq0RQBfCgd35DpjQC8TKHZVMWIHXbIHchT0L90e91Jry2edMWUa/2uDYVjVZ5DaI1iAgrWcng6UXDe25mcBd2AClNDt6gKsLOvJ3TLhyaGjHBK0bVFiWqYtGjs0FFU/dRsunwShHdlhzln5uQa3YwTPrODhlwQBEYqSJaBZfZF34NIAK/lMLZrtFafy4OzQRuFRJKiDqX4OjfDm0vmwl0Lca17hI8TeZFxlIJ1WMfV05hKNyUOo4L177jzFu6odJo0XtSYi+spkUw3GFLLN3tM7V4xmEDIHsW4n018Sz07Sd0q6SkdvPot9WoQUS1W53l4k0eP8ksi0JG3VnFi+FX3qW18u+O2tnPFM3bIO9oq8C1b4OrOuS5FRwI9mhg06uDBVXsObqF/bLRNEr6kBMMm/V6WhsNnh0acVSuFtPuiMwWRZaIp1RvrwozaTqbmo/fNm8D4UfONxdh6Df7Zy0iV8xex7y64S/WO3FVs5KAMPmkpIbZr+fLlXdTyoqbYhb1yYsb9Pmx9YaOg6AFwgeklLMj/DucWcBhRhX5hy0yAfto2hEHqbkMIOfmXycsUceOzaimQIZhn+K4G3nK3/s4RDXbC4g5ksTDAp/T8FsEZIg7q7Wpnm0EUkm3Yp3YbeVkw2N33KLzbZHOPkXEQjTxWbFlO1KNFplAl88fwNp8x+K7xNaTpkiba9TsfELfQwRKYxfgurWnNqSxFk/DDuLcJ8jg33En2r+WzQzLGuMhT5un99+7aVc5LSrjZUAKTOT85dGsa9G9M6S4pRjymQv68siCGh46aXwtp/Z79McsD0XBS3CdRPDe94qMx1kbjUnMJenzoIv71bKfE5KDRpPTta/gZ2KOk00JD8JrG/Ln6jnsmfl21EGJxqAiRPOY6g1JpDvLl/ngdRWeoxYmVtyjWE6MGMTZUlTmQLcgPelqslUkUUhR8HJf7RsQ27MySrTJns12oItpOWaTfz/jp7u2znGO6docwgYBDh2Ka1sEY+NBajSM83T7KufCE5RpQYPIXC846HVlRa4vr5Oc0YHfRHGj0KpML3kkVEBe6SoGocbxy+kVz2iabsuA1kBKN9df1faWa4Pj8ySqPPv93boTEsQSbWyNTDY6s+wyZISmN2AExfVL1"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 312,
+    "candidatesTokenCount": 35,
+    "totalTokenCount": 685,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 312
+      }
+    ],
+    "thoughtsTokenCount": 338,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "Ga5xavCGEtao2roPm7OFYQ"
+}
