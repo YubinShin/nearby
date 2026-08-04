@@ -37,7 +37,7 @@ class AdminController(
 
 	@GetMapping("/jobs/{jobId}")
 	fun jobProgress(@PathVariable jobId: Long): JobProgress =
-		jobs.progress(jobId) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "그런 색인 실행이 없습니다: $jobId")
+		jobs.progress(jobId) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "no such index run: $jobId")
 
 	@GetMapping("/jobs")
 	fun recentJobs(

@@ -108,7 +108,7 @@ class VectorIndexJobConfig(
 	): VectorUpsertWriter = VectorUpsertWriter(
 		embeddings,
 		qdrant,
-		requireNotNull(target) { "prepare step 이 대상 컬렉션을 정하지 않았다" },
+		requireNotNull(target) { "the prepare step did not choose a target collection" },
 		embedBatch,
 	)
 
@@ -168,7 +168,7 @@ class VectorIndexJobConfig(
 				val ctx = chunkContext.stepContext.stepExecution.jobExecution.executionContext
 
 				qdrant.collectionsBehind(alias).firstOrNull()
-					?: error("alias 미설정: $alias — 먼저 벡터 전체 재색인이 필요합니다")
+					?: error("alias not set: $alias — run a full vector reindex first")
 
 				meta.requireCompatible(
 					IndexMeta.PIPELINE_VECTOR,
@@ -209,6 +209,6 @@ class VectorIndexJobConfig(
 		val log = LoggerFactory.getLogger(VectorIndexJobConfig::class.java)
 
 		const val INCREMENTAL_REMEDY =
-			"POST /admin/vector/reindex 로 전체 재색인하세요. 증분으로는 섞인 컬렉션이 됩니다."
+			"run a full reindex with POST /admin/vector/reindex. an incremental run would leave the collection mixed."
 	}
 }

@@ -60,7 +60,7 @@ class IndexJobService(
 	}
 
 	fun launch(jobName: String, trigger: String = IndexJobs.TRIGGER_MANUAL): JobAccepted {
-		val job = byName[jobName] ?: error("그런 색인 job 이 없습니다: $jobName")
+		val job = byName[jobName] ?: error("no such index job: $jobName")
 
 		val parameters = JobParametersBuilder()
 			.addLocalDateTime(IndexJobs.PARAM_REQUESTED_AT, LocalDateTime.now())
@@ -72,9 +72,9 @@ class IndexJobService(
 		if (execution.status.isUnsuccessful) {
 			val reason = execution.allFailureExceptions.firstOrNull()?.message
 				?: execution.exitStatus.exitDescription.lineSequence().firstOrNull()?.ifEmpty { null }
-				?: "실행 큐가 가득 찼습니다 (동시 1 + 대기 8)"
+				?: "the run queue is full (1 running + 8 queued)"
 			log.warn("index job rejected — {} #{}: {}", jobName, execution.id, reason)
-			throw JobNotAcceptedException("색인 job 을 접수하지 못했습니다 ($jobName): $reason")
+			throw JobNotAcceptedException("could not accept the index job ($jobName): $reason")
 		}
 
 		log.info("index job accepted — {} #{} (trigger: {})", jobName, execution.id, trigger)

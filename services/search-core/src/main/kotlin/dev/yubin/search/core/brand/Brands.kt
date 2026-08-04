@@ -36,7 +36,7 @@ object Brands {
 
 	private fun load(): Map<String, List<String>> {
 		val text = javaClass.getResourceAsStream(RESOURCE)?.bufferedReader()?.use { it.readText() }
-			?: error("브랜드 시드가 없다: $RESOURCE")
+			?: error("brand seed not found: $RESOURCE")
 		return text.lineSequence()
 			.map { it.trim() }
 			.filter { it.isNotEmpty() && !it.startsWith("#") }

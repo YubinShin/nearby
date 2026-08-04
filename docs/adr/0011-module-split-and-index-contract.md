@@ -382,14 +382,14 @@ vector   {schema_version: 1, embedding_model: multilingual-e5-small, embedding_d
 `SCHEMA_VERSION` 을 2로 올리고 질의기를 띄웠습니다. **기동에 실패했습니다.**
 
 ```
-Caused by: java.lang.IllegalStateException: [search] 색인된 데이터와 이 프로세스의 계약이 다릅니다.
-  - 문서 스키마 버전: 색인=1, 질의=2
-  이 상태로는 오류 없이 결과만 조용히 틀려집니다.
-  → 색인기(indexer-batch)에서 POST /admin/reindex 로 전체 재색인한 뒤 다시 띄우세요.
+Caused by: java.lang.IllegalStateException: [search] the indexed data and this process disagree on the contract.
+  - document schema version: indexed=1, querying=2
+  in this state nothing throws — the results just go silently wrong.
+  → run a full reindex with POST /admin/reindex on the indexer (indexer-batch), then start this app again.
 ```
 
 이 테스트가 통과해야 "쪼개도 안전하다"고 말할 수 있습니다. 되돌린 뒤 정상 기동과
-`색인 계약 확인 완료 — 스키마 v1` 을 확인했습니다.
+`index contract verified — schema v1` 을 확인했습니다.
 
 ## 부수 발견 — Jackson 이중 등재 버그
 
@@ -488,10 +488,10 @@ suggest  {"schema_version": 2, ..., "analyzer_fingerprint": "98bd512b40b3"}
 도장의 지문을 틀린 값으로 바꾸고 증분을 던졌습니다. **prepare 에서 거부됐습니다** (job #6 FAILED, 53ms).
 
 ```
-java.lang.IllegalStateException: [search] 색인된 데이터와 이 프로세스의 계약이 다릅니다.
-  - 분석기 지문: 색인=deadbeef0000, 질의=6985af8f19f6
-  이 상태로는 오류 없이 결과만 조용히 틀려집니다.
-  → POST /admin/reindex 로 전체 재색인하세요. 증분으로는 섞인 인덱스가 됩니다.
+java.lang.IllegalStateException: [search] the indexed data and this process disagree on the contract.
+  - analyzer fingerprint: indexed=deadbeef0000, querying=6985af8f19f6
+  in this state nothing throws — the results just go silently wrong.
+  → run a full reindex with POST /admin/reindex. an incremental run would leave the index mixed.
 ```
 
 53ms 는 prepare 단계라 원천을 한 행도 읽기 전이고, 살아 있는 인덱스에 아무것도 쓰지 않습니다. 도장을 원복한 뒤 증분이 다시 통과하는 것(job #7 COMPLETED, read=0)까지 확인했습니다.

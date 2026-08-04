@@ -33,9 +33,9 @@ class IndexMetaStore(private val es: ElasticsearchClient) {
 			is IndexMeta.Verdict.Mismatch ->
 				throw IllegalStateException(
 					buildString {
-						append("[$pipeline] 색인된 데이터와 이 프로세스의 계약이 다릅니다.\n")
+						append("[$pipeline] the indexed data and this process disagree on the contract.\n")
 						verdict.differences.forEach { append("  - ").append(it).append('\n') }
-						append("  이 상태로는 오류 없이 결과만 조용히 틀려집니다.\n")
+						append("  in this state nothing throws — the results just go silently wrong.\n")
 						append("  → ").append(remedy)
 					},
 				)

@@ -106,8 +106,8 @@ class KeywordIndexJobConfig(
 		@Value("#{jobExecutionContext['" + IndexJobs.Ctx.SUGGEST_INDEX + "']}") suggestTarget: String? = null,
 	): KeywordBulkWriter = KeywordBulkWriter(
 		indexer,
-		requireNotNull(searchTarget) { "prepare step 이 검색 인덱스를 정하지 않았다" },
-		requireNotNull(suggestTarget) { "prepare step 이 자동완성 인덱스를 정하지 않았다" },
+		requireNotNull(searchTarget) { "the prepare step did not choose a search index" },
+		requireNotNull(suggestTarget) { "the prepare step did not choose a suggest index" },
 	)
 
 	@Bean
@@ -168,9 +168,9 @@ class KeywordIndexJobConfig(
 				val ctx = chunkContext.stepContext.stepExecution.jobExecution.executionContext
 
 				admin.indicesBehind(searchAlias).firstOrNull()
-					?: error("alias 미설정: $searchAlias — 먼저 전체 재색인이 필요합니다")
+					?: error("alias not set: $searchAlias — run a full reindex first")
 				admin.indicesBehind(suggestAlias).firstOrNull()
-					?: error("alias 미설정: $suggestAlias")
+					?: error("alias not set: $suggestAlias")
 
 				meta.requireCompatible(IndexMeta.PIPELINE_SEARCH, searchStamp(searchAlias), remedy = INCREMENTAL_REMEDY)
 				meta.requireCompatible(IndexMeta.PIPELINE_SUGGEST, suggestStamp(suggestAlias), remedy = INCREMENTAL_REMEDY)
@@ -218,6 +218,6 @@ class KeywordIndexJobConfig(
 		val log = LoggerFactory.getLogger(KeywordIndexJobConfig::class.java)
 
 		const val INCREMENTAL_REMEDY =
-			"POST /admin/reindex 로 전체 재색인하세요. 증분으로는 섞인 인덱스가 됩니다."
+			"run a full reindex with POST /admin/reindex. an incremental run would leave the index mixed."
 	}
 }

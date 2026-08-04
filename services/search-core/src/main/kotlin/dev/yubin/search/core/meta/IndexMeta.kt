@@ -37,18 +37,18 @@ object IndexMeta {
 
 		val differences = buildList {
 			if (actual.schema_version != expected.schema_version) {
-				add("문서 스키마 버전: 색인=${actual.schema_version}, 질의=${expected.schema_version}")
+				add("document schema version: indexed=${actual.schema_version}, querying=${expected.schema_version}")
 			}
-			compare("임베딩 모델", actual.embedding_model, expected.embedding_model)?.let(::add)
-			compare("임베딩 차원", actual.embedding_dim, expected.embedding_dim)?.let(::add)
-			compare("분석기 지문", actual.analyzer_fingerprint, expected.analyzer_fingerprint)?.let(::add)
+			compare("embedding model", actual.embedding_model, expected.embedding_model)?.let(::add)
+			compare("embedding dim", actual.embedding_dim, expected.embedding_dim)?.let(::add)
+			compare("analyzer fingerprint", actual.analyzer_fingerprint, expected.analyzer_fingerprint)?.let(::add)
 		}
 		return if (differences.isEmpty()) Verdict.Ok else Verdict.Mismatch(differences)
 	}
 
 	private fun compare(label: String, actual: Any?, expected: Any?): String? =
 		if (actual != null && expected != null && actual != expected) {
-			"$label: 색인=$actual, 질의=$expected"
+			"$label: indexed=$actual, querying=$expected"
 		} else {
 			null
 		}

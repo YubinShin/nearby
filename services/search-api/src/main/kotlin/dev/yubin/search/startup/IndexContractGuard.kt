@@ -49,12 +49,12 @@ class IndexContractGuard(
 
 	private companion object {
 		const val REMEDY_KEYWORD =
-			"색인기(indexer-batch)에서 POST /admin/reindex 로 전체 재색인한 뒤 다시 띄우세요. " +
-				"색인기와 질의기의 배포 버전이 어긋났거나, 형태소 사전을 바꾸고 재색인을 빠뜨렸을 때 납니다."
+			"run a full reindex with POST /admin/reindex on the indexer (indexer-batch), then start this app again. " +
+				"happens when the indexer and the query app run different builds, or when the morpheme dictionary changed without a reindex."
 
 		const val REMEDY_VECTOR =
-			"색인기(indexer-batch)에서 POST /admin/vector/reindex 로 전체 재색인한 뒤 다시 띄우세요. " +
-				"임베딩 모델이 다르면 유사도 점수가 의미를 잃습니다 (ADR 0010)."
+			"run a full reindex with POST /admin/vector/reindex on the indexer (indexer-batch), then start this app again. " +
+				"a different embedding model makes the similarity scores meaningless (ADR 0010)."
 
 		val log = LoggerFactory.getLogger(IndexContractGuard::class.java)
 	}

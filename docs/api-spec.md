@@ -343,7 +343,7 @@ ES·Qdrant 가 답하지 못하는 상태와 우리 코드의 버그를 **다른
 // 503 Service Unavailable
 {
   "upstream": "elasticsearch",   // 또는 "qdrant"
-  "message": "elasticsearch 백엔드에 연결할 수 없습니다 — 아직 색인 전이거나 일시 장애일 수 있습니다"
+  "message": "cannot reach the elasticsearch upstream — not indexed yet, or temporarily down"
 }
 ```
 
@@ -500,10 +500,10 @@ postgresql 드라이버 0개, `Admin` 클래스 0개.)
 (문서 스키마 버전, 임베딩 모델·차원). 다르면 **뜨지 않습니다.**
 
 ```
-[search] 색인된 데이터와 이 프로세스의 계약이 다릅니다.
-  - 문서 스키마 버전: 색인=1, 질의=2
-  이 상태로는 오류 없이 결과만 조용히 틀려집니다.
-  → 색인기(indexer-batch)에서 POST /admin/reindex 로 전체 재색인한 뒤 다시 띄우세요.
+[search] the indexed data and this process disagree on the contract.
+  - document schema version: indexed=1, querying=2
+  in this state nothing throws — the results just go silently wrong.
+  → run a full reindex with POST /admin/reindex on the indexer (indexer-batch), then start this app again.
 ```
 
 경고가 아니라 기동 실패인 이유는, 이 어긋남이 **증상이 없기** 때문입니다 — 200 OK 에 로그도

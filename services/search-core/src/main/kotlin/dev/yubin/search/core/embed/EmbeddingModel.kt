@@ -101,8 +101,8 @@ class EmbeddingModel(
 	}
 
 	private fun missing(path: Path) =
-		"임베딩 모델을 찾을 수 없습니다: $path\n" +
-			"  ./scripts/fetch_embedding_model.sh 로 내려받거나, PSP_MODEL_DIR 로 경로를 알려주세요."
+		"embedding model not found: $path\n" +
+			"  download it with ./scripts/fetch_embedding_model.sh, or point PSP_MODEL_DIR at its directory."
 
 	companion object {
 		const val QUERY_PREFIX = "query: "

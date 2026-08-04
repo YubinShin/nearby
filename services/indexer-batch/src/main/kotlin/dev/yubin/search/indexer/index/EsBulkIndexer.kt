@@ -37,7 +37,7 @@ class EsBulkIndexer(private val es: ElasticsearchClient) {
 			val fatal = resp.items().firstOrNull {
 				it.error() != null && !(it.operationType() == OperationType.Delete && it.status() == 404)
 			}
-			if (fatal != null) throw IllegalStateException("bulk 색인 실패 ($index): ${fatal.error()?.reason()}")
+			if (fatal != null) throw IllegalStateException("bulk index failed ($index): ${fatal.error()?.reason()}")
 		}
 
 		return BulkStats(
