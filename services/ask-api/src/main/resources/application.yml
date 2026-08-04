@@ -23,6 +23,9 @@ psp:
       base-url: http://localhost:8080
       timeout-ms: 5000
 
+    corpus:
+      lexicon: classpath:corpus/unsupported-filters.json
+
     gemini:
       base-url: https://generativelanguage.googleapis.com
       model: gemini-3.5-flash

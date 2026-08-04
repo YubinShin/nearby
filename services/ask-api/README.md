@@ -52,7 +52,8 @@ API 키가 없으면 애플리케이션이 시작되지 않습니다.
   "applied": {                      // 실제로 /v1/hsearch 에 보낸 것
     "q": "강남역 편의점", "size": 20,
     "lat": null, "lon": null, "radius": null,
-    "unmapped": ["geo_anchor", "radius_m"]   // 파라미터로 못 옮긴 것
+    "unmapped": ["geo_anchor", "radius_m"],  // 파라미터로 못 옮긴 것
+    "unsupported": []                        // 코퍼스에 없어 못 거른 속성
   },
   "degraded": false,
   "degradedBy": [],                 // "llm" | "search"
@@ -64,6 +65,11 @@ API 키가 없으면 애플리케이션이 시작되지 않습니다.
 `applied.unmapped` 는 파싱된 값 중 `/v1/hsearch` 파라미터로 옮기지 못한 항목입니다.
 이유는 ADR 0014의 Platform gaps를 참고합니다.
 [Platform gaps](../../docs/adr/0014-ask-api-llm-query-understanding.md#platform-gaps).
+
+`applied.unsupported` 는 코퍼스에 데이터가 없어 거를 수 없는 속성입니다. 검색 결과는 좁히지
+않고 이름만 알립니다 — `평점 4.5 이상 카페` 는 `q=카페` 로 검색하고 `unsupported: ["평점"]` 을
+답합니다.
+[결정 5](../../docs/adr/0014-ask-api-llm-query-understanding.md#5-unsupported-filters).
 
 ## Golden set labeling
 
@@ -101,6 +107,7 @@ python3 scripts/record_llm_fixtures.py --dry-run   # 대상만 출력
 | `psp.ask.llm` | `gemini` | `gemini` \| `fixture` |
 | `psp.ask.size` | `20` | hsearch 에 요청할 건수 |
 | `psp.ask.search.base-url` | `http://localhost:8080` | `search-api` 주소 |
+| `psp.ask.corpus.lexicon` | `classpath:corpus/unsupported-filters.json` | 코퍼스에 없는 속성 어휘 |
 | `psp.ask.gemini.model` | `gemini-3.5-flash` | 별칭(`-latest`)은 쓰지 않는다 |
 | `psp.ask.gemini.api-key` | `${GEMINI_API_KEY:}` | 비면 기동 실패 |
 | `psp.ask.fixtures.location` | `classpath:fixtures/` | `classpath:` · `file:` 둘 다 |

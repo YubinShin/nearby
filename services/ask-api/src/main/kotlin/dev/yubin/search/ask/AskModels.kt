@@ -17,6 +17,7 @@ data class SearchRequestPlan(
 	val lon: Double? = null,
 	val radius: Int? = null,
 	val unmapped: List<String> = emptyList(),
+	val unsupported: List<String> = emptyList(),
 )
 
 data class AskResponse(

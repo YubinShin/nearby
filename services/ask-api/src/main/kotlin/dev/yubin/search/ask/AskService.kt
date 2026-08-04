@@ -1,5 +1,6 @@
 package dev.yubin.search.ask
 
+import dev.yubin.search.ask.corpus.UnsupportedFilters
 import dev.yubin.search.ask.llm.LlmClient
 import dev.yubin.search.ask.search.SearchPlatform
 import kotlinx.coroutines.CancellationException
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service
 @Service
 class AskService(
 	private val llm: LlmClient,
+	private val unsupportedFilters: UnsupportedFilters,
 	private val search: SearchPlatform,
 	@Value("\${psp.ask.size}") private val defaultSize: Int,
 ) {
@@ -28,6 +30,7 @@ class AskService(
 			size = size,
 			lat = lat,
 			lon = lon,
+			unsupported = unsupportedFilters.detect(raw),
 		)
 
 		val searchStartedAt = System.nanoTime()

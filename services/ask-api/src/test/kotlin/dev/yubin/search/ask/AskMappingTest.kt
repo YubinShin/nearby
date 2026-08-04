@@ -87,6 +87,39 @@ class AskMappingTest @Autowired constructor(
 	}
 
 	@Test
+	fun `the dropped filter is named in the response instead of vanishing`() = runTest {
+		val response = ask.ask("평점 4.5 이상 카페")
+
+		assertEquals(listOf("평점"), response.applied.unsupported)
+		assertEquals("카페", platform.lastPlan?.q)
+	}
+
+	@Test
+	fun `naming the dropped filter does not narrow the search`() = runTest {
+		val response = ask.ask("배달 되는 치킨집")
+
+		assertEquals(listOf("배달"), response.applied.unsupported)
+		assertEquals("치킨집", platform.lastPlan?.q)
+		assertFalse(response.degraded)
+	}
+
+	@Test
+	fun `an ordinary query reports nothing unsupported`() = runTest {
+		val response = ask.ask("카페")
+
+		assertEquals(emptyList(), response.applied.unsupported)
+	}
+
+	@Test
+	fun `the dropped filter is reported even when the llm is down`() = runTest {
+		val response = ask.ask("평점 높은 녹화되지 않은 질의")
+
+		assertNull(response.parsed)
+		assertEquals(listOf("llm"), response.degradedBy)
+		assertEquals(listOf("평점"), response.applied.unsupported)
+	}
+
+	@Test
 	fun `downstream degraded is propagated`() = runTest {
 		platform.degraded = true
 

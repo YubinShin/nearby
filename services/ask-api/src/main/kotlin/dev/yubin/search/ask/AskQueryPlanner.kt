@@ -11,6 +11,7 @@ object AskQueryPlanner {
 		size: Int? = null,
 		lat: Double? = null,
 		lon: Double? = null,
+		unsupported: List<String> = emptyList(),
 	): SearchRequestPlan {
 		val hasGeo = lat != null && lon != null
 		val resolvedSize = (size ?: defaultSize).coerceIn(1, MAX_SIZE)
@@ -21,6 +22,7 @@ object AskQueryPlanner {
 				size = resolvedSize,
 				lat = lat.takeIf { hasGeo },
 				lon = lon.takeIf { hasGeo },
+				unsupported = unsupported,
 			)
 		}
 
@@ -33,6 +35,7 @@ object AskQueryPlanner {
 			lon = lon.takeIf { hasGeo },
 			radius = parsed.radiusM?.coerceIn(1, MAX_RADIUS_M)?.takeIf { hasGeo },
 			unmapped = unmapped(parsed, hasGeo),
+			unsupported = unsupported,
 		)
 	}
 
