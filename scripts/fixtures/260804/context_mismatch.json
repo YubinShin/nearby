@@ -1,6 +1,6 @@
 {
-  "recorded_at": "2026-08-04T07:41:46.109252+00:00",
-  "model_version": "gemini-3.6-flash",
+  "recorded_at": "2026-08-04T13:23:38.165879+00:00",
+  "model_version": "gemini-3.5-flash",
   "thinking_level": "minimal",
   "experiment": "context_mismatch",
   "question": "어방참치 어때?",
@@ -11,8 +11,8 @@
         "content": {
           "parts": [
             {
-              "text": "{\n  \"found\": false,\n  \"unverifiable_conditions\": [],\n  \"sentences\": [\n    {\n      \"text\": \"검색결과에 어방참치에 대한 정보가 없습니다.\",\n      \"evidence\": []\n    }\n  ]\n}",
-              "thoughtSignature": "EjQKMgERTTIPAEdwVsx1Jo9+bXIg2ZAu5z74hVdqzQg0CWaJqBMtu3tM0vOUYhwU0xAB9YmZ"
+              "text": "{\n  \"found\": false,\n  \"unverifiable_conditions\": [\n    \"어방참치\"\n  ],\n  \"sentences\": [\n    {\n      \"text\": \"검색 결과에 '어방참치'와 관련된 정보가 포함되어 있지 않습니다.\",\n      \"evidence\": []\n    }\n  ]\n}",
+              "thoughtSignature": "EjQKMgERTTIPLN7PxHbOjZrEdV4y7v0bsrpLwUEYL0E+eJpLhQq0f/R8tc0fE6bf0yvfrAYJ"
             }
           ],
           "role": "model"
@@ -23,8 +23,8 @@
     ],
     "usageMetadata": {
       "promptTokenCount": 281,
-      "candidatesTokenCount": 62,
-      "totalTokenCount": 343,
+      "candidatesTokenCount": 77,
+      "totalTokenCount": 358,
       "promptTokensDetails": [
         {
           "modality": "TEXT",
@@ -33,7 +33,7 @@
       ],
       "serviceTier": "standard"
     },
-    "modelVersion": "gemini-3.6-flash",
-    "responseId": "uJdxasXPMo6gvr0P0fvjsQ4"
+    "modelVersion": "gemini-3.5-flash",
+    "responseId": "2edxao5n3qO-vQ_I5fCpDw"
   }
 }

@@ -25,7 +25,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 # ── 설정 ────────────────────────────────────────────────────────────
-MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.6-flash")
+MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.5-flash")
 API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent"
 FIXTURE_DIR = Path(__file__).parent / "fixtures"
 THINKING_LEVEL = "minimal"

@@ -1,6 +1,6 @@
 {
-  "recorded_at": "2026-08-04T07:41:42.555689+00:00",
-  "model_version": "gemini-3.6-flash",
+  "recorded_at": "2026-08-04T13:23:34.784959+00:00",
+  "model_version": "gemini-3.5-flash",
   "thinking_level": "minimal",
   "experiment": "knowledge_leak_unknown",
   "question": "어방참치 어때?",
@@ -11,8 +11,8 @@
         "content": {
           "parts": [
             {
-              "text": "{\n  \"found\": true,\n  \"unverifiable_conditions\": [],\n  \"sentences\": [\n    {\n      \"text\": \"어방참치는 대치2동(삼성로84길 32)에 위치한 일식 회/초밥 전문점입니다.\",\n      \"evidence\": [\n        \"MA010120220806498529\"\n      ]\n    }\n  ]\n}",
-              "thoughtSignature": "EjQKMgERTTIPN0dWlMqVFXeQGgekBBKB4LKr2cWWBYiJnFOZAX18993xOR+zQ7NPgx27piwq"
+              "text": "{\n  \"found\": true,\n  \"unverifiable_conditions\": [],\n  \"sentences\": [\n    {\n      \"text\": \"어방참치는 대치2동 삼성로84길 32에 위치한 일식 회/초밥 전문점입니다.\",\n      \"evidence\": [\n        \"MA010120220806498529\"\n      ]\n    }\n  ]\n}",
+              "thoughtSignature": "EjQKMgERTTIPyUQT67TSvAGECoEjgVrKYOPzpp2DwDAlsSaluMomKr6Q8x23YPLWDBBhvB6i"
             }
           ],
           "role": "model"
@@ -23,8 +23,8 @@
     ],
     "usageMetadata": {
       "promptTokenCount": 289,
-      "candidatesTokenCount": 104,
-      "totalTokenCount": 393,
+      "candidatesTokenCount": 102,
+      "totalTokenCount": 391,
       "promptTokensDetails": [
         {
           "modality": "TEXT",
@@ -33,7 +33,7 @@
       ],
       "serviceTier": "standard"
     },
-    "modelVersion": "gemini-3.6-flash",
-    "responseId": "r5dxat7VHM3s2roPp5LtoA4"
+    "modelVersion": "gemini-3.5-flash",
+    "responseId": "1edxaoa3IdnCvr0P2oTqsQ8"
   }
 }

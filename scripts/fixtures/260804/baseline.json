@@ -1,0 +1,39 @@
+{
+  "recorded_at": "2026-08-04T13:23:16.003020+00:00",
+  "model_version": "gemini-3.5-flash",
+  "thinking_level": "minimal",
+  "experiment": "baseline",
+  "question": "회 먹을 데 있어?",
+  "context": "검색결과 (거리 정보 없음):\n- [MA010120220810147236] 먹어도 | 횟집 | 삼성2동 | 학동로56길 32\n- [MA010120220813985043] 마시아 | 일식 회/초밥 | 삼성2동 | 선릉로 514\n- [MA010120220806498529] 어방참치 | 일식 회/초밥 | 대치2동 | 삼성로84길 32\n- [MA0106202510A0703050] 카이 | 일식 회/초밥 | 청담동 | 학동로55길 12-11\n- [MA010120220803440076] 네기 | 일식 회/초밥 | 신사동 | 도산대로15길 18",
+  "raw_response": {
+    "candidates": [
+      {
+        "content": {
+          "parts": [
+            {
+              "text": "{\n  \"found\": true,\n  \"unverifiable_conditions\": [],\n  \"sentences\": [\n    {\n      \"text\": \"학동로56길 32에 위치한 횟집인 '먹어도'가 있습니다.\",\n      \"evidence\": [\n        \"MA010120220810147236\"\n      ]\n    },\n    {\n      \"text\": \"선릉로 514에 위치한 일식 회/초밥 전문점 '마시아'도 있습니다.\",\n      \"evidence\": [\n        \"MA010120220813985043\"\n      ]\n    },\n    {\n      \"text\": \"삼성로84길 32에 있는 '어방참치', 학동로55길 12-11에 있는 '카이', 그리고 도산대로15길 18에 위치한 '네기'도 일식 회/초밥을 제공합니다.\",\n      \"evidence\": [\n        \"MA010120220806498529\",\n        \"MA0106202510A0703050\",\n        \"MA010120220803440076\"\n      ]\n    }\n  ]\n}",
+              "thoughtSignature": "EjQKMgERTTIPM8IdB5SolaKcC9qSxDhhyrs5g+PTWP1QrQMJVLQSHgC/+l7SdW6shfuyqACx"
+            }
+          ],
+          "role": "model"
+        },
+        "finishReason": "STOP",
+        "index": 0
+      }
+    ],
+    "usageMetadata": {
+      "promptTokenCount": 288,
+      "candidatesTokenCount": 317,
+      "totalTokenCount": 605,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 288
+        }
+      ],
+      "serviceTier": "standard"
+    },
+    "modelVersion": "gemini-3.5-flash",
+    "responseId": "wudxaoCBA57Avr0P6uLgsA4"
+  }
+}

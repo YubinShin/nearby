@@ -1,6 +1,6 @@
 {
-  "recorded_at": "2026-08-04T07:41:21.172590+00:00",
-  "model_version": "gemini-3.6-flash",
+  "recorded_at": "2026-08-04T13:23:20.059886+00:00",
+  "model_version": "gemini-3.5-flash",
   "thinking_level": "minimal",
   "experiment": "implicit_condition",
   "question": "맛있고 가까운 회 먹을 데 있어?",
@@ -11,8 +11,8 @@
         "content": {
           "parts": [
             {
-              "text": "{\n  \"found\": true,\n  \"unverifiable_conditions\": [\n    \"맛있는 곳\",\n    \"가까운 곳\"\n  ],\n  \"sentences\": [\n    {\n      \"text\": \"회 또는 일식 회/초밥을 취급하는 음식점으로 먹어도, 마시아, 어방참치, 카이, 네기가 있습니다.\",\n      \"evidence\": [\n        \"MA010120220810147236\",\n        \"MA010120220813985043\",\n        \"MA010120220806498529\",\n        \"MA0106202510A0703050\",\n        \"MA010120220803440076\"\n      ]\n    }\n  ]\n}",
-              "thoughtSignature": "EjQKMgERTTIPO4umVwnjvJXR2VUEvtov4HlTJJJu2nL9d1afaIoKUv1F06W8/+TNH628FRRF"
+              "text": "{\n  \"found\": true,\n  \"unverifiable_conditions\": [\n    \"맛있고\",\n    \"가까운\"\n  ],\n  \"sentences\": [\n    {\n      \"text\": \"삼성2동에 위치한 횟집인 먹어도와 일식 회/초밥 전문점인 마시아가 있습니다.\",\n      \"evidence\": [\n        \"MA010120220810147236\",\n        \"MA010120220813985043\"\n      ]\n    },\n    {\n      \"text\": \"대치2동에는 어방참치가 있으며, 청담동에는 카이, 신사동에는 네기가 있어 회를 드실 수 있습니다.\",\n      \"evidence\": [\n        \"MA010120220806498529\",\n        \"MA0106202510A0703050\",\n        \"MA010120220803440076\"\n      ]\n    }\n  ]\n}",
+              "thoughtSignature": "EjQKMgERTTIPf+jOCbyz5NvV+0ulJJiF4C6jHju1ZfaThbsg747us7OG5AaQzic0qT2M2dS9"
             }
           ],
           "role": "model"
@@ -23,8 +23,8 @@
     ],
     "usageMetadata": {
       "promptTokenCount": 292,
-      "candidatesTokenCount": 215,
-      "totalTokenCount": 507,
+      "candidatesTokenCount": 262,
+      "totalTokenCount": 554,
       "promptTokensDetails": [
         {
           "modality": "TEXT",
@@ -33,7 +33,7 @@
       ],
       "serviceTier": "standard"
     },
-    "modelVersion": "gemini-3.6-flash",
-    "responseId": "n5dxauH1HJre2roP_92ooAE"
+    "modelVersion": "gemini-3.5-flash",
+    "responseId": "xudxap_BGorLrfcP_JvOkQU"
   }
 }
