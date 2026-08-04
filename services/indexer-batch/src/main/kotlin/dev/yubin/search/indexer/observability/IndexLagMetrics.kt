@@ -16,7 +16,7 @@ class IndexLagMetrics(
 	registry: MeterRegistry,
 	private val checkpoints: CheckpointStore,
 	private val source: PlaceSourceDao,
-	@Value("\${psp.vector.enabled:true}") vectorEnabled: Boolean,
+	@Value("\${psp.vector.enabled}") vectorEnabled: Boolean,
 ) {
 	private val lags: Map<String, AtomicLong> = buildMap {
 		put(CheckpointStore.PLACE_PIPELINE, AtomicLong(NO_CHECKPOINT))
@@ -33,7 +33,7 @@ class IndexLagMetrics(
 		}
 	}
 
-	@Scheduled(fixedDelayString = "\${psp.metrics.lag-refresh-ms:10000}", initialDelayString = "5000")
+	@Scheduled(fixedDelayString = "\${psp.metrics.lag-refresh-ms}", initialDelayString = "5000")
 	fun refresh() {
 		try {
 			val sourceLatest = source.maxUpdatedAt()
