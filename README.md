@@ -20,7 +20,7 @@
 
 ## 한눈에
 
-강남구 상가정보 **64,239건**으로 검색 파이프라인을 끝까지 돌리고, 결정마다 [ADR 13편](docs/adr/)과
+강남구 상가정보 **64,239건**으로 검색 파이프라인을 끝까지 돌리고, 결정마다 [ADR 14편](docs/adr/)과
 실측을 남겼습니다.
 
 | | |
@@ -94,6 +94,7 @@ Kubernetes로 띄우려면 → [deploy/k8s/README.md](deploy/k8s/README.md)
 | [`POST /admin/reindex`](docs/api-spec.md#post-adminreindex) | 전체 재색인 |
 | [`POST /admin/reindex/incremental`](docs/api-spec.md#post-adminreindexincremental) | 증분 색인 |
 | [`GET /admin/jobs/{jobId}`](docs/api-spec.md#get-adminjobsjobid) | 색인 진행·결과 |
+| [`GET /v1/ask`](services/ask-api/README.md) | 자연어 질의 이해 — **`ask-api`(8082)** |
 
 전체 명세 → [docs/api-spec.md](docs/api-spec.md)
 
@@ -108,6 +109,8 @@ Kubernetes로 띄우려면 → [deploy/k8s/README.md](deploy/k8s/README.md)
 - [x] Application Layer RRF 하이브리드
 - [x] Coroutine Fan-out 병렬 질의
 - [x] edge_ngram 자동완성
+- [x] LLM 질의 이해 — 자연어를 검색 요청으로 (`ask-api`) ·
+  [ADR 0014](docs/adr/0014-ask-api-llm-query-understanding.md)
 
 **색인**
 
@@ -152,6 +155,8 @@ search-core     공유 계약 (문서 스키마 · 브랜드 규칙 · 임베딩
 ├── search-api      질의  · WebFlux + Coroutine
 ├── indexer-batch   색인  · Spring Batch + MVC + JDBC
 └── indexer-stream  (TBD) 이벤트 색인
+
+ask-api         자연어 질의 이해 · core 에 의존하지 않고 /v1/hsearch 를 HTTP 로 호출
 ```
 
 분리의 효과는 EKS 2노드에서 실측했습니다 — 두 패스는 파드 사양이 같고 **배치만 다릅니다**.
@@ -197,7 +202,7 @@ search-core     공유 계약 (문서 스키마 · 브랜드 규칙 · 임베딩
 
 ## 설계 결정
 
-주요 결정과 트레이드오프를 [ADR 13편](docs/adr/)에 기록했습니다.
+주요 결정과 트레이드오프를 [ADR 14편](docs/adr/)에 기록했습니다.
 
 | | 결정 | 상태 |
 | --- | --- | --- |
@@ -214,8 +219,9 @@ search-core     공유 계약 (문서 스키마 · 브랜드 규칙 · 임베딩
 | [0011](docs/adr/0011-module-split-and-index-contract.md) | 아티팩트 분리 · 색인 계약 대조 | 구현 |
 | [0012](docs/adr/0012-manifests-in-monorepo.md) | 배포 매니페스트를 모노레포에 | 구현 |
 | [0013](docs/adr/0013-indexer-runtime-spring-batch.md) | 색인기를 Spring Batch로 | 구현 |
+| [0014](docs/adr/0014-ask-api-llm-query-understanding.md) | 자연어 질의 이해를 `ask-api` 로 분리 | 구현 |
 
-각 ADR 하단에 **「구현 위치」 표**(파일 → 확정 커밋)가 있습니다.
+각 ADR 하단에 **구현 위치 표**(파일 → 확정 커밋)가 있습니다.
 
 예상과 달랐던 결과와 설계상 한계는 [Architecture Review](docs/architecture-review.md)에
 따로 모았습니다.
@@ -244,7 +250,7 @@ search-core     공유 계약 (문서 스키마 · 브랜드 규칙 · 임베딩
 | --- | --- |
 | [architecture.md](docs/architecture.md) | 아키텍처 |
 | [api-spec.md](docs/api-spec.md) | API 명세 |
-| [adr/](docs/adr/) | 설계 결정 13편 |
+| [adr/](docs/adr/) | 설계 결정 14편 |
 | [architecture-review.md](docs/architecture-review.md) | 예상과 다른 결과·한계 |
 | [troubleshooting.md](docs/troubleshooting.md) | 증상별 원인과 조치 |
 | [search-modes-comparison.md](docs/search-modes-comparison.md) | 세 검색 방식 비교 |

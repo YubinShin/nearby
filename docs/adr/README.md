@@ -21,3 +21,4 @@
 | [0011](0011-module-split-and-index-contract.md) | 색인기와 질의기를 별도 아티팩트로 분리, 색인 계약은 런타임에 대조 |
 | [0012](0012-manifests-in-monorepo.md) | 배포 매니페스트를 소스와 같은 저장소에 배치 (모노레포) |
 | [0013](0013-indexer-runtime-spring-batch.md) | 색인기 런타임을 리액티브에서 Spring Batch + 블로킹으로 전환 |
+| [0014](0014-ask-api-llm-query-understanding.md) | 자연어 질의 이해를 별도 모듈 `ask-api` 에, 검색은 HTTP 로 호출 |
