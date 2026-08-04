@@ -23,7 +23,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import java.io.IOException
 import kotlin.test.Test
 
-class SearchBackendErrorHandlerTest {
+class UpstreamErrorHandlerTest {
 	@Test
 	fun `an ES connection failure maps to 503 rather than 500`() {
 		val client = clientThrowing(IOException("connection refused"))
@@ -32,7 +32,7 @@ class SearchBackendErrorHandlerTest {
 			.exchange()
 			.expectStatus().isEqualTo(HttpStatus.SERVICE_UNAVAILABLE)
 			.expectBody()
-			.jsonPath("$.backend").isEqualTo("elasticsearch")
+			.jsonPath("$.upstream").isEqualTo("elasticsearch")
 	}
 
 	@Test
@@ -49,18 +49,18 @@ class SearchBackendErrorHandlerTest {
 			.exchange()
 			.expectStatus().isEqualTo(HttpStatus.SERVICE_UNAVAILABLE)
 			.expectBody()
-			.jsonPath("$.backend").isEqualTo("elasticsearch")
+			.jsonPath("$.upstream").isEqualTo("elasticsearch")
 	}
 
 	@Test
-	fun `an exception wrapping a backend exception follows the cause and maps to 503`() {
+	fun `an exception wrapping an upstream exception follows the cause and maps to 503`() {
 		val client = clientThrowing(IllegalStateException("inference failed", IOException("model file unreadable")))
 
 		client.get().uri("/v1/search?q=test")
 			.exchange()
 			.expectStatus().isEqualTo(HttpStatus.SERVICE_UNAVAILABLE)
 			.expectBody()
-			.jsonPath("$.backend").isEqualTo("elasticsearch")
+			.jsonPath("$.upstream").isEqualTo("elasticsearch")
 	}
 
 	@Test
@@ -79,7 +79,7 @@ class SearchBackendErrorHandlerTest {
 	}
 
 	@Test
-	fun `a bug unrelated to the backend surfaces as 500 instead of hiding behind 503`() {
+	fun `a bug unrelated to any upstream surfaces as 500 instead of hiding behind 503`() {
 		val client = clientThrowing(IllegalStateException("a real bug like a null pointer"))
 
 		client.get().uri("/v1/search?q=test")
@@ -92,14 +92,14 @@ class SearchBackendErrorHandlerTest {
 		val e = WebClientResponseException.create(503, "Service Unavailable", HttpHeaders.EMPTY, ByteArray(0), null)
 		val controller = VectorSearchController(ThrowingVectorService(e))
 		val client = WebTestClient.bindToController(controller)
-			.controllerAdvice(SearchBackendErrorHandler())
+			.controllerAdvice(UpstreamErrorHandler())
 			.build()
 
 		client.get().uri("/v1/vsearch?q=test")
 			.exchange()
 			.expectStatus().isEqualTo(HttpStatus.SERVICE_UNAVAILABLE)
 			.expectBody()
-			.jsonPath("$.backend").isEqualTo("qdrant")
+			.jsonPath("$.upstream").isEqualTo("qdrant")
 	}
 
 	private fun clientThrowing(exception: Throwable): WebTestClient {
@@ -113,7 +113,7 @@ class SearchBackendErrorHandlerTest {
 			),
 		)
 		return WebTestClient.bindToController(controller)
-			.controllerAdvice(SearchBackendErrorHandler())
+			.controllerAdvice(UpstreamErrorHandler())
 			.build()
 	}
 

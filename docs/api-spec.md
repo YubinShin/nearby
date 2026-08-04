@@ -342,12 +342,12 @@ ES·Qdrant 가 답하지 못하는 상태와 우리 코드의 버그를 **다른
 ```jsonc
 // 503 Service Unavailable
 {
-  "backend": "elasticsearch",   // 또는 "qdrant"
+  "upstream": "elasticsearch",   // 또는 "qdrant"
   "message": "elasticsearch 백엔드에 연결할 수 없습니다 — 아직 색인 전이거나 일시 장애일 수 있습니다"
 }
 ```
 
-무엇을 백엔드 장애로 볼지는 `BackendFailure` 한 곳이 정합니다.
+무엇을 백엔드 장애로 볼지는 `UpstreamFailure` 한 곳이 정합니다.
 
 | 상황 | 판정 |
 |---|---|

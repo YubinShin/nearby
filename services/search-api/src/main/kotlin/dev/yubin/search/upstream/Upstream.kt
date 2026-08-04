@@ -1,4 +1,4 @@
-package dev.yubin.search.backend
+package dev.yubin.search.upstream
 
 import co.elastic.clients.elasticsearch._types.ElasticsearchException
 import co.elastic.clients.json.JsonpMappingException
@@ -8,25 +8,25 @@ import org.springframework.web.reactive.function.client.WebClientException
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import java.io.IOException
 
-object BackendFailure {
-	const val ELASTICSEARCH = "elasticsearch"
-	const val QDRANT = "qdrant"
+enum class Upstream(val wire: String) {
+	ELASTICSEARCH("elasticsearch"),
+	QDRANT("qdrant"),
+}
 
-	fun causedBy(e: Throwable): Boolean = backendOf(e) != null
-
-	fun backendOf(e: Throwable): String? =
+object UpstreamFailure {
+	fun of(e: Throwable): Upstream? =
 		generateSequence(e) { prev -> prev.cause?.takeIf { it !== prev } }
 			.take(MAX_CAUSE_DEPTH)
 			.firstNotNullOfOrNull { classify(it) }
 
-	private fun classify(e: Throwable): String? = when (e) {
+	private fun classify(e: Throwable): Upstream? = when (e) {
 		is JsonpMappingException -> null
-		is ElasticsearchException -> ELASTICSEARCH.takeIf { unavailable(e.status()) }
-		is WebClientResponseException -> QDRANT.takeIf { unavailable(e.statusCode.value()) }
-		is WebClientException -> QDRANT
-		is DecodingException -> QDRANT
-		is JsonException -> ELASTICSEARCH
-		is IOException -> ELASTICSEARCH
+		is ElasticsearchException -> Upstream.ELASTICSEARCH.takeIf { unavailable(e.status()) }
+		is WebClientResponseException -> Upstream.QDRANT.takeIf { unavailable(e.statusCode.value()) }
+		is WebClientException -> Upstream.QDRANT
+		is DecodingException -> Upstream.QDRANT
+		is JsonException -> Upstream.ELASTICSEARCH
+		is IOException -> Upstream.ELASTICSEARCH
 		else -> null
 	}
 

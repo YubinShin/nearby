@@ -1,6 +1,5 @@
 package dev.yubin.search.hybrid
 
-import dev.yubin.search.backend.BackendFailure
 import dev.yubin.search.observability.QueryMetrics
 import dev.yubin.search.query.PlaceHit
 import dev.yubin.search.query.PlaceSearchService
@@ -8,6 +7,7 @@ import dev.yubin.search.query.QueryLog
 import dev.yubin.search.query.SearchRequest
 import dev.yubin.search.query.SearchResponse
 import dev.yubin.search.query.SortBy
+import dev.yubin.search.upstream.UpstreamFailure
 import dev.yubin.search.vector.PlaceVectorSearchService
 import dev.yubin.search.vector.PlaceVectors
 import kotlinx.coroutines.CancellationException
@@ -90,7 +90,7 @@ class HybridSearchService(
 		} catch (e: CancellationException) {
 			throw e
 		} catch (e: Exception) {
-			if (!BackendFailure.causedBy(e)) throw e
+			if (UpstreamFailure.of(e) == null) throw e
 			val root = generateSequence(e as Throwable) { it.cause }.last()
 			log.warn("hybrid channel '{}' failed, degrading — {}: {}", name, root.javaClass.simpleName, root.message)
 			log.debug("hybrid channel '{}' 실패 상세", name, e)
