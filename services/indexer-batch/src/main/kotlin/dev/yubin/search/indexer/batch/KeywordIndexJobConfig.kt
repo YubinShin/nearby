@@ -64,7 +64,7 @@ class KeywordIndexJobConfig(
 
 	@Bean
 	fun keywordLoadStep(): Step {
-		val progress = ChunkProgressLogger("키워드 색인")
+		val progress = ChunkProgressLogger("keyword indexing")
 		return StepBuilder(IndexJobs.STEP_KEYWORD_LOAD, jobRepository)
 			.chunk<PlaceRow, PlaceRow>(chunkSize)
 			.transactionManager(transactionManager)
@@ -117,14 +117,14 @@ class KeywordIndexJobConfig(
 				val ctx = chunkContext.stepContext.stepExecution.jobExecution.executionContext
 
 				val swept = admin.sweepOrphansAbove(searchAlias) + admin.sweepOrphansAbove(suggestAlias)
-				if (swept.isNotEmpty()) log.warn("이전 실행이 남긴 고아 인덱스 {}개 정리 {}", swept.size, swept.sorted())
+				if (swept.isNotEmpty()) log.warn("swept {} orphan indices left by a previous run {}", swept.size, swept.sorted())
 
 				val newSearch = admin.createNextVersion(searchAlias, "es/place_search.json")
 				val newSuggest = admin.createNextVersion(suggestAlias, "es/place_suggest.json")
 				ctx.putString(IndexJobs.Ctx.SEARCH_INDEX, newSearch)
 				ctx.putString(IndexJobs.Ctx.SUGGEST_INDEX, newSuggest)
 
-				log.info("키워드 전체 재색인 준비 완료 → {} + {}", newSearch, newSuggest)
+				log.info("keyword full reindex prepared → {} + {}", newSearch, newSuggest)
 				RepeatStatus.FINISHED
 			}, transactionManager)
 			.build()
@@ -156,7 +156,7 @@ class KeywordIndexJobConfig(
 					ctx.putString(IndexJobs.Ctx.CHECKPOINT, it.toString())
 				}
 
-				log.info("키워드 전체 재색인 승격 완료 — alias 스왑, {}개 정리 {}", removed.size, removed.sorted())
+				log.info("keyword full reindex promoted — alias swapped, swept {} {}", removed.size, removed.sorted())
 				RepeatStatus.FINISHED
 			}, transactionManager)
 			.build()
@@ -181,7 +181,7 @@ class KeywordIndexJobConfig(
 				val since = checkpoints.get(CheckpointStore.PLACE_PIPELINE) ?: admin.maxUpdatedAt(searchAlias)
 				if (since != null) ctx.putString(IndexJobs.Ctx.SINCE, since.toString())
 
-				log.info("키워드 증분 준비 완료 — since={}", since ?: "(없음 → 전체 읽기)")
+				log.info("keyword incremental prepared — since={}", since ?: "(none → full read)")
 				RepeatStatus.FINISHED
 			}, transactionManager)
 			.build()
@@ -201,7 +201,7 @@ class KeywordIndexJobConfig(
 					?.also { checkpoints.set(CheckpointStore.PLACE_PIPELINE, it) }
 
 				ctx.putString(IndexJobs.Ctx.CHECKPOINT, (advanced ?: since)?.toString() ?: "")
-				log.info("키워드 증분 완료 — watermark {} → {}", since, advanced ?: since)
+				log.info("keyword incremental done — watermark {} → {}", since, advanced ?: since)
 				RepeatStatus.FINISHED
 			}, transactionManager)
 			.build()

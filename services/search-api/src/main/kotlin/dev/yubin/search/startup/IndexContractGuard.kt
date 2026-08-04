@@ -41,7 +41,7 @@ class IndexContractGuard(
 			)
 		}
 
-		log.info("색인 계약 확인 완료 — 스키마 v{}", IndexMeta.SCHEMA_VERSION)
+		log.info("index contract verified — schema v{}", IndexMeta.SCHEMA_VERSION)
 	}
 
 	private fun stampOf(alias: String, analyzer: String) =

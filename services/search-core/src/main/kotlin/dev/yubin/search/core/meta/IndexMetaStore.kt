@@ -25,8 +25,8 @@ class IndexMetaStore(private val es: ElasticsearchClient) {
 
 			IndexMeta.Verdict.Missing ->
 				log.warn(
-					"[{}] 버전 도장이 없습니다 — 모듈 분리(ADR 0011) 이전에 만든 색인으로 보입니다. " +
-						"전체 재색인을 한 번 돌리면 도장이 심어지고 이 경고가 사라집니다.",
+					"[{}] no version stamp — the index predates the module split (ADR 0011). " +
+						"one full reindex writes the stamp and clears this warning.",
 					pipeline,
 				)
 

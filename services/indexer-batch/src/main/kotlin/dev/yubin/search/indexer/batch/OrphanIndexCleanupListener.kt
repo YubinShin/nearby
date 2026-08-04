@@ -20,7 +20,7 @@ class OrphanIndexCleanupListener(
 		val ctx = jobExecution.executionContext
 
 		if (ctx.getString(IndexJobs.Ctx.PROMOTED, "").isNotEmpty()) {
-			log.warn("재색인이 승격 뒤에 실패했다 — 인덱스는 서빙 중이므로 정리하지 않는다 (수동 확인 필요)")
+			log.warn("reindex failed after promotion — the indices are serving, leaving them in place (manual check needed)")
 			return
 		}
 
@@ -33,8 +33,8 @@ class OrphanIndexCleanupListener(
 
 		if (jobExecution.completed(IndexJobs.STEP_KEYWORD_LOAD)) {
 			log.warn(
-				"적재를 마친 뒤 승격에서 실패했다 — 적재분 {}는 지우지 않는다. " +
-					"alias 를 수동으로 옮기거나 재색인을 다시 돌리면 정리된다",
+				"promotion failed after loading finished — keeping the loaded indices {}. " +
+					"move the alias manually or run the reindex again to clean them up",
 				candidates.sorted(),
 			)
 			return
@@ -43,21 +43,21 @@ class OrphanIndexCleanupListener(
 		val serving = try {
 			protectedAliases.flatMap { admin.indicesBehind(it) }.toSet()
 		} catch (e: Exception) {
-			log.error("alias 조회 실패 — 무엇이 서빙 중인지 모르므로 {}를 정리하지 않는다", candidates.sorted(), e)
+			log.error("alias lookup failed — cannot tell what is serving, leaving {} in place", candidates.sorted(), e)
 			return
 		}
 
 		val serviced = candidates intersect serving
 		if (serviced.isNotEmpty()) {
-			log.warn("alias 뒤에서 서빙 중이라 정리 대상에서 제외한다 {}", serviced.sorted())
+			log.warn("serving behind an alias, excluded from cleanup {}", serviced.sorted())
 		}
 
 		val orphans = candidates - serving
 		if (orphans.isEmpty()) return
 
 		runCatching { admin.deleteIndices(orphans) }
-			.onSuccess { log.warn("재색인 실패 — 고아 인덱스 {}개 정리함 {}", orphans.size, orphans.sorted()) }
-			.onFailure { log.error("재색인 실패 + 고아 인덱스 정리도 실패 {} — 수동 정리 필요", orphans.sorted(), it) }
+			.onSuccess { log.warn("reindex failed — swept {} orphan indices {}", orphans.size, orphans.sorted()) }
+			.onFailure { log.error("reindex failed and orphan index cleanup failed too {} — manual cleanup needed", orphans.sorted(), it) }
 	}
 
 	private companion object {
@@ -75,7 +75,7 @@ class OrphanCollectionCleanupListener(
 		val ctx = jobExecution.executionContext
 
 		if (ctx.getString(IndexJobs.Ctx.PROMOTED, "").isNotEmpty()) {
-			log.warn("벡터 재색인이 승격 뒤에 실패했다 — 컬렉션은 서빙 중이므로 정리하지 않는다 (수동 확인 필요)")
+			log.warn("vector reindex failed after promotion — the collection is serving, leaving it in place (manual check needed)")
 			return
 		}
 
@@ -86,8 +86,8 @@ class OrphanCollectionCleanupListener(
 
 		if (jobExecution.completed(IndexJobs.STEP_VECTOR_LOAD)) {
 			log.warn(
-				"임베딩을 마친 뒤 승격에서 실패했다 — 적재분 {}는 지우지 않는다. " +
-					"alias 를 수동으로 옮기거나 재색인을 다시 돌리면 정리된다",
+				"promotion failed after embedding finished — keeping the loaded collection {}. " +
+					"move the alias manually or run the reindex again to clean them up",
 				orphan,
 			)
 			return
@@ -96,18 +96,18 @@ class OrphanCollectionCleanupListener(
 		val serving = try {
 			qdrant.collectionsBehind(protectedAlias)
 		} catch (e: Exception) {
-			log.error("alias 조회 실패 — 무엇이 서빙 중인지 모르므로 컬렉션 {}를 정리하지 않는다", orphan, e)
+			log.error("alias lookup failed — cannot tell what is serving, leaving collection {} in place", orphan, e)
 			return
 		}
 
 		if (orphan in serving) {
-			log.warn("alias 뒤에서 서빙 중이라 컬렉션 {}를 정리하지 않는다 (수동 확인 필요)", orphan)
+			log.warn("collection {} is serving behind an alias, leaving it in place (manual check needed)", orphan)
 			return
 		}
 
 		runCatching { qdrant.deleteCollections(setOf(orphan)) }
-			.onSuccess { log.warn("벡터 재색인 실패 — 고아 컬렉션 정리함 {}", orphan) }
-			.onFailure { log.error("벡터 재색인 실패 + 고아 컬렉션 {} 정리도 실패 — 수동 정리 필요", orphan, it) }
+			.onSuccess { log.warn("vector reindex failed — swept orphan collection {}", orphan) }
+			.onFailure { log.error("vector reindex failed and orphan collection {} cleanup failed too — manual cleanup needed", orphan, it) }
 	}
 
 	private companion object {

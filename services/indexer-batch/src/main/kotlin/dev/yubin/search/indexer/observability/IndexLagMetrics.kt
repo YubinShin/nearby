@@ -27,7 +27,7 @@ class IndexLagMetrics(
 		lags.forEach { (pipeline, value) ->
 			Gauge.builder(METRIC) { value.get().toDouble() }
 				.tag("pipeline", TAGS.getValue(pipeline))
-				.description("원천 최신 변경 시각과 색인 체크포인트의 차이(초). 0 이면 따라잡음, -1 이면 체크포인트 없음")
+				.description("seconds between the newest source change and the index checkpoint. 0 means caught up, -1 means no checkpoint")
 				.baseUnit("seconds")
 				.register(registry)
 		}
@@ -49,7 +49,7 @@ class IndexLagMetrics(
 				)
 			}
 		} catch (e: Exception) {
-			log.warn("색인 lag 지표 갱신 실패: {}", e.message)
+			log.warn("failed to refresh index lag metrics: {}", e.message)
 		}
 	}
 

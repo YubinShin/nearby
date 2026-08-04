@@ -22,7 +22,7 @@ class ChunkProgressLogger(private val label: String) :
 	override fun beforeChunk(chunk: Chunk<PlaceRow>) {
 		if (startedAt == 0L) {
 			startedAt = System.nanoTime()
-			log.info("{} 시작 — chunk 하나가 트랜잭션 하나이고 재시작 단위다", label)
+			log.info("{} started — one chunk is one transaction and one restart unit", label)
 		}
 	}
 
@@ -33,12 +33,12 @@ class ChunkProgressLogger(private val label: String) :
 		val elapsedSeconds = (System.nanoTime() - startedAt) / 1_000_000_000.0
 		val rate = if (elapsedSeconds > 0) items / elapsedSeconds else 0.0
 
-		log.info("{} 진행: {}건 ({}번째 chunk) · {}건/초", label, items, chunks, "%.0f".format(rate))
+		log.info("{} progress: {} rows (chunk #{}) · {} rows/s", label, items, chunks, "%.0f".format(rate))
 	}
 
 	override fun onChunkError(exception: Exception, chunk: Chunk<PlaceRow>) {
 		log.warn(
-			"{} chunk 실패 — {}건까지 커밋된 뒤 {}건짜리 chunk 에서 롤백: {}",
+			"{} chunk failed — {} rows committed, then a {}-row chunk rolled back: {}",
 			label, items, chunk.size(), exception.message,
 		)
 	}

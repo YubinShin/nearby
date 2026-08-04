@@ -25,17 +25,17 @@ class ReindexScheduler(private val jobs: IndexJobService) {
 
 	private fun enqueue(jobName: String) {
 		if (!jobs.isRegistered(jobName)) {
-			log.debug("이 노드에 없는 색인 job 이라 건너뜀 — {}", jobName)
+			log.debug("skipping scheduled job not registered on this node — {}", jobName)
 			return
 		}
 
 		try {
 			val accepted = jobs.launch(jobName, IndexJobs.TRIGGER_SCHEDULE)
-			log.info("예약 색인 접수 — {} #{}", accepted.jobName, accepted.jobId)
+			log.info("scheduled index job accepted — {} #{}", accepted.jobName, accepted.jobId)
 		} catch (e: JobNotAcceptedException) {
-			log.warn("예약 색인 접수 보류 ({}) — 다음 주기에 다시 시도합니다: {}", jobName, e.message)
+			log.warn("scheduled index job deferred ({}) — retrying next cycle: {}", jobName, e.message)
 		} catch (e: Exception) {
-			log.error("예약 색인 접수 실패 ({}) — 다음 주기에 다시 시도합니다: {}", jobName, e.message, e)
+			log.error("scheduled index job failed to start ({}) — retrying next cycle: {}", jobName, e.message, e)
 		}
 	}
 

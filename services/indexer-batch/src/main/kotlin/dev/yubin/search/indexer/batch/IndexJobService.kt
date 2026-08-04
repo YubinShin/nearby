@@ -56,7 +56,7 @@ class IndexJobService(
 	private val byName = jobs.associateBy { it.name }
 
 	init {
-		log.info("등록된 색인 job: {}", byName.keys.sorted())
+		log.info("registered index jobs: {}", byName.keys.sorted())
 	}
 
 	fun launch(jobName: String, trigger: String = IndexJobs.TRIGGER_MANUAL): JobAccepted {
@@ -73,11 +73,11 @@ class IndexJobService(
 			val reason = execution.allFailureExceptions.firstOrNull()?.message
 				?: execution.exitStatus.exitDescription.lineSequence().firstOrNull()?.ifEmpty { null }
 				?: "실행 큐가 가득 찼습니다 (동시 1 + 대기 8)"
-			log.warn("색인 job 접수 거부 — {} #{}: {}", jobName, execution.id, reason)
+			log.warn("index job rejected — {} #{}: {}", jobName, execution.id, reason)
 			throw JobNotAcceptedException("색인 job 을 접수하지 못했습니다 ($jobName): $reason")
 		}
 
-		log.info("색인 job 접수 — {} #{} (트리거: {})", jobName, execution.id, trigger)
+		log.info("index job accepted — {} #{} (trigger: {})", jobName, execution.id, trigger)
 
 		return JobAccepted(
 			jobId = execution.id,

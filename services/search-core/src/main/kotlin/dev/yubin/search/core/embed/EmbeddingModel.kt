@@ -62,7 +62,7 @@ class EmbeddingModel(
 		dimension = model.newPredictor().use { it.predict("차원 확인").size }
 
 		log.info(
-			"임베딩 모델 로드: {} (차원 {}, 최대 {}토큰, 추론기 {}개, {}ms)",
+			"embedding model loaded: {} ({} dims, max {} tokens, {} predictors, {}ms)",
 			dir, dimension, maxTokens, poolSize, (System.nanoTime() - started) / 1_000_000,
 		)
 	}

@@ -19,11 +19,11 @@ object BatchSchema {
 		if (!done.compareAndSet(false, true)) return
 
 		if (exists(dataSource)) {
-			log.debug("Batch 메타데이터 테이블 확인됨 — 초기화 건너뜀")
+			log.debug("Batch metadata tables present — skipping initialization")
 			return
 		}
 
-		log.info("Batch 메타데이터 테이블이 없어 생성한다 ({})", SCRIPT)
+		log.info("Batch metadata tables missing — creating them ({})", SCRIPT)
 		ResourceDatabasePopulator(ClassPathResource(SCRIPT)).execute(dataSource)
 	}
 

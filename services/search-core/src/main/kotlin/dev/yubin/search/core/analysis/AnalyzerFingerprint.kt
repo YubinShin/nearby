@@ -21,7 +21,7 @@ object AnalyzerFingerprint {
 			es.indices().analyze { a -> a.index(index).analyzer(analyzer).text(PROBE) }.tokens()
 		} catch (e: ElasticsearchException) {
 			if (e.status() != HTTP_NOT_FOUND) {
-				log.warn("[{}] 분석기 [{}] 지문을 구하지 못해 대조를 건너뜁니다: {}", index, analyzer, e.message)
+				log.warn("[{}] could not fingerprint analyzer [{}], skipping the comparison: {}", index, analyzer, e.message)
 			}
 			return null
 		}

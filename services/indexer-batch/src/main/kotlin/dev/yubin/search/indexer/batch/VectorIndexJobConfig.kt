@@ -67,7 +67,7 @@ class VectorIndexJobConfig(
 
 	@Bean
 	fun vectorLoadStep(): Step {
-		val progress = ChunkProgressLogger("벡터 색인")
+		val progress = ChunkProgressLogger("vector indexing")
 		return StepBuilder(IndexJobs.STEP_VECTOR_LOAD, jobRepository)
 			.chunk<PlaceRow, PlaceRow>(chunkSize)
 			.transactionManager(transactionManager)
@@ -119,11 +119,11 @@ class VectorIndexJobConfig(
 				val ctx = chunkContext.stepContext.stepExecution.jobExecution.executionContext
 
 				val swept = qdrant.sweepOrphansAbove(alias)
-				if (swept.isNotEmpty()) log.warn("이전 실행이 남긴 고아 컬렉션 {}개 정리 {}", swept.size, swept.sorted())
+				if (swept.isNotEmpty()) log.warn("swept {} orphan collections left by a previous run {}", swept.size, swept.sorted())
 
 				val newCollection = qdrant.createNextVersion(alias, embeddings.dimension)
 				ctx.putString(IndexJobs.Ctx.COLLECTION, newCollection)
-				log.info("벡터 전체 재색인 준비 완료 → {} ({}차원)", newCollection, embeddings.dimension)
+				log.info("vector full reindex prepared → {} ({} dims)", newCollection, embeddings.dimension)
 				RepeatStatus.FINISHED
 			}, transactionManager)
 			.build()
@@ -154,7 +154,7 @@ class VectorIndexJobConfig(
 				}
 
 				log.info(
-					"벡터 전체 재색인 승격 완료 — {} ({}점), {}개 정리 {}",
+					"vector full reindex promoted — {} ({} points), swept {} {}",
 					newCollection, qdrant.count(newCollection), removed.size, removed.sorted(),
 				)
 				RepeatStatus.FINISHED
@@ -182,7 +182,7 @@ class VectorIndexJobConfig(
 				val since = checkpoints.get(CheckpointStore.PLACE_VECTOR)
 				if (since != null) ctx.putString(IndexJobs.Ctx.SINCE, since.toString())
 
-				log.info("벡터 증분 준비 완료 — since={}", since ?: "(없음 → 전체 읽기)")
+				log.info("vector incremental prepared — since={}", since ?: "(none → full read)")
 				RepeatStatus.FINISHED
 			}, transactionManager)
 			.build()
@@ -200,7 +200,7 @@ class VectorIndexJobConfig(
 					?.also { checkpoints.set(CheckpointStore.PLACE_VECTOR, it) }
 
 				ctx.putString(IndexJobs.Ctx.CHECKPOINT, (advanced ?: since)?.toString() ?: "")
-				log.info("벡터 증분 완료 — watermark {} → {}", since, advanced ?: since)
+				log.info("vector incremental done — watermark {} → {}", since, advanced ?: since)
 				RepeatStatus.FINISHED
 			}, transactionManager)
 			.build()

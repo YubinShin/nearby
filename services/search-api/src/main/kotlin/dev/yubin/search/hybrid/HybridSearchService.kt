@@ -93,7 +93,7 @@ class HybridSearchService(
 			if (UpstreamFailure.of(e) == null) throw e
 			val root = generateSequence(e as Throwable) { it.cause }.last()
 			log.warn("hybrid channel '{}' failed, degrading — {}: {}", name, root.javaClass.simpleName, root.message)
-			log.debug("hybrid channel '{}' 실패 상세", name, e)
+			log.debug("hybrid channel '{}' failure detail", name, e)
 			ChannelRun(ChannelReport(name, 0, elapsedMs(startedAt), failed = true), emptyList())
 		}.also {
 			metrics.timer(CHANNEL, name).record(System.nanoTime() - startedAt, TimeUnit.NANOSECONDS)
@@ -125,7 +125,7 @@ class HybridSearchService(
 				} catch (e: Exception) {
 					val root = generateSequence(e as Throwable) { it.cause }.last()
 					log.warn("hybrid hydrate failed for {} ids — {}: {}", needsLookup.size, root.javaClass.simpleName, root.message)
-					log.debug("hybrid hydrate 실패 상세", e)
+					log.debug("hybrid hydrate failure detail", e)
 					emptyMap()
 				}
 			}
