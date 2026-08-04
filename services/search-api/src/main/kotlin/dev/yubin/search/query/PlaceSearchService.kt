@@ -67,7 +67,6 @@ class PlaceSearchService(
 					toHit(
 						doc = doc,
 						score = h.score() ?: 0.0,
-
 						distanceM = h.sort().firstOrNull()?.doubleValue()?.roundToLong()
 							?.takeIf { req.sort == SortBy.DISTANCE },
 						highlight = h.highlight().values.flatten(),
@@ -112,7 +111,6 @@ class PlaceSearchService(
 		private val HIGHLIGHT: Highlight = Highlight.of { h ->
 			h.fields(
 				NamedValue.of("name", HighlightField.of { f -> f }),
-
 				NamedValue.of("brand", HighlightField.of { f -> f }),
 				NamedValue.of("jibun_address", HighlightField.of { f -> f }),
 			)

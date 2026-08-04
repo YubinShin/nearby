@@ -16,11 +16,8 @@ class IndexVersionTest {
 	@Test
 	fun `tokenOf extracts a timestamp only from names matching the rule`() {
 		assertEquals("20260725143022", IndexVersion.tokenOf("place_search", "place_search_20260725143022"))
-
 		assertNull(IndexVersion.tokenOf("place_search", "place_search_v1"))
-
 		assertNull(IndexVersion.tokenOf("place_search", "place_search_2026072514"))
-
 		assertNull(IndexVersion.tokenOf("place_vec", "place_search_20260725143022"))
 	}
 
@@ -31,7 +28,6 @@ class IndexVersionTest {
 		val nextDay = "20260726000000"
 		assertTrue(newer > older)
 		assertTrue(nextDay > newer)
-
 		assertEquals(nextDay, listOf(older, newer, nextDay).maxOrNull())
 	}
 }

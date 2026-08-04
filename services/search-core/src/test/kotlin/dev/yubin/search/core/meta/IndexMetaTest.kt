@@ -26,7 +26,6 @@ class IndexMetaTest {
 
 		val mismatch = assertIs<IndexMeta.Verdict.Mismatch>(verdict)
 		assertEquals(1, mismatch.differences.size)
-
 		assertTrue("${IndexMeta.SCHEMA_VERSION - 1}" in mismatch.differences[0], mismatch.differences[0])
 		assertTrue("${IndexMeta.SCHEMA_VERSION}" in mismatch.differences[0], mismatch.differences[0])
 	}

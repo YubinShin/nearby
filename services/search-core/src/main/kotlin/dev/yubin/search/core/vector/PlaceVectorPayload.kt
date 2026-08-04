@@ -8,7 +8,6 @@ object PlaceVectorPayload {
 		put("place_id", r.placeId)
 		put("name", r.name)
 		r.branch?.let { put("branch", it) }
-
 		Brands.resolve(r.brand, r.name, r.branch)?.let { put("brand", it) }
 		r.categoryLarge?.let { put("category_large", it) }
 		r.categorySmall?.let { put("category_small", it) }

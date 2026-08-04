@@ -44,7 +44,6 @@ class HybridSearchService(
 		val candidateReq = req.copy(
 			size = candidates,
 			page = 0,
-
 			sort = SortBy.RELEVANCE,
 		)
 
@@ -134,7 +133,6 @@ class HybridSearchService(
 		return page.mapNotNull { fused ->
 			val base = fromKeyword[fused.id] ?: hydrated[fused.id] ?: fromVector[fused.id] ?: return@mapNotNull null
 			val place = base.copy(
-
 				score = fused.score,
 				distanceM = distanceM(base, req),
 			)

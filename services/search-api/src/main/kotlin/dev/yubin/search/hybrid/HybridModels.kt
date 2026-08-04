@@ -5,9 +5,7 @@ import dev.yubin.search.query.PlaceHit
 
 data class HybridHit(
 	@get:JsonUnwrapped val place: PlaceHit,
-
 	val ranks: Map<String, Int>,
-
 	val scores: Map<String, Double>,
 )
 
@@ -20,12 +18,10 @@ data class ChannelReport(
 
 data class HybridResponse(
 	val query: String,
-
 	val total: Long,
 	val page: Int,
 	val size: Int,
 	val tookMs: Long,
-
 	val degraded: Boolean = false,
 	val channels: List<ChannelReport> = emptyList(),
 	val hits: List<HybridHit> = emptyList(),

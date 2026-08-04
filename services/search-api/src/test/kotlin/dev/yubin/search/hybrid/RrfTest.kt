@@ -26,7 +26,6 @@ class RrfTest {
 		val channels = listOf(keyword("B", "x", "x2", "x3", "A"), vector("y", "y2", "y3", "y4", "A"))
 
 		assertEquals("B", Rrf.fuse(channels, k = 0).first().id)
-
 		assertEquals("A", Rrf.fuse(channels, k = 60).first().id)
 	}
 

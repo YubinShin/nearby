@@ -10,7 +10,6 @@ import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType
 object PlaceQueries {
 	val SEARCH_FIELDS = listOf(
 		"name^5",
-
 		"brand_text^5",
 		"branch^3",
 		"category_small.txt^2",
@@ -28,7 +27,6 @@ object PlaceQueries {
 					mm.query(req.q)
 						.fields(SEARCH_FIELDS)
 						.type(TextQueryType.CrossFields)
-
 					if (relaxed) mm.operator(Operator.Or).minimumShouldMatch("70%")
 					else mm.operator(Operator.And)
 				}
@@ -43,7 +41,6 @@ object PlaceQueries {
 		root.functionScore { fs ->
 			fs.query { q ->
 				q.bool { b ->
-
 					b.must { m -> m.match { mt -> mt.field("label").query(req.q).operator(Operator.And) } }
 					b.should { s -> s.prefix { p -> p.field("label.raw").value(req.q.lowercase()).boost(3.0f) } }
 				}

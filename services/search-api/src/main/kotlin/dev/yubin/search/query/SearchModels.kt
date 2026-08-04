@@ -50,7 +50,6 @@ data class SearchRequest(
 				lat = lat.takeIf { geo },
 				lon = lon.takeIf { geo },
 				radiusM = if (geo) (radiusM ?: DEFAULT_RADIUS_M).coerceIn(1, MAX_RADIUS_M) else null,
-
 				sort = if (geo && sort.equals("distance", ignoreCase = true)) SortBy.DISTANCE else SortBy.RELEVANCE,
 			)
 		}
@@ -71,7 +70,6 @@ data class PlaceHit(
 	val placeId: String,
 	val name: String,
 	val branch: String?,
-
 	val brand: String? = null,
 	val category: String?,
 	val address: String?,
@@ -80,9 +78,7 @@ data class PlaceHit(
 	val lat: Double?,
 	val lon: Double?,
 	val score: Double,
-
 	val distanceM: Long? = null,
-
 	val highlight: List<String> = emptyList(),
 ) {
 	val label: String get() = Brands.display(brand, name)
@@ -94,7 +90,6 @@ data class SearchResponse(
 	val page: Int,
 	val size: Int,
 	val tookMs: Long,
-
 	val relaxed: Boolean = false,
 	val hits: List<PlaceHit> = emptyList(),
 )
@@ -102,7 +97,6 @@ data class SearchResponse(
 data class SuggestItem(
 	val placeId: String,
 	val name: String,
-
 	val brand: String? = null,
 	val category: String?,
 	val dong: String?,

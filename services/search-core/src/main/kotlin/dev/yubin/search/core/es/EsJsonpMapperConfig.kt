@@ -14,7 +14,6 @@ class EsJsonpMapperConfig {
 	fun jsonpMapper(): JsonpMapper = JacksonJsonpMapper(
 		ObjectMapper()
 			.registerModule(KotlinModule.Builder().build())
-
 			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false),
 	)
 }

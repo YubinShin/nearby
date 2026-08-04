@@ -47,7 +47,6 @@ class PlaceVectorDocTest {
 	@Test
 	fun `the payload carries the brand too`() {
 		assertEquals("스타벅스", PlaceVectorPayload.of(row(brand = "스타벅스"))["brand"])
-
 		assertTrue("brand" !in PlaceVectorPayload.of(row(name = "먹어도")))
 	}
 

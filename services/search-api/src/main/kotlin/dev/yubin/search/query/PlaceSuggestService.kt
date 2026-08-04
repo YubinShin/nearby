@@ -41,7 +41,6 @@ class PlaceSuggestService(
 				)
 			}
 		}
-
 		queryLog.suggest(req.q, items.size, resp.took())
 
 		SuggestResponse(query = req.q, tookMs = resp.took(), items = items)

@@ -58,7 +58,6 @@ class PlaceVectorSearchService(
 
 		SearchResponse(
 			query = req.q,
-
 			total = passed.size.toLong(),
 			page = req.page,
 			size = req.size,

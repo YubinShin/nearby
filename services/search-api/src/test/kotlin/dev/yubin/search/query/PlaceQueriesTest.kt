@@ -24,7 +24,6 @@ class PlaceQueriesTest {
 	fun `the place name carries the highest weight and the address is secondary`() {
 		assertEquals("name^5", PlaceQueries.SEARCH_FIELDS.first())
 		assertTrue("road_address" in PlaceQueries.SEARCH_FIELDS)
-
 		assertTrue(PlaceQueries.SEARCH_FIELDS.any { it.startsWith("category_small.txt") })
 		assertTrue(PlaceQueries.SEARCH_FIELDS.any { it.startsWith("dong.txt") })
 	}
@@ -42,7 +41,6 @@ class PlaceQueriesTest {
 
 		assertTrue("\"operator\":\"and\"" in strict)
 		assertFalse("\"operator\":\"and\"" in relaxed)
-
 		assertTrue("\"minimum_should_match\":\"70%\"" in relaxed, "the fallback threshold changed: $relaxed")
 	}
 
@@ -78,7 +76,6 @@ class PlaceQueriesTest {
 		val q = json(PlaceQueries.suggest(SuggestRequest.of("스타")))
 
 		assertTrue("function_score" in q, q)
-
 		assertTrue("\"label\"" in q, "suggest must match on label: $q")
 		assertTrue("\"name\"" !in q, "falling back to name makes brand recovery pointless: $q")
 		assertTrue("prefix" in q, "a name starting with those characters must be pushed up: $q")

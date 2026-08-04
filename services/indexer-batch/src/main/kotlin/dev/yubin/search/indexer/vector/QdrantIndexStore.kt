@@ -20,7 +20,6 @@ class QdrantIndexStore(
 			.body(
 				mapOf(
 					"vectors" to mapOf("size" to dimension, "distance" to QdrantContract.DISTANCE),
-
 					"hnsw_config" to mapOf(
 						"m" to QdrantContract.HNSW_M,
 						"ef_construct" to QdrantContract.HNSW_EF_CONSTRUCT,

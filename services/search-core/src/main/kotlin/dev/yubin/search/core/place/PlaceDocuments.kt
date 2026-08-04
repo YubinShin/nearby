@@ -9,7 +9,6 @@ object PlaceDocuments {
 		r.branch?.let { put("branch", it) }
 		Brands.resolve(r.brand, r.name, r.branch)?.let {
 			put("brand", it)
-
 			put("brand_text", Brands.searchText(it))
 		}
 		r.categoryLarge?.let { put("category_large", it) }
@@ -28,9 +27,7 @@ object PlaceDocuments {
 		put("place_id", r.placeId)
 		put("name", r.name)
 		Brands.resolve(r.brand, r.name, r.branch)?.let { put("brand", it) }
-
 		put("label", label(r))
-
 		put("name_length", r.name.length)
 		r.categorySmall?.let { put("category_small", it) }
 		r.sigungu?.let { put("sigungu", it) }

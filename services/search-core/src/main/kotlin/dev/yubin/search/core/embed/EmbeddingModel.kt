@@ -18,7 +18,6 @@ import java.util.concurrent.ArrayBlockingQueue
 class EmbeddingModel(
 	@Value("\${psp.embedding.model-dir}") modelDir: String,
 	@Value("\${psp.embedding.max-tokens}") maxTokens: Int,
-
 	@Value("\${psp.embedding.pool-size}") final val poolSize: Int,
 ) {
 	private val model: ZooModel<String, FloatArray>
@@ -37,20 +36,15 @@ class EmbeddingModel(
 		model = Criteria.builder()
 			.setTypes(String::class.java, FloatArray::class.java)
 			.optModelPath(dir)
-
 			.optModelName(MODEL_FILE)
 			.optEngine("OnnxRuntime")
 			.optTranslatorFactory(TextEmbeddingTranslatorFactory())
 			.optArguments(
 				mapOf(
-
 					"pooling" to "mean",
-
 					"normalize" to "true",
-
 					"maxLength" to maxTokens,
 					"padding" to "true",
-
 					"includeTokenTypes" to "true",
 				),
 			)
@@ -58,7 +52,6 @@ class EmbeddingModel(
 			.loadModel()
 
 		repeat(poolSize) { idle.put(model.newPredictor()) }
-
 		dimension = model.newPredictor().use { it.predict("차원 확인").size }
 
 		log.info(

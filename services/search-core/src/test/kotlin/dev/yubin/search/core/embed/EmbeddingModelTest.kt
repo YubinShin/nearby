@@ -42,7 +42,6 @@ class EmbeddingModelTest {
 		val asQuery = model.embedQuery("카페")
 		val asPassage = model.embedPassages(listOf("카페")).single()
 		assertTrue(!asQuery.contentEquals(asPassage))
-
 		assertTrue(cosine(asQuery, asPassage) > 0.8, "only the prefix differs but the meanings are far apart: ${cosine(asQuery, asPassage)}")
 	}
 

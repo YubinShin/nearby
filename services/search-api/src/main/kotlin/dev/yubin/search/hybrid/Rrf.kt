@@ -14,9 +14,7 @@ object Rrf {
 		for (channel in channels) {
 			channel.ranking.forEachIndexed { index, id ->
 				val rank = index + 1
-
 				val seen = ranks.getOrPut(id) { LinkedHashMap() }
-
 				if (seen.putIfAbsent(channel.name, rank) == null) {
 					scores.merge(id, channel.weight / (k + rank), Double::plus)
 				}
@@ -25,7 +23,6 @@ object Rrf {
 
 		return scores.entries
 			.map { (id, score) -> Fused(id, score, ranks[id].orEmpty()) }
-
 			.sortedWith(
 				compareByDescending<Fused> { it.score }
 					.thenBy { it.ranks.values.minOrNull() ?: Int.MAX_VALUE }

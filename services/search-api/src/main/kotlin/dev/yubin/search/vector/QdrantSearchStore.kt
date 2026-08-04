@@ -53,7 +53,6 @@ class QdrantSearchStore(
 			put("query", vector.toList())
 			put("limit", limit)
 			put("with_payload", true)
-
 			put("params", mapOf("hnsw_ef" to efSearch))
 			filter?.let { put("filter", it) }
 		}
@@ -62,7 +61,6 @@ class QdrantSearchStore(
 			.retrieve().awaitBody<QueryResponse>()
 
 		return resp.result.points.mapNotNull { p ->
-
 			val placeId = p.payload["place_id"] as? String ?: return@mapNotNull null
 			VectorMatch(placeId, p.score, p.payload)
 		}

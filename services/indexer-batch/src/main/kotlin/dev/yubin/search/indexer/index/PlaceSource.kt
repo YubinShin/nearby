@@ -56,7 +56,6 @@ object PlaceRowMapper : RowMapper<PlaceRow> {
 class PlaceSourceDao(private val jdbc: JdbcClient) {
 	fun maxUpdatedAt(): OffsetDateTime? =
 		jdbc.sql(PlaceSql.SELECT_MAX_UPDATED_AT)
-
 			.query { rs, _ -> rs.getObject(1, OffsetDateTime::class.java) }
 			.optional()
 			.orElse(null)

@@ -42,7 +42,6 @@ data class JobProgress(
 	val endedAt: String?,
 	val elapsedMs: Long?,
 	val steps: List<StepProgress>,
-
 	val summary: Map<String, String>,
 	val failure: String?,
 )
@@ -102,7 +101,6 @@ class IndexJobService(
 			startedAt = execution.startTime?.toString(),
 			endedAt = execution.endTime?.toString(),
 			elapsedMs = elapsedMillis(execution.startTime, execution.endTime),
-
 			steps = execution.stepExecutions
 				.sortedBy { it.startTime ?: LocalDateTime.MAX }
 				.map { step ->

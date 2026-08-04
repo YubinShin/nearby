@@ -173,7 +173,6 @@ class VectorIndexJobConfig(
 				meta.requireCompatible(
 					IndexMeta.PIPELINE_VECTOR,
 					IndexMeta.stamp(embeddingModel = embeddings.modelId, embeddingDim = embeddings.dimension),
-
 					remedy = INCREMENTAL_REMEDY,
 				)
 

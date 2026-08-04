@@ -6,7 +6,6 @@ data class PlaceRow(
 	val placeId: String,
 	val name: String,
 	val branch: String?,
-
 	val brand: String?,
 	val categoryLarge: String?,
 	val categoryMid: String?,

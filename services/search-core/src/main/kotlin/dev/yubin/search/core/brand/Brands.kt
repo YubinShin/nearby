@@ -42,7 +42,6 @@ object Brands {
 			.filter { it.isNotEmpty() && !it.startsWith("#") }
 			.map { line -> line.split("\t").map(String::trim).filter(String::isNotEmpty) }
 			.filter { it.isNotEmpty() }
-
 			.groupBy({ it.first() }, { it })
 			.mapValues { (_, rows) -> rows.flatten().distinct() }
 	}

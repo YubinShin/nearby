@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component
 class IndexContractGuard(
 	private val meta: IndexMetaStore,
 	private val es: ElasticsearchClient,
-
 	private val embeddings: ObjectProvider<EmbeddingModel>,
 	@Value("\${psp.index.search-alias}") private val searchAlias: String,
 	@Value("\${psp.index.suggest-alias}") private val suggestAlias: String,

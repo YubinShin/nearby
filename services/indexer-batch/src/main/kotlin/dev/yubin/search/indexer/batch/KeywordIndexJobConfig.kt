@@ -70,7 +70,6 @@ class KeywordIndexJobConfig(
 			.transactionManager(transactionManager)
 			.reader(keywordPlaceReader())
 			.writer(keywordBulkWriter())
-
 			.listener(keywordBulkWriter())
 			.listener(progress as ChunkListener<PlaceRow, PlaceRow>)
 			.listener(progress as StepExecutionListener)
@@ -123,7 +122,6 @@ class KeywordIndexJobConfig(
 				val newSuggest = admin.createNextVersion(suggestAlias, "es/place_suggest.json")
 				ctx.putString(IndexJobs.Ctx.SEARCH_INDEX, newSearch)
 				ctx.putString(IndexJobs.Ctx.SUGGEST_INDEX, newSuggest)
-
 				log.info("keyword full reindex prepared → {} + {}", newSearch, newSuggest)
 				RepeatStatus.FINISHED
 			}, transactionManager)

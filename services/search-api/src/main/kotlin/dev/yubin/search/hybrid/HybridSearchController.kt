@@ -31,7 +31,6 @@ class HybridSearchController(private val hybridSearch: HybridSearchService) {
 			q = q, size = size, page = page,
 			sigungu = sigungu, dong = dong, categoryLarge = categoryLarge,
 			lat = lat, lon = lon, radiusM = radiusM,
-
 			sort = null,
 		),
 	)

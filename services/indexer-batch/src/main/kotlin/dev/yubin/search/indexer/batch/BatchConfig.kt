@@ -14,7 +14,6 @@ class BatchConfig(private val dataSource: DataSource) : JdbcDefaultBatchConfigur
 		maxPoolSize = 1
 		queueCapacity = 8
 		setThreadNamePrefix("index-job-")
-
 		setWaitForTasksToCompleteOnShutdown(true)
 		setAwaitTerminationSeconds(AWAIT_TERMINATION_SECONDS)
 		initialize()
