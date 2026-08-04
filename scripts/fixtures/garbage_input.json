@@ -1,0 +1,39 @@
+{
+  "recorded_at": "2026-08-04T07:41:58.783406+00:00",
+  "model_version": "gemini-3.6-flash",
+  "thinking_level": "minimal",
+  "experiment": "garbage_input",
+  "question": "회 먹을 데 있어?",
+  "context": "검색결과 (거리 정보 없음):\n- [MA010120220810147236] 먹어도 | 횟집 | 삼성2동 | 학동로56길 32\n- [MA010120220813985043] 마시아 | 일식 회/초밥 | 삼성2동 | 선릉로 514\n- [MA010120220806498529] 어방참치 | 일식 회/초밥 | 대치2동 | 삼성로84길 32\n- [MA0106202510A0703050] 카이 | 일식 회/초밥 | 청담동 | 학동로55길 12-11\n- [MA010120220803440076] 네기 | 일식 회/초밥 | 신사동 | 도산대로15길 18\n- [FAKE0001] 한길회계사무소 | 회계서비스 | 역삼동 | 테헤란로 123",
+  "raw_response": {
+    "candidates": [
+      {
+        "content": {
+          "parts": [
+            {
+              "text": "{\n  \"found\": true,\n  \"unverifiable_conditions\": [],\n  \"sentences\": [\n    {\n      \"text\": \"삼성2동에 횟집인 먹어도와 일식 회/초밥 전문점인 마시아가 있습니다.\",\n      \"evidence\": [\n        \"MA010120220810147236\",\n        \"MA010120220813985043\"\n      ]\n    },\n    {\n      \"text\": \"대치2동의 어방참치, 청담동의 카이, 신사동의 네기에서도 일식 회/초밥을 다룹니다.\",\n      \"evidence\": [\n        \"MA010120220806498529\",\n        \"MA0106202510A0703050\",\n        \"MA010120220803440076\"\n      ]\n    }\n  ]\n}",
+              "thoughtSignature": "EjQKMgERTTIPZjR87sI+uSaOFyCYOTWRSDf4zhXChgMD4x5TGo/dsYxC2O//wWF2JVz7u9G6"
+            }
+          ],
+          "role": "model"
+        },
+        "finishReason": "STOP",
+        "index": 0
+      }
+    ],
+    "usageMetadata": {
+      "promptTokenCount": 321,
+      "candidatesTokenCount": 246,
+      "totalTokenCount": 567,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 321
+        }
+      ],
+      "serviceTier": "standard"
+    },
+    "modelVersion": "gemini-3.6-flash",
+    "responseId": "vJdxaoS4FuDLrfcPxNTvoAQ"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "recorded_at": "2026-08-04T07:41:21.172590+00:00",
+  "model_version": "gemini-3.6-flash",
+  "thinking_level": "minimal",
+  "experiment": "implicit_condition",
+  "question": "맛있고 가까운 회 먹을 데 있어?",
+  "context": "검색결과 (거리 정보 없음):\n- [MA010120220810147236] 먹어도 | 횟집 | 삼성2동 | 학동로56길 32\n- [MA010120220813985043] 마시아 | 일식 회/초밥 | 삼성2동 | 선릉로 514\n- [MA010120220806498529] 어방참치 | 일식 회/초밥 | 대치2동 | 삼성로84길 32\n- [MA0106202510A0703050] 카이 | 일식 회/초밥 | 청담동 | 학동로55길 12-11\n- [MA010120220803440076] 네기 | 일식 회/초밥 | 신사동 | 도산대로15길 18",
+  "raw_response": {
+    "candidates": [
+      {
+        "content": {
+          "parts": [
+            {
+              "text": "{\n  \"found\": true,\n  \"unverifiable_conditions\": [\n    \"맛있는 곳\",\n    \"가까운 곳\"\n  ],\n  \"sentences\": [\n    {\n      \"text\": \"회 또는 일식 회/초밥을 취급하는 음식점으로 먹어도, 마시아, 어방참치, 카이, 네기가 있습니다.\",\n      \"evidence\": [\n        \"MA010120220810147236\",\n        \"MA010120220813985043\",\n        \"MA010120220806498529\",\n        \"MA0106202510A0703050\",\n        \"MA010120220803440076\"\n      ]\n    }\n  ]\n}",
+              "thoughtSignature": "EjQKMgERTTIPO4umVwnjvJXR2VUEvtov4HlTJJJu2nL9d1afaIoKUv1F06W8/+TNH628FRRF"
+            }
+          ],
+          "role": "model"
+        },
+        "finishReason": "STOP",
+        "index": 0
+      }
+    ],
+    "usageMetadata": {
+      "promptTokenCount": 292,
+      "candidatesTokenCount": 215,
+      "totalTokenCount": 507,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 292
+        }
+      ],
+      "serviceTier": "standard"
+    },
+    "modelVersion": "gemini-3.6-flash",
+    "responseId": "n5dxauH1HJre2roP_92ooAE"
+  }
+}

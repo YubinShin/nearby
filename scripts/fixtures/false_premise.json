@@ -1,0 +1,39 @@
+{
+  "recorded_at": "2026-08-04T07:41:28.774919+00:00",
+  "model_version": "gemini-3.6-flash",
+  "thinking_level": "minimal",
+  "experiment": "false_premise",
+  "question": "어방참치 초밥 맛있기로 유명하죠?",
+  "context": "검색결과 (거리 정보 없음):\n- [MA010120220810147236] 먹어도 | 횟집 | 삼성2동 | 학동로56길 32\n- [MA010120220813985043] 마시아 | 일식 회/초밥 | 삼성2동 | 선릉로 514\n- [MA010120220806498529] 어방참치 | 일식 회/초밥 | 대치2동 | 삼성로84길 32\n- [MA0106202510A0703050] 카이 | 일식 회/초밥 | 청담동 | 학동로55길 12-11\n- [MA010120220803440076] 네기 | 일식 회/초밥 | 신사동 | 도산대로15길 18",
+  "raw_response": {
+    "candidates": [
+      {
+        "content": {
+          "parts": [
+            {
+              "text": "{\n  \"found\": true,\n  \"unverifiable_conditions\": [\n    \"초밥 맛있기로 유명한지 여부\"\n  ],\n  \"sentences\": [\n    {\n      \"text\": \"대치2동에 어방참치라는 일식 회/초밥 업체가 있습니다.\",\n      \"evidence\": [\n        \"MA010120220806498529\"\n      ]\n    },\n    {\n      \"text\": \"제공된 검색결과에는 어방참치의 초밥이 맛있거나 유명한지에 대한 정보는 없습니다.\",\n      \"evidence\": []\n    }\n  ]\n}",
+              "thoughtSignature": "EjQKMgERTTIPJkNNrClj6SJk1tzDPEbWZ4x84uMzIDOkn8wLVQGkmhG82NUHElKWfNvlppaw"
+            }
+          ],
+          "role": "model"
+        },
+        "finishReason": "STOP",
+        "index": 0
+      }
+    ],
+    "usageMetadata": {
+      "promptTokenCount": 294,
+      "candidatesTokenCount": 151,
+      "totalTokenCount": 445,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 294
+        }
+      ],
+      "serviceTier": "standard"
+    },
+    "modelVersion": "gemini-3.6-flash",
+    "responseId": "p5dxap6zC6Gj2roP6tyPkAU"
+  }
+}

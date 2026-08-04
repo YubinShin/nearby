@@ -1,0 +1,39 @@
+{
+  "recorded_at": "2026-08-04T07:41:46.109252+00:00",
+  "model_version": "gemini-3.6-flash",
+  "thinking_level": "minimal",
+  "experiment": "context_mismatch",
+  "question": "어방참치 어때?",
+  "context": "검색결과 (거리 정보 없음):\n- [MA0106202201A2363742] 스타벅스 서울세관사거리 | 카페 | 논현2동 | 언주로 650\n- [MA0106202201A2363717] 스타벅스 도산사거리 | 카페 | 논현2동 | 언주로 727\n- [MA0106202201A2363574] 스타벅스 청담사거리 | 카페 | 청담동 | 도산대로 458\n- [MA0106202201A2363846] 스타벅스 포이 | 카페 | 개포4동 | 논현로 88\n- [MA0106202201A2363716] 스타벅스 압구정R | 카페 | 압구정동 | 언주로 861",
+  "raw_response": {
+    "candidates": [
+      {
+        "content": {
+          "parts": [
+            {
+              "text": "{\n  \"found\": false,\n  \"unverifiable_conditions\": [],\n  \"sentences\": [\n    {\n      \"text\": \"검색결과에 어방참치에 대한 정보가 없습니다.\",\n      \"evidence\": []\n    }\n  ]\n}",
+              "thoughtSignature": "EjQKMgERTTIPAEdwVsx1Jo9+bXIg2ZAu5z74hVdqzQg0CWaJqBMtu3tM0vOUYhwU0xAB9YmZ"
+            }
+          ],
+          "role": "model"
+        },
+        "finishReason": "STOP",
+        "index": 0
+      }
+    ],
+    "usageMetadata": {
+      "promptTokenCount": 281,
+      "candidatesTokenCount": 62,
+      "totalTokenCount": 343,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 281
+        }
+      ],
+      "serviceTier": "standard"
+    },
+    "modelVersion": "gemini-3.6-flash",
+    "responseId": "uJdxasXPMo6gvr0P0fvjsQ4"
+  }
+}
