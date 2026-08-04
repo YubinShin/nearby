@@ -1,0 +1,157 @@
+# 골든셋 — /v1/ask 의 정답 데이터 (라벨링 전)
+#
+# `scripts/queries_regression.txt` 의 20개를 그대로 옮기고, **결과가 0건이어야 맞는**
+# 트랩 질의 5개를 더했습니다. 트랩은 코퍼스가 담지 못하는 축(평점·영업시간·배달·가격)과
+# 지역 범위 밖을 각각 하나씩 찌릅니다 (docs/data-model.md "이 데이터가 담지 못하는 것").
+#
+# `scripts/record_llm_fixtures.py` 가 이 파일의 query 를 읽어 LLM 응답을 녹화합니다.
+#
+# 라벨은 **비어 있습니다.** 채우는 방법은 services/ask-api/README.md 의 "골든셋 라벨링".
+#   expected_places  — 이 질의에 나와야 하는 place_id 목록 (TODO_HUMAN_LABEL)
+#   expect_empty     — 결과가 0건이어야 맞는 질의인지 (TODO_HUMAN_LABEL)
+#
+# 트랩 5개의 expect_empty 만 true 로 채워져 있습니다. 그것이 트랩의 정의라서,
+# 관측이 아니라 명세입니다.
+
+version: 1
+corpus: 강남구 상가정보 64,239건 (2026-03 스냅샷)
+
+queries:
+  # --- queries_regression.txt · 1. 뜻으로 찾기 (키워드 0건 예상) ---
+  - query: 회 먹을 데
+    source: queries_regression.txt
+    expected_places: TODO_HUMAN_LABEL
+    expect_empty: TODO_HUMAN_LABEL
+
+  - query: 브런치 먹을 곳
+    source: queries_regression.txt
+    expected_places: TODO_HUMAN_LABEL
+    expect_empty: TODO_HUMAN_LABEL
+
+  - query: 머리 자르는 곳
+    source: queries_regression.txt
+    expected_places: TODO_HUMAN_LABEL
+    expect_empty: TODO_HUMAN_LABEL
+
+  - query: 혼밥하기 좋은 집
+    source: queries_regression.txt
+    expected_places: TODO_HUMAN_LABEL
+    expect_empty: TODO_HUMAN_LABEL
+
+  - query: 매운 거 먹고 싶다
+    source: queries_regression.txt
+    expected_places: TODO_HUMAN_LABEL
+    expect_empty: TODO_HUMAN_LABEL
+
+  - query: 차 고치는 곳
+    source: queries_regression.txt
+    expected_places: TODO_HUMAN_LABEL
+    expect_empty: TODO_HUMAN_LABEL
+
+  - query: 조용히 공부할 곳
+    source: queries_regression.txt
+    expected_places: TODO_HUMAN_LABEL
+    expect_empty: TODO_HUMAN_LABEL
+
+  - query: 고기 구워 먹는 데
+    source: queries_regression.txt
+    expected_places: TODO_HUMAN_LABEL
+    expect_empty: TODO_HUMAN_LABEL
+
+  # --- queries_regression.txt · 2. 평범한 질의 (키워드가 강함) ---
+  - query: 카페
+    source: queries_regression.txt
+    expected_places: TODO_HUMAN_LABEL
+    expect_empty: TODO_HUMAN_LABEL
+
+  - query: 편의점
+    source: queries_regression.txt
+    expected_places: TODO_HUMAN_LABEL
+    expect_empty: TODO_HUMAN_LABEL
+
+  - query: 세탁소
+    source: queries_regression.txt
+    expected_places: TODO_HUMAN_LABEL
+    expect_empty: TODO_HUMAN_LABEL
+
+  - query: 약국
+    source: queries_regression.txt
+    expected_places: TODO_HUMAN_LABEL
+    expect_empty: TODO_HUMAN_LABEL
+
+  - query: 미용실
+    source: queries_regression.txt
+    expected_places: TODO_HUMAN_LABEL
+    expect_empty: TODO_HUMAN_LABEL
+
+  - query: 치킨
+    source: queries_regression.txt
+    expected_places: TODO_HUMAN_LABEL
+    expect_empty: TODO_HUMAN_LABEL
+
+  - query: 삼겹살
+    source: queries_regression.txt
+    expected_places: TODO_HUMAN_LABEL
+    expect_empty: TODO_HUMAN_LABEL
+
+  - query: 노래방
+    source: queries_regression.txt
+    expected_places: TODO_HUMAN_LABEL
+    expect_empty: TODO_HUMAN_LABEL
+
+  # --- queries_regression.txt · 3. 브랜드 (복원분 + 시드 사전) ---
+  - query: 스타벅스
+    source: queries_regression.txt
+    expected_places: TODO_HUMAN_LABEL
+    expect_empty: TODO_HUMAN_LABEL
+
+  - query: CU
+    source: queries_regression.txt
+    expected_places: TODO_HUMAN_LABEL
+    expect_empty: TODO_HUMAN_LABEL
+
+  - query: 파리바게뜨
+    source: queries_regression.txt
+    expected_places: TODO_HUMAN_LABEL
+    expect_empty: TODO_HUMAN_LABEL
+
+  - query: 이디야
+    source: queries_regression.txt
+    expected_places: TODO_HUMAN_LABEL
+    expect_empty: TODO_HUMAN_LABEL
+
+  # --- 트랩 · 0건이어야 맞는 질의 ---
+  # 코퍼스에 평점이 없습니다.
+  - query: 평점 4.5 이상 카페
+    source: trap
+    trap_axis: 평점
+    expected_places: TODO_HUMAN_LABEL
+    expect_empty: true
+
+  # 코퍼스에 영업시간이 없습니다.
+  - query: 지금 문 연 약국
+    source: trap
+    trap_axis: 영업시간
+    expected_places: TODO_HUMAN_LABEL
+    expect_empty: true
+
+  # 코퍼스에 배달 여부가 없습니다.
+  - query: 배달 되는 치킨집
+    source: trap
+    trap_axis: 배달
+    expected_places: TODO_HUMAN_LABEL
+    expect_empty: true
+
+  # 코퍼스에 가격이 없습니다.
+  - query: 1만원 이하 파스타
+    source: trap
+    trap_axis: 가격
+    expected_places: TODO_HUMAN_LABEL
+    expect_empty: true
+
+  # 코퍼스는 강남구뿐입니다.
+  - query: 제주도 흑돼지 맛집
+    source: trap
+    trap_axis: 지역 범위
+    expected_places: TODO_HUMAN_LABEL
+    expect_empty: true
