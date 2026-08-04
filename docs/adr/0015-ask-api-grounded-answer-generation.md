@@ -110,16 +110,18 @@ ADR 0014 실패 표에 행을 추가합니다.
 ## 실측
 
 grounding 함정 실험, 2026-08-04, `gemini-3.5-flash` · thinkingLevel=minimal.
-`scripts/grounding_experiments.py` 8개 함정. 라벨된 골든셋이 아니라 명세 기반 스팟 실험입니다.
+`scripts/grounding_experiments.py` 8개 함정. 응답 원문은 `scripts/fixtures/260804/` 에 녹화돼 있습니다.
+라벨된 골든셋이 아니라 명세 기반 스팟 실험입니다.
 
 | 실험 | 검증 축 | 관측 |
 |---|---|---|
-| baseline | 정상 그라운딩 | found=true, evidence 실재 |
-| implicit_condition | `맛있고 가까운` 조건 누락 | unverifiable_conditions 로 반환 |
+| baseline | 정상 그라운딩 | found=true, 3문장 5인용, evidence 실재 |
+| implicit_condition | `맛있고 가까운` 조건 누락 | `맛있고`·`가까운` 을 unverifiable_conditions 로 반환 |
 | empty_context | 결과 0건에서 생성 | found=false, 생성 없음 |
-| false_premise | `맛있기로 유명하죠?` 거짓 전제 | unverifiable_conditions 로 반환 |
-| knowledge_leak_famous | 스타벅스 배경지식 누출 | 금지어(프라푸치노·사이렌) 미등장 |
-| context_mismatch | 스타벅스 컨텍스트로 어방참치 질의 | found=false |
+| false_premise | `맛있기로 유명하죠?` 거짓 전제 | found=true 로 레코드만 답하고 `맛있기로 유명한지 여부` 는 unverifiable_conditions 로 반환 |
+| knowledge_leak_famous | 스타벅스 배경지식 누출 | 금지어(프라푸치노·사이렌) 미등장, 10건 전부 인용 |
+| knowledge_leak_unknown | 무명 상호 대조군 | 컨텍스트의 업종·행정동·주소만 사용 |
+| context_mismatch | 스타벅스 컨텍스트로 어방참치 질의 | found=false, `어방참치` 를 unverifiable_conditions 로 반환 |
 | garbage_input | 회 질의 컨텍스트에 회계사무소 혼입 | `회계` 미언급, `FAKE0001` 미인용 |
 
 `제주도 흑돼지`류 지리 범위 미탐은 ADR 0014 gap ①(색인 행정동 어휘)과 원인이 같습니다.
@@ -133,7 +135,7 @@ ADR 0014 gap 목록에 답변 생성이 드러낸 항목을 추가합니다.
 |---|---|---|---|
 | ⑤ | 검색 응답에서 답변 컨텍스트로 렌더할 정규 필드 집합이 계약으로 고정돼 있지 않음 | `hits[]` 를 `JsonNode` 로 통과(0014) 후 생성 단계가 임의 파싱 | 답변 렌더 필드(name·category·dong·road_address·place_id)를 계약에 명시 |
 | ⑥ | 거리를 답변에 넣으려면 좌표가 필요하나 경로 없음(gap ②의 답변측 발현) | `거리 정보 없음` 으로 컨텍스트 고정 | 지명→좌표 경로. 생기면 거리 문장 허용 재검토 |
-| ⑦ | groundedness 회귀를 CI 에서 돌릴 픽스처·하네스가 질의 이해쪽만 있음 | 실험 스크립트가 로컬 `fixtures/` 에 녹화 | `FixtureLlmClient`(0014)를 답변 생성 호출로 확장, `_scoreboard.json` 을 CI 판정으로 |
+| ⑦ | groundedness 회귀를 CI 에서 돌릴 픽스처·하네스가 질의 이해쪽만 있음 | 실험 스크립트가 `scripts/fixtures/<날짜>/` 에 녹화 | `FixtureLlmClient`(0014)를 답변 생성 호출로 확장, `_scoreboard.json` 을 CI 판정으로 |
 
 ## Open questions
 

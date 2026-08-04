@@ -209,20 +209,28 @@ ask-api 를 붙여 보니 플랫폼에서 비어 있는 부분이 보였습니�
 | 모듈 | 파일 | 확정 커밋 | 날짜 |
 |---|---|---|---|
 | `ask-api` | `ask/AskApiApplication.kt` | `5d37107` | 2026-08-04 |
-| `ask-api` | `ask/AskController.kt` | `5d37107` | 2026-08-04 |
+| `ask-api` | `ask/AskController.kt` | `5d37107` · `09d3e6a` | 2026-08-04 |
 | `ask-api` | `ask/AskModels.kt` | `5d37107` | 2026-08-04 |
-| `ask-api` | `ask/AskQueryPlanner.kt` | `5d37107` | 2026-08-04 |
-| `ask-api` | `ask/AskService.kt` | `5d37107` · `5f5644a` | 2026-08-04 |
-| `ask-api` | `ask/corpus/UnsupportedFilters.kt` | `5f5644a` | 2026-08-04 |
-| `ask-api` | `corpus/unsupported-filters.json` | `5f5644a` | 2026-08-04 |
+| `ask-api` | `ask/AskQueryPlanner.kt` | `5d37107` · `09d3e6a` | 2026-08-04 |
+| `ask-api` | `ask/AskService.kt` | `5d37107` · `5f5644a` · `09d3e6a` | 2026-08-04 |
+| `ask-api` | `ask/corpus/UnsupportedFilters.kt` | `5f5644a` · `09d3e6a` | 2026-08-04 |
+| `ask-api` | `corpus/unsupported-filters.json` | `5f5644a` · `09d3e6a` | 2026-08-04 |
 | `ask-api` | `ask/llm/AskPromptSpec.kt` | `5d37107` | 2026-08-04 |
-| `ask-api` | `ask/llm/FixtureLlmClient.kt` | `5d37107` | 2026-08-04 |
-| `ask-api` | `ask/llm/GeminiClient.kt` | `5d37107` | 2026-08-04 |
-| `ask-api` | `ask/llm/GeminiWire.kt` | `5d37107` | 2026-08-04 |
+| `ask-api` | `ask/llm/FixtureLlmClient.kt` | `5d37107` · `09d3e6a` | 2026-08-04 |
+| `ask-api` | `ask/llm/GeminiClient.kt` | `5d37107` · `09d3e6a` | 2026-08-04 |
+| `ask-api` | `ask/llm/GeminiWire.kt` | `5d37107` · `09d3e6a` | 2026-08-04 |
 | `ask-api` | `ask/llm/LlmClient.kt` | `5d37107` | 2026-08-04 |
-| `ask-api` | `ask/search/SearchPlatform.kt` | `5d37107` | 2026-08-04 |
-| `ask-api` | `ask/web/SearchPlatformErrorHandler.kt` | `5d37107` | 2026-08-04 |
-| `ask-api` | `ask/AskMappingTest.kt` *(테스트)* | `5d37107` | 2026-08-04 |
-| `ask-api` | `ask/AskQueryPlannerTest.kt` *(테스트)* | `5d37107` | 2026-08-04 |
-| `ask-api` | `ask/corpus/UnsupportedFiltersTest.kt` *(테스트)* | `5f5644a` | 2026-08-04 |
-| `ask-api` | `ask/llm/GeminiWireTest.kt` *(테스트)* | `5d37107` | 2026-08-04 |
+| `ask-api` | `ask/llm/LlmFailures.kt` | `09d3e6a` | 2026-08-04 |
+| `ask-api` | `ask/observability/AskMetrics.kt` | `09d3e6a` | 2026-08-04 |
+| `ask-api` | `ask/search/SearchPlatform.kt` | `5d37107` · `09d3e6a` | 2026-08-04 |
+| `ask-api` | `ask/web/SearchPlatformErrorHandler.kt` | `5d37107` · `09d3e6a` | 2026-08-04 |
+| `ask-api` | `ask/AskControllerTest.kt` *(테스트)* | `09d3e6a` | 2026-08-04 |
+| `ask-api` | `ask/AskMappingTest.kt` *(테스트)* | `5d37107` · `09d3e6a` | 2026-08-04 |
+| `ask-api` | `ask/AskQueryPlannerTest.kt` *(테스트)* | `5d37107` · `09d3e6a` | 2026-08-04 |
+| `ask-api` | `ask/corpus/UnsupportedFiltersTest.kt` *(테스트)* | `5f5644a` · `09d3e6a` | 2026-08-04 |
+| `ask-api` | `ask/llm/FixtureLlmClientTest.kt` *(테스트)* | `09d3e6a` | 2026-08-04 |
+| `ask-api` | `ask/llm/GeminiClientTest.kt` *(테스트)* | `09d3e6a` | 2026-08-04 |
+| `ask-api` | `ask/llm/GeminiWireTest.kt` *(테스트)* | `5d37107` · `09d3e6a` | 2026-08-04 |
+| `ask-api` | `ask/llm/LlmFailuresTest.kt` *(테스트)* | `09d3e6a` | 2026-08-04 |
+| `ask-api` | `ask/search/SearchApiClientTest.kt` *(테스트)* | `09d3e6a` | 2026-08-04 |
+| `ask-api` | `ask/web/SearchPlatformErrorHandlerTest.kt` *(테스트)* | `09d3e6a` | 2026-08-04 |
