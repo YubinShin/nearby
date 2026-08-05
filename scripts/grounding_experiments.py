@@ -279,8 +279,10 @@ def run(selected=None):
             "model_version": model_ver,
             "thinking_level": THINKING_LEVEL,
             "experiment": exp["id"],
+            "note": exp["note"],
             "question": exp["question"],
             "context": context,
+            "checks": exp.get("checks", {}),
             "raw_response": raw,
         }
         path = run_dir / f"{exp['id']}.json"
