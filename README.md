@@ -20,11 +20,12 @@
 
 ## 한눈에
 
-강남구 상가정보 **64,239건**으로 검색 파이프라인을 끝까지 돌리고, 결정마다 [ADR 14편](docs/adr/)과
+강남구 상가정보 **64,239건**으로 검색 파이프라인을 끝까지 돌리고, 결정마다 [ADR 15편](docs/adr/)과
 실측을 남겼습니다.
 
 | | |
 | --- | --- |
+| **검색 정확도** | 하이브리드 nDCG@10 **0.89** (키워드 0.53 · 벡터 0.76) |
 | **결과 0건 질의** | 키워드 7/20 → 하이브리드 **0/20** |
 | **응답 시간** | 하이브리드 중앙값 **9.7ms** (RRF 결합 자체는 평균 0.04ms · 2026-08-03 실측) |
 | **무중단 재색인** | 20만+ 요청 동안 **실패 0 · 빈 결과 0** (EKS·Spring Batch 색인기 실측) |
@@ -111,6 +112,8 @@ Kubernetes로 띄우려면 → [deploy/k8s/README.md](deploy/k8s/README.md)
 - [x] edge_ngram 자동완성
 - [x] LLM 질의 이해 — 자연어를 검색 요청으로 (`ask-api`) ·
   [ADR 0014](docs/adr/0014-ask-api-llm-query-understanding.md)
+- [x] 근거 기반 답변 생성 — 검색 결과만 근거로, 검증기가 이탈 근거를 떼낸다 ·
+  [ADR 0015](docs/adr/0015-ask-api-grounded-answer-generation.md)
 
 **색인**
 
@@ -173,7 +176,21 @@ ask-api         자연어 질의 이해 · core 에 의존하지 않고 /v1/hsea
 
 측정 방법과 전체 결과는 문서에 있습니다. 대표값만 옮깁니다.
 
-**검색 품질** — 실제로 칠 법한 질의 20개(`scripts/eval/queries_regression.txt`), 2026-08-03 실측
+**검색 정확도** — 골든셋 25질의 · 사람이 판정한 정답 339건, k=10, 2026-08-05 실측
+
+| 방식 | precision@10 | recall@10 | MRR | nDCG@10 |
+| --- | --- | --- | --- | --- |
+| 키워드 | 0.60 | 0.33 | 0.64 | 0.53 |
+| 벡터 | 0.76 | 0.58 | 0.79 | 0.76 |
+| **하이브리드** | **0.86** | **0.72** | **0.87** | **0.89** |
+
+키워드가 0건을 낸 9질의가 0점으로 들어간 전체 평균입니다. 후보를 한 채널에서만 뽑으면 그 채널이
+못 찾은 정답이 라벨에 못 들어가므로, 세 채널의 합집합으로 판정 후보를 만들고 순위와 채널을 감춘 채
+판정했습니다. 풀 밖의 정답은 담기지 않으므로 절대값이 아니라 설정 간 차이를 보는 값입니다.
+재현은 `scripts/eval/score_golden_set.py`, 원본은 `scripts/eval/scores/` ·
+[골든셋](services/ask-api/README.md#golden-set)
+
+**검색 지연** — 실제로 칠 법한 질의 20개(`scripts/eval/queries_regression.txt`), 2026-08-03 실측
 
 | 방식 | 결과 0건 질의 | 중앙값 | p95 |
 | --- | --- | --- | --- |
@@ -202,7 +219,7 @@ ask-api         자연어 질의 이해 · core 에 의존하지 않고 /v1/hsea
 
 ## 설계 결정
 
-주요 결정과 트레이드오프를 [ADR 14편](docs/adr/)에 기록했습니다.
+주요 결정과 트레이드오프를 [ADR 15편](docs/adr/)에 기록했습니다.
 
 | | 결정 | 상태 |
 | --- | --- | --- |
@@ -220,6 +237,7 @@ ask-api         자연어 질의 이해 · core 에 의존하지 않고 /v1/hsea
 | [0012](docs/adr/0012-manifests-in-monorepo.md) | 배포 매니페스트를 모노레포에 | 구현 |
 | [0013](docs/adr/0013-indexer-runtime-spring-batch.md) | 색인기를 Spring Batch로 | 구현 |
 | [0014](docs/adr/0014-ask-api-llm-query-understanding.md) | 자연어 질의 이해를 `ask-api` 로 분리 | 구현 |
+| [0015](docs/adr/0015-ask-api-grounded-answer-generation.md) | 근거 기반 답변 생성 (opt-in) | 구현 |
 
 각 ADR 하단에 **구현 위치 표**(파일 → 확정 커밋)가 있습니다.
 
