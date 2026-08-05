@@ -327,6 +327,23 @@ score(문서) = Σ  가중치 / (k + 그 채널에서의 등수)          k = 60
 결합 결과를 거리로 다시 세우면 RRF 순위가 통째로 버려집니다. 다만 좌표를 주면 정렬과 무관하게
 `distanceM` 은 채워줍니다 — 서버가 이미 아는 값이기 때문입니다. 거리 재랭킹은 7단계 일입니다.
 
+### 답변 생성이 읽는 필드
+
+`ask-api` 의 답변 생성([ADR 0015](adr/0015-ask-api-grounded-answer-generation.md))은 `hits[]` 에서
+다섯 필드만 렌더합니다. 나머지(`ranks`·`scores`·`lat`·`lon`·`highlight` 등)는 읽지 않습니다.
+
+| 구분 | 필드 |
+|---|---|
+| 필수 | `placeId` · `name` |
+| 선택 | `category` · `dong` · `address` |
+
+필수 필드가 없는 히트는 인용할 수 없어 컨텍스트에서 빠지고, 그 건수가 응답의
+`answer.unrenderableRecords` 와 `ask-api` 경고 로그에 남습니다. 선택 필드는 없으면 그 줄만
+짧아집니다 — ES 중단으로 `address` 가 `null` 인 경우가 여기 해당합니다.
+
+필드 이름을 바꾸면 `ask-api` 의 `HsearchContract` 도 같이 바꿔야 합니다. 두 앱은 HTTP 로만
+붙어 있어([ADR 0011](adr/0011-module-split-and-index-contract.md)) 컴파일이 막아주지 않습니다.
+
 ---
 
 ## 백엔드가 죽었을 때

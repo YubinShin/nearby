@@ -1,6 +1,6 @@
 # ADR 0015 — 검색 결과를 근거로 한 답변 생성(RAG)을 `ask-api` 에 추가
 
-- **상태:** Proposed (구현 예정)
+- **상태:** Accepted
 - **날짜:** 2026-08-04
 - **관련:** ADR 0014 (같은 모듈 · 질의 이해), ADR 0003 (근거를 만드는 검색 경로), ADR 0011 (설정 실패 vs 런타임 degraded), ADR 0006 (질의 런타임)
 - **범위:** ADR 0014 의 질의 이해는 유지합니다. 이 결정은 그 뒤에 답변 생성 단계를 추가합니다.
@@ -133,7 +133,7 @@ ADR 0014 gap 목록에 답변 생성이 드러낸 항목을 추가합니다.
 
 | # | 빈 곳 | 지금 결과 | 필요한 것 |
 |---|---|---|---|
-| ⑤ | 검색 응답에서 답변 컨텍스트로 렌더할 정규 필드 집합이 계약으로 고정돼 있지 않음 | `hits[]` 를 `JsonNode` 로 통과(0014) 후 생성 단계가 임의 파싱 | 답변 렌더 필드(name·category·dong·road_address·place_id)를 계약에 명시 |
+| ⑤ | 검색 응답 필드가 바뀌어도 소비자 쪽만으로는 선택 필드 유실을 잡지 못함 | `HsearchContract` 가 경계에서 렌더 필드(`placeId`·`name`·`category`·`dong`·`address`)를 고정하고, 필수 필드가 빠진 히트를 `unrenderable` 로 셈 | `search-api` 쪽 트립와이어 — `PlaceHit` 직렬화 필드명이 계약 집합을 포함하는지 검사 |
 | ⑥ | 거리를 답변에 넣으려면 좌표가 필요하나 경로 없음(gap ②의 답변측 발현) | `거리 정보 없음` 으로 컨텍스트 고정 | 지명→좌표 경로. 생기면 거리 문장 허용 재검토 |
 | ⑦ | groundedness 회귀를 CI 에서 돌릴 픽스처·하네스가 질의 이해쪽만 있음 | 실험 스크립트가 `scripts/fixtures/<날짜>/` 에 녹화 | `FixtureLlmClient`(0014)를 답변 생성 호출로 확장, `_scoreboard.json` 을 CI 판정으로 |
 
@@ -167,14 +167,27 @@ ADR 0014 gap 목록에 답변 생성이 드러낸 항목을 추가합니다.
 
 ## Implementation
 
-구현 예정. 확정 후 커밋 해시로 채웁니다.
-
-| 모듈 | 파일(예정) | 상태 |
-|---|---|---|
-| `ask-api` | `ask/answer/AnswerService.kt` (생성 단계) | TBD |
-| `ask-api` | `ask/answer/GroundingValidator.kt` (인용 검증, 결정적) | TBD |
-| `ask-api` | `ask/llm/AskPromptSpec` 확장 또는 `AnswerPromptSpec` | TBD |
-| `ask-api` | `prompt/answer-generate.json` (system + responseSchema) | TBD |
-| `ask-api` | `AskModels` 에 `answer`·`degradedBy:["answer"]` 추가 | TBD |
-| `scripts` | `grounding_experiments.py` → `record_answer_fixtures.py` 승격 | TBD |
-| `ask-api` | `answer/GroundingValidatorTest.kt` (실험 `validate()` 이관) | TBD |
+| 모듈 | 파일 | 확정 커밋 | 날짜 |
+|---|---|---|---|
+| `ask-api` | `ask/AskController.kt` | `7c635f1` | 2026-08-05 |
+| `ask-api` | `ask/AskModels.kt` | `7c635f1` · `faade78` | 2026-08-05 |
+| `ask-api` | `ask/AskService.kt` | `7c635f1` · `faade78` | 2026-08-05 |
+| `ask-api` | `ask/answer/AnswerContext.kt` | `7c635f1` · `faade78` | 2026-08-05 |
+| `ask-api` | `ask/answer/AnswerService.kt` | `7c635f1` · `faade78` | 2026-08-05 |
+| `ask-api` | `ask/answer/GroundingValidator.kt` | `7c635f1` · `faade78` | 2026-08-05 |
+| `ask-api` | `ask/corpus/ForbiddenAnswerTerms.kt` | `7c635f1` | 2026-08-05 |
+| `ask-api` | `corpus/forbidden-answer-terms.json` | `7c635f1` | 2026-08-05 |
+| `ask-api` | `ask/llm/AnswerPromptSpec.kt` | `7c635f1` | 2026-08-05 |
+| `ask-api` | `ask/llm/AnswerWire.kt` | `7c635f1` | 2026-08-05 |
+| `ask-api` | `ask/llm/FixtureLlmClient.kt` | `7c635f1` | 2026-08-05 |
+| `ask-api` | `ask/llm/GeminiClient.kt` | `7c635f1` | 2026-08-05 |
+| `ask-api` | `ask/llm/LlmClient.kt` | `7c635f1` | 2026-08-05 |
+| `ask-api` | `prompt/answer-generate.json` | `7c635f1` | 2026-08-05 |
+| `ask-api` | `ask/search/HsearchContract.kt` | `faade78` | 2026-08-05 |
+| `ask-api` | `ask/search/SearchPlatform.kt` | `faade78` | 2026-08-05 |
+| `ask-api` | `ask/AskAnswerMappingTest.kt` *(테스트)* | `7c635f1` · `faade78` | 2026-08-05 |
+| `ask-api` | `ask/answer/AnswerContextTest.kt` *(테스트)* | `7c635f1` · `faade78` | 2026-08-05 |
+| `ask-api` | `ask/answer/GroundingValidatorTest.kt` *(테스트)* | `7c635f1` · `faade78` | 2026-08-05 |
+| `ask-api` | `ask/llm/AnswerWireTest.kt` *(테스트)* | `7c635f1` | 2026-08-05 |
+| `ask-api` | `ask/search/HsearchContractTest.kt` *(테스트)* | `faade78` | 2026-08-05 |
+| `scripts` | `grounding_experiments.py` → `record_answer_fixtures.py` 승격 | 구현 예정 | – |
