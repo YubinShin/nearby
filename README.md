@@ -1,7 +1,7 @@
 # Nearby
 
-> **키워드 · 벡터 · 하이브리드 검색을 한 플랫폼에서.**
-> 강남구 상가 64,239건으로 색인부터 질의까지 돌아가는 지역 검색 시스템입니다.
+> **키워드·벡터·하이브리드 검색을 지원하는 지역 검색 플랫폼**
+> 강남구 상가 64,239건으로 색인부터 질의까지 수행하는 지역 검색 시스템입니다.
 
 [![build](https://github.com/YubinShin/nearby/actions/workflows/build.yml/badge.svg)](https://github.com/YubinShin/nearby/actions/workflows/build.yml)
 ![Kotlin](https://img.shields.io/badge/Kotlin-JVM%2021-7F52FF?logo=kotlin&logoColor=white)
@@ -13,32 +13,32 @@
 
 ![세 채널 비교](docs/screenshots/three-channel-comparison.png)
 
-`회 먹을 데` — 키워드 0건, 벡터와 하이브리드는 50건. 
-*화면의 ms 는 데모 위하여 세 채널을 동시에 호출한 값으로 각 채널의 실측 값은 아래 [실측](#실측)의 채널별 수치를 참고 바랍니다*
+> `회 먹을 데` — 키워드 0건, 벡터와 하이브리드는 50건. 
+> *화면의 ms 는 데모를 위해 세 채널을 동시에 호출한 값입니다. 채널별 실측 값은 아래 [Benchmarks](#benchmarks) 에서 확인할 수 있습니다.*
 
 ---
 
-## 한눈에
+## Overview
 
-강남구 상가정보 **64,239건**으로 검색 파이프라인을 끝까지 돌리고, 결정마다 [ADR 15편](docs/adr/)과
-실측을 남겼습니다.
 
-| | |
-| --- | --- |
-| **검색 정확도** | 하이브리드 nDCG@10 0.86 (키워드 0.53 · 벡터 0.72) · LLM 질의 이해를 얹으면 **0.89** |
-| **결과 0건 질의** | 키워드 7/20 → 하이브리드 **0/20** |
-| **응답 시간** | 하이브리드 중앙값 **9.7ms** (RRF 결합 자체는 평균 0.04ms · 2026-08-03 실측) |
-| **무중단 재색인** | 20만+ 요청 동안 **실패 0 · 빈 결과 0** (EKS·Spring Batch 색인기 실측) |
-| **노드 분리 효과** | 벡터 재색인 중 질의 지연 **1.09 → 0.90** (EKS 실측) |
-| **이미지 공유** | 두 앱 합산 1,403MB → **917MB** |
+강남구 상가정보 **64,239건**을 대상으로 구축한 지역 검색 시스템입니다.
 
-*결과 0건 질의: 검색 결과가 하나도 없었던 질의. 실제로 칠 법한 질의 20개 중 몇 개가 그랬는지.*
+설계 결정은 [ADR](docs/adr/), 성능 측정은 [Benchmarks](#benchmarks)에 정리했습니다.
+
+| Metric | Result |
+|------------------------|-------------------------------------------------------------------------------------|
+| **검색 정확도**        | 하이브리드 nDCG@10 0.86 (키워드 0.53 · 벡터 0.72) · LLM 질의 이해를 얹으면 **0.89** |
+| **채널 결과 0건 질의** | 키워드 7/20 → 하이브리드 **0/20**                                                   |
+| **응답 시간**          | 하이브리드 중앙값 **9.7ms** (RRF 평균 **0.04 ms**)       |
+| **무중단 재색인**      | 20만+ 요청 동안 **실패 0 · 빈 결과 0** (EKS·Spring Batch 색인기 실측)               |
+| **노드 분리 효과**     | 벡터 재색인 중 질의 지연 **1.09 → 0.90** (EKS 실측)                                 |
+| **이미지 공유**        | 두 앱 합산 1,403MB → **917MB**                                                      |
 
 ---
 
-## 무엇을 하나
+## How It Works
 
-`회 먹을 데` 처럼 **단어가 하나도 일치하지 않는 질의**도 검색됩니다.
+`회 먹을 데`처럼 **단어가 일치하지 않는 질의**도 검색됩니다.
 
 ```bash
 curl -G localhost:8080/v1/hsearch --data-urlencode "q=회 먹을 데"
@@ -48,15 +48,11 @@ curl -G localhost:8080/v1/hsearch --data-urlencode "q=회 먹을 데"
 → 어방참치
 ```
 
-키워드는 BM25 + KOMORAN 형태소 분석으로, 벡터는 임베딩으로 찾고, 둘을 애플리케이션
-레이어에서 **RRF(등수 결합)** 로 합칩니다. 한 채널이 죽어도 나머지 반쪽으로 답합니다
-(`degraded: true`).
-
-브라우저에서 `localhost:8080` 을 열면 같은 질의를 **세 방식으로 나란히 비교**합니다.
+BM25 + KOMORAN 기반 키워드 검색과 임베딩 기반 벡터 검색을 **RRF**로 결합합니다. 한 채널이 실패해도 다른 채널의 결과를 반환합니다 (`degraded: true`).
 
 ---
 
-## 빠른 시작
+## Quick Start
 
 ```bash
 # 1. 인프라 (Elasticsearch + Qdrant + PostGIS + Redis)
@@ -66,7 +62,7 @@ curl -G localhost:8080/v1/hsearch --data-urlencode "q=회 먹을 데"
 ./scripts/load_place.sh
 ./scripts/fetch_embedding_model.sh
 
-# 3. 색인기 (8081) — 원천을 읽어 검색 엔진에 밀어넣습니다
+# 3. 색인기 (8081) — 원천을 읽어 검색 엔진에 색인
 cd services && ./gradlew :indexer-batch:bootRun
 
 curl -XPOST localhost:8081/admin/reindex          # 키워드 · 15.6초 (2026-07-25 실측)
@@ -76,10 +72,7 @@ curl -XPOST localhost:8081/admin/vector/reindex   # 벡터 · 8분 32초 (2026-0
 ./gradlew :search-api:bootRun
 ```
 
-재색인은 **접수만 하고 즉시 `202 + jobId`** 를 돌려줍니다. `curl` 을 끊어도 색인은 계속 돕니다.
-진행 상황은 `GET /admin/jobs/{jobId}` 로 조회합니다.
-
-Kubernetes로 띄우려면 → [deploy/k8s/README.md](deploy/k8s/README.md)
+Kubernetes 환경 실행 시 → [deploy/k8s/README.md](deploy/k8s/README.md)
 
 ---
 
@@ -101,28 +94,26 @@ Kubernetes로 띄우려면 → [deploy/k8s/README.md](deploy/k8s/README.md)
 
 ---
 
-## 기능
+## Features
 
-**검색**
+**Search**
 
 - [x] BM25 + KOMORAN 키워드 검색 · 0건 시 조건 완화 폴백
 - [x] 임베딩 + Qdrant 벡터 검색 (엔진 내 필터·반경)
 - [x] Application Layer RRF 하이브리드
 - [x] Coroutine Fan-out 병렬 질의
 - [x] edge_ngram 자동완성
-- [x] LLM 질의 이해 — 자연어를 검색 요청으로 (`ask-api`) ·
-  [ADR 0014](docs/adr/0014-ask-api-llm-query-understanding.md)
-- [x] 근거 기반 답변 생성 — 검색 결과만 근거로, 검증기가 이탈 근거를 떼낸다 ·
-  [ADR 0015](docs/adr/0015-ask-api-grounded-answer-generation.md)
+- [x] LLM 질의 이해 — 자연어를 검색 요청으로 (`ask-api`) · [ADR 0014](docs/adr/0014-ask-api-llm-query-understanding.md)
+- [x] 근거 기반 답변 생성 — 검색 결과만 근거로 사용, 검증기가 근거를 벗어난 문장을 제거 · [ADR 0015](docs/adr/0015-ask-api-grounded-answer-generation.md)
 
-**색인**
+**Indexing**
 
 - [x] Watermark 기반 증분 색인
 - [x] Alias Swap 무중단 재색인 · 버전 인덱스 reconcile
 - [x] 색인 계약 **런타임 버전 도장** — 모델·스키마가 어긋나면 질의기 기동 차단
 - [ ] 이벤트 트리거 색인 — [ADR 0001](docs/adr/0001-event-triggered-incremental-indexing.md)
 
-**운영**
+**Operations**
 
 - [x] 색인기 / 질의기 **별도 아티팩트** 분리
 - [x] Kubernetes 배포 (kustomize · kind · EKS) · 노드 분리 실측
@@ -131,98 +122,106 @@ Kubernetes로 띄우려면 → [deploy/k8s/README.md](deploy/k8s/README.md)
 - [ ] Kafka 스트리밍 색인 — 자리를 [`indexer-stream`](services/indexer-stream/README.md) 빈 모듈로 확보
 - [ ] 멀티클러스터 — [ADR 0002](docs/adr/0002-index-and-cluster-separation.md)
 
-**추천**
+**Recommendation**
 
 - [ ] 인기 + 거리 콜드 스타트 — [ADR 0005](docs/adr/0005-cold-start-and-recommend-strategy.md)
 - [ ] Cookie-less Session — [ADR 0004](docs/adr/0004-cookieless-session-model.md)
 
 ---
 
-## 아키텍처
+## Architecture
 
-검색 요청은 키워드·벡터를 **병렬 수행**한 뒤 애플리케이션 레이어에서 RRF로 결합합니다.
-원천(PostGIS)은 체크포인트를 watermark로 삼아 바뀐 행만 증분 색인하고, Alias Swap으로
-무중단 교체합니다.
+검색은 키워드와 벡터를 병렬 수행한 뒤 애플리케이션 레이어에서 RRF로 결합합니다.
+
+색인은 PostGIS를 원천으로 사용하며, 체크포인트를 watermark로 삼아 변경된 행만 증분 색인합니다. 배포는 Alias Swap으로 무중단 교체합니다.
 
 ![Architecture](docs/diagrams/architecture.png)
 
-**색인기와 질의기는 별도 아티팩트입니다.** 자원 성격이 반대이고(색인은 CPU 버스트 — 벡터
-재색인의 96%가 임베딩 추론, 질의는 저지연 상시), 한 프로세스에 두면 색인 쪽 OOM 한 번이 곧
-검색 장애가 됩니다. 런타임도 다릅니다 — 질의기는 WebFlux + Coroutine, 색인기는 Spring Batch.
+### Module Separation
 
-공유해야 하는 것(문서 스키마 · 브랜드 규칙 · 임베딩 모델)은 `search-core` 한 벌만 두고,
-따로 배포되며 어긋나는 것은 **런타임 버전 도장**으로 막습니다.
+|                | Query               | Index                     |
+| -------------- | ------------------- | ------------------------- |
+| Artifact       | `search-api`        | `indexer-batch`           |
+| Runtime        | WebFlux + Coroutine | Spring Batch + MVC + JDBC |
+| Workload       | Low latency         | CPU burst                 |
+| Main cost      | Request processing  | Embedding inference (96%) |
+| Failure impact | Search availability | Reindex job               |
 
-```
-search-core     공유 계약 (문서 스키마 · 브랜드 규칙 · 임베딩 모델)
-├── search-api      질의  · WebFlux + Coroutine
-├── indexer-batch   색인  · Spring Batch + MVC + JDBC
-└── indexer-stream  (TBD) 이벤트 색인
+공유 계약은 `search-core`에서 관리합니다.
 
-ask-api         자연어 질의 이해 · core 에 의존하지 않고 /v1/hsearch 를 HTTP 로 호출
-```
+| Module           | Responsibility                                            |
+| ---------------- | --------------------------------------------------------- |
+| `search-core`    | 문서 스키마 · 브랜드 규칙 · 임베딩 모델                                  |
+| `search-api`     | 질의 처리                                                     |
+| `indexer-batch`  | 배치 색인                                                     |
+| `indexer-stream` | 이벤트 색인 (TBD)                                              |
+| `ask-api`        | 자연어 질의 이해 (`search-core`에 의존하지 않고 `/v1/hsearch`를 HTTP 호출) |
 
-분리의 효과는 EKS 2노드에서 실측했습니다 — 두 패스는 파드 사양이 같고 **배치만 다릅니다**.
-벡터 재색인 중 질의 지연은 1.09 → **0.90**으로 회복되고, 키워드는 1.11 → 1.07로 남습니다.
-방법론 → [ADR 0011](docs/adr/0011-module-split-and-index-contract.md)
+### Node Separation
+
+동일한 EKS 2노드 환경에서 Query와 Index를 분리 배포했습니다.
+
+| Metric                 | Before |    After |
+| ---------------------- | -----: | -------: |
+| Vector search latency  |   1.09 | **0.90** |
+| Keyword search latency |   1.11 |     1.07 |
 
 ![Deployment view](docs/diagrams/deploy.png)
 
-자세히 → [docs/architecture.md](docs/architecture.md)
+---
+
+## Benchmarks
+
+### Search quality
+
+골든셋 25질의 · 정답 434건 · k=10 · 2026-08-05
+
+| Method                               | Precision@10 | Recall@10 |      MRR |  nDCG@10 |
+| ------------------------------------ | -----------: | --------: | -------: | -------: |
+| Keyword                              |         0.60 |      0.29 |     0.64 |     0.53 |
+| Vector                               |         0.76 |      0.43 |     0.79 |     0.72 |
+| Hybrid                               |         0.86 |      0.54 |     0.87 |     0.86 |
+| **Hybrid + LLM query understanding** |     **0.91** |  **0.54** | **0.96** | **0.89** |
+
+* 라벨링 절차 · 재현 명령 · 측정 한계: [골든셋](services/ask-api/README.md#golden-set)
+
+### Search Latency
+
+20 representative queries · 2026-08-03
+
+| Method     | Zero results |     Median |         P95 |
+| ---------- | -----------: | ---------: | ----------: |
+| Keyword    |       7 / 20 |     5.3 ms |      9.1 ms |
+| Vector     |       2 / 20 |     4.4 ms |      5.0 ms |
+| **Hybrid** |   **0 / 20** | **9.7 ms** | **16.2 ms** |
+
+* 검색 방식별 응답 차이: [search-modes-comparison.md](docs/search-modes-comparison.md)
+
+### Node Separation
+
+EKS 2노드 · 동일한 파드 스펙 기준 
+
+| Scenario        |     Split | Combined |
+| --------------- | --------: | -------: |
+| Vector reindex  | **0.90×** |    1.09× |
+| Keyword reindex |     1.07× |    1.11× |
+
+### Image Size
+
+470MB 임베딩 모델을 베이스 이미지로 공유합니다.
+
+|                  |   Before |      After |
+| ---------------- | -------: | ---------: |
+| Total image size | 1,403 MB | **917 MB** |
+| Saved            |          | **486 MB** |
 
 ---
 
-## 실측
+## Design Decisions
 
-측정 방법과 전체 결과는 문서에 있습니다. 대표값만 옮깁니다.
+주요 설계 결정과 트레이드오프는 [ADR](docs/adr/)에 기록했습니다.
 
-**검색 정확도** — 골든셋 25질의 · 사람이 판정한 정답 434건, k=10, 2026-08-05 실측
-
-| 방식 | precision@10 | recall@10 | MRR | nDCG@10 |
-| --- | --- | --- | --- | --- |
-| 키워드 | 0.60 | 0.29 | 0.64 | 0.53 |
-| 벡터 | 0.76 | 0.43 | 0.79 | 0.72 |
-| 하이브리드 | 0.86 | 0.54 | 0.87 | 0.86 |
-| **하이브리드 + LLM 질의 이해** | 0.91 | 0.54 | 0.96 | **0.89** |
-
-키워드가 0건을 낸 9질의가 0점으로 들어간 전체 평균입니다. 마지막 행은 `ask-api` 가 구조화한
-질의로 보낸 경로입니다. 라벨을 넓히면 절대값이 움직이므로 같은 라벨 안의 차이만 씁니다.
-
-재현은 `scripts/eval/score_golden_set.py`, 원본은 `scripts/eval/scores/`.
-라벨링 절차와 질의별 결과는 [골든셋](services/ask-api/README.md#golden-set)
-
-**검색 지연** — 실제로 칠 법한 질의 20개(`scripts/eval/queries_regression.txt`), 2026-08-03 실측
-
-| 방식 | 결과 0건 질의 | 중앙값 | p95 |
-| --- | --- | --- | --- |
-| 키워드 | 7 / 20 | 5.3ms | 9.1ms |
-| 벡터 | 2 / 20 | 4.4ms | 5.0ms |
-| **하이브리드** | **0 / 20** | **9.7ms** | 16.2ms |
-
-세 경로가 같은 질의에 *왜* 다르게 답하는지 → [search-modes-comparison.md](docs/search-modes-comparison.md)
-하이브리드 내부 keyword/vector/hydrate/fuse 단계별 평균 → [ADR 0011](docs/adr/0011-module-split-and-index-contract.md)
-
-**노드를 나누면 나아지는가** — EKS 두 노드, 같은 파드 스펙으로 배치만 바꿔 2회 측정
-
-| 구간 | 분리 | 합침 |
-| --- | --- | --- |
-| 벡터 재색인 중 (유휴 대비) | **0.90** | 1.09 |
-| 키워드 재색인 중 (유휴 대비) | 1.07 | 1.11 |
-
-벡터는 비용의 96%가 앱 CPU라 노드를 나누면 회복되고, 키워드는 비용이 **공유 ES의 `_bulk`** 라
-회복되지 않습니다 — 앱 배치가 아니라 클러스터 분리가 필요한 영역입니다.
-전체 결과·교란 요인 → [ADR 0011](docs/adr/0011-module-split-and-index-contract.md)
-
-**이미지** — 두 앱이 같은 임베딩 모델(470MB)을 씁니다. 모델만 담은 베이스 이미지를 상속시켜
-합산 1,403MB → **917MB**. 절약분 486MB는 모델 + 토크나이저와 정확히 일치합니다.
-
----
-
-## 설계 결정
-
-주요 결정과 트레이드오프를 [ADR 15편](docs/adr/)에 기록했습니다.
-
-| | 결정 | 상태 |
+| ADR | Decision | Status |
 | --- | --- | --- |
 | [0001](docs/adr/0001-event-triggered-incremental-indexing.md) | 이벤트 기반 증분 색인 | 증분 구현 · 트리거 예정 |
 | [0002](docs/adr/0002-index-and-cluster-separation.md) | 인덱스·클러스터 분리 | 인덱스 구현 · 클러스터 예정 |
@@ -237,39 +236,38 @@ ask-api         자연어 질의 이해 · core 에 의존하지 않고 /v1/hsea
 | [0011](docs/adr/0011-module-split-and-index-contract.md) | 아티팩트 분리 · 색인 계약 대조 | 구현 |
 | [0012](docs/adr/0012-manifests-in-monorepo.md) | 배포 매니페스트를 모노레포에 | 구현 |
 | [0013](docs/adr/0013-indexer-runtime-spring-batch.md) | 색인기를 Spring Batch로 | 구현 |
-| [0014](docs/adr/0014-ask-api-llm-query-understanding.md) | 자연어 질의 이해를 `ask-api` 로 분리 | 구현 |
+| [0014](docs/adr/0014-ask-api-llm-query-understanding.md) | 자연어 질의 이해를 `ask-api`로 분리 | 구현 |
 | [0015](docs/adr/0015-ask-api-grounded-answer-generation.md) | 근거 기반 답변 생성 (opt-in) | 구현 |
 
-각 ADR 하단에 **구현 위치 표**(파일 → 확정 커밋)가 있습니다.
+각 ADR에는 배경, 결정, 트레이드오프와 구현 위치를 함께 기록했습니다.
 
-예상과 달랐던 결과와 설계상 한계는 [Architecture Review](docs/architecture-review.md)에
-따로 모았습니다.
+아키텍처 검토와 측정 결과는 [Architecture Review](docs/architecture-review.md)에서 다룹니다.
 
 ---
 
-## 기술 스택
+## Tech Stack
 
-| 영역 | 사용 |
+| Category | Technology |
 | --- | --- |
-| 언어 | Kotlin (JVM 21) |
-| 질의기 | Spring Boot · WebFlux · Kotlin Coroutine |
-| 색인기 | Spring Boot · Spring Batch · MVC · JDBC |
-| 검색 엔진 | Elasticsearch 9.4.2 · KOMORAN 플러그인 재포팅 |
-| 벡터 | Qdrant · DJL / ONNX Runtime (multilingual-e5-small · 384차원) |
-| 원천 | PostgreSQL / PostGIS |
-| 배포 | Docker Compose · Kubernetes (kustomize · kind · EKS) |
-| 관측 | Micrometer · Prometheus |
-| 세션 · 인기 | Redis *(TBD)* |
+| Language | Kotlin (JVM 21) |
+| Query Service | Spring Boot · WebFlux · Kotlin Coroutines |
+| Index Service | Spring Boot · Spring Batch · Spring MVC · JDBC |
+| Search | Elasticsearch 9.4.2 · KOMORAN |
+| Vector | Qdrant · DJL · ONNX Runtime · multilingual-e5-small (384d) |
+| Data | PostgreSQL · PostGIS |
+| Deployment | Docker Compose · Kubernetes · Kustomize · kind · Amazon EKS |
+| Observability | Micrometer · Prometheus |
+| Cache | Redis *(TBD)* |
 
 ---
 
-## 문서
+## Documentation
 
 | 문서 | 내용 |
 | --- | --- |
 | [architecture.md](docs/architecture.md) | 아키텍처 |
 | [api-spec.md](docs/api-spec.md) | API 명세 |
-| [adr/](docs/adr/) | 설계 결정 14편 |
+| [adr/](docs/adr/) | 설계 결정 15편 |
 | [architecture-review.md](docs/architecture-review.md) | 예상과 다른 결과·한계 |
 | [troubleshooting.md](docs/troubleshooting.md) | 증상별 원인과 조치 |
 | [search-modes-comparison.md](docs/search-modes-comparison.md) | 세 검색 방식 비교 |

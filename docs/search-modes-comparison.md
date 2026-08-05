@@ -98,4 +98,4 @@ curl -sG localhost:8080/v1/hsearch --data-urlencode "q=강남역 카페"        
 curl -sG localhost:8080/v1/hsearch --data-urlencode "q=분위기 좋은 브런치" | jq '.hits[] | {name, category, score}'
 ```
 
-응답 시간·무중단 색인 등 다른 실측은 [README](../README.md#실측) 참고.
+응답 시간·무중단 색인 등 다른 실측은 [README](../README.md#benchmarks) 참고.
