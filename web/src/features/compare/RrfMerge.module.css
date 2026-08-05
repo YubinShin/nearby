@@ -1,0 +1,148 @@
+.merge {
+  position: relative;
+  margin: 0 13px 14px;
+}
+
+.links {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.link {
+  stroke-width: 1.2;
+  opacity: 0.35;
+}
+
+.linkKw {
+  stroke: var(--kw);
+}
+
+.linkVec {
+  stroke: var(--vec);
+}
+
+.link.on {
+  stroke-width: 2.4;
+  opacity: 1;
+}
+
+.lane {
+  position: absolute;
+  top: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 7px;
+  border-radius: 6px;
+  font-size: 12px;
+  overflow: hidden;
+  white-space: nowrap;
+  cursor: default;
+}
+
+.row.on {
+  background: color-mix(in srgb, var(--ink) 10%, transparent);
+}
+
+.rank {
+  color: var(--dim);
+  font-variant-numeric: tabular-nums;
+  width: 18px;
+  text-align: right;
+  flex: none;
+}
+
+.name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.score {
+  margin-left: auto;
+  color: var(--dim);
+  font-variant-numeric: tabular-nums;
+  flex: none;
+}
+
+.heads {
+  display: flex;
+  margin: 0 13px 6px;
+  font-size: 12px;
+  color: var(--dim);
+}
+
+.head {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.headKw {
+  color: var(--kw);
+  font-weight: 600;
+}
+
+.headVec {
+  color: var(--vec);
+  font-weight: 600;
+}
+
+.headHyb {
+  color: var(--hyb);
+  font-weight: 600;
+  text-align: center;
+}
+
+.center .row {
+  border: 1px solid var(--line);
+}
+
+.center .row.on {
+  border-color: var(--hyb);
+}
+
+.tags {
+  display: flex;
+  gap: 3px;
+  flex: none;
+}
+
+.tiny {
+  font-size: 10px;
+  padding: 0 4px;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+  color: var(--dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.tinyKw {
+  color: var(--kw);
+  border-color: color-mix(in srgb, var(--kw) 40%, transparent);
+}
+
+.tinyVec {
+  color: var(--vec);
+  border-color: color-mix(in srgb, var(--vec) 40%, transparent);
+}
+
+.tinyOff {
+  opacity: 0.55;
+  border-style: dashed;
+}
+
+.empty {
+  font-size: 12px;
+  color: var(--warn);
+  padding: 6px 7px;
+}

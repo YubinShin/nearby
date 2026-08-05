@@ -1,0 +1,56 @@
+:root {
+  --bg: #f7f7f8;
+  --panel: #fff;
+  --line: #e3e3e6;
+  --ink: #1c1c1f;
+  --dim: #6b6b73;
+  --kw: #2563eb;
+  --vec: #9333ea;
+  --hyb: #059669;
+  --ask: #c2410c;
+  --ok: #059669;
+  --warn: #b45309;
+  --bad: #b91c1c;
+  --radius: 10px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #17171a;
+    --panel: #1f1f23;
+    --line: #33333a;
+    --ink: #ececed;
+    --dim: #9a9aa4;
+    --kw: #7ba4ff;
+    --vec: #c78dff;
+    --hyb: #4ade80;
+    --ask: #fb923c;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --bad: #fca5a5;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font:
+    14px/1.55 -apple-system,
+    BlinkMacSystemFont,
+    "Apple SD Gothic Neo",
+    "Pretendard",
+    sans-serif;
+}
+
+input,
+select,
+button,
+textarea {
+  font: inherit;
+  color: inherit;
+}
