@@ -1,5 +1,6 @@
 package dev.yubin.search.ask.llm
 
+import dev.yubin.search.ask.Answer
 import dev.yubin.search.ask.ParsedQuery
 import jakarta.annotation.PreDestroy
 import kotlinx.coroutines.reactor.awaitSingle
@@ -23,6 +24,7 @@ class GeminiClient(
 	@Value("\${psp.ask.gemini.api-key}") apiKey: String,
 	@Value("\${psp.ask.gemini.timeout-ms}") timeoutMs: Long,
 	private val prompt: AskPromptSpec,
+	private val answerPrompt: AnswerPromptSpec,
 	private val mapper: ObjectMapper,
 ) : LlmClient {
 	init {
@@ -54,10 +56,16 @@ class GeminiClient(
 		connections.disposeLater().block(DISPOSE_TIMEOUT)
 	}
 
-	override suspend fun parse(query: String): ParsedQuery {
-		val response = http.post()
+	override suspend fun parse(query: String): ParsedQuery =
+		GeminiWire.decode(generate(prompt.request(query)), mapper)
+
+	override suspend fun answer(question: String, context: String): Answer =
+		AnswerWire.decode(generate(answerPrompt.request(question, context)), mapper)
+
+	private suspend fun generate(body: Map<String, Any?>): GeminiResponse =
+		http.post()
 			.uri("/v1beta/models/{model}:generateContent", model)
-			.bodyValue(prompt.request(query))
+			.bodyValue(body)
 			.retrieve()
 			.bodyToMono(GeminiResponse::class.java)
 			.retryWhen(
@@ -66,8 +74,6 @@ class GeminiClient(
 					.onRetryExhaustedThrow { _, signal -> signal.failure() },
 			)
 			.awaitSingle()
-		return GeminiWire.decode(response, mapper)
-	}
 
 	private companion object {
 		const val API_KEY_HEADER = "x-goog-api-key"

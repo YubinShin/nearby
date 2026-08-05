@@ -1,0 +1,62 @@
+{
+  "promptVersion": "1",
+  "model": "gemini-3.5-flash",
+  "entries": {
+    "79d8ed624ded": {
+      "file": "79d8ed624ded.json",
+      "experiment": "baseline",
+      "question": "회 먹을 데 있어?",
+      "source": "recorded",
+      "promptVersion": "1"
+    },
+    "c50b00aa2fb3": {
+      "file": "c50b00aa2fb3.json",
+      "experiment": "context_mismatch",
+      "question": "어방참치 어때?",
+      "source": "recorded",
+      "promptVersion": "1"
+    },
+    "8dbedfe48aac": {
+      "file": "8dbedfe48aac.json",
+      "experiment": "empty_context",
+      "question": "회 먹을 데 있어?",
+      "source": "recorded",
+      "promptVersion": "1"
+    },
+    "5ea84d4fb198": {
+      "file": "5ea84d4fb198.json",
+      "experiment": "false_premise",
+      "question": "어방참치 초밥 맛있기로 유명하죠?",
+      "source": "recorded",
+      "promptVersion": "1"
+    },
+    "7d688d89ddd7": {
+      "file": "7d688d89ddd7.json",
+      "experiment": "garbage_input",
+      "question": "회 먹을 데 있어?",
+      "source": "recorded",
+      "promptVersion": "1"
+    },
+    "e67e6c04d45d": {
+      "file": "e67e6c04d45d.json",
+      "experiment": "implicit_condition",
+      "question": "맛있고 가까운 회 먹을 데 있어?",
+      "source": "recorded",
+      "promptVersion": "1"
+    },
+    "ccc67984da98": {
+      "file": "ccc67984da98.json",
+      "experiment": "knowledge_leak_famous",
+      "question": "스타벅스 어때?",
+      "source": "recorded",
+      "promptVersion": "1"
+    },
+    "6f11a486cfcf": {
+      "file": "6f11a486cfcf.json",
+      "experiment": "knowledge_leak_unknown",
+      "question": "어방참치 어때?",
+      "source": "recorded",
+      "promptVersion": "1"
+    }
+  }
+}

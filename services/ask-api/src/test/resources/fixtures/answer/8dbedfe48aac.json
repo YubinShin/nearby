@@ -1,0 +1,31 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"found\": false,\n  \"unverifiable_conditions\": [],\n  \"sentences\": [\n    {\n      \"text\": \"제공된 검색 결과에 회를 먹을 수 있는 음식점 정보가 존재하지 않습니다.\",\n      \"evidence\": []\n    }\n  ]\n}",
+            "thoughtSignature": "EjQKMgERTTIPb6cg6VxN7rOtArr4/Qn+ni431VYL2q2K01tih5pJfj22n9fPzeQSQBzop20c"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 58,
+    "candidatesTokenCount": 67,
+    "totalTokenCount": 125,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 58
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "yudxaordEsjR1e8P07zieQ"
+}

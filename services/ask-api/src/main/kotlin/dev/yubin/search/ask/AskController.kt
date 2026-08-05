@@ -15,10 +15,11 @@ class AskController(private val ask: AskService) {
 		@RequestParam(required = false) size: Int?,
 		@RequestParam(required = false) lat: Double?,
 		@RequestParam(required = false) lon: Double?,
+		@RequestParam(required = false) answer: Boolean?,
 	): AskResponse {
 		if (q.isBlank()) {
 			throw ServerWebInputException("q must not be blank")
 		}
-		return ask.ask(q = q, size = size, lat = lat, lon = lon)
+		return ask.ask(q = q, size = size, lat = lat, lon = lon, answer = answer == true)
 	}
 }

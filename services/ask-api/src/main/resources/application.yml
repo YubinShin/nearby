@@ -32,6 +32,7 @@ psp:
 
     corpus:
       lexicon: classpath:corpus/unsupported-filters.json
+      forbidden-answer-terms: classpath:corpus/forbidden-answer-terms.json
 
     gemini:
       base-url: https://generativelanguage.googleapis.com

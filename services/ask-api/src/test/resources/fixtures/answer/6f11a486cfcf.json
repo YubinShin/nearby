@@ -1,0 +1,31 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"found\": true,\n  \"unverifiable_conditions\": [],\n  \"sentences\": [\n    {\n      \"text\": \"어방참치는 대치2동 삼성로84길 32에 위치한 일식 회/초밥 전문점입니다.\",\n      \"evidence\": [\n        \"MA010120220806498529\"\n      ]\n    }\n  ]\n}",
+            "thoughtSignature": "EjQKMgERTTIPyUQT67TSvAGECoEjgVrKYOPzpp2DwDAlsSaluMomKr6Q8x23YPLWDBBhvB6i"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 289,
+    "candidatesTokenCount": 102,
+    "totalTokenCount": 391,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 289
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "1edxaoa3IdnCvr0P2oTqsQ8"
+}

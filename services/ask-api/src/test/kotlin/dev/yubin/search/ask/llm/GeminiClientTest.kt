@@ -16,6 +16,7 @@ import kotlin.test.assertFailsWith
 @SpringBootTest(properties = ["psp.ask.llm=fixture"])
 class GeminiClientTest @Autowired constructor(
 	private val prompt: AskPromptSpec,
+	private val answerPrompt: AnswerPromptSpec,
 	private val mapper: ObjectMapper,
 ) {
 	private val attempts = AtomicInteger()
@@ -57,7 +58,7 @@ class GeminiClientTest @Autowired constructor(
 	}
 
 	private fun client() =
-		GeminiClient("http://127.0.0.1:${server.port()}", "test-model", "test-key", 5_000, prompt, mapper)
+		GeminiClient("http://127.0.0.1:${server.port()}", "test-model", "test-key", 5_000, prompt, answerPrompt, mapper)
 
 	private companion object {
 		const val PAYLOAD = """{\"keyword\":\"카페\",\"expects_empty\":false}"""

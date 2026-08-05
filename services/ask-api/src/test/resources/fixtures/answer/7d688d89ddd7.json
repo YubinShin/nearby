@@ -1,0 +1,31 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"found\": true,\n  \"unverifiable_conditions\": [],\n  \"sentences\": [\n    {\n      \"text\": \"삼성2동에 위치한 횟집인 '먹어도'가 있습니다.\",\n      \"evidence\": [\n        \"MA010120220810147236\"\n      ]\n    },\n    {\n      \"text\": \"또한 일식 회/초밥 전문점으로 삼성2동의 '마시아', 대치2동의 '어방참치', 청담동의 '카이', 신사동의 '네기'가 있습니다.\",\n      \"evidence\": [\n        \"MA010120220813985043\",\n        \"MA010120220806498529\",\n        \"MA0106202510A0703050\",\n        \"MA010120220803440076\"\n      ]\n    }\n  ]\n}",
+            "thoughtSignature": "EjQKMgERTTIPwoz1jObiwsh1st/QzaPYTcz6Y6kk+ud4DtSlq40MtLPvm0ORmz9UETDIqhZT"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 321,
+    "candidatesTokenCount": 250,
+    "totalTokenCount": 571,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 321
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "3Odxaqe3GLu1vr0P5PGyqA4"
+}

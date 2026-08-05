@@ -1,6 +1,7 @@
 package dev.yubin.search.ask.llm
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import dev.yubin.search.ask.Answer
 import dev.yubin.search.ask.ParsedQuery
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -9,6 +10,7 @@ import org.springframework.core.io.Resource
 import org.springframework.core.io.ResourceLoader
 import org.springframework.stereotype.Component
 import tools.jackson.databind.ObjectMapper
+import java.security.MessageDigest
 import java.text.Normalizer
 
 @Component
@@ -23,6 +25,17 @@ class FixtureLlmClient(
 
 	private val index: FixtureIndex = loadIndex()
 
+	private val answerIndex: FixtureIndex by lazy {
+		val resource = resource("$ANSWER_DIR/$INDEX_FILE")
+		if (!resource.exists()) {
+			throw IllegalStateException(
+				"answer fixture index ${resource.description} is missing. record it, " +
+					"or point psp.ask.fixtures.location at the directory that holds it.",
+			)
+		}
+		mapper.readValue(read(resource), FixtureIndex::class.java)
+	}
+
 	override suspend fun parse(query: String): ParsedQuery {
 		val key = normalize(query)
 		val entry = index.entries[key]
@@ -32,6 +45,17 @@ class FixtureLlmClient(
 			)
 		val raw = read(resource(entry.file))
 		return GeminiWire.decode(mapper.readValue(raw, GeminiResponse::class.java), mapper)
+	}
+
+	override suspend fun answer(question: String, context: String): Answer {
+		val key = fingerprint(question, context)
+		val entry = answerIndex.entries[key]
+			?: throw LlmException(
+				"no answer fixture recorded for '${normalize(question)}' with the rendered context (key=$key). " +
+					"recorded keys: ${answerIndex.entries.keys.joinToString(", ")}",
+			)
+		val raw = read(resource("$ANSWER_DIR/${entry.file}"))
+		return AnswerWire.decode(mapper.readValue(raw, GeminiResponse::class.java), mapper)
 	}
 
 	private fun loadIndex(): FixtureIndex {
@@ -63,8 +87,17 @@ class FixtureLlmClient(
 
 	private fun normalize(query: String) = Normalizer.normalize(query.trim(), Normalizer.Form.NFC)
 
+	private fun fingerprint(question: String, context: String): String =
+		MessageDigest.getInstance("SHA-256")
+			.digest("${normalize(question)}$FINGERPRINT_SEPARATOR${normalize(context)}".toByteArray())
+			.joinToString("") { "%02x".format(it) }
+			.take(FINGERPRINT_LENGTH)
+
 	private companion object {
 		const val INDEX_FILE = "index.json"
+		const val ANSWER_DIR = "answer"
+		const val FINGERPRINT_SEPARATOR = "\n---\n"
+		const val FINGERPRINT_LENGTH = 12
 
 		val log = LoggerFactory.getLogger(FixtureLlmClient::class.java)
 	}

@@ -1,0 +1,31 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"found\": true,\n  \"unverifiable_conditions\": [],\n  \"sentences\": [\n    {\n      \"text\": \"스타벅스 매장으로는 서울세관사거리점, 도산사거리점, 청담사거리점, 포이점, 압구정R점이 있습니다.\",\n      \"evidence\": [\n        \"MA0106202201A2363742\",\n        \"MA0106202201A2363717\",\n        \"MA0106202201A2363574\",\n        \"MA0106202201A2363846\",\n        \"MA0106202201A2363716\"\n      ]\n    },\n    {\n      \"text\": \"서울세관사거리점과 도산사거리점은 논현2동 언주로에 위치해 있습니다.\",\n      \"evidence\": [\n        \"MA0106202201A2363742\",\n        \"MA0106202201A2363717\"\n      ]\n    },\n    {\n      \"text\": \"청담사거리점은 청담동 도산대로에, 포이점은 개포4동 논현로에, 압구정R점은 압구정동 언주로에 있습니다.\",\n      \"evidence\": [\n        \"MA0106202201A2363574\",\n        \"MA0106202201A2363846\",\n        \"MA0106202201A2363716\"\n      ]\n    }\n  ]\n}",
+            "thoughtSignature": "EjQKMgERTTIPF1IoQvtF0z4D8XLVYDiGABjL4rBq1iE27dn0m8Tz07olH26ztoi+kj6vzt0w"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 280,
+    "candidatesTokenCount": 427,
+    "totalTokenCount": 707,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 280
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "0edxarnAD9uU9tMPw-OJqA4"
+}

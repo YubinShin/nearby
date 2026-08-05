@@ -1,0 +1,31 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"found\": false,\n  \"unverifiable_conditions\": [\n    \"어방참치\"\n  ],\n  \"sentences\": [\n    {\n      \"text\": \"검색 결과에 '어방참치'와 관련된 정보가 포함되어 있지 않습니다.\",\n      \"evidence\": []\n    }\n  ]\n}",
+            "thoughtSignature": "EjQKMgERTTIPLN7PxHbOjZrEdV4y7v0bsrpLwUEYL0E+eJpLhQq0f/R8tc0fE6bf0yvfrAYJ"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 281,
+    "candidatesTokenCount": 77,
+    "totalTokenCount": 358,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 281
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "2edxao5n3qO-vQ_I5fCpDw"
+}

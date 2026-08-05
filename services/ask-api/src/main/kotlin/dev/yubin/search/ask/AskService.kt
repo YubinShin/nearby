@@ -1,5 +1,6 @@
 package dev.yubin.search.ask
 
+import dev.yubin.search.ask.answer.AnswerService
 import dev.yubin.search.ask.corpus.UnsupportedFilters
 import dev.yubin.search.ask.llm.LlmClient
 import dev.yubin.search.ask.llm.LlmFailures
@@ -15,10 +16,17 @@ class AskService(
 	private val llm: LlmClient,
 	private val unsupportedFilters: UnsupportedFilters,
 	private val search: SearchPlatform,
+	private val answers: AnswerService,
 	private val metrics: AskMetrics,
 	@Value("\${psp.ask.size}") private val defaultSize: Int,
 ) {
-	suspend fun ask(q: String?, size: Int? = null, lat: Double? = null, lon: Double? = null): AskResponse {
+	suspend fun ask(
+		q: String?,
+		size: Int? = null,
+		lat: Double? = null,
+		lon: Double? = null,
+		answer: Boolean = false,
+	): AskResponse {
 		val startedAt = System.nanoTime()
 		val raw = q?.trim().orEmpty()
 
@@ -40,12 +48,17 @@ class AskService(
 		val result = metrics.record(SEARCH) { search.hsearch(plan) }
 		val searchTookMs = elapsedMs(searchStartedAt)
 
+		val answerStartedAt = System.nanoTime()
+		val generated = if (answer && raw.isNotBlank()) answers.answer(raw, result.body) else null
+		val answerTookMs = if (answer && raw.isNotBlank()) elapsedMs(answerStartedAt) else 0
+
 		val degradedBy = buildList {
 			if (raw.isNotBlank() && parsed == null) add(LLM)
 			if (result.degraded) {
 				add(SEARCH)
 				metrics.degraded(SEARCH, "channel")
 			}
+			if (answer && raw.isNotBlank() && generated == null) add(ANSWER)
 		}
 
 		return AskResponse(
@@ -57,8 +70,10 @@ class AskService(
 			llmVendor = llm.vendor,
 			llmTookMs = llmTookMs,
 			searchTookMs = searchTookMs,
+			answerTookMs = answerTookMs,
 			tookMs = elapsedMs(startedAt),
 			search = result.body,
+			answer = generated,
 		)
 	}
 
@@ -83,6 +98,7 @@ class AskService(
 	private companion object {
 		const val LLM = "llm"
 		const val SEARCH = "search"
+		const val ANSWER = "answer"
 
 		val log = LoggerFactory.getLogger(AskService::class.java)
 	}

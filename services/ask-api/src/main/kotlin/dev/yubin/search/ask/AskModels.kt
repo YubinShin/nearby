@@ -20,6 +20,20 @@ data class SearchRequestPlan(
 	val unsupported: List<String> = emptyList(),
 )
 
+data class AnswerSentence(
+	val text: String,
+	val evidence: List<String> = emptyList(),
+)
+
+data class Answer(
+	val found: Boolean,
+	val unverifiableConditions: List<String> = emptyList(),
+	val sentences: List<AnswerSentence> = emptyList(),
+	val droppedEvidence: List<String> = emptyList(),
+	val driftingEvidence: List<String> = emptyList(),
+	val leakedTerms: List<String> = emptyList(),
+)
+
 data class AskResponse(
 	val query: String,
 	val parsed: ParsedQuery?,
@@ -29,6 +43,8 @@ data class AskResponse(
 	val llmVendor: String,
 	val llmTookMs: Long,
 	val searchTookMs: Long,
+	val answerTookMs: Long,
 	val tookMs: Long,
 	val search: JsonNode,
+	val answer: Answer? = null,
 )
