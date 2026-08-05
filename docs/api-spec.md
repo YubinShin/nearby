@@ -425,7 +425,12 @@ Elasticsearch·Qdrant 장애와 애플리케이션 버그는 서로 다른 상�
 }
 ```
 
-`GET /admin/jobs?name=keywordRebuild&limit=10` 은 최근 실행 이력을 반환합니다.
+`GET /admin/jobs` 는 최근 실행 이력을 반환합니다.
+
+| Name | Type | Default | Description |
+|---|---|---|---|
+| `name` | string | `keywordRebuild` | job 이름 |
+| `limit` | int | `10` | 반환할 이력 수. `1~50` 범위로 보정됩니다. |
 
 ## `POST /admin/cleanup` · `POST /admin/vector/cleanup`
 
