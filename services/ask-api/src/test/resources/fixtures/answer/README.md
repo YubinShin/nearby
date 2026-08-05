@@ -1,41 +1,50 @@
-# fixtures/answer — 답변 생성 응답 재생용
+# fixtures/answer
 
-`FixtureLlmClient.answer` 가 읽는 디렉토리입니다. CI 는 실제 API 를 부르지 않습니다.
+`FixtureLlmClient.answer`가 사용하는 답변 생성 응답 원문입니다. CI에서는 실제 LLM API를 호출하지 않고 이 디렉터리의 fixture를 사용합니다.
 
-| 파일 | 내용 |
-|---|---|
-| `index.json` | 지문 → 파일명 매핑 + 항목별 `experiment` · `question` · `source` |
-| `<sha256 앞 12자>.json` | Gemini `generateContent` 응답 원문 |
+## Files
 
-키는 `sha256(NFC(질문) + "\n---\n" + NFC(렌더된 컨텍스트))` 의 앞 12자입니다.
-질문만으로는 부족합니다 — `회 먹을 데 있어?` 하나가 컨텍스트에 따라 세 항목(`baseline` ·
-`empty_context` · `garbage_input`)으로 갈립니다.
+| File | Description |
+| --- | --- |
+| `index.json` | 지문과 응답 파일의 매핑 정보, 항목별 `experiment`, `question`, `source`를 저장합니다. |
+| `<sha256 앞 12자>.json` | Gemini `generateContent` API의 원본 응답입니다. |
 
-키에 컨텍스트가 들어가므로 `AnswerContext.render` 가 녹화 당시와 한 글자라도 다르면
-조회가 실패합니다. 렌더러와 녹화본의 일치는 `AskAnswerMappingTest` 가 검증합니다.
+응답 파일명은 다음 키의 SHA-256 해시 앞 12자를 사용합니다.
 
-## 지금 들어 있는 것
+```text
+sha256(
+    NFC(질문)
+    + "\n---\n"
+    + NFC(렌더된 컨텍스트)
+)
+```
 
-8건 전부 `source: recorded` 이고 `gemini-3.5-flash` 로 녹화했습니다(2026-08-04).
-`scripts/grounding_experiments.py` 의 함정 8개이고, 원본은 `scripts/fixtures/260804/` 입니다.
+질문만으로는 키를 구분하지 못합니다. `회 먹을 데 있어?` 하나가 컨텍스트에 따라 `baseline` · `empty_context` · `garbage_input` 세 항목으로 갈립니다.
 
-| experiment | 질문 | 컨텍스트 |
-|---|---|---|
+키에 렌더된 컨텍스트가 포함되므로 `AnswerContext.render()`의 출력이 녹화 당시와 한 글자라도 달라지면 fixture 조회에 실패합니다. 렌더러와 녹화본의 일치는 `AskAnswerMappingTest`에서 검증합니다.
+
+## Contents
+
+현재 **8개**이며 전부 `source: recorded` · `model: gemini-3.5-flash` 입니다. (Recorded: **2026-08-04**)
+
+모두 `scripts/grounding_experiments.py`의 함정(trap) 시나리오에서 생성했고, 원본 응답은 `scripts/fixtures/260804/`에 있습니다.
+
+| Experiment | Question | Context |
+| --- | --- | --- |
 | `baseline` | 회 먹을 데 있어? | 횟집 5건 |
 | `implicit_condition` | 맛있고 가까운 회 먹을 데 있어? | 횟집 5건 |
-| `empty_context` | 회 먹을 데 있어? | 0건 |
+| `empty_context` | 회 먹을 데 있어? | 결과 0건 |
 | `false_premise` | 어방참치 초밥 맛있기로 유명하죠? | 횟집 5건 |
 | `knowledge_leak_famous` | 스타벅스 어때? | 스타벅스 5건 |
 | `knowledge_leak_unknown` | 어방참치 어때? | 횟집 5건 |
 | `context_mismatch` | 어방참치 어때? | 스타벅스 5건 |
 | `garbage_input` | 회 먹을 데 있어? | 횟집 5건 + 회계사무소 1건 |
 
-`scripts/fixtures/260804/` 에서 응답 원문만 옮겼습니다. ADR 0015 Implementation 표의
-`record_answer_fixtures.py` 는 구현 예정이라, 다시 녹화하려면 지금은
-`scripts/grounding_experiments.py` 를 돌리고 옮겨야 합니다.
+## Re-recording
 
-## 프롬프트를 바꾸면
+자동 재녹화 스크립트(`record_answer_fixtures.py`)는 ADR 0015 Implementation 표에 정의되어 있으나 아직 구현되지 않았습니다. 현재 절차는 두 단계입니다.
 
-`prompt/answer-generate.json` 의 `version` 을 올리고 다시 녹화합니다.
-`system` 이 프롬프트 본문에 들어가므로 문구를 고치면 컨텍스트가 아니라 요청이 달라집니다.
-지문은 질문과 컨텍스트만으로 계산하므로 키는 그대로이고, 응답만 다시 녹화하면 됩니다.
+1. `scripts/grounding_experiments.py`를 실행합니다.
+2. 생성된 응답을 `scripts/fixtures/<날짜>/`에서 `fixtures/answer/`로 복사합니다.
+
+프롬프트를 변경했다면 `prompt/answer-generate.json`의 `version`을 올린 뒤 다시 녹화합니다. `system` 프롬프트가 요청 본문에 포함되므로 문구를 수정하면 LLM 요청 자체가 달라지지만, fixture의 키는 **질문과 렌더된 컨텍스트만으로 계산**하므로 그대로입니다. 기존 파일을 덮어써 응답만 새로 녹화하면 됩니다.

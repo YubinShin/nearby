@@ -48,7 +48,7 @@ curl -G localhost:8080/v1/hsearch --data-urlencode "q=회 먹을 데"
 → 어방참치
 ```
 
-BM25 + KOMORAN 기반 키워드 검색과 임베딩 기반 벡터 검색을 **RRF**로 결합합니다. 한 채널이 실패해도 다른 채널의 결과를 반환합니다 (`degraded: true`).
+BM25 + KOMORAN 기반 키워드 검색과 임베딩 기반 벡터 검색을 [**RRF**](services/search-api/src/main/kotlin/dev/yubin/search/hybrid/Rrf.kt)로 결합합니다. 두 채널은 코루틴으로 병렬 호출하며, 한 채널이 실패해도 다른 채널의 결과를 반환합니다 — [`HybridSearchService`](services/search-api/src/main/kotlin/dev/yubin/search/hybrid/HybridSearchService.kt) (`degraded: true`).
 
 ---
 
@@ -119,7 +119,7 @@ Kubernetes 환경 실행 시 → [deploy/k8s/README.md](deploy/k8s/README.md)
 - [x] Kubernetes 배포 (kustomize · kind · EKS) · 노드 분리 실측
 - [x] 채널 장애 시 `degraded: true` 부분 응답
 - [x] Micrometer + Prometheus 메트릭
-- [ ] Kafka 스트리밍 색인 — 자리를 [`indexer-stream`](services/indexer-stream/README.md) 빈 모듈로 확보
+- [ ] Kafka 스트리밍 색인 — 자리를 `indexer-stream` 빈 모듈로 확보 · [ADR 0001](docs/adr/0001-event-triggered-incremental-indexing.md)
 - [ ] 멀티클러스터 — [ADR 0002](docs/adr/0002-index-and-cluster-separation.md)
 
 **Recommendation**
@@ -183,7 +183,7 @@ Kubernetes 환경 실행 시 → [deploy/k8s/README.md](deploy/k8s/README.md)
 | Hybrid                               |         0.86 |      0.54 |     0.87 |     0.86 |
 | **Hybrid + LLM query understanding** |     **0.91** |  **0.54** | **0.96** | **0.89** |
 
-* 라벨링 절차 · 재현 명령 · 측정 한계: [골든셋](services/ask-api/README.md#golden-set)
+* 라벨링 절차 · 재현 명령 · 측정 한계: [골든셋](scripts/eval/README.md)
 
 ### Search Latency
 
@@ -270,6 +270,7 @@ EKS 2노드 · 동일한 파드 스펙 기준
 | [adr/](docs/adr/) | 설계 결정 15편 |
 | [architecture-review.md](docs/architecture-review.md) | 예상과 다른 결과·한계 |
 | [troubleshooting.md](docs/troubleshooting.md) | 증상별 원인과 조치 |
+| [eks-cluster-notes.md](docs/eks-cluster-notes.md) | EKS 클러스터·오버레이 설정 근거 |
 | [search-modes-comparison.md](docs/search-modes-comparison.md) | 세 검색 방식 비교 |
 | [data-model.md](docs/data-model.md) | 데이터 모델·원천 출처 |
 | [roadmap.md](docs/roadmap.md) | 로드맵 |

@@ -1,120 +1,237 @@
 # Nearby on Kubernetes
 
-검색 스택(앱 2개 + 백엔드 3개)을 쿠버네티스로 올리는 매니페스트.
-로컬 검증은 **kind**, 실제 배포는 **EKS** — 차이는 오버레이 한 겹뿐입니다.
+Nearby 검색 스택(앱 2개, 백엔드 3개)을 Kubernetes에 배포하기 위한 매니페스트입니다.
 
-> 이 매니페스트를 왜 소스와 같은 저장소에 뒀는지(모노레포 vs config repo 분리)는
-> [ADR 0012](../../docs/adr/0012-manifests-in-monorepo.md).
->
-> EKS 클러스터 자체(노드그룹 구성 · AZ · NAT · EBS CSI)의 결정 근거는
-> [deploy/eks/README.md](../eks/README.md).
->
-> 파드가 안 뜨거나 OOMKilled 가 나면 [docs/troubleshooting.md](../../docs/troubleshooting.md) —
-> 매니페스트의 각 줄이 왜 있는지를 증상 기준으로 모아뒀습니다.
+- **로컬 검증:** kind
+- **실제 배포:** Amazon EKS
+- **환경 차이:** Kustomize Overlay 한 겹으로 관리
 
-```
-deploy/k8s/
-  base/                     # 공통 정의 (환경 무관)
-    namespace.yaml
-    elasticsearch.yaml      # StatefulSet + headless svc + 사전 ConfigMap 마운트
-    qdrant.yaml             # StatefulSet + svc
-    postgis.yaml            # StatefulSet + svc (강남 64,239행이 이미지에 구워져 있음)
-    search-api.yaml         # Deployment + svc  (질의, 8080)
-    indexer-batch.yaml      # Deployment + svc  (색인, 8081)
-    backend-wiring.yaml     # ConfigMap: 백엔드 주소를 env 로 주입 (코드 안 건드림)
-    komoran-dict.configmap.yaml   # ES 사용자 사전 (아래 '사전' 참고)
-  overlays/
-    kind/                   # 로컬 단일 노드: 자원 축소, anti-affinity=preferred
-    eks/                    # 멀티 노드: anti-affinity=required(다른 노드 강제), ECR 접두어
-```
+---
 
-## 설계 메모 (왜 이렇게 했나)
+## Prerequisites
 
-- **주소 주입은 env 로.** `search-core/core.yml` 은 ES·Qdrant 주소를 `localhost` 로 적어 뒀지만,
-  Spring 완화 바인딩이 `SPRING_ELASTICSEARCH_URIS` / `PSP_QDRANT_URL` / `SPRING_DATASOURCE_URL`
-  환경변수로 그 값을 덮습니다. 그래서 **k8s 를 위해 설정 파일을 고치지 않았습니다** — 서비스 DNS 만 넣습니다.
-  (이 이름은 색인기가 R2DBC → JDBC 로 바뀌면서 `SPRING_R2DBC_URL` 에서 변경 — ADR 0013.)
-- **백엔드는 StatefulSet, 앱은 Deployment.** 백엔드(ES/Qdrant/PostGIS)는 디스크에 상태를 들고 있어
-  안정된 이름과 PVC 재부착이 필요합니다. 앱은 상태가 없어 언제든 갈아끼워도 됩니다.
-- **anti-affinity 가 분리의 마지막 조각.** 앱을 쪼갰어도 같은 노드에 얹히면 색인기의 CPU 버스트가
-  질의 지연을 끌어올립니다(**로컬 docker-compose** 실측: 11.5 → 23.4ms). eks 오버레이는 이를
-  `required` 로 굳혀 두 앱을 강제로 다른 노드에 놓습니다 → 지연이 회복되는지 재측정하는 게 목표.
-  위 11.5→23.4ms 를 EKS 결과의 대조군으로 쓸 수 없는 이유는 [deploy/eks/README.md](../eks/README.md) 참고.
-- **PostGIS 데이터는 이미지에 구웠습니다.** 덤프가 3.6MB 라 파드가 뜨는 순간 데이터가 있습니다.
-  k8s 로 1.4GB CSV 를 옮기거나 적재 Job 을 돌릴 필요가 없습니다(데모용 결정).
-
-## 로컬(kind)에서 띄우기
-
-전제: Docker Desktop 실행 중, 이미지 4개 빌드됨(`./deploy/build-images.sh`).
+- kubectl
+- 이미지 4개 빌드 완료
 
 ```bash
-# 0) kind 설치 (한 번만)
-brew install kind
+./deploy/build-images.sh
+```
 
-# 1) 클러스터 생성
+### kind only
+
+- Docker Desktop
+- kind
+
+### EKS only
+
+- EKS Cluster
+- x86 Worker Node 2개 이상
+- gp3 StorageClass
+- ECR Push 완료
+
+---
+
+## Directory Layout
+
+```text
+deploy/k8s/
+├── base/
+│   ├── namespace.yaml
+│   ├── elasticsearch.yaml        # StatefulSet + Headless Service
+│   ├── qdrant.yaml               # StatefulSet + Service
+│   ├── postgis.yaml              # StatefulSet + Service
+│   ├── search-api.yaml           # Deployment + Service (8080)
+│   ├── indexer-batch.yaml        # Deployment + Service (8081)
+│   ├── backend-wiring.yaml       # Backend endpoint ConfigMap
+│   └── komoran-dict.configmap.yaml
+└── overlays/
+    ├── kind/
+    └── eks/
+```
+
+`base`는 환경과 무관한 공통 리소스를 정의하며, `kind`와 `eks`는 환경별 차이만 오버레이합니다.
+
+---
+
+## Architecture
+
+| Component     | Workload    | 이유                    |
+| ------------- | ----------- | ----------------------- |
+| Elasticsearch | StatefulSet | 디스크 기반 데이터 저장 |
+| Qdrant        | StatefulSet | 벡터 데이터 영속성      |
+| PostGIS       | StatefulSet | 공간 데이터 영속성      |
+| Search API    | Deployment  | Stateless               |
+| Indexer Batch | Deployment  | Stateless               |
+
+---
+
+## Design Decisions
+
+### Backend endpoint injection
+
+백엔드 주소는 ConfigMap을 통해 환경 변수로 주입합니다.
+
+Spring Boot의 Relaxed Binding을 이용해 기본 설정(`search-core/core.yml`)을 수정하지 않고 다음 값을 덮어씁니다.
+
+- `SPRING_ELASTICSEARCH_URIS`
+- `PSP_QDRANT_URL`
+- `SPRING_DATASOURCE_URL`
+
+Kubernetes 배포를 위해 별도의 설정 파일을 유지하지 않습니다.
+
+---
+
+### StatefulSet vs Deployment
+
+검색 백엔드는 모두 상태를 가지므로 StatefulSet을 사용합니다.
+
+- Stable Network Identity
+- Persistent Volume 재사용
+- Pod 재생성 시 데이터 유지
+
+반면 Search API와 Indexer는 상태가 없으므로 Deployment를 사용합니다.
+
+---
+
+### Anti-affinity
+
+색인 작업은 CPU 사용량이 매우 높습니다.
+
+Search API와 같은 노드에 배치되면 검색 지연(latency)이 증가할 수 있으므로 EKS에서는 강제 Pod Anti-affinity를 적용합니다.
+
+| Environment | Anti-affinity |
+| ----------- | ------------- |
+| kind        | preferred     |
+| EKS         | required      |
+
+---
+
+### Seeded PostGIS
+
+PostGIS 이미지는 강남 지역(64,239행) 데이터를 포함한 상태로 빌드됩니다.
+
+데모 환경에서는 별도의
+
+- CSV Import
+- Migration Job
+- Seed Job
+
+없이 Pod 시작 즉시 검색이 가능합니다.
+
+---
+
+## Deploy to kind
+
+### Create Cluster
+
+```bash
+# 클러스터 생성
 kind create cluster --name nearby
 
-# 2) 로컬 이미지를 클러스터 안으로 넣는다 (kind 는 레지스트리에서 안 당김)
+# 도커 이미지 로드
 kind load docker-image \
-  nearby-search-api:latest nearby-indexer-batch:latest \
-  nearby-postgis:seeded psp-elasticsearch-komoran:9.4.2 \
+  nearby-search-api:latest \
+  nearby-indexer-batch:latest \
+  nearby-postgis:seeded \
+  psp-elasticsearch-komoran:9.4.2 \
   --name nearby
 
-# 3) 배포
+# 배포
 kubectl apply -k deploy/k8s/overlays/kind
 
-# 4) 뜨는지 지켜보기 (ES 가 제일 오래 걸린다)
+# Pod 상태 — Elasticsearch가 가장 오래 걸림
 kubectl -n nearby get pods -w
 ```
 
-전부 `Running` + `READY` 가 되면:
+### Build Index
 
 ```bash
-# 5) 색인 트리거 — 접수만 하고 즉시 202 + jobId 를 준다 (ADR 0013)
+# Indexer Port Forward
 kubectl -n nearby port-forward svc/indexer-batch 8081:80 &
-curl -X POST localhost:8081/admin/reindex          # 키워드 → {"jobId":1,"poll":"/admin/jobs/1"}
-curl -X POST localhost:8081/admin/vector/reindex   # 벡터(kind 실측 32분)
 
-# 5-1) 진행 조회. port-forward 가 끊겨도 색인은 계속 돈다 — job 스레드에서 돌기 때문이다.
-#      건수는 Spring Batch 가 chunk 커밋마다 BATCH_STEP_EXECUTION 에 적은 값이라
-#      파드를 재시작해도 이력이 남는다.
-curl -s localhost:8081/admin/jobs/2 | jq '{status, steps: [.steps[] | {name, read, written}]}'
+# 키워드 색인
+curl -X POST localhost:8081/admin/reindex
 
-# 6) 검색 (search-api)
+# 벡터 색인
+curl -X POST localhost:8081/admin/vector/reindex
+
+# 진행 상황 조회
+curl -s localhost:8081/admin/jobs/2 \
+| jq '{status, steps: [.steps[] | {name, read, written}]}'
+```
+
+색인은 백그라운드 Job으로 수행되므로 Port Forward가 종료되어도 계속 진행됩니다.
+
+Spring Batch는 진행 상황을 `BATCH_STEP_EXECUTION` 테이블에 저장하므로 Pod가 재시작되어도 이력을 유지합니다.
+
+### Search
+
+```bash
 kubectl -n nearby port-forward svc/search-api 8080:80 &
-curl "localhost:8080/v1/search?q=강남역 카페"
+
+curl "http://localhost:8080/v1/search?q=강남역 카페"
 ```
 
-정리: `kind delete cluster --name nearby`
-
-### ⚠️ Apple Silicon 주의 — PostGIS 아키텍처
-
-`nearby-postgis` 는 `postgis/postgis:16-3.4`(amd64 전용) 기반이라 **amd64** 입니다.
-M4(arm64) kind 노드에서는 에뮬레이션으로 뜹니다 — 느리지만 데모엔 충분. 만약 파드가
-`exec format error` 로 죽으면 멀티아치 PostGIS 로 교체:
+### Cleanup
 
 ```bash
-# deploy/postgis/Dockerfile 의 FROM 을 arm64 지원 이미지로 바꿔 재빌드
-#   FROM imresamu/postgis:16-3.4     # 멀티아치(arm64/amd64)
+kind delete cluster --name nearby
 ```
 
-## EKS
+---
 
-전제: 노드 2개 이상(**x86** — PostGIS amd64), 이미지가 ECR 에 push 됨, gp3 StorageClass.
+## Deploy to EKS
 
 ```bash
-# 이미지 빌드·push (x86)
-PLATFORM=linux/amd64 TAG=latest \
-  REGISTRY=<ACCOUNT>.dkr.ecr.ap-northeast-2.amazonaws.com \
-  ./deploy/build-images.sh
-# ... docker push (4개) ...
+# 이미지 빌드 (amd64)
+PLATFORM=linux/amd64 \
+TAG=latest \
+REGISTRY=<ACCOUNT>.dkr.ecr.ap-northeast-2.amazonaws.com \
+./deploy/build-images.sh
 
-# overlays/eks/kustomization.yaml 의 <ACCOUNT> 를 실제 값으로 바꾼 뒤
+# ECR Push 후 배포
 kubectl apply -k deploy/k8s/overlays/eks
 
-# 색인기와 질의기가 정말 다른 노드에 떨어졌는지 확인
+# Pod 배치 — Search API와 Indexer가 다른 노드여야 함
 kubectl -n nearby get pods -o wide
 ```
 
-kind 와 EKS 의 유일한 본질적 차이 = **anti-affinity(preferred→required)**. 나머지(자원·이미지 경로·
-스토리지클래스)는 환경에 맞춘 곁가지입니다.
+### kind vs EKS
+
+|               | kind             | EKS             |
+| ------------- | ---------------- | --------------- |
+| Images        | Local Docker     | Amazon ECR      |
+| Anti-affinity | preferred        | required        |
+| Storage       | Local            | gp3 PVC         |
+| Purpose       | Local Validation | Production-like |
+
+두 환경의 차이는 대부분 Overlay에서 관리됩니다.
+
+---
+
+## Troubleshooting
+
+증상별 원인과 조치는 [docs/troubleshooting.md](../../docs/troubleshooting.md)에 정리했습니다.
+
+### Apple Silicon
+
+`nearby-postgis`는 기본적으로 `postgis/postgis:16-3.4`(amd64)를 기반으로 합니다.
+
+Apple Silicon에서는 QEMU 에뮬레이션으로 실행됩니다.
+
+`exec format error`가 발생하면 다음과 같이 멀티 아키텍처 이미지를 사용합니다.
+
+```dockerfile
+FROM imresamu/postgis:16-3.4
+```
+
+이후 이미지를 다시 빌드합니다.
+
+---
+
+## References
+
+- [ADR 0012](../../docs/adr/0012-manifests-in-monorepo.md) — 매니페스트를 소스와 같은 저장소에 둔 이유
+- [deploy/eks/README.md](../eks/README.md) — EKS 실험 클러스터
+- [docs/eks-cluster-notes.md](../../docs/eks-cluster-notes.md) — 오버레이·클러스터 설정별 근거
+- [docs/troubleshooting.md](../../docs/troubleshooting.md) — 증상별 원인과 조치

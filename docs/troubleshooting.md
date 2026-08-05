@@ -174,7 +174,7 @@ services/indexer-batch/…/BatchConfig.kt     AWAIT_TERMINATION_SECONDS = 600
 벡터 재색인 중 지연은 회복되고(앱 CPU) 키워드는 회복되지 않습니다(공유 ES 의 `_bulk`).
 
 > 로컬 docker-compose 실측(11.5 → 23.4ms)은 EKS 결과의 대조군이 아닙니다 —
-> [deploy/eks/README.md](../deploy/eks/README.md) 참고.
+> [eks-cluster-notes.md](eks-cluster-notes.md#rejected-baseline) 참고.
 
 ---
 

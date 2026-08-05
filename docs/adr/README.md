@@ -1,10 +1,8 @@
-# ADR 목록
+# Architecture Decision Records
 
-아키텍처 결정 기록(Architecture Decision Record)입니다. 코드에는 주석을 두지 않습니다 —
-각 결정의 배경은 해당 ADR 과 커밋 메시지에 있습니다. 각 문서 끝의 "구현 위치" 표에 있는
-커밋 해시는 `git show <해시>` 로 확인합니다. 해시는 그 결정이 반영된 시점의 커밋이며 파일의
-최신 상태가 아닙니다. 코드 경로는
-`services/<모듈>/src/{main,test}/kotlin/dev/yubin/search/` 이하입니다.
+코드에는 주석을 두지 않습니다. 각 결정의 배경은 해당 ADR 과 커밋 메시지에 있습니다.
+
+각 문서 끝의 "구현 위치" 표에 있는 커밋 해시는 `git show <해시>` 로 확인합니다. 해시는 그 결정이 반영된 시점의 커밋이며 파일의 최신 상태가 아닙니다. 코드 경로는 `services/<모듈>/src/{main,test}/kotlin/dev/yubin/search/` 이하입니다.
 
 | ADR | 제목 |
 |---|---|
