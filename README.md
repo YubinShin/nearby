@@ -104,7 +104,7 @@ Kubernetes 환경 실행 시 → [deploy/k8s/README.md](deploy/k8s/README.md)
 - [x] Coroutine Fan-out 병렬 질의
 - [x] edge_ngram 자동완성
 - [x] LLM 질의 이해 — 자연어를 검색 요청으로 (`ask-api`) · [ADR 0014](docs/adr/0014-ask-api-llm-query-understanding.md)
-- [x] 근거 기반 답변 생성 — 검색 결과만 근거로 사용, 검증기가 근거를 벗어난 문장을 제거 · [ADR 0015](docs/adr/0015-ask-api-grounded-answer-generation.md)
+- [x] 근거 기반 답변 생성 — 검색 결과만 근거로 사용, 검증기가 검색 결과에 없는 근거를 제거하고 계약 위반을 기록 · [ADR 0015](docs/adr/0015-ask-api-grounded-answer-generation.md)
 
 **Indexing**
 
