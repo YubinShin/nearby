@@ -276,7 +276,7 @@ curl -G localhost:8080/v1/hsearch --data-urlencode "q=회 먹을 데"
   ],
   "hits": [
     { "placeId": "MA010120220810147236", "name": "먹어도", "category": "횟집",
-      "address": "서울특별시 강남구 학동로56길 32",   // 벡터 검색에서만 찾은 문서도 Elasticsearch에서 조회하여 채웁니다.
+      "address": "서울특별시 강남구 학동로56길 32",   // 벡터 검색에서만 찾은 문서도 Elasticsearch에서 조회해 채워 반환합니다.
       "sigungu": "강남구", "dong": "삼성2동",
       "lat": 37.51518, "lon": 127.04282,
       "score": 0.01639,                            // RRF 점수 (이 응답의 정렬 근거)
