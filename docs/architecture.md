@@ -1,125 +1,129 @@
-# 아키텍처 — 전체 그림
+# Architecture
 
-## 한눈에 보기
+## Overview
 
-이 시스템은 크게 세 덩어리입니다.
+원천 데이터는 PostGIS에 저장하고, 검색을 위해 Elasticsearch와 Qdrant에 각각 색인합니다.
+검색 요청은 두 엔진을 병렬로 실행한 뒤 애플리케이션에서 Reciprocal Rank Fusion(RRF)으로 결합합니다.
 
-1. **데이터를 모으고 검색 가능하게 만드는 쪽** (수집 → 원천 저장 → 색인)
-2. **검색·추천 요청에 답하는 쪽** (공통 API)
-3. **이 모든 것을 올려두는 인프라** (Kubernetes)
+증분 색인은 watermark 이후 변경분만 반영하며, 전체 재색인은 alias 스왑으로 무중단 교체합니다.
 
-원천 데이터는 한 곳에 두고, 검색용 사본을 여러 엔진에 바뀔 때만 반영합니다.
+![Architecture](diagrams/architecture.png)
 
-## 현재 상태
+## Current Status
 
-| 영역 | 상태 |
+| Area | Status |
 |---|---|
 | 키워드 · 벡터 · 하이브리드 검색, 자동완성 | 구현 |
+| LLM 질의 이해 · 근거 기반 답변 (`ask-api`) | 구현 |
 | watermark 증분 색인 · alias 스왑 무중단 재색인 | 구현 |
 | 색인 계약 버전 도장 | 구현 |
 | Kubernetes 배포 (kind · EKS) | 구현 |
-| 이벤트 트리거 색인 (ADR 0001) | TBD |
-| 클러스터 분리 (ADR 0002) | TBD |
-| Redis · 추천 · 쿠키리스 세션 (ADR 0004, 0005) | TBD |
-| Kafka 스트리밍 색인 (`indexer-stream`) | TBD |
+| 이벤트 트리거 색인 | TBD ([ADR 0001](adr/0001-event-triggered-incremental-indexing.md)) |
+| 클러스터 분리 | TBD ([ADR 0002](adr/0002-index-and-cluster-separation.md)) |
+| Redis · 추천 · 쿠키리스 세션 | TBD ([ADR 0004](adr/0004-cookieless-session-model.md) · [ADR 0005](adr/0005-cold-start-and-recommend-strategy.md)) |
+| Kafka 스트리밍 색인 (`indexer-stream`) | TBD ([ADR 0001](adr/0001-event-triggered-incremental-indexing.md)) |
 
-## 구성 요소 (한 줄 설명)
+## Components
 
-- **PostGIS** — 원천 저장소. 장소의 원본 정보(이름·주소·좌표)가 여기 저장됩니다.
-- **Elasticsearch** — 키워드 검색 엔진. "글자가 얼마나 맞나"로 찾습니다. 자동완성도 여기서 처리합니다.
-- **Qdrant** — 벡터(의미) 검색 엔진. 문장을 숫자 벡터로 바꿔 "의미가 얼마나 비슷한가"로 찾습니다.
-- **Redis** (TBD) — 빠른 임시 저장소. 최근 행동, 인기 순위, 비상용 기본 결과를 여기 둡니다.
-- **`search-api`** — 위 엔진들에 대신 질의하고, 답을 합쳐서 돌려주는 서버.
-  세 검색 경로를 이 앱 하나가 모두 제공합니다. **읽기만 합니다.**
-- **`indexer-batch`** — 원천 저장소(PostGIS)에서 읽어 검색 엔진에 밀어넣는 앱. **쓰기만 합니다.**
-  `search-api` 와 **따로 빌드되고 따로 뜹니다** (ADR 0011).
-- **`search-core`** — 위 두 앱이 **함께 쓰는 규칙**을 담은 라이브러리. 앱이 아닙니다.
-  브랜드를 정하는 규칙, 문서의 필드 이름, 임베딩 모델이 여기 한 벌만 있습니다.
+| Component | Role |
+| --- | --- |
+| PostGIS | 원천 저장소 · 공간 데이터 |
+| Elasticsearch | BM25 검색 · 자동완성 · 색인 계약 메타 (`psp_index_meta`) |
+| Qdrant | 벡터 검색 (384-dimensional embeddings) |
+| Redis | 세션 · 인기 순위 (TBD — `docker-compose` 에만 존재하며 애플리케이션에서는 아직 사용하지 않음) |
+| `search-api` (8080) | 검색 API (읽기 전용) |
+| `indexer-batch` (8081) | 배치 색인 (쓰기 전용) |
+| `ask-api` (8082) | 자연어 질의 이해 · 근거 기반 답변 |
+| `indexer-stream` | 이벤트 기반 색인 (TBD) |
+| `search-core` | 공유 계약 라이브러리 (문서 스키마 · 브랜드 규칙 · 임베딩 모델) |
 
-## 데이터가 들어오는 길
+`search-api`와 `indexer-batch`는 별도 아티팩트로 빌드 및 배포합니다 ([ADR 0011](adr/0011-module-split-and-index-contract.md)). `ask-api`는 `search-core`에 직접 의존하지 않고 `/v1/hsearch`를 HTTP로 호출합니다 ([ADR 0014](adr/0014-ask-api-llm-query-understanding.md)).
 
-공공데이터포털의 **상가정보**(소상공인시장진흥공단)와 **지방행정 인허가 데이터**(행안부)에서 장소 데이터를 받아 **PostGIS에 원천으로** 저장합니다.
+## Data Ingestion
 
-이 원천을 검색 엔진(ES·Qdrant)에 매번 통째로 다시 넣지 않고, 마지막 색인 시각(watermark) 이후에
-바뀐 행만 반영합니다. 색인은 `POST /admin/reindex/incremental` 로 걸거나 스케줄러(기본 꺼짐)가
-겁니다. 이벤트 트리거는 TBD (ADR 0001).
+공공데이터포털의 상가정보(소상공인시장진흥공단)와 지방행정 인허가 데이터(행정안전부)를 PostGIS에 원천으로 적재합니다.
 
-## 검색 한 번의 여정
+검색 엔진은 원천을 매번 전체 재색인하지 않습니다. 마지막 색인 시각(watermark) 이후 변경된 데이터만 Elasticsearch와 Qdrant에 반영합니다.
 
-질의가 "분위기 좋은 강남 파스타집"일 때:
+증분 색인은 `POST /admin/reindex/incremental`로 실행하거나 스케줄러를 통해 수행합니다. 스케줄러는 `psp.index.schedule.enabled` 설정으로 제어하며 기본값은 `false`입니다.
 
-1. 서버가 이 문장을 **키워드 엔진(ES)과 의미 엔진(Qdrant)에 동시에** 질의합니다.
-   - ES는 '강남', '파스타' 같은 단어가 잘 맞는 곳을 순위로 줍니다.
-   - Qdrant는 '분위기 좋은'처럼 단어로 잡히지 않는 의미까지 반영해 비슷한 곳을 순위로 줍니다.
-2. 두 순위를 **RRF로 결합합니다.** 점수 스케일이 서로 달라도 *순위*를 기준으로 섞기 때문에
-   한쪽이 결과를 독식하지 않고 공평하게 결합됩니다. (자세히는 ADR 0003)
-3. 요청에 좌표가 있으면 결과마다 **직선거리(m)** 를 계산해 붙입니다. 반경 제한은 1단계에서
-   ES·Qdrant가 각자 처리하고, 하이브리드 순위는 거리로 다시 정렬하지 않습니다.
-4. 최종 목록을 사용자에게 돌려줍니다.
+이벤트 트리거 색인은 구현 예정입니다 ([ADR 0001](adr/0001-event-triggered-incremental-indexing.md)).
 
-두 엔진 질의는 WebFlux+코루틴으로 병렬 실행합니다. (ADR 0006)
+## Query Path
 
-## 추천 (TBD)
+예시 질의: `분위기 좋은 강남 파스타집`
 
-세 가지 상황으로 나눠서 답합니다.
+1. `search-api`가 Elasticsearch와 Qdrant를 병렬로 조회합니다. Elasticsearch는 키워드(BM25), Qdrant는 임베딩 유사도 기반으로 각각 순위를 생성합니다.
+2. 두 결과를 애플리케이션에서 Reciprocal Rank Fusion(RRF)으로 결합합니다. RRF는 점수가 아닌 순위를 기준으로 결합하므로, 검색 엔진별 점수 분포 차이에 영향을 받지 않습니다 ([ADR 0003](adr/0003-hybrid-search-rrf-in-app-layer.md)).
+3. 요청에 좌표가 포함되면 각 결과에 직선거리(m)를 계산해 추가합니다. 반경 필터링은 Elasticsearch와 Qdrant가 각각 수행하며, 하이브리드 순위는 거리 기준으로 재정렬하지 않습니다.
+4. 최종 결과를 반환합니다.
 
-- **비슷한 장소** — 지금 보는 곳과 '의미가 비슷한' 이웃을 Qdrant에서 찾습니다.
-- **최근 둘러본 흐름** — 사용자가 최근에 본 장소들의 순서를 참고해 다음에 선호할 만한 것을 고릅니다.
-- **처음 온 사용자** — 아직 아무 정보가 없으므로, '인기 있고 + 가까운' 곳을 Redis에서 빠르게 보여줍니다.
-  (이 문제를 콜드스타트라 합니다 — ADR 0005)
+Elasticsearch와 Qdrant 조회는 WebFlux와 Kotlin Coroutines로 병렬 실행합니다 ([ADR 0006](adr/0006-api-runtime-reactive-vs-blocking.md)). 한 채널이 실패하면 나머지 채널의 결과를 `degraded: true`와 함께 반환합니다.
 
-콘텐츠(장소 정보)는 증분 색인으로, 사용자 행동은 Redis 실시간으로 — 변경 속도가 다른
-데이터는 경로를 나눠 다룹니다.
+### Natural Language Query
 
-## 세션은 쿠키 없이 (TBD)
+`ask-api`는 자연어 질의를 LLM으로 구조화한 뒤 `/v1/hsearch`를 호출합니다. 
+응답에는 LLM이 해석한 결과(`parsed`)와 실제 검색에 적용된 파라미터(`applied`)를 함께 포함해 검색 요청의 근거를 제공합니다.
+(LLM 호출에 실패하면 원문 질의 그대로 검색합니다.)
 
-누가 무엇을 봤는지의 흐름은 필요하지만, **재방문까지 추적하지는 않습니다.**
-브라우저에 임시 UUID 하나만 두고(쿠키 없음), 그 세션 안에서의 행동만 봅니다.
-동의 배너가 필요 없고, 프라이버시 원칙을 구조로 지킵니다. (ADR 0004)
+`answer=true`일 때만 검색 결과를 근거로 답변을 생성합니다. 
+`GroundingValidator`가 생성된 답변을 검사해, 검색 결과에 없는 `place_id`를 근거에서 제거하고 `droppedEvidence`에 기록합니다. 답변 문장 자체는 지우지 않으므로 이 목록이 비어 있지 않다는 것은 생성이 계약을 벗어났다는 신호입니다 ([ADR 0014](adr/0014-ask-api-llm-query-understanding.md), [ADR 0015](adr/0015-ask-api-grounded-answer-generation.md)).
 
-## 왜 여러 조각으로 나눴나 (플랫폼 관점)
+## Recommendation (TBD)
 
-- **검색 인덱스를 용도별로 분리** — 본문 검색용과 자동완성용은 요구가 다르므로 따로 둡니다.
-  지금은 한 ES 노드를 함께 씁니다. 엔진 분리는 TBD (ADR 0002).
-- **엔진을 역할별로 분리** — 키워드는 ES, 의미는 Qdrant, 빠른 것은 Redis(TBD).
-  한 엔진에 전부 넣지 않습니다.
-- **입구를 하나로 통일** — 새 서비스가 검색을 붙이고 싶으면, 엔진들을 몰라도 이 공통 API 하나만
-  부르면 됩니다.
-- **색인기와 검색기를 아예 다른 앱으로** — 아래에 따로 설명합니다.
+추천은 세 가지 시나리오로 구분합니다.
 
-## 왜 색인기와 검색기를 나눴나 (ADR 0011)
+- **Similar Places** — 현재 장소와 임베딩 유사도가 높은 장소를 Qdrant에서 조회합니다.
+- **Session-based Recommendation** — 세션 내 열람 순서를 기반으로 다음 후보를 추천합니다.
+- **Cold Start** — 행동 데이터가 없는 신규 사용자는 Redis의 인기 순위와 거리 정보를 기반으로 추천합니다 ([ADR 0005](adr/0005-cold-start-and-recommend-strategy.md)).
 
-둘은 **성격이 반대**입니다.
+콘텐츠 데이터와 사용자 행동 데이터는 별도로 관리합니다. 장소 정보는 증분 색인으로 관리하고, 사용자 행동은 Redis에서 처리하여 변경 주기가 다른 데이터를 분리합니다.
 
-| | 색인기 | 검색기 |
-|---|---|---|
-| 언제 힘을 쓰나 | 한 번에 집중 (벡터 재색인 8분 32초, 그중 **96.1%가 임베딩 계산** — 2026-07-25 실측) | 항상 조금씩 (하이브리드 중앙값 9.7ms — 2026-08-03 실측) |
-| 무엇이 중요한가 | 다 끝내는 것 | 빨리 답하는 것 |
-| 잠깐 죽으면 | 색인이 밀릴 뿐 | **검색 장애** |
-| 동시에 몇 개 | 한 번에 하나 | 동시 1,000 요청에서 실패 0 · degraded 0 (서울 531,528건, 2026-08-03 실측) |
-| 그래서 쓰는 방식 | **Spring Batch + 블로킹** (ADR 0013) | **리액티브** (ADR 0006) |
+## Cookie-less Session (TBD)
 
-성격이 반대이므로 런타임도 반대입니다 (근거는 ADR 0013, ADR 0006).
+추천을 위해 세션 내 행동은 유지하지만 장기 사용자 식별은 하지 않습니다. 브라우저 `sessionStorage`에 세션 UUID만 두고 해당 세션의 행동만 추천에 사용합니다.
 
-한 프로그램 안에 같이 있으면 색인 쪽 OOM 한 번이 곧 검색 장애가 됩니다.
-검색기 jar 에는 색인 코드가 없습니다.
+식별 방식 · 프라이버시 근거 · 만료 정책은 [ADR 0004](adr/0004-cookieless-session-model.md)에 정리했습니다.
 
-### 나눠서 새로 생긴 위험, 그리고 대비
+## Component Separation
 
-한 프로그램일 때는 색인과 검색이 **같은 임베딩 모델을 쓸 수밖에** 없었습니다. 같은 코드이기 때문입니다.
-따로 배포하면 이것이 어긋날 수 있습니다 — 색인기만 새 모델로 바뀌고 검색기는 이전 것으로 남는 순간입니다.
+- **인덱스 분리** — 본문 검색과 자동완성은 요구사항이 다르므로 별도 인덱스로 관리합니다. 현재는 하나의 Elasticsearch 노드를 공유하며, 클러스터 분리는 TBD입니다 ([ADR 0002](adr/0002-index-and-cluster-separation.md)).
+- **검색 엔진 역할 분리** — 키워드 검색은 Elasticsearch, 의미 기반 검색은 Qdrant가 담당합니다. 하나의 검색 엔진에 두 역할을 모두 맡기지 않습니다.
+- **단일 진입점** — 검색을 사용하는 서비스는 검색 엔진 구성을 알 필요 없이 `search-api`만 호출합니다.
+- **색인기·질의기 분리** — 읽기 경로와 쓰기 경로를 분리합니다. ([Indexer / Searcher Split](#indexer--searcher-split))
 
-이 어긋남은 예외를 던지지 않습니다. 점수는 계산되지만 의미가 없습니다.
+## Indexer / Searcher Split
 
-그래서 **버전 도장**을 찍습니다. 색인기는 색인 완료 시 사용한 모델 이름을 기록하고,
-검색기는 기동 시 그 기록이 자기 모델과 다르면 뜨지 않습니다.
+색인과 검색은 부하 특성이 다르므로 별도 애플리케이션으로 분리합니다.
 
-| 결정 | 근거 |
-|---|---|
-| 계약이 어긋나면 질의기 기동을 막습니다 | 조용히 틀린 점수보다 기동 실패가 복구하기 쉽습니다 |
+| Attribute | `indexer-batch` | `search-api` |
+| --- | --- | --- |
+| 부하 형태 | 배치 집중 — 벡터 재색인 8분 32초, 그중 96.1%가 임베딩 계산 (2026-07-25 실측) | 상시 저지연 — 하이브리드 중앙값 9.7ms (2026-08-03 실측) |
+| 목표 | 완주 | 응답 시간 |
+| 중단 영향 | 색인 지연 | 검색 장애 |
+| 동시성 | 한 번에 하나 | 동시 1,000 요청에서 실패 0 · `degraded` 0 (서울 531,528건, 2026-08-03 실측) |
+| 런타임 | Spring Batch + 블로킹 ([ADR 0013](adr/0013-indexer-runtime-spring-batch.md)) | WebFlux + 코루틴 ([ADR 0006](adr/0006-api-runtime-reactive-vs-blocking.md)) |
 
-## 인프라
+하나의 프로세스에서 두 워크로드를 함께 실행하면 색인 작업의 메모리 부족(OOM)이 검색 장애로 이어질 수 있습니다. 이를 방지하기 위해 `search-api`에는 색인 코드를 포함하지 않고 별도 아티팩트로 배포합니다.
 
-위 엔진들은 Kubernetes 위에 올라갑니다. 새 버전으로 바꿀 때 서비스가 끊기지 않도록,
-**별칭(alias)을 새 인덱스로 바꿔치기하는 방식**으로 무중단 교체를 합니다.
-(로컬 개발은 `docker compose`로 띄웁니다.)
+### Index Contract
+
+단일 프로세스에서는 색인과 질의가 항상 같은 임베딩 모델을 사용했습니다. 하지만 색인기와 질의기를 별도 배포하면 색인기만 새 모델로 교체되고 질의기는 이전 모델을 사용하는 상태가 발생할 수 있습니다. 이 경우 예외는 발생하지 않지만 검색 점수가 조용히 잘못됩니다.
+
+이를 방지하기 위해 색인기는 색인 완료 시 사용한 임베딩 모델 정보를 기록하고, 질의기는 기동 시 해당 정보가 자신의 모델과 일치하는지 검사합니다. 계약이 일치하지 않으면 질의기는 기동하지 않습니다 ([ADR 0011](adr/0011-module-split-and-index-contract.md)).
+
+| Decision | Reason |
+| --- | --- |
+| 계약 불일치 시 질의기 기동 차단 | 잘못된 검색 결과를 제공하는 것보다 기동 실패가 원인을 파악하고 복구하기 쉽습니다. |
+
+## Infrastructure
+
+로컬 개발 환경은 `docker compose`를 사용하고, 배포 환경은 Kubernetes(kind, EKS)를 사용합니다. 인덱스 교체는 alias를 새 인덱스로 전환하는 방식으로 무중단 수행합니다.
+
+## References
+
+- [ADR](adr/) — 아키텍처 및 설계 결정
+- [api-spec.md](api-spec.md) — API 명세
+- [architecture-review.md](architecture-review.md) — 설계 과정에서 확인한 한계와 개선점
+- [data-model.md](data-model.md) — 데이터 모델 및 원천 데이터
+- [glossary.md](glossary.md) — 용어 사전
