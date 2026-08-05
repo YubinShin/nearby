@@ -3,32 +3,32 @@
   "k": 10,
   "means": {
     "precision": 0.856,
-    "recall": 0.7187958883222041,
+    "recall": 0.5387715527543903,
     "mrr": 0.8733333333333333,
-    "ndcg": 0.8917294256582998
+    "ndcg": 0.8599756215448149
   },
   "rows": {
     "회 먹을 데": {
       "returned": 10,
       "found": 7,
       "precision": 0.7,
-      "recall": 1.0,
+      "recall": 0.4375,
       "mrr": 0.3333333333333333,
-      "ndcg": 0.7178669180243569
+      "ndcg": 0.5747915663739762
     },
     "브런치 먹을 곳": {
       "returned": 10,
       "found": 6,
       "precision": 0.6,
-      "recall": 1.0,
+      "recall": 0.6666666666666666,
       "mrr": 1.0,
-      "ndcg": 0.9199753853803092
+      "ndcg": 0.7145882195859141
     },
     "머리 자르는 곳": {
       "returned": 10,
       "found": 10,
       "precision": 1.0,
-      "recall": 1.0,
+      "recall": 0.7142857142857143,
       "mrr": 1.0,
       "ndcg": 1.0
     },
@@ -36,17 +36,17 @@
       "returned": 10,
       "found": 7,
       "precision": 0.7,
-      "recall": 1.0,
+      "recall": 0.5833333333333334,
       "mrr": 1.0,
-      "ndcg": 0.9371072971649781
+      "ndcg": 0.7503359712972107
     },
     "매운 거 먹고 싶다": {
       "returned": 10,
       "found": 6,
       "precision": 0.6,
-      "recall": 1.0,
+      "recall": 0.5,
       "mrr": 1.0,
-      "ndcg": 0.9484399158780439
+      "ndcg": 0.689828656353462
     },
     "차 고치는 곳": {
       "returned": 1,
@@ -68,7 +68,7 @@
       "returned": 10,
       "found": 10,
       "precision": 1.0,
-      "recall": 1.0,
+      "recall": 0.5555555555555556,
       "mrr": 1.0,
       "ndcg": 1.0
     },
@@ -124,7 +124,7 @@
       "returned": 10,
       "found": 10,
       "precision": 1.0,
-      "recall": 1.0,
+      "recall": 0.8333333333333334,
       "mrr": 1.0,
       "ndcg": 1.0
     },
@@ -140,7 +140,7 @@
       "returned": 10,
       "found": 10,
       "precision": 1.0,
-      "recall": 0.47619047619047616,
+      "recall": 0.43478260869565216,
       "mrr": 1.0,
       "ndcg": 1.0
     },
@@ -148,7 +148,7 @@
       "returned": 10,
       "found": 10,
       "precision": 1.0,
-      "recall": 1.0,
+      "recall": 0.5263157894736842,
       "mrr": 1.0,
       "ndcg": 1.0
     },
@@ -156,7 +156,7 @@
       "returned": 10,
       "found": 10,
       "precision": 1.0,
-      "recall": 0.5263157894736842,
+      "recall": 0.45454545454545453,
       "mrr": 1.0,
       "ndcg": 1.0
     },
@@ -164,7 +164,7 @@
       "returned": 10,
       "found": 10,
       "precision": 1.0,
-      "recall": 1.0,
+      "recall": 0.8333333333333334,
       "mrr": 1.0,
       "ndcg": 1.0
     },
@@ -172,7 +172,7 @@
       "returned": 10,
       "found": 10,
       "precision": 1.0,
-      "recall": 0.625,
+      "recall": 0.38461538461538464,
       "mrr": 1.0,
       "ndcg": 1.0
     },
@@ -180,7 +180,7 @@
       "returned": 10,
       "found": 10,
       "precision": 1.0,
-      "recall": 0.9090909090909091,
+      "recall": 0.5,
       "mrr": 1.0,
       "ndcg": 1.0
     },
@@ -196,7 +196,7 @@
       "returned": 10,
       "found": 10,
       "precision": 1.0,
-      "recall": 1.0,
+      "recall": 0.6666666666666666,
       "mrr": 1.0,
       "ndcg": 1.0
     },
@@ -204,7 +204,7 @@
       "returned": 10,
       "found": 10,
       "precision": 1.0,
-      "recall": 0.7692307692307693,
+      "recall": 0.7142857142857143,
       "mrr": 1.0,
       "ndcg": 1.0
     }

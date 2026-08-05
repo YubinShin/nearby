@@ -48,6 +48,16 @@ def fetch_channel(base, path, query, size):
     return [h["placeId"] for h in body.get("hits", [])], None
 
 
+def fetch_ask(base, query, size):
+    url = f"{base}/v1/ask?" + urllib.parse.urlencode({"q": query, "size": size})
+    try:
+        with urllib.request.urlopen(url, timeout=60) as resp:
+            body = json.load(resp)
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as e:
+        return None, str(e)
+    return [h["placeId"] for h in body.get("search", {}).get("hits", [])], None
+
+
 def load_seeds(path):
     if not path.exists():
         return {}
@@ -121,6 +131,8 @@ def main():
     ap.add_argument("--es", default="http://localhost:9200")
     ap.add_argument("--size", type=int, default=10)
     ap.add_argument("--seed-size", type=int, default=10)
+    ap.add_argument("--ask-base", default="http://localhost:8082")
+    ap.add_argument("--no-ask", action="store_true")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
@@ -131,8 +143,8 @@ def main():
         print(f"기존 판정 {len([v for v in kept.values() if v != 'TODO'])}건을 유지합니다\n")
 
     entries, provenance, failures = [], {}, []
-    print(f"{'질의':<18} {'키워드':>6} {'벡터':>6} {'하이브리드':>10} {'주입':>5} {'합집합':>7} {'신규':>6}")
-    print("-" * 66)
+    print(f"{'질의':<18} {'키워드':>6} {'벡터':>6} {'하이브리드':>10} {'ask':>5} {'주입':>5} {'합집합':>7} {'신규':>6}")
+    print("-" * 72)
 
     for query in queries:
         found, per_channel = {}, {}
@@ -145,6 +157,16 @@ def main():
             per_channel[name] = len(ids)
             for pid in ids:
                 found.setdefault(pid, []).append(name)
+
+        if not args.no_ask:
+            ids, error = fetch_ask(args.ask_base, query, args.size)
+            if error is not None:
+                failures.append((query, "ask", error))
+                per_channel["ask"] = None
+            else:
+                per_channel["ask"] = len(ids)
+                for pid in ids:
+                    found.setdefault(pid, []).append("ask")
 
         seeded = 0
         for spec in seeds.get(query, []):
@@ -175,12 +197,13 @@ def main():
 
         print(
             f"{query:<18} {cell(per_channel['keyword']):>6} {cell(per_channel['vector']):>6} "
-            f"{cell(per_channel['hybrid']):>10} {seeded:>5} {len(candidates):>7} {new:>6}"
+            f"{cell(per_channel['hybrid']):>10} {cell(per_channel.get('ask')):>5} "
+            f"{seeded:>5} {len(candidates):>7} {new:>6}"
         )
 
     total = sum(len(e["candidates"]) for e in entries)
     todo = sum(1 for e in entries for c in e["candidates"] if c["verdict"] == "TODO")
-    print("-" * 66)
+    print("-" * 72)
     print(f"후보 {total}건 · 판정 대기 {todo}건 · 예상 소요 {todo * 10 // 60}분 (건당 10초 기준)")
 
     for query, where, error in failures:

@@ -86,6 +86,23 @@ def rank_es(es_url, query, fields, k):
     return []
 
 
+def rank_ask(base, query, k, notes):
+    url = f"{base}/v1/ask?" + urllib.parse.urlencode({"q": query, "size": k})
+    try:
+        with urllib.request.urlopen(url, timeout=60) as resp:
+            body = json.load(resp)
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as e:
+        print(f"  실패 · {query} · {e}", file=sys.stderr)
+        return []
+    notes[query] = {
+        "vendor": body.get("llmVendor"),
+        "applied_q": body.get("applied", {}).get("q"),
+        "degraded_by": body.get("degradedBy", []),
+        "unsupported": body.get("applied", {}).get("unsupported", []),
+    }
+    return [h["placeId"] for h in body.get("search", {}).get("hits", [])]
+
+
 def rank_api(base, channel, query, k):
     url = f"{base}/v1/{channel}?" + urllib.parse.urlencode({"q": query, "size": k})
     try:
@@ -134,6 +151,8 @@ def main():
     ap.add_argument("--base", default="http://localhost:8080")
     ap.add_argument("--es", default="http://localhost:9200")
     ap.add_argument("--channel", choices=["search", "vsearch", "hsearch"])
+    ap.add_argument("--ask", action="store_true", help="ask-api 가 만든 합성 질의로 채점")
+    ap.add_argument("--ask-base", default="http://localhost:8082")
     ap.add_argument("--fields", help='"default" 또는 "name^5,brand_text^5,..."')
     ap.add_argument("-k", type=int, default=10)
     ap.add_argument("--label")
@@ -147,7 +166,11 @@ def main():
     if args.verify:
         sys.exit(0 if verify(args.es, args.base, golden, args.k) else 1)
 
-    if args.fields:
+    notes = {}
+    if args.ask:
+        runner = lambda q: rank_ask(args.ask_base, q, args.k, notes)
+        label = args.label or "ask"
+    elif args.fields:
         fields = DEFAULT_FIELDS if args.fields == "default" else args.fields.split(",")
         runner = lambda q: rank_es(args.es, q, fields, args.k)
         label = args.label or ("es:" + ("default" if args.fields == "default" else args.fields))
@@ -200,12 +223,17 @@ def main():
             for delta, q in moved:
                 print(f"    {delta:+.3f}  {q}")
 
+    if notes:
+        vendors = sorted({n["vendor"] for n in notes.values() if n["vendor"]})
+        degraded = [q for q, n in notes.items() if n["degraded_by"]]
+        print(f"\n  llmVendor {', '.join(vendors)}"
+              + (f" · degraded {len(degraded)}질의" if degraded else ""))
+
     if args.save:
-        args.save.write_text(
-            json.dumps({"label": label, "k": args.k, "means": means, "rows": rows},
-                       ensure_ascii=False, indent=2),
-            encoding="utf-8",
-        )
+        record = {"label": label, "k": args.k, "means": means, "rows": rows}
+        if notes:
+            record["ask"] = notes
+        args.save.write_text(json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"\n{args.save} 저장")
 
 

@@ -42,3 +42,15 @@ psp:
 
     fixtures:
       location: classpath:fixtures/
+
+---
+spring:
+  config:
+    activate:
+      on-profile: fixture
+
+psp:
+  ask:
+    llm: fixture
+    fixtures:
+      location: file:src/test/resources/fixtures/

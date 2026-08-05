@@ -1,0 +1,372 @@
+{
+  "label": "ask (fixture)",
+  "k": 10,
+  "means": {
+    "precision": 0.912,
+    "recall": 0.538892934640478,
+    "mrr": 0.96,
+    "ndcg": 0.8888975973729386
+  },
+  "rows": {
+    "회 먹을 데": {
+      "returned": 10,
+      "found": 9,
+      "precision": 0.9,
+      "recall": 0.5625,
+      "mrr": 1.0,
+      "ndcg": 0.9266360779006398
+    },
+    "브런치 먹을 곳": {
+      "returned": 10,
+      "found": 6,
+      "precision": 0.6,
+      "recall": 0.6666666666666666,
+      "mrr": 1.0,
+      "ndcg": 0.6868169791563725
+    },
+    "머리 자르는 곳": {
+      "returned": 10,
+      "found": 9,
+      "precision": 0.9,
+      "recall": 0.6428571428571429,
+      "mrr": 1.0,
+      "ndcg": 0.914856882358379
+    },
+    "혼밥하기 좋은 집": {
+      "returned": 10,
+      "found": 9,
+      "precision": 0.9,
+      "recall": 0.75,
+      "mrr": 1.0,
+      "ndcg": 0.914856882358379
+    },
+    "매운 거 먹고 싶다": {
+      "returned": 10,
+      "found": 8,
+      "precision": 0.8,
+      "recall": 0.6666666666666666,
+      "mrr": 1.0,
+      "ndcg": 0.8486026589039899
+    },
+    "차 고치는 곳": {
+      "returned": 10,
+      "found": 7,
+      "precision": 0.7,
+      "recall": 0.4117647058823529,
+      "mrr": 1.0,
+      "ndcg": 0.6777277508780453
+    },
+    "조용히 공부할 곳": {
+      "returned": 10,
+      "found": 10,
+      "precision": 1.0,
+      "recall": 0.5555555555555556,
+      "mrr": 1.0,
+      "ndcg": 1.0
+    },
+    "고기 구워 먹는 데": {
+      "returned": 10,
+      "found": 10,
+      "precision": 1.0,
+      "recall": 0.5555555555555556,
+      "mrr": 1.0,
+      "ndcg": 1.0
+    },
+    "카페": {
+      "returned": 10,
+      "found": 10,
+      "precision": 1.0,
+      "recall": 0.4,
+      "mrr": 1.0,
+      "ndcg": 1.0
+    },
+    "편의점": {
+      "returned": 10,
+      "found": 10,
+      "precision": 1.0,
+      "recall": 0.47619047619047616,
+      "mrr": 1.0,
+      "ndcg": 1.0
+    },
+    "세탁소": {
+      "returned": 10,
+      "found": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "mrr": 0.0,
+      "ndcg": 0.0
+    },
+    "약국": {
+      "returned": 10,
+      "found": 10,
+      "precision": 1.0,
+      "recall": 0.35714285714285715,
+      "mrr": 1.0,
+      "ndcg": 1.0
+    },
+    "미용실": {
+      "returned": 10,
+      "found": 10,
+      "precision": 1.0,
+      "recall": 0.45454545454545453,
+      "mrr": 1.0,
+      "ndcg": 1.0
+    },
+    "치킨": {
+      "returned": 10,
+      "found": 10,
+      "precision": 1.0,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0
+    },
+    "삼겹살": {
+      "returned": 10,
+      "found": 10,
+      "precision": 1.0,
+      "recall": 0.8333333333333334,
+      "mrr": 1.0,
+      "ndcg": 1.0
+    },
+    "노래방": {
+      "returned": 10,
+      "found": 10,
+      "precision": 1.0,
+      "recall": 0.5,
+      "mrr": 1.0,
+      "ndcg": 1.0
+    },
+    "스타벅스": {
+      "returned": 10,
+      "found": 10,
+      "precision": 1.0,
+      "recall": 0.43478260869565216,
+      "mrr": 1.0,
+      "ndcg": 1.0
+    },
+    "CU": {
+      "returned": 10,
+      "found": 10,
+      "precision": 1.0,
+      "recall": 0.5263157894736842,
+      "mrr": 1.0,
+      "ndcg": 1.0
+    },
+    "파리바게뜨": {
+      "returned": 10,
+      "found": 10,
+      "precision": 1.0,
+      "recall": 0.45454545454545453,
+      "mrr": 1.0,
+      "ndcg": 1.0
+    },
+    "이디야": {
+      "returned": 10,
+      "found": 10,
+      "precision": 1.0,
+      "recall": 0.8333333333333334,
+      "mrr": 1.0,
+      "ndcg": 1.0
+    },
+    "평점 4.5 이상 카페": {
+      "returned": 10,
+      "found": 10,
+      "precision": 1.0,
+      "recall": 0.38461538461538464,
+      "mrr": 1.0,
+      "ndcg": 1.0
+    },
+    "지금 문 연 약국": {
+      "returned": 10,
+      "found": 10,
+      "precision": 1.0,
+      "recall": 0.5,
+      "mrr": 1.0,
+      "ndcg": 1.0
+    },
+    "배달 되는 치킨집": {
+      "returned": 1,
+      "found": 1,
+      "precision": 1.0,
+      "recall": 0.125,
+      "mrr": 1.0,
+      "ndcg": 0.2529427027676571
+    },
+    "1만원 이하 파스타": {
+      "returned": 10,
+      "found": 10,
+      "precision": 1.0,
+      "recall": 0.6666666666666666,
+      "mrr": 1.0,
+      "ndcg": 1.0
+    },
+    "제주도 흑돼지 맛집": {
+      "returned": 10,
+      "found": 10,
+      "precision": 1.0,
+      "recall": 0.7142857142857143,
+      "mrr": 1.0,
+      "ndcg": 1.0
+    }
+  },
+  "ask": {
+    "회 먹을 데": {
+      "vendor": "fixture",
+      "applied_q": "회 횟집",
+      "degraded_by": [],
+      "unsupported": []
+    },
+    "브런치 먹을 곳": {
+      "vendor": "fixture",
+      "applied_q": "브런치 브런치카페",
+      "degraded_by": [],
+      "unsupported": []
+    },
+    "머리 자르는 곳": {
+      "vendor": "fixture",
+      "applied_q": "머리 자르는 곳 미용실",
+      "degraded_by": [],
+      "unsupported": []
+    },
+    "혼밥하기 좋은 집": {
+      "vendor": "fixture",
+      "applied_q": "혼밥하기 좋은 집 음식점",
+      "degraded_by": [],
+      "unsupported": []
+    },
+    "매운 거 먹고 싶다": {
+      "vendor": "fixture",
+      "applied_q": "매운 거 음식점",
+      "degraded_by": [],
+      "unsupported": []
+    },
+    "차 고치는 곳": {
+      "vendor": "fixture",
+      "applied_q": "차 고치는 곳 자동차 정비",
+      "degraded_by": [],
+      "unsupported": []
+    },
+    "조용히 공부할 곳": {
+      "vendor": "fixture",
+      "applied_q": "조용히 공부할 곳 스터디카페",
+      "degraded_by": [],
+      "unsupported": []
+    },
+    "고기 구워 먹는 데": {
+      "vendor": "fixture",
+      "applied_q": "고기 구워 먹는 데 고깃집",
+      "degraded_by": [],
+      "unsupported": []
+    },
+    "카페": {
+      "vendor": "fixture",
+      "applied_q": "카페",
+      "degraded_by": [],
+      "unsupported": []
+    },
+    "편의점": {
+      "vendor": "fixture",
+      "applied_q": "편의점",
+      "degraded_by": [],
+      "unsupported": []
+    },
+    "세탁소": {
+      "vendor": "fixture",
+      "applied_q": "세타포",
+      "degraded_by": [],
+      "unsupported": []
+    },
+    "약국": {
+      "vendor": "fixture",
+      "applied_q": "약국",
+      "degraded_by": [],
+      "unsupported": []
+    },
+    "미용실": {
+      "vendor": "fixture",
+      "applied_q": "미용실",
+      "degraded_by": [],
+      "unsupported": []
+    },
+    "치킨": {
+      "vendor": "fixture",
+      "applied_q": "치킨",
+      "degraded_by": [],
+      "unsupported": []
+    },
+    "삼겹살": {
+      "vendor": "fixture",
+      "applied_q": "삼겹살 고깃집",
+      "degraded_by": [],
+      "unsupported": []
+    },
+    "노래방": {
+      "vendor": "fixture",
+      "applied_q": "노래방",
+      "degraded_by": [],
+      "unsupported": []
+    },
+    "스타벅스": {
+      "vendor": "fixture",
+      "applied_q": "스타벅스 카페",
+      "degraded_by": [],
+      "unsupported": []
+    },
+    "CU": {
+      "vendor": "fixture",
+      "applied_q": "CU 편의점",
+      "degraded_by": [],
+      "unsupported": []
+    },
+    "파리바게뜨": {
+      "vendor": "fixture",
+      "applied_q": "파리바게뜨 제과점",
+      "degraded_by": [],
+      "unsupported": []
+    },
+    "이디야": {
+      "vendor": "fixture",
+      "applied_q": "이디야 카페",
+      "degraded_by": [],
+      "unsupported": []
+    },
+    "평점 4.5 이상 카페": {
+      "vendor": "fixture",
+      "applied_q": "카페",
+      "degraded_by": [],
+      "unsupported": [
+        "평점"
+      ]
+    },
+    "지금 문 연 약국": {
+      "vendor": "fixture",
+      "applied_q": "약국",
+      "degraded_by": [],
+      "unsupported": [
+        "영업시간"
+      ]
+    },
+    "배달 되는 치킨집": {
+      "vendor": "fixture",
+      "applied_q": "치킨집",
+      "degraded_by": [],
+      "unsupported": [
+        "배달"
+      ]
+    },
+    "1만원 이하 파스타": {
+      "vendor": "fixture",
+      "applied_q": "파스타 이탈리아음식",
+      "degraded_by": [],
+      "unsupported": [
+        "가격"
+      ]
+    },
+    "제주도 흑돼지 맛집": {
+      "vendor": "fixture",
+      "applied_q": "제주도 흑돼지 맛집 돼지고기구이",
+      "degraded_by": [],
+      "unsupported": []
+    }
+  }
+}
