@@ -1,0 +1,8 @@
+seeds:
+  차 고치는 곳:
+    - field: category_small
+      value: 자동차 정비소
+
+  조용히 공부할 곳:
+    - field: category_small
+      value: 독서실/스터디 카페

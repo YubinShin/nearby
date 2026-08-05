@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>골든셋 판정기</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #16181d; --muted: #6b7280; --line: #e5e7eb;
+    --row: #f9fafb; --focus: #dbeafe; --yes: #16a34a; --no: #dc2626; --unsure: #d97706;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a; --fg: #e7e9ee; --muted: #9aa1ad; --line: #2a2e37;
+      --row: #1a1d23; --focus: #1e3a5f; --yes: #22c55e; --no: #ef4444; --unsure: #f59e0b;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
+  }
+  header {
+    position: sticky; top: 0; background: var(--bg);
+    border-bottom: 1px solid var(--line); padding: 12px 20px; z-index: 2;
+  }
+  .bar { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .query { font-size: 20px; font-weight: 600; }
+  .meta { color: var(--muted); font-size: 13px; }
+  .progress { height: 4px; background: var(--line); border-radius: 2px; margin-top: 10px; }
+  .progress > div { height: 100%; background: var(--yes); border-radius: 2px; transition: width .15s; }
+  main { padding: 12px 20px 80px; max-width: 900px; }
+  .row {
+    display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+    border: 1px solid transparent; border-radius: 8px; background: var(--row); margin-bottom: 6px;
+  }
+  .row.focused { border-color: var(--muted); background: var(--focus); }
+  .info { flex: 1; min-width: 0; }
+  .sub { color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+  .copy {
+    font-family: ui-monospace, SFMono-Regular, monospace; font-size: 13px;
+    user-select: all; cursor: copy; overflow-wrap: anywhere; padding: 2px 0;
+  }
+  .copy.done::after { content: " 복사됨"; color: var(--yes); font-family: inherit; }
+  .map { font-size: 12px; color: var(--muted); text-decoration: none; border-bottom: 1px solid var(--line); }
+  .copy {
+    font-family: ui-monospace, SFMono-Regular, monospace; font-size: 13px;
+    user-select: all; cursor: copy; overflow-wrap: anywhere; padding: 2px 0;
+  }
+  .copy.done::after { content: " 복사됨"; color: var(--yes); font-family: inherit; }
+  .map { font-size: 12px; color: var(--muted); text-decoration: none; border-bottom: 1px solid var(--line); }
+  .verdict { display: flex; gap: 6px; }
+  button {
+    font: inherit; padding: 5px 10px; border-radius: 6px; cursor: pointer;
+    border: 1px solid var(--line); background: transparent; color: var(--fg);
+  }
+  button.on[data-v="yes"] { background: var(--yes); border-color: var(--yes); color: #fff; }
+  button.on[data-v="no"] { background: var(--no); border-color: var(--no); color: #fff; }
+  button.on[data-v="unsure"] { background: var(--unsure); border-color: var(--unsure); color: #fff; }
+  footer {
+    position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg);
+    border-top: 1px solid var(--line); padding: 10px 20px;
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  }
+  kbd {
+    border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px;
+    padding: 1px 5px; font-size: 12px; font-family: ui-monospace, monospace;
+  }
+  #start { padding: 40px 20px; max-width: 900px; }
+  .hint { color: var(--muted); }
+</style>
+</head>
+<body>
+
+<div id="start">
+  <h1>골든셋 판정기</h1>
+  <p><code>scripts/eval_pool.json</code> 을 선택하면 시작합니다.</p>
+  <p><input type="file" id="file" accept=".json"></p>
+  <p class="hint">판정은 브라우저에 자동 저장됩니다. 끝나면 <b>내보내기</b> 로 받은 파일을
+    <code>python3 scripts/apply_verdicts.py verdicts.json</code> 으로 반영합니다.</p>
+</div>
+
+<header hidden id="head">
+  <div class="bar">
+    <span class="query" id="q"></span>
+    <span class="meta" id="qmeta"></span>
+  </div>
+  <div class="progress"><div id="bar"></div></div>
+</header>
+
+<main hidden id="main"></main>
+
+<footer hidden id="foot">
+  <button id="prev">← 이전 질의</button>
+  <button id="next">다음 질의 →</button>
+  <span class="meta" id="total"></span>
+  <span style="flex:1"></span>
+  <span class="meta">
+    <kbd>y</kbd> 정답 <kbd>n</kbd> 아님 <kbd>u</kbd> 애매 <kbd>j</kbd>/<kbd>k</kbd> 이동
+  </span>
+  <button id="export">내보내기</button>
+</footer>
+
+<script>
+const KEY = "nearby-golden-verdicts";
+let pool = null, qi = 0, ci = 0;
+let verdicts = JSON.parse(localStorage.getItem(KEY) || "{}");
+
+const el = id => document.getElementById(id);
+
+el("file").addEventListener("change", async e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  pool = JSON.parse(await f.text());
+  pool.queries.forEach(entry => {
+    entry.candidates.forEach(c => {
+      if (c.verdict && c.verdict !== "TODO" && !(verdicts[entry.query] || {})[c.place_id]) {
+        set(entry.query, c.place_id, c.verdict, false);
+      }
+    });
+  });
+  el("start").hidden = true;
+  ["head", "main", "foot"].forEach(i => el(i).hidden = false);
+  qi = pool.queries.findIndex(entry =>
+    entry.candidates.some(c => !(verdicts[entry.query] || {})[c.place_id]));
+  if (qi < 0) qi = 0;
+  render();
+});
+
+function set(query, placeId, value, save = true) {
+  verdicts[query] = verdicts[query] || {};
+  if (verdicts[query][placeId] === value) delete verdicts[query][placeId];
+  else verdicts[query][placeId] = value;
+  if (save) localStorage.setItem(KEY, JSON.stringify(verdicts));
+}
+
+function writeClipboard(text) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).catch(() => legacyCopy(text));
+    return;
+  }
+  legacyCopy(text);
+}
+
+function legacyCopy(text) {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.position = "fixed";
+  ta.style.opacity = "0";
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand("copy");
+  ta.remove();
+}
+
+function counts() {
+  let done = 0, all = 0;
+  pool.queries.forEach(entry => {
+    entry.candidates.forEach(c => {
+      all++;
+      if ((verdicts[entry.query] || {})[c.place_id]) done++;
+    });
+  });
+  return { done, all };
+}
+
+function render() {
+  const entry = pool.queries[qi];
+  const mine = verdicts[entry.query] || {};
+  const judged = entry.candidates.filter(c => mine[c.place_id]).length;
+  const yes = entry.candidates.filter(c => mine[c.place_id] === "yes").length;
+
+  el("q").textContent = entry.query;
+  el("qmeta").textContent =
+    `질의 ${qi + 1}/${pool.queries.length} · 후보 ${entry.candidates.length}건 · ` +
+    `판정 ${judged} · 정답 ${yes}`;
+
+  const { done, all } = counts();
+  el("bar").style.width = (all ? (done / all) * 100 : 0) + "%";
+  el("total").textContent = `전체 ${done}/${all}`;
+
+  el("main").innerHTML = "";
+  entry.candidates.forEach((c, i) => {
+    const row = document.createElement("div");
+    row.className = "row" + (i === ci ? " focused" : "");
+    row.innerHTML =
+      `<div class="info"><div class="copy"></div><div class="sub"></div></div>` +
+      `<div class="verdict"></div>`;
+
+    const line = [c.brand, c.name, c.branch, c.address].filter(Boolean).join(" ");
+    const copy = row.querySelector(".copy");
+    copy.textContent = line;
+    copy.addEventListener("click", () => {
+      writeClipboard(line);
+      copy.classList.add("done");
+      setTimeout(() => copy.classList.remove("done"), 900);
+    });
+
+    const sub = row.querySelector(".sub");
+    sub.textContent = [c.category, c.dong].filter(Boolean).join(" · ") + " · ";
+    const map = document.createElement("a");
+    map.className = "map";
+    map.target = "_blank";
+    map.rel = "noreferrer";
+    map.href = "https://map.naver.com/p/search/" + encodeURIComponent(line);
+    map.textContent = "네이버 지도";
+    sub.appendChild(map);
+    const box = row.querySelector(".verdict");
+    [["yes", "정답"], ["no", "아님"], ["unsure", "애매"]].forEach(([v, label]) => {
+      const b = document.createElement("button");
+      b.dataset.v = v;
+      b.textContent = label;
+      if (mine[c.place_id] === v) b.classList.add("on");
+      b.addEventListener("click", () => { ci = i; set(entry.query, c.place_id, v); render(); });
+      box.appendChild(b);
+    });
+    el("main").appendChild(row);
+  });
+
+  const focused = el("main").children[ci];
+  if (focused) focused.scrollIntoView({ block: "nearest" });
+}
+
+function move(step) {
+  const n = pool.queries[qi].candidates.length;
+  ci = Math.min(Math.max(ci + step, 0), n - 1);
+  render();
+}
+
+function gotoQuery(step) {
+  qi = Math.min(Math.max(qi + step, 0), pool.queries.length - 1);
+  ci = 0;
+  render();
+}
+
+document.addEventListener("keydown", e => {
+  if (!pool || e.metaKey || e.ctrlKey) return;
+  const entry = pool.queries[qi];
+  const c = entry.candidates[ci];
+  const key = e.key.toLowerCase();
+  if (key === "y" || key === "n" || key === "u") {
+    set(entry.query, c.place_id, { y: "yes", n: "no", u: "unsure" }[key]);
+    if (ci < entry.candidates.length - 1) ci++;
+    render();
+  } else if (key === "j" || e.key === "ArrowDown") { e.preventDefault(); move(1); }
+  else if (key === "k" || e.key === "ArrowUp") { e.preventDefault(); move(-1); }
+  else if (e.key === "ArrowRight") gotoQuery(1);
+  else if (e.key === "ArrowLeft") gotoQuery(-1);
+});
+
+el("prev").addEventListener("click", () => gotoQuery(-1));
+el("next").addEventListener("click", () => gotoQuery(1));
+
+el("export").addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify(verdicts, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "verdicts.json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+</script>
+</body>
+</html>
