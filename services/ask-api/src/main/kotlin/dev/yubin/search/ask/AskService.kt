@@ -54,6 +54,7 @@ class AskService(
 			applied = plan,
 			degraded = degradedBy.isNotEmpty(),
 			degradedBy = degradedBy,
+			llmVendor = llm.vendor,
 			llmTookMs = llmTookMs,
 			searchTookMs = searchTookMs,
 			tookMs = elapsedMs(startedAt),

@@ -150,6 +150,12 @@ class AskMappingTest @Autowired constructor(
 		assertEquals("", platform.lastPlan?.q)
 	}
 
+	@Test
+	fun `the response names the client that answered so replayed latency is not read as a live call`() = runTest {
+		assertEquals("fixture", ask.ask("카페").llmVendor)
+		assertEquals("fixture", ask.ask("   ").llmVendor)
+	}
+
 	@TestConfiguration
 	class StubSearchPlatformConfig {
 		@Bean

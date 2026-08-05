@@ -57,6 +57,7 @@ API 키가 없으면 애플리케이션이 시작되지 않습니다.
   },
   "degraded": false,
   "degradedBy": [],                 // "llm" | "search"
+  "llmVendor": "gemini",            // "gemini" | "fixture". fixture 면 llmTookMs 는 녹화 재생이다
   "llmTookMs": 0, "searchTookMs": 0, "tookMs": 0,   // 구간별 소요. LLM 왕복이 2~3초로 대부분 (ADR 0014)
   "search": { /* /v1/hsearch 응답 원문 */ }
 }

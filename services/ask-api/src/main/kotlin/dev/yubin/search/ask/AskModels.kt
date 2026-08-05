@@ -26,6 +26,7 @@ data class AskResponse(
 	val applied: SearchRequestPlan,
 	val degraded: Boolean,
 	val degradedBy: List<String>,
+	val llmVendor: String,
 	val llmTookMs: Long,
 	val searchTookMs: Long,
 	val tookMs: Long,
