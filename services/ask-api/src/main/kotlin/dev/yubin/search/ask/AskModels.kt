@@ -32,6 +32,7 @@ data class Answer(
 	val droppedEvidence: List<String> = emptyList(),
 	val driftingEvidence: List<String> = emptyList(),
 	val leakedTerms: List<String> = emptyList(),
+	val unrenderableRecords: Int = 0,
 )
 
 data class AskResponse(

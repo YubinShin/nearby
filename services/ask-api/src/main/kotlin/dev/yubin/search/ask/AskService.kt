@@ -49,7 +49,7 @@ class AskService(
 		val searchTookMs = elapsedMs(searchStartedAt)
 
 		val answerStartedAt = System.nanoTime()
-		val generated = if (answer && raw.isNotBlank()) answers.answer(raw, result.body) else null
+		val generated = if (answer && raw.isNotBlank()) answers.answer(raw, result) else null
 		val answerTookMs = if (answer && raw.isNotBlank()) elapsedMs(answerStartedAt) else 0
 
 		val degradedBy = buildList {

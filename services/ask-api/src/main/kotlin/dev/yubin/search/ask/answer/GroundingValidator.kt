@@ -2,11 +2,12 @@ package dev.yubin.search.ask.answer
 
 import dev.yubin.search.ask.Answer
 import dev.yubin.search.ask.corpus.ForbiddenAnswerTerms
+import dev.yubin.search.ask.search.PlaceRecord
 import org.springframework.stereotype.Component
 
 @Component
 class GroundingValidator(private val forbidden: ForbiddenAnswerTerms) {
-	fun validate(answer: Answer, records: List<AnswerRecord>): Answer {
+	fun validate(answer: Answer, records: List<PlaceRecord>): Answer {
 		val names = records.associate { it.placeId to it.name }
 		val dropped = sortedSetOf<String>()
 		val drifting = sortedSetOf<String>()

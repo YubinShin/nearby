@@ -4,10 +4,10 @@ import dev.yubin.search.ask.Answer
 import dev.yubin.search.ask.llm.LlmClient
 import dev.yubin.search.ask.llm.LlmFailures
 import dev.yubin.search.ask.observability.AskMetrics
+import dev.yubin.search.ask.search.SearchResult
 import kotlinx.coroutines.CancellationException
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import tools.jackson.databind.JsonNode
 
 @Service
 class AnswerService(
@@ -16,10 +16,9 @@ class AnswerService(
 	private val validator: GroundingValidator,
 	private val metrics: AskMetrics,
 ) {
-	suspend fun answer(question: String, search: JsonNode): Answer? = try {
-		val records = context.records(search)
-		val generated = metrics.record(ANSWER) { llm.answer(question, context.render(records)) }
-		validator.validate(generated, records)
+	suspend fun answer(question: String, result: SearchResult): Answer? = try {
+		val generated = metrics.record(ANSWER) { llm.answer(question, context.render(result.records)) }
+		validator.validate(generated, result.records).copy(unrenderableRecords = result.unrenderable)
 	} catch (e: CancellationException) {
 		throw e
 	} catch (e: Exception) {

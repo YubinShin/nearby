@@ -3,6 +3,7 @@ package dev.yubin.search.ask.search
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import dev.yubin.search.ask.SearchRequestPlan
 import jakarta.annotation.PreDestroy
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.stereotype.Component
@@ -14,7 +15,13 @@ import tools.jackson.databind.JsonNode
 import tools.jackson.databind.ObjectMapper
 import java.time.Duration
 
-data class SearchResult(val body: JsonNode, val degraded: Boolean, val total: Long)
+data class SearchResult(
+	val body: JsonNode,
+	val degraded: Boolean,
+	val total: Long,
+	val records: List<PlaceRecord> = emptyList(),
+	val unrenderable: Int = 0,
+)
 
 interface SearchPlatform {
 	suspend fun hsearch(plan: SearchRequestPlan): SearchResult
@@ -63,7 +70,16 @@ class SearchApiClient(
 			.awaitBody<JsonNode>()
 
 		val meta = mapper.treeToValue(body, HsearchMeta::class.java)
-		return SearchResult(body, meta.degraded, meta.total)
+		val decoded = HsearchContract.decode(body, mapper)
+		if (decoded.unrenderable > 0) {
+			log.warn(
+				"{} of {} hits carry no {} — the answer stage cannot cite them",
+				decoded.unrenderable,
+				decoded.unrenderable + decoded.records.size,
+				HsearchContract.REQUIRED.joinToString(" or "),
+			)
+		}
+		return SearchResult(body, meta.degraded, meta.total, decoded.records, decoded.unrenderable)
 	}
 
 	private companion object {
@@ -73,6 +89,8 @@ class SearchApiClient(
 
 		val ACQUIRE_TIMEOUT: Duration = Duration.ofSeconds(5)
 		val DISPOSE_TIMEOUT: Duration = Duration.ofSeconds(5)
+
+		val log = LoggerFactory.getLogger(SearchApiClient::class.java)
 	}
 }
 

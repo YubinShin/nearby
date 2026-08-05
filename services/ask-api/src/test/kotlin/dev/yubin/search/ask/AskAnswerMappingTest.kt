@@ -1,5 +1,6 @@
 package dev.yubin.search.ask
 
+import dev.yubin.search.ask.search.HsearchContract
 import dev.yubin.search.ask.search.SearchPlatform
 import dev.yubin.search.ask.search.SearchResult
 import kotlinx.coroutines.test.runTest
@@ -79,6 +80,16 @@ class AskAnswerMappingTest @Autowired constructor(
 	}
 
 	@Test
+	fun `a hit the contract cannot render is counted without disturbing the context`() = runTest {
+		platform.hits = "$SASHIMI,$UNRENDERABLE"
+
+		val answer = assertNotNull(ask.ask("회 먹을 데 있어?", answer = true).answer)
+
+		assertEquals(1, answer.unrenderableRecords)
+		assertTrue(answer.found)
+	}
+
+	@Test
 	fun `a brand the model knows is answered from the records only`() = runTest {
 		platform.hits = STARBUCKS
 
@@ -133,6 +144,8 @@ class AskAnswerMappingTest @Autowired constructor(
 			{"placeId":"MA0106202201A2363716","name":"스타벅스 압구정R","category":"카페","dong":"압구정동","address":"언주로 861"}"""
 
 		const val GARBAGE = """{"placeId":"FAKE0001","name":"한길회계사무소","category":"회계서비스","dong":"역삼동","address":"테헤란로 123"}"""
+
+		const val UNRENDERABLE = """{"placeId":"MA9","category":"카페","dong":"역삼동","address":"테헤란로 1"}"""
 	}
 }
 
@@ -141,6 +154,7 @@ class HitsSearchPlatform(private val mapper: ObjectMapper) : SearchPlatform {
 
 	override suspend fun hsearch(plan: SearchRequestPlan): SearchResult {
 		val body: JsonNode = mapper.readTree("""{"total":0,"degraded":false,"channels":[],"hits":[$hits]}""")
-		return SearchResult(body, degraded = false, total = 0)
+		val decoded = HsearchContract.decode(body, mapper)
+		return SearchResult(body, degraded = false, total = 0, records = decoded.records, unrenderable = decoded.unrenderable)
 	}
 }
