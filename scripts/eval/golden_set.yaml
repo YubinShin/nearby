@@ -8,11 +8,12 @@
 #
 # `scripts/record_llm_fixtures.py` 가 이 파일의 query 를 읽어 LLM 응답을 녹화합니다.
 #
-# 라벨은 **비어 있습니다.** 채우는 방법은 services/ask-api/README.md 의 "골든셋 라벨링".
-#   expected_places  — 이 질의에 나와야 하는 place_id 목록 (TODO_HUMAN_LABEL)
-#   expect_empty     — 결과가 0건이어야 맞는 질의인지 (TODO_HUMAN_LABEL)
+# 라벨은 2026-08-05 에 채웠습니다. 정답 339건. 다시 만드는 방법은 services/ask-api/README.md 의
+# "Golden set" 과 scripts/eval/ 의 도구를 참고합니다.
+#   expected_places  — 이 질의에 나와야 하는 place_id 목록. 순서는 담지 않는다
+#   expect_empty     — 정답이 존재하지 않아야 하는 질의인지. 관측이 아니라 명세
 #
-# 트랩 4개의 expect_empty 만 false 로 채워져 있습니다. 관측이 아니라 명세입니다.
+# expect_empty 는 전부 false 입니다. 트랩 4개도 0건이 정답이 아니라 속성을 뺀 나머지가 정답입니다.
 
 version: 1
 corpus: 강남구 상가정보 64,239건 (2026-03 스냅샷)
