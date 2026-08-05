@@ -25,7 +25,7 @@ logs/
 # 임베딩 모델 가중치(470MB 바이너리). 재현은 scripts/fetch_embedding_model.sh 로.
 models/
 __pycache__/
-scripts/eval_pool.json
-scripts/verdicts.json
+scripts/eval/eval_pool.json
+scripts/eval/verdicts.json
 
 CLAUDE.md

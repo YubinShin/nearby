@@ -65,7 +65,7 @@
   런타임 버전 도장(`IndexMeta`). 재색인·질의 20개 회귀 분리 전과 동일(0건 키워드 7·벡터 2·하이브리드 0),
   하이브리드 중앙값 8.2ms → [ADR 0011](adr/0011-module-split-and-index-contract.md), 리뷰 #5·#14·#15 갱신
 - 🐛 Jackson 이중 등재 버그 수정 (2026-07-24): ES `_source` 가 기본값으로 역직렬화되던 문제.
-  회귀 측정 스크립트 고정(`scripts/measure_search.py`) → [아키텍처 리뷰 #26](architecture-review.md)
+  회귀 측정 스크립트 고정(`scripts/eval/measure_search.py`) → [아키텍처 리뷰 #26](architecture-review.md)
 - ✅ 색인 런타임 리팩터 (2026-07-25): `indexer-batch` 를 리액티브에서 **Spring Batch + MVC + JDBC** 로
   전환, `POST /admin/reindex` → `202 {jobId}` 접수 후 폴링. `search-core` 웹 스택 제거.
   재색인 실측 리팩터 전과 동일(키워드 15.6초 · 벡터 8분 32초, 임베딩 96.1%)

@@ -213,7 +213,7 @@ GET /collections/probe                                           →  metadata �
 
 ### 질의 — 재색인 전후 결과가 완전히 같다
 
-회귀 질의 20개(`scripts/queries_regression.txt`, `scripts/measure_search.py`).
+회귀 질의 20개(`scripts/eval/queries_regression.txt`, `scripts/eval/measure_search.py`).
 
 | 채널 | 0건 (재색인 전) | 0건 (재색인 후) | 중앙값 | p95 |
 |---|---|---|---|---|

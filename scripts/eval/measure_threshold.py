@@ -6,8 +6,8 @@
   - psp.vector.min-score=0.0
 
 실행:
-  python3 scripts/measure_threshold.py
-  python3 scripts/measure_threshold.py --thresholds 0.78 0.82 0.84 0.86
+  python3 scripts/eval/measure_threshold.py
+  python3 scripts/eval/measure_threshold.py --thresholds 0.78 0.82 0.84 0.86
 
 질의별 top-1 코사인 점수만 측정한다.
 검색 결과의 정답 여부는 평가하지 않는다. (ADR 0010)

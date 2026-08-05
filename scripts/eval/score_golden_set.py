@@ -2,11 +2,11 @@
 """골든셋 라벨로 검색 결과를 채점한다. precision@k · recall@k · MRR · nDCG@k.
 
   전제:  ES 기동. --channel 모드는 search-api 도 기동
-  실행:  python3 scripts/score_golden_set.py                       # hsearch 채점
-         python3 scripts/score_golden_set.py --channel search
-         python3 scripts/score_golden_set.py --fields default --save base.json
-         python3 scripts/score_golden_set.py --fields "name^10,brand_text^5" --baseline base.json
-         python3 scripts/score_golden_set.py --verify               # ES 재현이 /v1/search 와 같은지
+  실행:  python3 scripts/eval/score_golden_set.py                       # hsearch 채점
+         python3 scripts/eval/score_golden_set.py --channel search
+         python3 scripts/eval/score_golden_set.py --fields default --save base.json
+         python3 scripts/eval/score_golden_set.py --fields "name^10,brand_text^5" --baseline base.json
+         python3 scripts/eval/score_golden_set.py --verify               # ES 재현이 /v1/search 와 같은지
 """
 
 import argparse

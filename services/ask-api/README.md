@@ -75,7 +75,7 @@ API 키가 없으면 애플리케이션이 시작되지 않습니다.
 
 ## Golden set labeling
 
-`scripts/golden_set.yaml` 에 질의 25개가 있고 `TODO_HUMAN_LABEL` 두 자리가 비어 있습니다.
+`scripts/eval/golden_set.yaml` 에 질의 25개가 있고 `TODO_HUMAN_LABEL` 두 자리가 비어 있습니다.
 
 | 필드 | 채우는 것 |
 |---|---|

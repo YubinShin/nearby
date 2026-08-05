@@ -2,9 +2,9 @@
 """골든셋 질의로 3채널을 돌려 판정 후보 풀을 만든다.
 
   전제:  search-api 기동 (기본 http://localhost:8080), ES (기본 http://localhost:9200)
-  실행:  python3 scripts/build_eval_pool.py
-         python3 scripts/build_eval_pool.py --size 20      # 채널당 건수
-         python3 scripts/build_eval_pool.py --dry-run      # 파일을 쓰지 않고 규모만 출력
+  실행:  python3 scripts/eval/build_eval_pool.py
+         python3 scripts/eval/build_eval_pool.py --size 20      # 채널당 건수
+         python3 scripts/eval/build_eval_pool.py --dry-run      # 파일을 쓰지 않고 규모만 출력
 """
 
 import argparse

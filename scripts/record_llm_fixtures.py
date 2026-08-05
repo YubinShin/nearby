@@ -25,7 +25,7 @@ except ImportError:
     sys.exit("PyYAML 이 필요합니다: pip3 install pyyaml")
 
 ROOT = Path(__file__).resolve().parent.parent
-GOLDEN_SET = ROOT / "scripts" / "golden_set.yaml"
+GOLDEN_SET = ROOT / "scripts" / "eval" / "golden_set.yaml"
 MODULE = ROOT / "services" / "ask-api"
 PROMPT_SPEC = MODULE / "src" / "main" / "resources" / "prompt" / "ask-parse.json"
 APPLICATION_YML = MODULE / "src" / "main" / "resources" / "application.yml"

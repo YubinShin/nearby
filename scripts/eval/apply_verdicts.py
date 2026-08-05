@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """판정기가 내보낸 verdicts.json 을 eval_pool.yaml 과 golden_set.yaml 에 반영한다.
 
-  전제:  python3 scripts/build_eval_pool.py 로 풀이 만들어져 있을 것
-  실행:  python3 scripts/apply_verdicts.py ~/Downloads/verdicts.json
-         python3 scripts/apply_verdicts.py ~/Downloads/verdicts.json --dry-run
+  전제:  python3 scripts/eval/build_eval_pool.py 로 풀이 만들어져 있을 것
+  실행:  python3 scripts/eval/apply_verdicts.py ~/Downloads/verdicts.json
+         python3 scripts/eval/apply_verdicts.py ~/Downloads/verdicts.json --dry-run
 """
 
 import argparse

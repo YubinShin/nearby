@@ -1,5 +1,5 @@
 # 문턱값(min-score)을 정하기 위한 질의 모음.
-# scripts/measure_threshold.py에서 사용한다.
+# scripts/eval/measure_threshold.py에서 사용한다.
 # ADR 0010 '점수 분포와 문턱' 표를 만들 때 사용한 원본 데이터.
 # 두 부류로 나눈 것은 사람의 판단에 따른 것이다.
 #

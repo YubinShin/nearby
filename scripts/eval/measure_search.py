@@ -2,8 +2,8 @@
 """검색 3채널을 같은 질의로 두들겨 **0건 수와 지연**을 잰다.
 
   전제:  search-api 기동 (기본 http://localhost:8080)
-  실행:  python3 scripts/measure_search.py
-         python3 scripts/measure_search.py --label "분리 후"
+  실행:  python3 scripts/eval/measure_search.py
+         python3 scripts/eval/measure_search.py --label "분리 후"
 
 왜 스크립트로 고정하나 — 모듈을 쪼갠 뒤 "질의 동작이 그대로다"를 말하려면 **같은 방법으로
 두 번 재야** 한다. 손으로 curl 을 치면 매번 조건이 조금씩 달라져서 비교가 성립하지 않는다.
