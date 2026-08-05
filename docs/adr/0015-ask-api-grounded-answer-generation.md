@@ -133,17 +133,17 @@ ADR 0014 gap 목록에 답변 생성이 드러낸 항목을 추가합니다.
 
 | # | 빈 곳 | 지금 결과 | 필요한 것 |
 |---|---|---|---|
-| ⑤ | 검색 응답 필드가 바뀌어도 소비자 쪽만으로는 선택 필드 유실을 잡지 못함 | `HsearchContract` 가 경계에서 렌더 필드(`placeId`·`name`·`category`·`dong`·`address`)를 고정하고, 필수 필드가 빠진 히트를 `unrenderable` 로 셈 | `search-api` 쪽 트립와이어 — `PlaceHit` 직렬화 필드명이 계약 집합을 포함하는지 검사 |
+| ⑤ | 검색 응답 필드를 바꿔도 컴파일이 막지 않음 — 두 앱이 HTTP 로만 연결(ADR 0011) | 소비자는 `HsearchContract` 가 경계에서 렌더 필드(`placeId`·`name`·`category`·`dong`·`address`)를 고정하고 인용 불가 히트를 `unrenderable` 로 셈. 생산자는 `HybridHitContractTest` 가 직렬화 필드명을 검사 | 닫힘 (`faade78` · `d0dfbb9`) |
 | ⑥ | 거리를 답변에 넣으려면 좌표가 필요하나 경로 없음(gap ②의 답변측 발현) | `거리 정보 없음` 으로 컨텍스트 고정 | 지명→좌표 경로. 생기면 거리 문장 허용 재검토 |
-| ⑦ | groundedness 회귀를 CI 에서 돌릴 픽스처·하네스가 질의 이해쪽만 있음 | 실험 스크립트가 `scripts/fixtures/<날짜>/` 에 녹화 | `FixtureLlmClient`(0014)를 답변 생성 호출로 확장, `_scoreboard.json` 을 CI 판정으로 |
+| ⑦ | groundedness 회귀를 CI 에서 돌릴 픽스처·하네스가 질의 이해쪽만 있음 | `FixtureLlmClient` 가 답변 호출을 재생하고 `AskAnswerMappingTest` 가 녹화본 8건을 CI 판정으로 돌림. 재녹화는 `record_answer_fixtures.py` | 닫힘 (`7c635f1` · `8de084d`). 판정은 `_scoreboard.json` 대신 JUnit 이 맡습니다 |
 
 ## Open questions
 
 구현 전 확정합니다.
 
 1. 순차 지연. 파싱(2~3s) → 검색(~10ms) → 생성(2~3s) = 왕복 약 5~6초. LLM 왕복이 검색의 200배(ADR 0014)이고 이제 두 번입니다. 선택지: (a) 생성을 opt-in(`?answer=true`)으로 두고 기본은 0014 그대로, (b) 파싱 생략 후 생성 단일 호출로 통합(질의 이해를 생성 프롬프트에 흡수), (c) SSE 스트리밍으로 체감 지연 완화(ADR 0006 이 SSE·백프레셔를 근거로 리액티브를 선택). (a) 채택, 2026-08-05. 생성 품질을 골든셋으로 검증하기 전까지 기본 지연을 올리지 않기 위함. 기본값 전환은 gap ⑦ 이후.
-2. 모델 핀. 실험과 `ask-api` 설정 모두 `gemini-3.5-flash` 로 고정했습니다. thinkingLevel=minimal 을 제품 기본값으로 둘지는 TBD.
-3. 누출 금지어 출처. 실험은 하드코딩(`프라푸치노` 등). `unsupported-filters.json`(0014 결정 5) 어휘와 통합할지 별도 유지할지. TBD.
+2. 모델 핀. 실험과 `ask-api` 설정 모두 `gemini-3.5-flash` 로 고정했습니다. thinkingLevel=minimal 을 제품 기본값으로 채택, 2026-08-05 — `## 실측` 8건이 그 설정에서만 유효하므로 `AnswerPromptSpec` 에 같은 값을 고정합니다.
+3. 누출 금지어 출처. 실험은 하드코딩(`프라푸치노` 등). `corpus/forbidden-answer-terms.json` 으로 별도 유지, 2026-08-05 — `unsupported-filters.json`(0014 결정 5)은 질의에서 못 거르는 축을 찾고, 이쪽은 답변에 새어 나온 축을 찾으므로 용도가 다릅니다. 검사 전에 레코드 상호명을 텍스트에서 제거해 `맛있는집` 류 오탐을 막습니다.
 4. `found=false` 와 검색 `total>0` 불일치 처리. 레코드는 있는데 생성이 "없다"고 하면 검색 total 을 신뢰하고 생성 found 를 보조로 둘지. TBD.
 
 ## Data and cost
@@ -190,4 +190,5 @@ ADR 0014 gap 목록에 답변 생성이 드러낸 항목을 추가합니다.
 | `ask-api` | `ask/answer/GroundingValidatorTest.kt` *(테스트)* | `7c635f1` · `faade78` | 2026-08-05 |
 | `ask-api` | `ask/llm/AnswerWireTest.kt` *(테스트)* | `7c635f1` | 2026-08-05 |
 | `ask-api` | `ask/search/HsearchContractTest.kt` *(테스트)* | `faade78` | 2026-08-05 |
-| `scripts` | `grounding_experiments.py` → `record_answer_fixtures.py` 승격 | 구현 예정 | – |
+| `search-api` | `hybrid/HybridHitContractTest.kt` *(테스트)* | `d0dfbb9` | 2026-08-05 |
+| `scripts` | `record_answer_fixtures.py` | `8de084d` | 2026-08-05 |
