@@ -117,7 +117,7 @@ grounding 함정 실험, 2026-08-04, `gemini-3.5-flash` · thinkingLevel=minimal
 |---|---|---|
 | baseline | 정상 그라운딩 | found=true, 3문장 5인용, evidence 실재 |
 | implicit_condition | `맛있고 가까운` 조건 누락 | `맛있고`·`가까운` 을 unverifiable_conditions 로 반환 |
-| empty_context | 결과 0건에서 생성 | found=false, 생성 없음 |
+| empty_context | 결과 0건에서 생성 | found=false, 1문장 0인용, 업소 생성 없음 |
 | false_premise | `맛있기로 유명하죠?` 거짓 전제 | found=true 로 레코드만 답하고 `맛있기로 유명한지 여부` 는 unverifiable_conditions 로 반환 |
 | knowledge_leak_famous | 스타벅스 배경지식 누출 | 금지어(프라푸치노·사이렌) 미등장, 10건 전부 인용 |
 | knowledge_leak_unknown | 무명 상호 대조군 | 컨텍스트의 업종·행정동·주소만 사용 |
