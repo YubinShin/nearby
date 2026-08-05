@@ -1,0 +1,3101 @@
+version: 1
+size_per_channel: 10
+queries:
+- query: 회 먹을 데
+  candidates:
+  - place_id: MA010120220807120473
+    brand: null
+    name: 요아케
+    branch: null
+    category: 음식 > 일식 > 일식 회/초밥
+    address: 서울특별시 강남구 도산대로45길 10-11
+    dong: 압구정동
+    verdict: 'no'
+  - place_id: MA010120220803440076
+    brand: null
+    name: 네기
+    branch: null
+    category: 음식 > 일식 > 일식 회/초밥
+    address: 서울특별시 강남구 도산대로15길 18
+    dong: 신사동
+    verdict: 'yes'
+  - place_id: MA010120220813985043
+    brand: null
+    name: 마시아
+    branch: null
+    category: 음식 > 일식 > 일식 회/초밥
+    address: 서울특별시 강남구 선릉로 514
+    dong: 삼성2동
+    verdict: unsure
+  - place_id: MA010120220803736209
+    brand: null
+    name: 오다
+    branch: null
+    category: 음식 > 일식 > 일식 회/초밥
+    address: 서울특별시 강남구 도산대로89길 18
+    dong: 청담동
+    verdict: 'yes'
+  - place_id: MA0106202510A0703050
+    brand: null
+    name: 카이
+    branch: null
+    category: 음식 > 일식 > 일식 회/초밥
+    address: 서울특별시 강남구 학동로55길 12-11
+    dong: 청담동
+    verdict: 'yes'
+  - place_id: MA010120220806498529
+    brand: null
+    name: 어방참치
+    branch: null
+    category: 음식 > 일식 > 일식 회/초밥
+    address: 서울특별시 강남구 삼성로84길 32
+    dong: 대치2동
+    verdict: 'yes'
+  - place_id: MA0101202406A0575285
+    brand: null
+    name: 만카이
+    branch: null
+    category: 음식 > 일식 > 일식 회/초밥
+    address: 서울특별시 강남구 압구정로48길 36-2
+    dong: 압구정동
+    verdict: 'yes'
+  - place_id: MA010120220804038745
+    brand: null
+    name: 기꾸
+    branch: null
+    category: 음식 > 일식 > 일식 회/초밥
+    address: 서울특별시 강남구 압구정로20길 19
+    dong: 신사동
+    verdict: 'yes'
+  - place_id: MA010120220814323402
+    brand: null
+    name: 서울동
+    branch: null
+    category: 음식 > 일식 > 일식 회/초밥
+    address: 서울특별시 강남구 압구정로 343
+    dong: 압구정동
+    verdict: 'yes'
+  - place_id: MA010120220810147236
+    brand: null
+    name: 먹어도
+    branch: null
+    category: 음식 > 한식 > 횟집
+    address: 서울특별시 강남구 학동로56길 32
+    dong: 삼성2동
+    verdict: 'no'
+- query: 브런치 먹을 곳
+  candidates:
+  - place_id: MA0106202511A2159715
+    brand: null
+    name: 브런치앤모어
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 봉은사로30길 21
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA0106202510A1597602
+    brand: null
+    name: 브릴리언트커피
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 논현로157길 32
+    dong: 신사동
+    verdict: unsure
+  - place_id: MA010120220811945043
+    brand: null
+    name: 브로엔다보
+    branch: null
+    category: 음식 > 한식 > 백반/한정식
+    address: 서울특별시 강남구 밤고개로14길 13-12
+    dong: 세곡동
+    verdict: 'no'
+  - place_id: MA010120220800362534
+    brand: null
+    name: 르브런쉭
+    branch: null
+    category: 음식 > 한식 > 백반/한정식
+    address: 서울특별시 강남구 삼성로 350
+    dong: 대치2동
+    verdict: 'yes'
+  - place_id: MA010120220813697100
+    brand: null
+    name: 여왕의브런치
+    branch: null
+    category: 음식 > 기타 간이 > 피자
+    address: 서울특별시 강남구 언주로85길 32
+    dong: 역삼2동
+    verdict: 'yes'
+  - place_id: MA0106202602A0879911
+    brand: null
+    name: 브레덴버거
+    branch: null
+    category: 음식 > 기타 간이 > 버거
+    address: 서울특별시 강남구 도곡로63길 36
+    dong: 대치4동
+    verdict: 'yes'
+  - place_id: MA0101202406A0278173
+    brand: null
+    name: 브런치빈강남
+    branch: 개포점
+    category: 음식 > 서양식 > 경양식
+    address: 서울특별시 강남구 개포로15길 8
+    dong: 개포4동
+    verdict: 'yes'
+  - place_id: MA010120220813244213
+    brand: null
+    name: 브릿지
+    branch: null
+    category: 음식 > 서양식 > 경양식
+    address: 서울특별시 강남구 도산대로 452
+    dong: 청담동
+    verdict: unsure
+  - place_id: MA0101202502A0044659
+    brand: null
+    name: 블렌드위치
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 논현로163길 17
+    dong: 신사동
+    verdict: 'yes'
+  - place_id: MA010120220808281380
+    brand: null
+    name: 블랜디스
+    branch: null
+    category: 음식 > 한식 > 백반/한정식
+    address: 서울특별시 강남구 테헤란로 138
+    dong: 역삼1동
+    verdict: 'no'
+- query: 머리 자르는 곳
+  candidates:
+  - place_id: MA010120220801031540
+    brand: null
+    name: 머리산책
+    branch: null
+    category: 수리·개인 > 이용·미용 > 미용실
+    address: 서울특별시 강남구 일원로 95
+    dong: 일원본동
+    verdict: 'yes'
+  - place_id: MA010120220806497102
+    brand: null
+    name: 헤어정원
+    branch: null
+    category: 수리·개인 > 이용·미용 > 미용실
+    address: 서울특별시 강남구 논현로67길 43
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA0101202410A0200986
+    brand: null
+    name: 턱땡기고들어가서원어퍼훅
+    branch: null
+    category: 교육 > 기타 교육 > 요가/필라테스 학원
+    address: 서울특별시 강남구 학동로101길 21
+    dong: 청담동
+    verdict: 'yes'
+  - place_id: MA010120220804053435
+    brand: null
+    name: 헤어두
+    branch: null
+    category: 수리·개인 > 이용·미용 > 미용실
+    address: 서울특별시 강남구 압구정로34길 36
+    dong: 압구정동
+    verdict: 'yes'
+  - place_id: MA010120220804138057
+    brand: null
+    name: 헤어스케치
+    branch: null
+    category: 수리·개인 > 이용·미용 > 미용실
+    address: 서울특별시 강남구 양재대로55길 6
+    dong: 일원1동
+    verdict: 'yes'
+  - place_id: MA0101202411A0013796
+    brand: null
+    name: 모리아캘리
+    branch: null
+    category: 교육 > 기타 교육 > 기타 기술/직업 훈련학원
+    address: 서울특별시 강남구 논현로 552
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220812752093
+    brand: null
+    name: 머리할때이쁘잖아
+    branch: null
+    category: 수리·개인 > 이용·미용 > 미용실
+    address: 서울특별시 강남구 언주로75길 32
+    dong: 역삼2동
+    verdict: 'yes'
+  - place_id: MA010120220800476673
+    brand: null
+    name: 머리하기좋은날
+    branch: null
+    category: 수리·개인 > 이용·미용 > 미용실
+    address: 서울특별시 강남구 양재대로43길 22
+    dong: 일원1동
+    verdict: 'yes'
+  - place_id: MA010120220809610987
+    brand: null
+    name: 머리하고hairHAGO#
+    branch: null
+    category: 수리·개인 > 이용·미용 > 미용실
+    address: 서울특별시 강남구 논현로146길 10
+    dong: 논현2동
+    verdict: 'yes'
+  - place_id: MA010120220804907897
+    brand: null
+    name: 헤어그곳
+    branch: null
+    category: 수리·개인 > 이용·미용 > 미용실
+    address: 서울특별시 강남구 압구정로18길 8
+    dong: 신사동
+    verdict: 'yes'
+- query: 혼밥하기 좋은 집
+  candidates:
+  - place_id: MA010120220800667008
+    brand: null
+    name: 자유로운식탁
+    branch: null
+    category: 음식 > 중식 > 중국집
+    address: 서울특별시 강남구 테헤란로38길 39
+    dong: 역삼2동
+    verdict: 'yes'
+  - place_id: MA010120220807210257
+    brand: null
+    name: 혼밥대왕
+    branch: null
+    category: 음식 > 한식 > 백반/한정식
+    address: 서울특별시 강남구 논현로102길 33
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220800631837
+    brand: null
+    name: 밥짓는집
+    branch: null
+    category: 음식 > 한식 > 백반/한정식
+    address: 서울특별시 강남구 도곡로77길 19
+    dong: 대치4동
+    verdict: 'yes'
+  - place_id: MA010120220806917306
+    brand: null
+    name: 루비하우스
+    branch: null
+    category: 음식 > 기타 간이 > 김밥/만두/분식
+    address: 서울특별시 강남구 선릉로153길 21
+    dong: 압구정동
+    verdict: 'yes'
+  - place_id: MA010120220811851322
+    brand: null
+    name: 혼
+    branch: null
+    category: 음식 > 주점 > 요리 주점
+    address: 서울특별시 강남구 논현로12길 3-12
+    dong: 개포4동
+    verdict: 'no'
+  - place_id: MA010120220800238760
+    brand: null
+    name: 좋은집
+    branch: null
+    category: 부동산 > 부동산 서비스 > 부동산 중개/대리업
+    address: 서울특별시 강남구 봉은사로 129
+    dong: 논현1동
+    verdict: 'no'
+  - place_id: MA010120220809921353
+    brand: null
+    name: 집밥가득드림
+    branch: null
+    category: 음식 > 한식 > 백반/한정식
+    address: 서울특별시 강남구 테헤란로87길 22
+    dong: 삼성1동
+    verdict: 'yes'
+  - place_id: MA010120220804466005
+    brand: null
+    name: 모퉁이라면집
+    branch: null
+    category: 음식 > 기타 간이 > 김밥/만두/분식
+    address: 서울특별시 강남구 테헤란로1길 20
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220801046991
+    brand: null
+    name: 혼
+    branch: null
+    category: 음식 > 한식 > 횟집
+    address: 서울특별시 강남구 개포로 210
+    dong: 개포4동
+    verdict: 'yes'
+  - place_id: MA010120220801035046
+    brand: null
+    name: 대박
+    branch: null
+    category: 예술·스포츠 > 유원지·오락 > 노래방
+    address: 서울특별시 강남구 선릉로96길 2
+    dong: 삼성2동
+    verdict: 'no'
+- query: 매운 거 먹고 싶다
+  candidates:
+  - place_id: MA010120220803839122
+    brand: null
+    name: 먹어도
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 도산대로50길 6
+    dong: 논현2동
+    verdict: 'no'
+  - place_id: MA0101202406A0064855
+    brand: null
+    name: 생요생요
+    branch: null
+    category: 음식 > 기타 간이 > 김밥/만두/분식
+    address: 서울특별시 강남구 역삼로78길 3
+    dong: 대치4동
+    verdict: 'no'
+  - place_id: MA010120220810147236
+    brand: null
+    name: 먹어도
+    branch: null
+    category: 음식 > 한식 > 횟집
+    address: 서울특별시 강남구 학동로56길 32
+    dong: 삼성2동
+    verdict: 'yes'
+  - place_id: MA010120220812275012
+    brand: null
+    name: 매이원
+    branch: null
+    category: 음식 > 기타 간이 > 김밥/만두/분식
+    address: 서울특별시 강남구 테헤란로82길 15
+    dong: 대치2동
+    verdict: 'yes'
+  - place_id: MA010120220813128852
+    brand: null
+    name: 먹어도
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 선릉로131길 8
+    dong: 논현2동
+    verdict: 'yes'
+  - place_id: MA010120220809398750
+    brand: null
+    name: 먹어도돼지
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 학동로97길 20
+    dong: 청담동
+    verdict: 'no'
+  - place_id: MA0101202212A0033906
+    brand: null
+    name: 제가하겠습니다
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 봉은사로111길 6
+    dong: 삼성1동
+    verdict: 'no'
+  - place_id: MA010120220811861034
+    brand: null
+    name: 슬기로운푸드
+    branch: null
+    category: 음식 > 기타 간이 > 김밥/만두/분식
+    address: 서울특별시 강남구 역삼로14길 8
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220807019111
+    brand: null
+    name: 베이징덕
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 논현로 874
+    dong: 압구정동
+    verdict: 'yes'
+  - place_id: MA0106202512A2214526
+    brand: null
+    name: 먹어도
+    branch: null
+    category: 음식 > 한식 > 백반/한정식
+    address: 서울특별시 강남구 학동로97길 20
+    dong: 청담동
+    verdict: 'yes'
+- query: 차 고치는 곳
+  candidates:
+  - place_id: MA010120220800685785
+    brand: null
+    name: 아우토리치
+    branch: null
+    category: 수리·개인 > 자동차 수리·세차 > 자동차 정비소
+    address: 서울특별시 강남구 강남대로124길 46
+    dong: 논현1동
+    verdict: 'yes'
+  - place_id: MA010120220801020627
+    brand: null
+    name: 덴트마스타
+    branch: null
+    category: 수리·개인 > 자동차 수리·세차 > 자동차 정비소
+    address: 서울특별시 강남구 영동대로115길 7
+    dong: 삼성1동
+    verdict: 'yes'
+  - place_id: MA010120220800311486
+    brand: null
+    name: 강남자동차용품
+    branch: null
+    category: 수리·개인 > 자동차 수리·세차 > 자동차 정비소
+    address: 서울특별시 강남구 헌릉로745길 37
+    dong: 세곡동
+    verdict: 'yes'
+  - place_id: MA010120220800064476
+    brand: null
+    name: 고진모터스주
+    branch: null
+    category: 수리·개인 > 자동차 수리·세차 > 자동차 정비소
+    address: 서울특별시 강남구 도산대로 306
+    dong: 논현2동
+    verdict: 'yes'
+  - place_id: MA010120220801019605
+    brand: null
+    name: 한국지엠청담지정서비스
+    branch: null
+    category: 수리·개인 > 자동차 수리·세차 > 자동차 정비소
+    address: 서울특별시 강남구 학동로82길 11
+    dong: 삼성1동
+    verdict: 'yes'
+  - place_id: MA0106202511A0478737
+    brand: null
+    name: 차병원사거리포차
+    branch: null
+    category: 음식 > 한식 > 백반/한정식
+    address: 서울특별시 강남구 봉은사로29길 9
+    dong: 논현2동
+    verdict: 'no'
+  - place_id: MA010120220800951234
+    brand: null
+    name: 엠케이카써비스
+    branch: null
+    category: 수리·개인 > 자동차 수리·세차 > 자동차 정비소
+    address: 서울특별시 강남구 언주로150길 35
+    dong: 논현2동
+    verdict: 'yes'
+  - place_id: MA010120220801019279
+    brand: null
+    name: 진성카센타
+    branch: null
+    category: 수리·개인 > 자동차 수리·세차 > 자동차 정비소
+    address: 서울특별시 강남구 삼성로115길 28
+    dong: 삼성2동
+    verdict: 'yes'
+  - place_id: MA010120220800927288
+    brand: null
+    name: 미래칼라덴트
+    branch: null
+    category: 수리·개인 > 자동차 수리·세차 > 자동차 정비소
+    address: 서울특별시 강남구 삼성로 305
+    dong: 대치4동
+    verdict: 'yes'
+  - place_id: MA010120220800799948
+    brand: null
+    name: 스피드메이트
+    branch: 일원점
+    category: 수리·개인 > 자동차 수리·세차 > 자동차 정비소
+    address: 서울특별시 강남구 개포로 644
+    dong: 일원1동
+    verdict: 'yes'
+  - place_id: MA010120220801019283
+    brand: null
+    name: 국제카인테리어
+    branch: null
+    category: 수리·개인 > 자동차 수리·세차 > 자동차 정비소
+    address: 서울특별시 강남구 도곡로 522
+    dong: 대치2동
+    verdict: 'yes'
+- query: 조용히 공부할 곳
+  candidates:
+  - place_id: MA010120220800527106
+    brand: null
+    name: 새론스터디카페
+    branch: null
+    category: 예술·스포츠 > 도서관·사적지 > 독서실/스터디 카페
+    address: 서울특별시 강남구 삼성로63길 11
+    dong: 대치4동
+    verdict: 'yes'
+  - place_id: MA0101202410A0727808
+    brand: null
+    name: 개념을잘잡아주는수학교습소
+    branch: null
+    category: 교육 > 일반 교육 > 입시·교과학원
+    address: 서울특별시 강남구 삼성로4길 17
+    dong: 개포2동
+    verdict: 'no'
+  - place_id: MA010120220809899160
+    brand: null
+    name: 확실한에듀
+    branch: null
+    category: 소매 > 오락용품 소매 > 서점
+    address: 서울특별시 강남구 테헤란로82길 15
+    dong: 대치2동
+    verdict: 'no'
+  - place_id: MA010120220802788518
+    brand: null
+    name: 이카이스
+    branch: null
+    category: 교육 > 기타 교육 > 외국어학원
+    address: 서울특별시 강남구 선릉로119길 15
+    dong: 논현2동
+    verdict: 'no'
+  - place_id: MA010120220800678270
+    brand: null
+    name: 올림
+    branch: null
+    category: 예술·스포츠 > 도서관·사적지 > 독서실/스터디 카페
+    address: 서울특별시 강남구 역삼로 505
+    dong: 대치2동
+    verdict: 'yes'
+  - place_id: MA010120220801019834
+    brand: null
+    name: 업소명없음
+    branch: null
+    category: 예술·스포츠 > 도서관·사적지 > 독서실/스터디 카페
+    address: 서울특별시 강남구 삼성로84길 7
+    dong: 대치2동
+    verdict: 'no'
+  - place_id: MA010120220801019671
+    brand: null
+    name: 올인원
+    branch: null
+    category: 예술·스포츠 > 도서관·사적지 > 독서실/스터디 카페
+    address: 서울특별시 강남구 도곡로 522
+    dong: 대치2동
+    verdict: 'no'
+  - place_id: MA0101202410A0200986
+    brand: null
+    name: 턱땡기고들어가서원어퍼훅
+    branch: null
+    category: 교육 > 기타 교육 > 요가/필라테스 학원
+    address: 서울특별시 강남구 학동로101길 21
+    dong: 청담동
+    verdict: 'no'
+  - place_id: MA010120220800917381
+    brand: null
+    name: 공본스터디카페대치센터
+    branch: null
+    category: 예술·스포츠 > 도서관·사적지 > 독서실/스터디 카페
+    address: 서울특별시 강남구 삼성로64길 5
+    dong: 대치2동
+    verdict: 'yes'
+  - place_id: MA0101202503A0027038
+    brand: null
+    name: 프리미엄출판사어깨위망원경
+    branch: null
+    category: 교육 > 기타 교육 > 기타 기술/직업 훈련학원
+    address: 서울특별시 강남구 강남대로118길 24
+    dong: 논현1동
+    verdict: 'no'
+  - place_id: MA0101202410A0096295
+    brand: null
+    name: 올바른영어
+    branch: null
+    category: 교육 > 일반 교육 > 입시·교과학원
+    address: 서울특별시 강남구 역삼로 417
+    dong: 대치4동
+    verdict: 'no'
+  - place_id: MA010120220800445100
+    brand: null
+    name: 옐로스톤
+    branch: null
+    category: 예술·스포츠 > 도서관·사적지 > 독서실/스터디 카페
+    address: 서울특별시 강남구 강남대로94길 21
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220801032076
+    brand: null
+    name: 작심스터디카페삼성
+    branch: 중앙역점
+    category: 예술·스포츠 > 도서관·사적지 > 독서실/스터디 카페
+    address: 서울특별시 강남구 봉은사로 480
+    dong: 삼성2동
+    verdict: 'yes'
+  - place_id: MA010120220801072252
+    brand: null
+    name: 아틈
+    branch: null
+    category: 교육 > 기타 교육 > 컴퓨터 학원
+    address: 서울특별시 강남구 봉은사로61길 12
+    dong: 삼성2동
+    verdict: 'no'
+  - place_id: MA010120220801064298
+    brand: null
+    name: 깊은생각
+    branch: null
+    category: 교육 > 일반 교육 > 입시·교과학원
+    address: 서울특별시 강남구 도곡로 457
+    dong: 대치4동
+    verdict: 'no'
+  - place_id: MA010120220800924390
+    brand: null
+    name: 그린스터디카페
+    branch: null
+    category: 예술·스포츠 > 도서관·사적지 > 독서실/스터디 카페
+    address: 서울특별시 강남구 선릉로126길 12
+    dong: 삼성2동
+    verdict: 'yes'
+  - place_id: MA0101202504A0040157
+    brand: null
+    name: 숨쉬는공간;언어발달연구소
+    branch: null
+    category: 교육 > 교육 지원 > 교육컨설팅업
+    address: 서울특별시 강남구 학동로101길 11
+    dong: 청담동
+    verdict: 'no'
+  - place_id: MA010120220800995389
+    brand: null
+    name: 커피랑도서관
+    branch: 압구정점
+    category: 예술·스포츠 > 도서관·사적지 > 독서실/스터디 카페
+    address: 서울특별시 강남구 압구정로18길 8
+    dong: 신사동
+    verdict: 'yes'
+  - place_id: MA010120220800235613
+    brand: null
+    name: 비에이블스터디카페
+    branch: null
+    category: 예술·스포츠 > 도서관·사적지 > 독서실/스터디 카페
+    address: 서울특별시 강남구 도곡로 504
+    dong: 대치2동
+    verdict: 'yes'
+  - place_id: MA010120220804696496
+    brand: null
+    name: 따뜻한영어교습소
+    branch: null
+    category: 교육 > 일반 교육 > 입시·교과학원
+    address: 서울특별시 강남구 개포로 512
+    dong: 개포2동
+    verdict: 'no'
+- query: 고기 구워 먹는 데
+  candidates:
+  - place_id: MA0101202411A0048895
+    brand: null
+    name: 일언주먹고기
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 일원로9길 24
+    dong: 일원1동
+    verdict: 'yes'
+  - place_id: MA0101202406A0438648
+    brand: null
+    name: 제주주먹고기
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 언주로108길 8
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220813128852
+    brand: null
+    name: 먹어도
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 선릉로131길 8
+    dong: 논현2동
+    verdict: 'yes'
+  - place_id: MA0101202412A0089943
+    brand: null
+    name: 소주물
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 일원로9길 14
+    dong: 일원1동
+    verdict: 'yes'
+  - place_id: MA010120220807099937
+    brand: null
+    name: 구이가
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 광평로56길 14
+    dong: 수서동
+    verdict: 'yes'
+  - place_id: MA0106202601A0152471
+    brand: null
+    name: 굽다
+    branch: null
+    category: 음식 > 한식 > 백반/한정식
+    address: 서울특별시 강남구 자곡로 192
+    dong: 세곡동
+    verdict: 'yes'
+  - place_id: MA010120220809398750
+    brand: null
+    name: 먹어도돼지
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 학동로97길 20
+    dong: 청담동
+    verdict: 'yes'
+  - place_id: MA010120220803839122
+    brand: null
+    name: 먹어도
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 도산대로50길 6
+    dong: 논현2동
+    verdict: 'yes'
+  - place_id: MA0101202212A0033906
+    brand: null
+    name: 제가하겠습니다
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 봉은사로111길 6
+    dong: 삼성1동
+    verdict: 'yes'
+  - place_id: MA010120220803060769
+    brand: null
+    name: 청담주먹고기
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 도산대로46길 21
+    dong: 논현2동
+    verdict: 'yes'
+- query: 카페
+  candidates:
+  - place_id: MA0101202209A0053228
+    brand: null
+    name: 카페컬렉터
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 도산대로 332
+    dong: 논현2동
+    verdict: 'yes'
+  - place_id: MA010120220813568747
+    brand: null
+    name: 기로
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 선릉로69길 7
+    dong: 역삼2동
+    verdict: 'yes'
+  - place_id: MA010120220806192633
+    brand: null
+    name: 카페스토리
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 영동대로 220
+    dong: 대치2동
+    verdict: 'yes'
+  - place_id: MA0106202201A0898550
+    brand: null
+    name: 골프존카페지카페
+    branch: null
+    category: 음식 > 한식 > 백반/한정식
+    address: 서울특별시 강남구 영동대로141길 5
+    dong: 청담동
+    verdict: 'no'
+  - place_id: MA010120220805054873
+    brand: null
+    name: 하트카페
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 논현로76길 11
+    dong: 역삼2동
+    verdict: 'yes'
+  - place_id: MA010120220805995176
+    brand: null
+    name: 카페비밀
+    branch: null
+    category: 음식 > 서양식 > 경양식
+    address: 서울특별시 강남구 논현로26길 30-8
+    dong: 도곡2동
+    verdict: 'yes'
+  - place_id: MA010120220806027954
+    brand: null
+    name: 카페아트엔
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 압구정로36길 22-6
+    dong: 압구정동
+    verdict: 'yes'
+  - place_id: MA010120220811861694
+    brand: null
+    name: 카페시스템
+    branch: null
+    category: 과학·기술 > 광고 > 광고 대행업
+    address: 서울특별시 강남구 삼성로 212
+    dong: 대치2동
+    verdict: 'no'
+  - place_id: MA010120220804660855
+    brand: null
+    name: 아지트카페
+    branch: null
+    category: 음식 > 기타 간이 > 빵/도넛
+    address: 서울특별시 강남구 테헤란로1길 42
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220804530824
+    brand: null
+    name: 스타카페
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 학동로6길 19
+    dong: 논현1동
+    verdict: 'yes'
+  - place_id: MA010120220806436071
+    brand: null
+    name: 커피셀러
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 자곡로 186
+    dong: 세곡동
+    verdict: 'yes'
+  - place_id: MA010120220800998093
+    brand: null
+    name: 커피카소
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 강남대로 262
+    dong: 도곡1동
+    verdict: 'yes'
+  - place_id: MA010120220806579234
+    brand: null
+    name: 카페블루
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 테헤란로 137
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220806939675
+    brand: null
+    name: 커피씨
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 논현로16길 30
+    dong: 개포4동
+    verdict: 'yes'
+  - place_id: MA0101202502A0113191
+    brand: null
+    name: 카페카이브
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 압구정로10길 35-2
+    dong: 신사동
+    verdict: 'yes'
+  - place_id: MA010120220806376551
+    brand: null
+    name: 카페올
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 논현로16길 12
+    dong: 개포4동
+    verdict: 'yes'
+  - place_id: MA010120220806561006
+    brand: null
+    name: 유별
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 논현로10길 30
+    dong: 개포4동
+    verdict: 'yes'
+  - place_id: MA0101202211A0058427
+    brand: null
+    name: 카페테리아
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 개포로 416
+    dong: 개포2동
+    verdict: 'yes'
+  - place_id: MA010120220813907776
+    brand: null
+    name: 우리카페
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 언주로69길 16
+    dong: 역삼2동
+    verdict: 'yes'
+  - place_id: MA0101202409A0118134
+    brand: null
+    name: 커피효과
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 역삼로20길 12
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220814090623
+    brand: null
+    name: 카페루카
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 봉은사로43길 28
+    dong: 논현2동
+    verdict: 'yes'
+  - place_id: MA0101202209A0025004
+    brand: null
+    name: 카페2
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 도곡로 255
+    dong: 역삼2동
+    verdict: 'yes'
+  - place_id: MA010120220813573284
+    brand: null
+    name: 카페프렌즈
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 압구정로 172
+    dong: 신사동
+    verdict: 'yes'
+  - place_id: MA010120220813799981
+    brand: null
+    name: 카페플랫
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 논현로95길 29-13
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220804411917
+    brand: null
+    name: 카페포레스트
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 일원로9길 68
+    dong: 일원1동
+    verdict: 'yes'
+  - place_id: MA010120220812892983
+    brand: null
+    name: 카페
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 논현로51길 25
+    dong: 도곡1동
+    verdict: 'yes'
+  - place_id: MA010120220805388147
+    brand: null
+    name: 카페로빈
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 헌릉로590길 11
+    dong: 세곡동
+    verdict: 'yes'
+- query: 편의점
+  candidates:
+  - place_id: MA0106202209A0056491
+    brand: null
+    name: 선정릉맞이방편의점
+    branch: null
+    category: 소매 > 종합 소매 > 슈퍼마켓
+    address: 서울특별시 강남구 선릉로 580
+    dong: 삼성2동
+    verdict: 'yes'
+  - place_id: MA010120220804034002
+    brand: 세븐일레븐
+    name: 세븐일레븐신사1001
+    branch: 5호점
+    category: 소매 > 종합 소매 > 편의점
+    address: 서울특별시 강남구 강남대로162길 45
+    dong: 신사동
+    verdict: 'yes'
+  - place_id: MA010120220804661846
+    brand: 세븐일레븐
+    name: 세븐일레븐래미안
+    branch: 삼성동
+    category: 소매 > 종합 소매 > 편의점
+    address: 서울특별시 강남구 선릉로130길 20
+    dong: 삼성2동
+    verdict: 'yes'
+  - place_id: MA010120220814312967
+    brand: 이마트24
+    name: 이마트24삼성119점
+    branch: null
+    category: 소매 > 종합 소매 > 편의점
+    address: 서울특별시 강남구 봉은사로 478
+    dong: 삼성2동
+    verdict: 'yes'
+  - place_id: MA010120220804820875
+    brand: GS25
+    name: 지에스25도곡STX점
+    branch: null
+    category: 소매 > 종합 소매 > 편의점
+    address: 서울특별시 강남구 논현로24길 17
+    dong: 도곡2동
+    verdict: 'yes'
+  - place_id: MA010120220800363876
+    brand: null
+    name: 스토리웨이편의점
+    branch: null
+    category: 소매 > 종합 소매 > 편의점
+    address: 서울특별시 강남구 테헤란로 340
+    dong: 삼성1동
+    verdict: 'yes'
+  - place_id: MA010120220804650239
+    brand: 세븐일레븐
+    name: 세븐일레븐포이
+    branch: 5호점
+    category: 소매 > 종합 소매 > 편의점
+    address: 서울특별시 강남구 개포로24길 6
+    dong: 개포4동
+    verdict: 'yes'
+  - place_id: MA010120220809961831
+    brand: 이마트24
+    name: 이마트24논현101점
+    branch: null
+    category: 소매 > 종합 소매 > 편의점
+    address: 서울특별시 강남구 선릉로145길 7
+    dong: 논현2동
+    verdict: 'yes'
+  - place_id: MA010120220804586922
+    brand: null
+    name: 제리조컴퍼니
+    branch: null
+    category: 소매 > 종합 소매 > 편의점
+    address: 서울특별시 강남구 광평로56길 10
+    dong: 수서동
+    verdict: unsure
+  - place_id: MA010120220808839797
+    brand: null
+    name: 지에스삼성
+    branch: 본점
+    category: 소매 > 종합 소매 > 편의점
+    address: 서울특별시 강남구 삼성로111길 7
+    dong: 삼성2동
+    verdict: 'yes'
+  - place_id: MA010120220802960591
+    brand: null
+    name: TJ움직이는편의점
+    branch: null
+    category: 소매 > 종합 소매 > 슈퍼마켓
+    address: 서울특별시 강남구 논현로121길 27
+    dong: 논현1동
+    verdict: 'yes'
+  - place_id: MA010120220804740943
+    brand: null
+    name: 지앤리테일
+    branch: null
+    category: 소매 > 종합 소매 > 편의점
+    address: 서울특별시 강남구 언주로130길 10
+    dong: 논현2동
+    verdict: 'yes'
+  - place_id: MA010120220813006349
+    brand: null
+    name: 편의점스토리웨이
+    branch: null
+    category: 소매 > 종합 소매 > 편의점
+    address: 서울특별시 강남구 학동로 402
+    dong: 삼성2동
+    verdict: 'yes'
+  - place_id: MA010120220801037854
+    brand: GS25
+    name: 지에스25무역
+    branch: 센터점
+    category: 소매 > 종합 소매 > 편의점
+    address: 서울특별시 강남구 테헤란로87길 25
+    dong: 삼성1동
+    verdict: 'yes'
+  - place_id: MA010120220804694819
+    brand: null
+    name: 세븐수서역사1호점
+    branch: 코리아
+    category: 소매 > 종합 소매 > 편의점
+    address: 서울특별시 강남구 광평로 270
+    dong: 수서동
+    verdict: 'yes'
+  - place_id: MA010120220804481536
+    brand: null
+    name: 세븐한신점주
+    branch: 코리아
+    category: 소매 > 종합 소매 > 편의점
+    address: 서울특별시 강남구 테헤란로 322
+    dong: 역삼2동
+    verdict: 'yes'
+  - place_id: MA010120220813457446
+    brand: 세븐일레븐
+    name: 세븐일레븐한신점
+    branch: null
+    category: 소매 > 종합 소매 > 편의점
+    address: 서울특별시 강남구 테헤란로 322
+    dong: 역삼2동
+    verdict: 'yes'
+  - place_id: MA010120220805244079
+    brand: null
+    name: 비지에프휴먼넷역삼센타점
+    branch: null
+    category: 소매 > 종합 소매 > 편의점
+    address: 서울특별시 강남구 역삼로9길 28
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220805100596
+    brand: 세븐일레븐
+    name: 세븐일레븐강남포레스트점
+    branch: null
+    category: 소매 > 종합 소매 > 편의점
+    address: 서울특별시 강남구 광평로34길 30
+    dong: 일원본동
+    verdict: 'yes'
+  - place_id: MA010120220804456264
+    brand: GS25
+    name: 지에스25포이한라점
+    branch: null
+    category: 소매 > 종합 소매 > 편의점
+    address: 서울특별시 강남구 논현로4길 43
+    dong: 개포4동
+    verdict: 'yes'
+  - place_id: MA010120220804809391
+    brand: null
+    name: 선릉맞이방편의점
+    branch: null
+    category: 소매 > 종합 소매 > 편의점
+    address: 서울특별시 강남구 테헤란로 340
+    dong: 삼성1동
+    verdict: 'yes'
+  - place_id: MA0101202406A0543696
+    brand: null
+    name: 세븐일원본점
+    branch: 코리아
+    category: 소매 > 종합 소매 > 편의점
+    address: 서울특별시 강남구 양재대로55길 13
+    dong: 일원1동
+    verdict: 'yes'
+- query: 세탁소
+  candidates:
+  - place_id: MA010120220813329214
+    brand: null
+    name: 이슬세탁소
+    branch: null
+    category: 수리·개인 > 세탁 > 세탁소
+    address: 서울특별시 강남구 언주로 408
+    dong: 역삼2동
+    verdict: 'yes'
+  - place_id: MA010120220804452610
+    brand: null
+    name: 우리세탁소
+    branch: null
+    category: 수리·개인 > 세탁 > 세탁소
+    address: 서울특별시 강남구 개포로25길 12
+    dong: 개포4동
+    verdict: 'yes'
+  - place_id: MA010120220804440513
+    brand: null
+    name: 현대세탁소
+    branch: null
+    category: 수리·개인 > 세탁 > 세탁소
+    address: 서울특별시 강남구 언주로107길 29
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220806617456
+    brand: null
+    name: 현대세탁소
+    branch: null
+    category: 수리·개인 > 세탁 > 세탁소
+    address: 서울특별시 강남구 테헤란로55길 27
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220813399303
+    brand: null
+    name: 엔젤세탁소
+    branch: null
+    category: 수리·개인 > 세탁 > 세탁소
+    address: 서울특별시 강남구 압구정로 113-22
+    dong: 신사동
+    verdict: 'yes'
+  - place_id: MA010120220813729358
+    brand: null
+    name: 백양세탁소
+    branch: null
+    category: 수리·개인 > 세탁 > 세탁소
+    address: 서울특별시 강남구 선릉로10길 14
+    dong: 개포2동
+    verdict: 'yes'
+  - place_id: MA010120220804013584
+    brand: null
+    name: 금강세탁소
+    branch: null
+    category: 수리·개인 > 세탁 > 세탁소
+    address: 서울특별시 강남구 압구정로 151
+    dong: 신사동
+    verdict: 'yes'
+  - place_id: MA010120220801045883
+    brand: null
+    name: 매직세탁소
+    branch: null
+    category: 수리·개인 > 세탁 > 세탁소
+    address: 서울특별시 강남구 선릉로120길 8
+    dong: 삼성2동
+    verdict: 'yes'
+  - place_id: MA010120220804138546
+    brand: null
+    name: 문화세탁소
+    branch: null
+    category: 수리·개인 > 세탁 > 세탁소
+    address: 서울특별시 강남구 개포로22길 102
+    dong: 개포4동
+    verdict: 'yes'
+  - place_id: MA010120220804138005
+    brand: null
+    name: 서울세탁소
+    branch: null
+    category: 수리·개인 > 세탁 > 세탁소
+    address: 서울특별시 강남구 개포로128길 25
+    dong: 일원1동
+    verdict: 'yes'
+  - place_id: MA010120220813195586
+    brand: null
+    name: 백양세탁소
+    branch: null
+    category: 수리·개인 > 세탁 > 세탁소
+    address: 서울특별시 강남구 개포로109길 9
+    dong: 개포3동
+    verdict: 'yes'
+  - place_id: MA010120220805292086
+    brand: null
+    name: 국제사세탁소
+    branch: null
+    category: 수리·개인 > 세탁 > 세탁소
+    address: 서울특별시 강남구 논현로150길 28
+    dong: 논현2동
+    verdict: 'yes'
+  - place_id: MA010120220804019209
+    brand: null
+    name: 한국세탁소
+    branch: null
+    category: 수리·개인 > 세탁 > 세탁소
+    address: 서울특별시 강남구 논현로161길 21
+    dong: 신사동
+    verdict: 'yes'
+  - place_id: MA010120220801036015
+    brand: null
+    name: 매직세탁소
+    branch: null
+    category: 수리·개인 > 세탁 > 세탁소
+    address: 서울특별시 강남구 양재대로33길 14
+    dong: 일원1동
+    verdict: 'yes'
+  - place_id: MA010120220802272620
+    brand: null
+    name: 매직세탁소
+    branch: null
+    category: 수리·개인 > 세탁 > 세탁소
+    address: 서울특별시 강남구 논현로102길 33
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220809744056
+    brand: null
+    name: 깨끗한세탁소
+    branch: null
+    category: 수리·개인 > 세탁 > 세탁소
+    address: 서울특별시 강남구 강남대로122길 14
+    dong: 논현1동
+    verdict: 'yes'
+  - place_id: MA010120220804014274
+    brand: null
+    name: 매직세탁소
+    branch: null
+    category: 수리·개인 > 세탁 > 세탁소
+    address: 서울특별시 강남구 봉은사로7길 23
+    dong: 논현1동
+    verdict: 'yes'
+  - place_id: MA010120220813200966
+    brand: null
+    name: 에코세탁소
+    branch: null
+    category: 수리·개인 > 세탁 > 세탁소
+    address: 서울특별시 강남구 자곡로 202
+    dong: 세곡동
+    verdict: 'yes'
+  - place_id: MA010120220801024866
+    brand: null
+    name: 대청세탁소
+    branch: null
+    category: 수리·개인 > 세탁 > 세탁소
+    address: 서울특별시 강남구 개포로109길 34
+    dong: 개포3동
+    verdict: 'yes'
+  - place_id: MA010120220801043518
+    brand: null
+    name: 삼성세탁소
+    branch: null
+    category: 수리·개인 > 세탁 > 세탁소
+    address: 서울특별시 강남구 광평로31길 27
+    dong: 일원본동
+    verdict: 'yes'
+  - place_id: MA010120220806160407
+    brand: null
+    name: 백양세탁소
+    branch: null
+    category: 수리·개인 > 세탁 > 세탁소
+    address: 서울특별시 강남구 언주로107길 48
+    dong: 역삼1동
+    verdict: 'yes'
+- query: 약국
+  candidates:
+  - place_id: MA010120220804083519
+    brand: null
+    name: 해맑은약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 남부순환로363길 13
+    dong: 도곡1동
+    verdict: 'yes'
+  - place_id: MA010120220813187247
+    brand: null
+    name: 학동약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 학동로 203
+    dong: 논현2동
+    verdict: 'yes'
+  - place_id: MA010120220805210831
+    brand: null
+    name: 누리약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 테헤란로 310
+    dong: 역삼2동
+    verdict: 'yes'
+  - place_id: MA010120220805123462
+    brand: null
+    name: 봄봄약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 강남대로122길 47
+    dong: 논현1동
+    verdict: 'yes'
+  - place_id: MA010120220804877063
+    brand: null
+    name: 소망약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 테헤란로87길 13
+    dong: 삼성1동
+    verdict: 'yes'
+  - place_id: MA010120220814360939
+    brand: null
+    name: 대청약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 개포로 623
+    dong: 개포3동
+    verdict: 'yes'
+  - place_id: MA010120220800461697
+    brand: null
+    name: 주민약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 일원로 33
+    dong: 일원1동
+    verdict: 'yes'
+  - place_id: MA010120220807364949
+    brand: null
+    name: 희망약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 일원로 95
+    dong: 일원본동
+    verdict: 'yes'
+  - place_id: MA0101202501A0000072
+    brand: null
+    name: 아이디약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 도산대로 111
+    dong: 신사동
+    verdict: 'yes'
+  - place_id: MA010120220805152089
+    brand: null
+    name: 튼튼약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 광평로 196
+    dong: 일원본동
+    verdict: 'yes'
+  - place_id: MA010120220804240882
+    brand: null
+    name: 오약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 봉은사로 159
+    dong: 논현1동
+    verdict: 'yes'
+  - place_id: MA010120220801027016
+    brand: null
+    name: 참약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 일원로 95
+    dong: 일원본동
+    verdict: 'yes'
+  - place_id: MA010120220805312770
+    brand: null
+    name: 채움약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 압구정로34길 11
+    dong: 압구정동
+    verdict: 'yes'
+  - place_id: MA010120220805153218
+    brand: null
+    name: 플러스약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 테헤란로 111
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220804053024
+    brand: null
+    name: 민생약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 언주로125길 6
+    dong: 논현2동
+    verdict: 'yes'
+  - place_id: MA0101202502A0114369
+    brand: null
+    name: 밝은마음약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 논현로 841
+    dong: 신사동
+    verdict: 'yes'
+  - place_id: MA010120220814315085
+    brand: null
+    name: 밝은약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 역삼로 247
+    dong: 역삼2동
+    verdict: 'yes'
+  - place_id: MA010120220801025336
+    brand: null
+    name: 수정약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 선릉로 340
+    dong: 대치4동
+    verdict: 'yes'
+  - place_id: MA010120220803917095
+    brand: null
+    name: 원약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 논현로 842
+    dong: 압구정동
+    verdict: 'yes'
+  - place_id: MA010120220805288291
+    brand: null
+    name: 스마일약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 봉은사로 119
+    dong: 논현1동
+    verdict: 'yes'
+  - place_id: MA010120220805462168
+    brand: null
+    name: 그린약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 논현로 835
+    dong: 신사동
+    verdict: 'yes'
+  - place_id: MA010120220804452255
+    brand: null
+    name: 정약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 봉은사로 331
+    dong: 논현2동
+    verdict: 'yes'
+  - place_id: MA010120220800451151
+    brand: null
+    name: 하이약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 언주로 859
+    dong: 압구정동
+    verdict: 'yes'
+  - place_id: MA010120220805154198
+    brand: null
+    name: 팜스약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 논현로 509
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220804021060
+    brand: null
+    name: 하나약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 압구정로 224
+    dong: 압구정동
+    verdict: 'yes'
+  - place_id: MA0101202309A0067405
+    brand: null
+    name: 지음약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 봉은사로 533
+    dong: 삼성1동
+    verdict: 'yes'
+  - place_id: MA010120220804143929
+    brand: null
+    name: 기쁨약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 개포로 228
+    dong: 개포4동
+    verdict: 'yes'
+  - place_id: MA010120220804981301
+    brand: null
+    name: 영동약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 강남대로 526
+    dong: 논현1동
+    verdict: 'yes'
+- query: 미용실
+  candidates:
+  - place_id: MA010120220800885786
+    brand: null
+    name: 현대미용실
+    branch: null
+    category: 수리·개인 > 이용·미용 > 미용실
+    address: 서울특별시 강남구 압구정로29길 71
+    dong: 압구정동
+    verdict: 'yes'
+  - place_id: MA010120220804144567
+    brand: null
+    name: 목련미용실
+    branch: null
+    category: 수리·개인 > 이용·미용 > 미용실
+    address: 서울특별시 강남구 논현로26길 18-7
+    dong: 도곡2동
+    verdict: 'yes'
+  - place_id: MA010120220806991112
+    brand: null
+    name: 모습
+    branch: null
+    category: 수리·개인 > 이용·미용 > 미용실
+    address: 서울특별시 강남구 강남대로 328
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220813152026
+    brand: null
+    name: 공리미용실
+    branch: null
+    category: 수리·개인 > 이용·미용 > 미용실
+    address: 서울특별시 강남구 도산대로30길 29-9
+    dong: 논현2동
+    verdict: 'yes'
+  - place_id: MA0101202305A0157143
+    brand: null
+    name: 헤어바이트
+    branch: null
+    category: 수리·개인 > 이용·미용 > 미용실
+    address: 서울특별시 강남구 선릉로72길 35
+    dong: 대치4동
+    verdict: 'yes'
+  - place_id: MA010120220804139556
+    brand: null
+    name: 한은숙미용실
+    branch: null
+    category: 수리·개인 > 이용·미용 > 미용실
+    address: 서울특별시 강남구 남부순환로 2629
+    dong: 도곡1동
+    verdict: 'yes'
+  - place_id: MA010120220804141396
+    brand: null
+    name: 제노미용실
+    branch: null
+    category: 수리·개인 > 이용·미용 > 미용실
+    address: 서울특별시 강남구 삼성로4길 17
+    dong: 개포2동
+    verdict: 'yes'
+  - place_id: MA010120220804138680
+    brand: null
+    name: 헤어필미용실
+    branch: null
+    category: 수리·개인 > 이용·미용 > 미용실
+    address: 서울특별시 강남구 언주로 3
+    dong: 개포4동
+    verdict: 'yes'
+  - place_id: MA010120220801019188
+    brand: null
+    name: 지오미용실
+    branch: null
+    category: 수리·개인 > 이용·미용 > 미용실
+    address: 서울특별시 강남구 개포로22길 92
+    dong: 개포4동
+    verdict: 'yes'
+  - place_id: MA010120220800459909
+    brand: null
+    name: 미아뜨리에
+    branch: null
+    category: 수리·개인 > 이용·미용 > 미용실
+    address: 서울특별시 강남구 압구정로 113
+    dong: 신사동
+    verdict: 'yes'
+  - place_id: MA0101202504A0072595
+    brand: null
+    name: 작업실
+    branch: null
+    category: 수리·개인 > 이용·미용 > 미용실
+    address: 서울특별시 강남구 도산대로85길 15-2
+    dong: 청담동
+    verdict: 'yes'
+  - place_id: MA010120220805799760
+    brand: null
+    name: 쎄미미용실
+    branch: null
+    category: 수리·개인 > 이용·미용 > 미용실
+    address: 서울특별시 강남구 일원로3길 77
+    dong: 일원1동
+    verdict: 'yes'
+  - place_id: MA010120220800287191
+    brand: null
+    name: 홈
+    branch: null
+    category: 수리·개인 > 이용·미용 > 미용실
+    address: 서울특별시 강남구 도산대로85길 14
+    dong: 청담동
+    verdict: 'yes'
+  - place_id: MA010120220813075537
+    brand: null
+    name: 대박미용실
+    branch: null
+    category: 수리·개인 > 이용·미용 > 미용실
+    address: 서울특별시 강남구 개포로82길 5-8
+    dong: 개포2동
+    verdict: 'yes'
+  - place_id: MA010120220804012687
+    brand: null
+    name: 헤어갤러리미용실
+    branch: null
+    category: 수리·개인 > 이용·미용 > 미용실
+    address: 서울특별시 강남구 논현로157길 48
+    dong: 신사동
+    verdict: 'yes'
+  - place_id: MA010120220804144628
+    brand: null
+    name: 현대미용실
+    branch: null
+    category: 수리·개인 > 이용·미용 > 미용실
+    address: 서울특별시 강남구 일원로5길 46
+    dong: 일원1동
+    verdict: 'yes'
+  - place_id: MA010120220804446024
+    brand: null
+    name: 김진미용실
+    branch: null
+    category: 수리·개인 > 이용·미용 > 미용실
+    address: 서울특별시 강남구 테헤란로19길 25
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220802898061
+    brand: null
+    name: 토리미용실
+    branch: null
+    category: 수리·개인 > 이용·미용 > 미용실
+    address: 서울특별시 강남구 논현로18길 14-22
+    dong: 개포4동
+    verdict: 'yes'
+  - place_id: MA010120220804441064
+    brand: null
+    name: 김수진미용실
+    branch: null
+    category: 수리·개인 > 이용·미용 > 미용실
+    address: 서울특별시 강남구 역삼로52길 14
+    dong: 역삼2동
+    verdict: 'yes'
+  - place_id: MA010120220804544196
+    brand: null
+    name: 준미용실
+    branch: null
+    category: 수리·개인 > 이용·미용 > 미용실
+    address: 서울특별시 강남구 헌릉로569길 9
+    dong: 세곡동
+    verdict: 'yes'
+  - place_id: MA010120220812224304
+    brand: null
+    name: 미용실
+    branch: 청담동
+    category: 수리·개인 > 이용·미용 > 미용실
+    address: 서울특별시 강남구 선릉로148길 48-6
+    dong: 청담동
+    verdict: 'yes'
+  - place_id: MA010120220801026337
+    brand: null
+    name: 원미용실
+    branch: null
+    category: 수리·개인 > 이용·미용 > 미용실
+    address: 서울특별시 강남구 역삼로 450
+    dong: 대치4동
+    verdict: 'yes'
+- query: 치킨
+  candidates:
+  - place_id: MA010120220804794886
+    brand: null
+    name: 치킨뱅이
+    branch: null
+    category: 음식 > 기타 간이 > 치킨
+    address: 서울특별시 강남구 봉은사로112길 16
+    dong: 삼성1동
+    verdict: 'yes'
+  - place_id: MA010120220813127758
+    brand: null
+    name: 효도치킨
+    branch: 논현점
+    category: 음식 > 기타 간이 > 치킨
+    address: 서울특별시 강남구 도산대로46길 21
+    dong: 논현2동
+    verdict: 'yes'
+  - place_id: MA010120220813495336
+    brand: null
+    name: 강남치킨
+    branch: null
+    category: 음식 > 기타 간이 > 치킨
+    address: 서울특별시 강남구 논현로95길 34
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220804804670
+    brand: null
+    name: 캘리포니아치킨
+    branch: null
+    category: 음식 > 기타 간이 > 치킨
+    address: 서울특별시 강남구 압구정로4길 12
+    dong: 신사동
+    verdict: 'yes'
+  - place_id: MA010120220804899687
+    brand: null
+    name: 미미치킨
+    branch: null
+    category: 음식 > 기타 간이 > 치킨
+    address: 서울특별시 강남구 삼성로 212
+    dong: 대치2동
+    verdict: 'yes'
+  - place_id: MA010120220805647574
+    brand: null
+    name: 구구치킨
+    branch: null
+    category: 음식 > 기타 간이 > 치킨
+    address: 서울특별시 강남구 개포로82길 5-8
+    dong: 개포2동
+    verdict: 'yes'
+  - place_id: MA010120220805293597
+    brand: null
+    name: 청년치킨
+    branch: 역삼점
+    category: 음식 > 기타 간이 > 치킨
+    address: 서울특별시 강남구 역삼로 133
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220806553243
+    brand: null
+    name: 치킨공식
+    branch: null
+    category: 음식 > 기타 간이 > 치킨
+    address: 서울특별시 강남구 역삼로17길 64
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA0101202209A0014799
+    brand: null
+    name: 놀란치킨
+    branch: 선릉점
+    category: 음식 > 기타 간이 > 치킨
+    address: 서울특별시 강남구 테헤란로64길 9
+    dong: 대치4동
+    verdict: 'yes'
+  - place_id: MA010120220814281915
+    brand: null
+    name: 계동치킨
+    branch: null
+    category: 음식 > 기타 간이 > 치킨
+    address: 서울특별시 강남구 영동대로86길 11
+    dong: 대치2동
+    verdict: 'yes'
+- query: 삼겹살
+  candidates:
+  - place_id: MA010120220802646172
+    brand: null
+    name: 노다지삼겹살
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 삼성로64길 49
+    dong: 대치2동
+    verdict: 'yes'
+  - place_id: MA010120220801143664
+    brand: null
+    name: 1974옛날삼겹살
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 도곡로25길 32
+    dong: 역삼2동
+    verdict: 'yes'
+  - place_id: MA010120220803443729
+    brand: null
+    name: 추풍령칼삼겹살
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 도산대로51길 41
+    dong: 압구정동
+    verdict: 'yes'
+  - place_id: MA010120220801341172
+    brand: null
+    name: 순두부와삼겹살
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 영동대로86길 10-7
+    dong: 대치2동
+    verdict: 'yes'
+  - place_id: MA010120220804459760
+    brand: null
+    name: 황가솥뚜껑삼겹살
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 논현로30길 36
+    dong: 도곡2동
+    verdict: 'yes'
+  - place_id: MA010120220804034144
+    brand: null
+    name: 대박삼겹살
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 논현로161길 16
+    dong: 신사동
+    verdict: 'yes'
+  - place_id: MA010120220804019693
+    brand: null
+    name: 영동원삼겹살
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 강남대로 520
+    dong: 논현1동
+    verdict: 'yes'
+  - place_id: MA010120220800376137
+    brand: null
+    name: 동두천솥뚜껑삼겹살
+    branch: 강남역점
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 테헤란로1길 20
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA0101202303A0088407
+    brand: null
+    name: 요술램프삼겹살
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 강남대로152길 21
+    dong: 신사동
+    verdict: 'yes'
+  - place_id: MA0101202411A0145618
+    brand: null
+    name: 돼봉삼겹살
+    branch: 신논현점
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 봉은사로2길 21
+    dong: 역삼1동
+    verdict: 'yes'
+- query: 노래방
+  candidates:
+  - place_id: MA010120220812715311
+    brand: null
+    name: 미
+    branch: null
+    category: 예술·스포츠 > 유원지·오락 > 노래방
+    address: 서울특별시 강남구 테헤란로21길 8
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220804612581
+    brand: null
+    name: 앵콜노래연습장
+    branch: null
+    category: 예술·스포츠 > 유원지·오락 > 노래방
+    address: 서울특별시 강남구 강남대로110길 11
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220804876770
+    brand: null
+    name: 빈티지코인노래연습장
+    branch: null
+    category: 예술·스포츠 > 유원지·오락 > 노래방
+    address: 서울특별시 강남구 도산대로11길 25
+    dong: 신사동
+    verdict: 'yes'
+  - place_id: MA010120220804868557
+    brand: null
+    name: 샵노래연습장
+    branch: null
+    category: 예술·스포츠 > 유원지·오락 > 노래방
+    address: 서울특별시 강남구 선릉로64길 9
+    dong: 대치4동
+    verdict: 'yes'
+  - place_id: MA010120220804464739
+    brand: null
+    name: 휴
+    branch: null
+    category: 예술·스포츠 > 유원지·오락 > 노래방
+    address: 서울특별시 강남구 논현로38길 26
+    dong: 도곡2동
+    verdict: 'yes'
+  - place_id: MA010120220810288294
+    brand: null
+    name: 토마토노래방
+    branch: null
+    category: 예술·스포츠 > 유원지·오락 > 노래방
+    address: 서울특별시 강남구 논현로176길 24
+    dong: 압구정동
+    verdict: 'yes'
+  - place_id: MA010120220804927987
+    brand: null
+    name: 엔젤노래연습장
+    branch: null
+    category: 예술·스포츠 > 유원지·오락 > 노래방
+    address: 서울특별시 강남구 삼성로81길 30
+    dong: 대치4동
+    verdict: 'yes'
+  - place_id: MA010120220813580517
+    brand: null
+    name: 노래야노래야코인노래연습장
+    branch: null
+    category: 예술·스포츠 > 유원지·오락 > 노래방
+    address: 서울특별시 강남구 테헤란로6길 47
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220804808955
+    brand: null
+    name: 별밤노래연습장
+    branch: null
+    category: 예술·스포츠 > 유원지·오락 > 노래방
+    address: 서울특별시 강남구 테헤란로64길 24
+    dong: 대치4동
+    verdict: 'yes'
+  - place_id: MA010120220801046129
+    brand: null
+    name: 텐프로
+    branch: null
+    category: 예술·스포츠 > 유원지·오락 > 노래방
+    address: 서울특별시 강남구 봉은사로112길 16
+    dong: 삼성1동
+    verdict: 'no'
+  - place_id: MA010120220804794687
+    brand: null
+    name: 퀸노래방
+    branch: null
+    category: 예술·스포츠 > 유원지·오락 > 노래방
+    address: 서울특별시 강남구 개포로 230
+    dong: 개포4동
+    verdict: 'yes'
+  - place_id: MA0101202211A0066776
+    brand: null
+    name: 썬파워노래방
+    branch: null
+    category: 음식 > 주점 > 요리 주점
+    address: 서울특별시 강남구 도곡로4길 6
+    dong: 도곡1동
+    verdict: 'yes'
+  - place_id: MA010120220805089878
+    brand: null
+    name: 엔젤
+    branch: null
+    category: 예술·스포츠 > 유원지·오락 > 노래방
+    address: 서울특별시 강남구 학동로2길 47
+    dong: 논현1동
+    verdict: 'yes'
+  - place_id: MA010120220804007833
+    brand: null
+    name: 홈
+    branch: null
+    category: 예술·스포츠 > 유원지·오락 > 노래방
+    address: 서울특별시 강남구 언주로146길 37
+    dong: 논현2동
+    verdict: 'yes'
+  - place_id: MA010120220801024123
+    brand: null
+    name: 엠비시노래방
+    branch: null
+    category: 예술·스포츠 > 유원지·오락 > 노래방
+    address: 서울특별시 강남구 일원로9길 6
+    dong: 일원1동
+    verdict: 'yes'
+  - place_id: MA010120220801042054
+    brand: null
+    name: 놀러와
+    branch: null
+    category: 예술·스포츠 > 유원지·오락 > 노래방
+    address: 서울특별시 강남구 선릉로86길 39
+    dong: 대치4동
+    verdict: 'yes'
+  - place_id: MA010120220801035046
+    brand: null
+    name: 대박
+    branch: null
+    category: 예술·스포츠 > 유원지·오락 > 노래방
+    address: 서울특별시 강남구 선릉로96길 2
+    dong: 삼성2동
+    verdict: 'yes'
+  - place_id: MA010120220804257318
+    brand: null
+    name: 카라
+    branch: null
+    category: 예술·스포츠 > 유원지·오락 > 노래방
+    address: 서울특별시 강남구 언주로81길 6
+    dong: 역삼2동
+    verdict: 'yes'
+  - place_id: MA010120220804417167
+    brand: null
+    name: 마이다스
+    branch: null
+    category: 예술·스포츠 > 유원지·오락 > 노래방
+    address: 서울특별시 강남구 언주로93길 32
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220806904489
+    brand: null
+    name: 라라코인노래연습장
+    branch: null
+    category: 예술·스포츠 > 유원지·오락 > 노래방
+    address: 서울특별시 강남구 테헤란로1길 32
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220804017697
+    brand: null
+    name: 채널VJ노래방
+    branch: null
+    category: 예술·스포츠 > 유원지·오락 > 노래방
+    address: 서울특별시 강남구 선릉로157길 26
+    dong: 압구정동
+    verdict: 'yes'
+- query: 스타벅스
+  candidates:
+  - place_id: MA0106202201A2364961
+    brand: 스타벅스
+    name: 강남세곡
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 헌릉로569길 18
+    dong: 세곡동
+    verdict: 'yes'
+  - place_id: MA0106202201A2363729
+    brand: 스타벅스
+    name: 도곡역
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 남부순환로 2909
+    dong: 대치1동
+    verdict: 'yes'
+  - place_id: MA0106202201A2364233
+    brand: 스타벅스
+    name: 강남논현
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 강남대로 512
+    dong: 논현1동
+    verdict: 'yes'
+  - place_id: MA0106202201A2364135
+    brand: 스타벅스
+    name: 강남구청역
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 선릉로 669
+    dong: 논현2동
+    verdict: 'yes'
+  - place_id: MA0106202201A2364757
+    brand: 스타벅스
+    name: 국기원사거리
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 테헤란로 125
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA0106202201A2363742
+    brand: 스타벅스
+    name: 서울세관사거리
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 언주로 650
+    dong: 논현2동
+    verdict: 'yes'
+  - place_id: MA0106202201A2363846
+    brand: 스타벅스
+    name: 포이
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 논현로 88
+    dong: 개포4동
+    verdict: 'yes'
+  - place_id: MA0106202201A2363656
+    brand: 스타벅스
+    name: 코엑스사거리
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 영동대로 616
+    dong: 삼성1동
+    verdict: 'yes'
+  - place_id: MA0106202201A2363577
+    brand: 스타벅스
+    name: 강남비젼타워
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 테헤란로2길 27
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA0106202201A2363574
+    brand: 스타벅스
+    name: 청담사거리
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 도산대로 458
+    dong: 청담동
+    verdict: 'yes'
+  - place_id: MA0106202201A2364039
+    brand: 스타벅스
+    name: 신압구정
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 언주로174길 29
+    dong: 압구정동
+    verdict: 'yes'
+  - place_id: MA0106202201A2363668
+    brand: 스타벅스
+    name: 대치삼성
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 영동대로 237
+    dong: 대치2동
+    verdict: 'yes'
+  - place_id: MA0106202512A0488327
+    brand: 스타벅스
+    name: 강남자곡
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 자곡로 172
+    dong: 세곡동
+    verdict: 'yes'
+  - place_id: MA0106202201A2363983
+    brand: 스타벅스
+    name: 선릉세화빌딩
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 테헤란로64길 18
+    dong: 대치4동
+    verdict: 'yes'
+  - place_id: MA0106202201A2363638
+    brand: 스타벅스
+    name: 큰길타워
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 테헤란로 223
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA0106202201A2363716
+    brand: 스타벅스
+    name: 압구정R
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 언주로 861
+    dong: 압구정동
+    verdict: 'yes'
+  - place_id: MA0106202501A0500280
+    brand: 스타벅스
+    name: 강남세곡DT
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 헌릉로 727
+    dong: 세곡동
+    verdict: 'yes'
+  - place_id: MA0106202201A2363584
+    brand: 스타벅스
+    name: 압구정미소
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 논현로 841
+    dong: 신사동
+    verdict: 'yes'
+  - place_id: MA0106202201A2363717
+    brand: 스타벅스
+    name: 도산사거리
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 언주로 727
+    dong: 논현2동
+    verdict: 'yes'
+  - place_id: MA0106202501A0500235
+    brand: 스타벅스
+    name: 개포동
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 선릉로 34
+    dong: 개포2동
+    verdict: 'yes'
+  - place_id: MA0106202201A2364296
+    brand: 스타벅스
+    name: 압구정윤성빌딩
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 논현로 834
+    dong: 압구정동
+    verdict: 'yes'
+- query: CU
+  candidates:
+  - place_id: MA010120220800941229
+    brand: CU
+    name: CU강남
+    branch: 행복점
+    category: 소매 > 종합 소매 > 편의점
+    address: 서울특별시 강남구 양재대로55길 6
+    dong: 일원1동
+    verdict: 'yes'
+  - place_id: MA010120220800117084
+    brand: CU
+    name: CU
+    branch: 선릉역점
+    category: 소매 > 종합 소매 > 편의점
+    address: 서울특별시 강남구 테헤란로 403
+    dong: 삼성2동
+    verdict: 'yes'
+  - place_id: MA010120220803262856
+    brand: CU
+    name: CU강남
+    branch: 삼성점
+    category: 소매 > 종합 소매 > 편의점
+    address: 서울특별시 강남구 선릉로126길 14
+    dong: 삼성2동
+    verdict: 'yes'
+  - place_id: MA010120220807027801
+    brand: CU
+    name: CU청담
+    branch: 보람점
+    category: 소매 > 종합 소매 > 편의점
+    address: 서울특별시 강남구 선릉로 844
+    dong: 청담동
+    verdict: 'yes'
+  - place_id: MA010120220807057722
+    brand: CU
+    name: CU삼성
+    branch: 아이파크점
+    category: 소매 > 종합 소매 > 편의점
+    address: 서울특별시 강남구 삼성로119길 14
+    dong: 삼성2동
+    verdict: 'yes'
+  - place_id: MA0106202510A1026223
+    brand: CU
+    name: CU
+    branch: 역삼본점
+    category: 소매 > 종합 소매 > 슈퍼마켓
+    address: 서울특별시 강남구 봉은사로2길 7
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220808799025
+    brand: CU
+    name: CU압구정
+    branch: 로데오점
+    category: 소매 > 종합 소매 > 편의점
+    address: 서울특별시 강남구 언주로172길 59
+    dong: 압구정동
+    verdict: 'yes'
+  - place_id: MA010120220814096021
+    brand: CU
+    name: CU압구정
+    branch: 미성점
+    category: 소매 > 종합 소매 > 편의점
+    address: 서울특별시 강남구 압구정로 113
+    dong: 신사동
+    verdict: 'yes'
+  - place_id: MA010120220805004084
+    brand: CU
+    name: CU포이점
+    branch: null
+    category: 소매 > 종합 소매 > 편의점
+    address: 서울특별시 강남구 개포로 233
+    dong: 개포4동
+    verdict: 'yes'
+  - place_id: MA010120220804467452
+    brand: CU
+    name: CU역삼시티점
+    branch: null
+    category: 소매 > 종합 소매 > 편의점
+    address: 서울특별시 강남구 테헤란로7길 7
+    dong: 역삼1동
+    verdict: 'yes'
+- query: 파리바게뜨
+  candidates:
+  - place_id: MA010120220813271334
+    brand: 파리바게뜨
+    name: 파리바게트강남을지
+    branch: 병원점
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 도산대로 206
+    dong: 논현2동
+    verdict: 'yes'
+  - place_id: MA0101202406A0326370
+    brand: 파리바게뜨
+    name: 파리바게뜨대치
+    branch: 삼성점
+    category: 음식 > 기타 간이 > 빵/도넛
+    address: 서울특별시 강남구 도곡로 444
+    dong: 대치1동
+    verdict: 'yes'
+  - place_id: MA0101202406A0350641
+    brand: 파리바게뜨
+    name: 파리바게뜨대청
+    branch: 타워점
+    category: 음식 > 기타 간이 > 빵/도넛
+    address: 서울특별시 강남구 개포로 623
+    dong: 개포3동
+    verdict: 'yes'
+  - place_id: MA010120220809785260
+    brand: 파리바게뜨
+    name: 파리바게뜨강남구청
+    branch: 센터점
+    category: 음식 > 기타 간이 > 빵/도넛
+    address: 서울특별시 강남구 선릉로 659
+    dong: 논현2동
+    verdict: 'yes'
+  - place_id: MA010120220804029481
+    brand: 파리바게뜨
+    name: 파리바게뜨
+    branch: 압구정점
+    category: 음식 > 기타 간이 > 빵/도넛
+    address: 서울특별시 강남구 논현로 868
+    dong: 압구정동
+    verdict: 'yes'
+  - place_id: MA010120220803051207
+    brand: 파리바게뜨
+    name: 파리바게트강남
+    branch: 삼성점
+    category: 음식 > 기타 간이 > 빵/도넛
+    address: 서울특별시 강남구 봉은사로 478
+    dong: 삼성2동
+    verdict: 'yes'
+  - place_id: MA010120220803470745
+    brand: 파리바게뜨
+    name: 파리바게트
+    branch: null
+    category: 음식 > 기타 간이 > 빵/도넛
+    address: 서울특별시 강남구 선릉로 50
+    dong: 개포2동
+    verdict: 'yes'
+  - place_id: MA010120220801033519
+    brand: 파리바게뜨
+    name: 파리바게트
+    branch: 개포점
+    category: 음식 > 기타 간이 > 빵/도넛
+    address: 서울특별시 강남구 개포로82길 13-9
+    dong: 개포2동
+    verdict: 'yes'
+  - place_id: MA010120220804035554
+    brand: 파리바게뜨
+    name: 파리바게트강남영동점
+    branch: null
+    category: 음식 > 기타 간이 > 빵/도넛
+    address: 서울특별시 강남구 강남대로 532
+    dong: 논현1동
+    verdict: 'yes'
+  - place_id: MA010120220801029596
+    brand: 파리바게뜨
+    name: 파리바게트신논현교보
+    branch: 타워점
+    category: 음식 > 기타 간이 > 빵/도넛
+    address: 서울특별시 강남구 강남대로118길 12
+    dong: 논현1동
+    verdict: 'yes'
+  - place_id: MA010120220812187004
+    brand: 파리바게뜨
+    name: 파리바게뜨
+    branch: 삼성역점
+    category: 음식 > 기타 간이 > 빵/도넛
+    address: 서울특별시 강남구 영동대로 424
+    dong: 대치2동
+    verdict: 'yes'
+  - place_id: MA0101202409A0099363
+    brand: 파리바게뜨
+    name: 파리바게뜨
+    branch: 자곡점
+    category: 음식 > 기타 간이 > 빵/도넛
+    address: 서울특별시 강남구 자곡로 201
+    dong: 세곡동
+    verdict: 'yes'
+  - place_id: MA010120220809787359
+    brand: 파리바게뜨
+    name: 파리바게뜨강남
+    branch: 일원점
+    category: 음식 > 기타 간이 > 빵/도넛
+    address: 서울특별시 강남구 일원로14길 25
+    dong: 일원본동
+    verdict: 'yes'
+  - place_id: MA0101202504A0050768
+    brand: 파리바게뜨
+    name: 파리바게트학동역점
+    branch: null
+    category: 음식 > 기타 간이 > 빵/도넛
+    address: 서울특별시 강남구 학동로 165
+    dong: 논현1동
+    verdict: 'yes'
+  - place_id: MA010120220806420994
+    brand: 파리바게뜨
+    name: 파리바게트일원주공점
+    branch: null
+    category: 음식 > 기타 간이 > 빵/도넛
+    address: 서울특별시 강남구 양재대로55길 13
+    dong: 일원1동
+    verdict: 'yes'
+  - place_id: MA010120220804821551
+    brand: 파리바게뜨
+    name: 파리바게뜨점
+    branch: 역삼역
+    category: 음식 > 기타 간이 > 빵/도넛
+    address: 서울특별시 강남구 논현로 509
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220804025407
+    brand: 파리바게뜨
+    name: 파리바게트압구정
+    branch: 로데오점
+    category: 음식 > 기타 간이 > 빵/도넛
+    address: 서울특별시 강남구 선릉로 819
+    dong: 압구정동
+    verdict: 'yes'
+  - place_id: MA010120220801034570
+    brand: 파리바게뜨
+    name: 파리바게뜨대치
+    branch: 행복점
+    category: 음식 > 기타 간이 > 빵/도넛
+    address: 서울특별시 강남구 도곡로84길 6
+    dong: 대치2동
+    verdict: 'yes'
+  - place_id: MA010120220806892808
+    brand: 파리바게뜨
+    name: 파리바게뜨
+    branch: 강남구청역점
+    category: 음식 > 기타 간이 > 빵/도넛
+    address: 서울특별시 강남구 학동로 339
+    dong: 논현2동
+    verdict: 'yes'
+- query: 이디야
+  candidates:
+  - place_id: MA0106202201A0056388
+    brand: 이디야
+    name: 이디야
+    branch: null
+    category: 소매 > 기타 상품 소매 > 그 외 기타 상품 전문 소매업
+    address: 서울특별시 강남구 논현로 636
+    dong: 논현2동
+    verdict: 'yes'
+  - place_id: MA010120220808822833
+    brand: 이디야
+    name: 이디야
+    branch: 역삼점
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 논현로72길 13
+    dong: 역삼2동
+    verdict: 'yes'
+  - place_id: MA010120220804028988
+    brand: 이디야
+    name: 이디야커피
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 봉은사로37길 29
+    dong: 논현2동
+    verdict: 'yes'
+  - place_id: MA010120220804458860
+    brand: 이디야
+    name: 이디야
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 테헤란로4길 46
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220800399386
+    brand: 이디야
+    name: 이디야주
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 논현로 636
+    dong: 논현2동
+    verdict: 'yes'
+  - place_id: MA010120220808170327
+    brand: 이디야
+    name: 이디야
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 압구정로2길 62
+    dong: 신사동
+    verdict: 'yes'
+  - place_id: MA010120220808036996
+    brand: 이디야
+    name: 이디야삼성
+    branch: 대치점
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 삼성로64길 32
+    dong: 대치2동
+    verdict: 'yes'
+  - place_id: MA0106202201A0056381
+    brand: 이디야
+    name: 이디야
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 테헤란로 332
+    dong: 역삼2동
+    verdict: 'yes'
+  - place_id: MA0106202201A0056383
+    brand: 이디야
+    name: 이디야
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 학동로 219
+    dong: 논현2동
+    verdict: 'yes'
+  - place_id: MA010120220808246063
+    brand: 이디야
+    name: 이디야커피
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 개포로109길 34
+    dong: 개포3동
+    verdict: 'yes'
+- query: 평점 4.5 이상 카페
+  candidates:
+  - place_id: MA0101202306A0049850
+    brand: null
+    name: 5센소
+    branch: 역삼점
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 강남대로94길 72
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA0101202406A0054090
+    brand: null
+    name: 라곰스터디카페
+    branch: 대치점
+    category: 예술·스포츠 > 도서관·사적지 > 독서실/스터디 카페
+    address: 서울특별시 강남구 역삼로 444
+    dong: 대치4동
+    verdict: 'no'
+  - place_id: MA010120220812487641
+    brand: null
+    name: 란커피
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 개포로15길 3-4
+    dong: 개포4동
+    verdict: 'yes'
+  - place_id: MA0101202406A0193962
+    brand: null
+    name: 유니크
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 도곡로73길 5
+    dong: 대치4동
+    verdict: 'yes'
+  - place_id: MA0101202305A0090456
+    brand: null
+    name: 카페넘버스
+    branch: null
+    category: 음식 > 기타 간이 > 빵/도넛
+    address: 서울특별시 강남구 논현로6길 5
+    dong: 개포4동
+    verdict: 'yes'
+  - place_id: MA0106202503A1121058
+    brand: null
+    name: 대치관리형스터디카페프리즌
+    branch: null
+    category: 예술·스포츠 > 도서관·사적지 > 독서실/스터디 카페
+    address: 서울특별시 강남구 삼성로71길 22
+    dong: 대치4동
+    verdict: 'no'
+  - place_id: MA0106202201A0605244
+    brand: null
+    name: 커피니을지로4가역점
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 학동로42길 34
+    dong: 논현2동
+    verdict: 'yes'
+  - place_id: MA0101202311A0098192
+    brand: null
+    name: 하이하이
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 선릉로76길 28
+    dong: 대치4동
+    verdict: 'yes'
+  - place_id: MA010120220805684187
+    brand: null
+    name: 풀림
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 도산대로25길 29
+    dong: 신사동
+    verdict: 'yes'
+  - place_id: MA010120220810966479
+    brand: null
+    name: 엠스터디카페
+    branch: null
+    category: 예술·스포츠 > 도서관·사적지 > 독서실/스터디 카페
+    address: 서울특별시 강남구 삼성로61길 20
+    dong: 대치4동
+    verdict: 'no'
+  - place_id: MA010120220813438374
+    brand: null
+    name: 터치카페
+    branch: 대치점
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 역삼로63길 5
+    dong: 대치4동
+    verdict: 'yes'
+  - place_id: MA0106202508A1063947
+    brand: null
+    name: 카페 아흘라마(CafeAchlamah)
+    branch: null
+    category: 음식 > 한식 > 백반/한정식
+    address: 서울특별시 강남구 도곡로73길 5
+    dong: 대치4동
+    verdict: 'no'
+  - place_id: MA0106202602A2220747
+    brand: null
+    name: 카페뉴
+    branch: null
+    category: 음식 > 한식 > 백반/한정식
+    address: 서울특별시 강남구 테헤란로 406
+    dong: 대치4동
+    verdict: 'yes'
+  - place_id: MA0101202411A0176497
+    brand: null
+    name: 카페폴라리스
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 삼성로71길 9
+    dong: 대치4동
+    verdict: 'yes'
+  - place_id: MA0101202504A0020508
+    brand: null
+    name: 디케이수학스터디카페
+    branch: null
+    category: 예술·스포츠 > 도서관·사적지 > 독서실/스터디 카페
+    address: 서울특별시 강남구 삼성로63길 7-5
+    dong: 대치4동
+    verdict: 'no'
+  - place_id: MA010120220808909468
+    brand: null
+    name: 커피가좋아
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 광평로 295
+    dong: 수서동
+    verdict: 'yes'
+  - place_id: MA010120220806389735
+    brand: null
+    name: 다란채
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 개포로38길 18
+    dong: 개포4동
+    verdict: 'yes'
+  - place_id: MA010120220803714484
+    brand: null
+    name: 감동식혜
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 역삼로69길 5
+    dong: 대치4동
+    verdict: 'yes'
+  - place_id: MA0101202406A0114561
+    brand: null
+    name: 아이비스터디카페
+    branch: 대치점
+    category: 예술·스포츠 > 도서관·사적지 > 독서실/스터디 카페
+    address: 서울특별시 강남구 선릉로62길 5
+    dong: 대치4동
+    verdict: 'no'
+  - place_id: MA010120220803701473
+    brand: null
+    name: 연리담
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 개포로25길 11
+    dong: 개포4동
+    verdict: 'yes'
+  - place_id: MA010120220801040507
+    brand: null
+    name: 마티스커피
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 논현로12길 21
+    dong: 개포4동
+    verdict: 'yes'
+  - place_id: MA0101202306A0106137
+    brand: null
+    name: 카페열두시
+    branch: null
+    category: 음식 > 비알코올  > 카페
+    address: 서울특별시 강남구 역삼로 452
+    dong: 대치4동
+    verdict: 'yes'
+  - place_id: MA0101202302A0113476
+    brand: null
+    name: 하이컨시W5관
+    branch: null
+    category: 예술·스포츠 > 도서관·사적지 > 독서실/스터디 카페
+    address: 서울특별시 강남구 삼성로 337
+    dong: 대치4동
+    verdict: 'no'
+  - place_id: MA0101202209A0087767
+    brand: null
+    name: 4.2캐쥬얼다이닝
+    branch: null
+    category: 음식 > 서양식 > 경양식
+    address: 서울특별시 강남구 논현로20길 4-11
+    dong: 개포4동
+    verdict: 'no'
+  - place_id: MA010120220810027874
+    brand: null
+    name: 풀
+    branch: null
+    category: 과학·기술 > 전문 디자인 > 인테리어 디자인업
+    address: 서울특별시 강남구 논현로4길 40
+    dong: 개포4동
+    verdict: 'no'
+- query: 지금 문 연 약국
+  candidates:
+  - place_id: MA0101202406A0211944
+    brand: null
+    name: 치유약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 논현로 824
+    dong: 압구정동
+    verdict: 'yes'
+  - place_id: MA010120220804027097
+    brand: null
+    name: 노벨약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 선릉로131길 8
+    dong: 논현2동
+    verdict: 'yes'
+  - place_id: MA0101202303A0100351
+    brand: null
+    name: 삼성정문약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 일원로 95
+    dong: 일원본동
+    verdict: 'yes'
+  - place_id: MA010120220801048676
+    brand: null
+    name: 오늘약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 도곡로 449
+    dong: 대치4동
+    verdict: 'yes'
+  - place_id: MA010120220807364949
+    brand: null
+    name: 희망약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 일원로 95
+    dong: 일원본동
+    verdict: 'yes'
+  - place_id: MA010120220801027016
+    brand: null
+    name: 참약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 일원로 95
+    dong: 일원본동
+    verdict: 'yes'
+  - place_id: MA010120220804053743
+    brand: null
+    name: 종원약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 강남대로118길 38
+    dong: 논현1동
+    verdict: 'yes'
+  - place_id: MA0106202507A0711220
+    brand: null
+    name: 연약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 의료기기 소매업
+    address: 서울특별시 강남구 영동대로 416
+    dong: 대치2동
+    verdict: 'yes'
+  - place_id: MA010120220809761793
+    brand: null
+    name: 만약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 도산대로53길 13
+    dong: 압구정동
+    verdict: 'yes'
+  - place_id: MA010120220806763123
+    brand: null
+    name: 에스온누리약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 압구정로 152
+    dong: 신사동
+    verdict: 'yes'
+  - place_id: MA010120220801039565
+    brand: null
+    name: 열린약국
+    branch: null
+    category: 소매 > 의약·화장품 소매 > 약국
+    address: 서울특별시 강남구 일원로 95
+    dong: 일원본동
+    verdict: 'yes'
+- query: 배달 되는 치킨집
+  candidates:
+  - place_id: MA010120220802650416
+    brand: null
+    name: 치킨이맛있는집
+    branch: null
+    category: 음식 > 기타 간이 > 치킨
+    address: 서울특별시 강남구 논현로16길 14-3
+    dong: 개포4동
+    verdict: 'yes'
+  - place_id: MA010120220812532099
+    brand: null
+    name: 누구나홀닭반한닭
+    branch: null
+    category: 음식 > 기타 간이 > 치킨
+    address: 서울특별시 강남구 언주로 405
+    dong: 역삼2동
+    verdict: 'yes'
+  - place_id: MA010120220805647574
+    brand: null
+    name: 구구치킨
+    branch: null
+    category: 음식 > 기타 간이 > 치킨
+    address: 서울특별시 강남구 개포로82길 5-8
+    dong: 개포2동
+    verdict: 'yes'
+  - place_id: MA0106202509A2388626
+    brand: null
+    name: 후라이드참잘하는집삼성
+    branch: 직영점
+    category: 음식 > 기타 간이 > 치킨
+    address: 서울특별시 강남구 삼성로95길 6
+    dong: 삼성2동
+    verdict: 'yes'
+  - place_id: MA010120220804978685
+    brand: null
+    name: 음마
+    branch: null
+    category: 음식 > 기타 간이 > 치킨
+    address: 서울특별시 강남구 언주로98길 20
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA0101202409A0019303
+    brand: null
+    name: 득끄엉
+    branch: null
+    category: 음식 > 기타 간이 > 치킨
+    address: 서울특별시 강남구 언주로69길 17
+    dong: 역삼2동
+    verdict: 'yes'
+  - place_id: MA0101202406A0506196
+    brand: null
+    name: 부어치킨
+    branch: 개포점
+    category: 음식 > 기타 간이 > 치킨
+    address: 서울특별시 강남구 개포로82길 13-9
+    dong: 개포2동
+    verdict: 'yes'
+  - place_id: MA0101202406A0493322
+    brand: null
+    name: 배달의민철
+    branch: null
+    category: 과학·기술 > 광고 > 기타 광고 관련 서비스업
+    address: 서울특별시 강남구 논현로10길 21
+    dong: 개포4동
+    verdict: 'no'
+  - place_id: MA0101202501A0044795
+    brand: null
+    name: 마틸다바베큐치킨역삼
+    branch: 직영점
+    category: 음식 > 기타 간이 > 치킨
+    address: 서울특별시 강남구 테헤란로 322
+    dong: 역삼2동
+    verdict: 'yes'
+  - place_id: MA010120220803706636
+    brand: null
+    name: 배달왔소
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 테헤란로86길 15
+    dong: 대치2동
+    verdict: 'no'
+- query: 1만원 이하 파스타
+  candidates:
+  - place_id: MA010120220806120061
+    brand: null
+    name: 스파게티스토리
+    branch: null
+    category: 음식 > 서양식 > 파스타/스테이크
+    address: 서울특별시 강남구 역삼로 129
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220805513684
+    brand: null
+    name: 고급양식
+    branch: null
+    category: 음식 > 서양식 > 파스타/스테이크
+    address: 서울특별시 강남구 언주로85길 32
+    dong: 역삼2동
+    verdict: 'yes'
+  - place_id: MA010120220812211387
+    brand: null
+    name: 스파게티스토리
+    branch: null
+    category: 음식 > 서양식 > 파스타/스테이크
+    address: 서울특별시 강남구 삼성로 642
+    dong: 삼성1동
+    verdict: 'yes'
+  - place_id: MA0106202601A2218780
+    brand: null
+    name: 파스타입니다 강남점
+    branch: null
+    category: 음식 > 서양식 > 파스타/스테이크
+    address: 서울특별시 강남구 봉은사로29길 35
+    dong: 논현2동
+    verdict: 'yes'
+  - place_id: MA0106202509A0383036
+    brand: null
+    name: 보니따파스타
+    branch: null
+    category: 음식 > 서양식 > 파스타/스테이크
+    address: 서울특별시 강남구 강남대로118길 31
+    dong: 논현1동
+    verdict: 'yes'
+  - place_id: MA0101202303A0023482
+    brand: null
+    name: 파스타파는남자
+    branch: null
+    category: 음식 > 서양식 > 파스타/스테이크
+    address: 서울특별시 강남구 언주로103길 27
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220810145117
+    brand: null
+    name: 디오파스타돈까스
+    branch: null
+    category: 음식 > 서양식 > 파스타/스테이크
+    address: 서울특별시 강남구 강남대로84길 33
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220808760173
+    brand: null
+    name: 파스타에반하다
+    branch: null
+    category: 음식 > 서양식 > 파스타/스테이크
+    address: 서울특별시 강남구 봉은사로30길 73
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220804468070
+    brand: null
+    name: 스파게티스토리
+    branch: null
+    category: 음식 > 서양식 > 파스타/스테이크
+    address: 서울특별시 강남구 논현로67길 11
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220812124807
+    brand: null
+    name: 쿠치나파스타
+    branch: null
+    category: 음식 > 서양식 > 파스타/스테이크
+    address: 서울특별시 강남구 도산대로8길 9
+    dong: 논현1동
+    verdict: 'yes'
+- query: 제주도 흑돼지 맛집
+  candidates:
+  - place_id: MA0101202406A0438648
+    brand: null
+    name: 제주주먹고기
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 언주로108길 8
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220808000812
+    brand: null
+    name: 제주애돈
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 논현로157길 11
+    dong: 신사동
+    verdict: 'yes'
+  - place_id: MA010120220806995648
+    brand: null
+    name: 흑소랑
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 테헤란로81길 36
+    dong: 삼성1동
+    verdict: 'yes'
+  - place_id: MA0101202412A0038201
+    brand: null
+    name: 제주흑도야지
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 봉은사로 610
+    dong: 삼성1동
+    verdict: 'yes'
+  - place_id: MA010120220813580054
+    brand: null
+    name: 흑우정
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 도산대로57길 7
+    dong: 청담동
+    verdict: 'yes'
+  - place_id: MA010120220812055917
+    brand: null
+    name: 흑돼지대통령칼국수대통령
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 테헤란로4길 35
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA0101202409A0174016
+    brand: null
+    name: 소;돼지불맛집
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 논현로95길 29
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA010120220806826918
+    brand: null
+    name: 제주탐하리
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 봉은사로26길 21
+    dong: 역삼1동
+    verdict: 'yes'
+  - place_id: MA0101202406A0374608
+    brand: null
+    name: 제주흑돼지마을
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 봉은사로 319
+    dong: 논현2동
+    verdict: 'yes'
+  - place_id: MA0101202311A0020934
+    brand: null
+    name: 제주그집
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 논현로8길 11
+    dong: 개포4동
+    verdict: 'yes'
+  - place_id: MA0101202409A0078418
+    brand: null
+    name: 제주옥탑블랙BBQ
+    branch: null
+    category: 음식 > 기타 간이 > 치킨
+    address: 서울특별시 강남구 언주로170길 34
+    dong: 압구정동
+    verdict: 'yes'
+  - place_id: MA010120220804009981
+    brand: null
+    name: 제주도흑돼지
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 논현로132길 13
+    dong: 논현2동
+    verdict: 'yes'
+  - place_id: MA0106202512A1324641
+    brand: null
+    name: 탐라흑돼지김치찌개전문
+    branch: null
+    category: 음식 > 한식 > 돼지고기 구이/찜
+    address: 서울특별시 강남구 논현로16길 14-6
+    dong: 개포4동
+    verdict: 'yes'
