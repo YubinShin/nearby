@@ -41,6 +41,8 @@ psp:
 
     keep-versions: 2
 
+    watermark-lag: 60s
+
     schedule:
       enabled: false
       incremental-cron: "0 */5 * * * *"

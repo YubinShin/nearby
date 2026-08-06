@@ -25,6 +25,8 @@ object PlaceSql {
 	val SELECT_SINCE = "$SELECT_BASE\nwhere p.updated_at > ?\norder by p.place_id"
 
 	const val SELECT_MAX_UPDATED_AT = "select updated_at from public.place order by updated_at desc limit 1"
+
+	const val SELECT_DB_NOW = "select clock_timestamp()"
 }
 
 object PlaceRowMapper : RowMapper<PlaceRow> {
@@ -59,4 +61,9 @@ class PlaceSourceDao(private val jdbc: JdbcClient) {
 			.query { rs, _ -> rs.getObject(1, OffsetDateTime::class.java) }
 			.optional()
 			.orElse(null)
+
+	fun dbNow(): OffsetDateTime =
+		jdbc.sql(PlaceSql.SELECT_DB_NOW)
+			.query { rs, _ -> rs.getObject(1, OffsetDateTime::class.java) }
+			.single()
 }

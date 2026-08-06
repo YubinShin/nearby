@@ -9,6 +9,7 @@ import dev.yubin.search.indexer.index.CheckpointStore
 import dev.yubin.search.indexer.index.EsBulkIndexer
 import dev.yubin.search.indexer.index.IndexAdminService
 import dev.yubin.search.indexer.index.PlaceRowMapper
+import dev.yubin.search.indexer.index.PlaceSourceDao
 import dev.yubin.search.indexer.index.PlaceSql
 import org.slf4j.LoggerFactory
 import org.springframework.batch.core.configuration.annotation.StepScope
@@ -26,6 +27,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
+import java.time.Duration
 import java.time.OffsetDateTime
 import javax.sql.DataSource
 
@@ -39,11 +41,13 @@ class KeywordIndexJobConfig(
 	private val checkpoints: CheckpointStore,
 	private val meta: IndexMetaStore,
 	private val es: ElasticsearchClient,
+	private val places: PlaceSourceDao,
 	@Value("\${psp.index.search-alias}") private val searchAlias: String,
 	@Value("\${psp.index.suggest-alias}") private val suggestAlias: String,
 	@Value("\${psp.index.batch-size}") private val chunkSize: Int,
 	@Value("\${psp.index.fetch-size}") private val fetchSize: Int,
 	@Value("\${psp.index.keep-versions}") private val keepVersions: Int,
+	@Value("\${psp.index.watermark-lag}") private val watermarkLag: Duration,
 ) {
 	@Bean
 	fun keywordRebuildJob(): Job =
@@ -149,7 +153,7 @@ class KeywordIndexJobConfig(
 				meta.write(IndexMeta.PIPELINE_SEARCH, searchStamp(newSearch))
 				meta.write(IndexMeta.PIPELINE_SUGGEST, suggestStamp(newSuggest))
 
-				LoadProgress.ofJob(step).maxUpdatedAt?.let {
+				LoadProgress.capWatermark(LoadProgress.ofJob(step).maxUpdatedAt, places.dbNow(), watermarkLag)?.let {
 					checkpoints.set(CheckpointStore.PLACE_PIPELINE, it)
 					ctx.putString(IndexJobs.Ctx.CHECKPOINT, it.toString())
 				}
@@ -194,7 +198,7 @@ class KeywordIndexJobConfig(
 				es.indices().refresh { it.index(listOf(searchAlias, suggestAlias)) }
 
 				val since = ctx.getString(IndexJobs.Ctx.SINCE, "").ifEmpty { null }?.let(OffsetDateTime::parse)
-				val advanced = LoadProgress.ofJob(step).maxUpdatedAt
+				val advanced = LoadProgress.capWatermark(LoadProgress.ofJob(step).maxUpdatedAt, places.dbNow(), watermarkLag)
 					?.takeIf { since == null || it.isAfter(since) }
 					?.also { checkpoints.set(CheckpointStore.PLACE_PIPELINE, it) }
 

@@ -3,6 +3,7 @@ package dev.yubin.search.indexer.batch
 import dev.yubin.search.core.place.PlaceRow
 import org.springframework.batch.core.step.StepExecution
 import org.springframework.batch.infrastructure.item.ExecutionContext
+import java.time.Duration
 import java.time.OffsetDateTime
 
 class LoadProgress(private val ctx: ExecutionContext) {
@@ -49,5 +50,10 @@ class LoadProgress(private val ctx: ExecutionContext) {
 		fun of(stepExecution: StepExecution) = LoadProgress(stepExecution.executionContext)
 
 		fun ofJob(stepExecution: StepExecution) = LoadProgress(stepExecution.jobExecution.executionContext)
+
+		fun capWatermark(maxUpdatedAt: OffsetDateTime?, dbNow: OffsetDateTime, lag: Duration): OffsetDateTime? {
+			val ceiling = dbNow.minus(lag)
+			return maxUpdatedAt?.let { if (it.isAfter(ceiling)) ceiling else it }
+		}
 	}
 }
