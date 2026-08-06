@@ -182,7 +182,7 @@ class VectorIndexJobConfig(
 
 				ctx.putString(IndexJobs.Ctx.COLLECTION, alias)
 
-				val since = checkpoints.get(CheckpointStore.PLACE_VECTOR)
+				val since = checkpoints.get(CheckpointStore.PLACE_VECTOR) ?: qdrant.maxUpdatedAt(alias)
 				if (since != null) ctx.putString(IndexJobs.Ctx.SINCE, since.toString())
 
 				log.info("vector incremental prepared — since={}", since ?: "(none → full read)")

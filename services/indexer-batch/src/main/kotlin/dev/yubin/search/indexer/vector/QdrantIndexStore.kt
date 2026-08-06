@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.requiredBody
+import java.time.OffsetDateTime
 
 @Component
 class QdrantIndexStore(
@@ -109,6 +110,20 @@ class QdrantIndexStore(
 			.retrieve().toBodilessEntity()
 	}
 
+	fun maxUpdatedAt(collection: String): OffsetDateTime? =
+		http.post().uri("/collections/{name}/points/scroll", collection)
+			.body(
+				mapOf(
+					"limit" to 1,
+					"with_payload" to listOf(QdrantContract.UPDATED_AT),
+					"order_by" to mapOf("key" to QdrantContract.UPDATED_AT, "direction" to "desc"),
+				),
+			)
+			.retrieve().requiredBody<ScrollResponse>()
+			.result.points.firstOrNull()
+			?.payload?.get(QdrantContract.UPDATED_AT)
+			?.let { OffsetDateTime.parse(it.toString()) }
+
 	private fun aliases(): List<AliasDescription> =
 		http.get().uri("/aliases").retrieve().requiredBody<AliasesResponse>().result.aliases
 }
@@ -116,6 +131,9 @@ class QdrantIndexStore(
 internal data class AliasesResponse(val result: AliasList)
 internal data class AliasList(val aliases: List<AliasDescription>)
 internal data class AliasDescription(val alias_name: String, val collection_name: String)
+internal data class ScrollResponse(val result: ScrollResult)
+internal data class ScrollResult(val points: List<ScrollPoint>)
+internal data class ScrollPoint(val payload: Map<String, Any?> = emptyMap())
 internal data class CollectionsResponse(val result: CollectionList)
 internal data class CollectionList(val collections: List<CollectionDescription>)
 internal data class CollectionDescription(val name: String)

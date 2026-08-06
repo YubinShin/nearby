@@ -36,13 +36,18 @@ class IndexMetaStore(private val es: ElasticsearchClient) {
 						append("[$pipeline] the indexed data and this process disagree on the contract.\n")
 						verdict.differences.forEach { append("  - ").append(it).append('\n') }
 						append("  in this state nothing throws — the results just go silently wrong.\n")
-						append("  → ").append(remedy)
+						append("  → ").append(if (verdict.sharesSchemaVersion()) REMEDY_SCHEMA_VERSION else remedy)
 					},
 				)
 		}
 	}
 
 	private companion object {
+		const val REMEDY_SCHEMA_VERSION =
+			"the schema version is shared by every pipeline, so one reindex is not enough. " +
+				"run both on the indexer (indexer-batch) and then start this app again: " +
+				"POST /admin/reindex, then POST /admin/vector/reindex."
+
 		const val HTTP_NOT_FOUND = 404
 
 		private val log = LoggerFactory.getLogger(IndexMetaStore::class.java)

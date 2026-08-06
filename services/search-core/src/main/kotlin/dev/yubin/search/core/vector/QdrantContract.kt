@@ -25,6 +25,11 @@ object QdrantContract {
 		"sigungu" to "keyword",
 		"dong" to "keyword",
 		"category_large" to "keyword",
+		"category_mid" to "keyword",
+		"category_small" to "keyword",
 		"location" to "geo",
+		"updated_at" to "datetime",
 	)
+
+	const val UPDATED_AT = "updated_at"
 }

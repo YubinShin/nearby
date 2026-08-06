@@ -33,7 +33,7 @@ object PlaceVectors {
 	private fun anyCategoryLevel(value: String) =
 		mapOf("should" to CATEGORY_LEVELS.map { match(it, value) })
 
-	val CATEGORY_LEVELS = listOf("category_large", "category_small")
+	val CATEGORY_LEVELS = listOf("category_large", "category_mid", "category_small")
 
 	fun distanceM(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Long {
 		val dLat = Math.toRadians(lat2 - lat1)
