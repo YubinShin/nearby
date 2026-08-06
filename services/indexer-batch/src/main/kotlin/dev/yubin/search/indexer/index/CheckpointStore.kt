@@ -1,6 +1,7 @@
 package dev.yubin.search.indexer.index
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient
+import co.elastic.clients.elasticsearch._types.ElasticsearchException
 import co.elastic.clients.elasticsearch._types.Refresh
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
@@ -17,8 +18,8 @@ class CheckpointStore(
 		try {
 			val resp = es.get({ g -> g.index(index).id(pipeline) }, Checkpoint::class.java)
 			resp.source()?.last_updated_at?.let(OffsetDateTime::parse)
-		} catch (_: Exception) {
-			null
+		} catch (e: ElasticsearchException) {
+			if (e.status() == HTTP_NOT_FOUND) null else throw e
 		}
 
 	fun set(pipeline: String, at: OffsetDateTime) {
@@ -31,5 +32,7 @@ class CheckpointStore(
 		const val PLACE_PIPELINE = "place"
 
 		const val PLACE_VECTOR = "place_vector"
+
+		private const val HTTP_NOT_FOUND = 404
 	}
 }
