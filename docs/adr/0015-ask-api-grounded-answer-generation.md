@@ -125,7 +125,7 @@ grounding 함정 실험, 2026-08-04, `gemini-3.5-flash` · thinkingLevel=minimal
 | garbage_input | 회 질의 컨텍스트에 회계사무소 혼입 | `회계` 미언급, `FAKE0001` 미인용 |
 
 `제주도 흑돼지`류 지리 범위 미탐은 ADR 0014 gap ①(색인 행정동 어휘)과 원인이 같습니다.
-정확도 수치는 골든셋 라벨링 전까지 주장하지 않습니다(ADR 0014 원칙 유지).
+이 절은 groundedness 스팟 실험입니다. groundedness 수치는 전용 라벨셋 전까지 주장하지 않습니다(ADR 0014 원칙 유지). 검색 정확도는 2026-08-05 골든셋으로 별도 측정했습니다([골든셋](../../scripts/eval/README.md)).
 
 ## Platform gaps
 

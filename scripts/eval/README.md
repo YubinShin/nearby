@@ -66,6 +66,29 @@ Corpus: **Gangnam 64K**, `k=10`
 
 `ask` 행은 **fixture 모드**에서 측정했습니다. 실제 LLM 호출은 `temperature=0`이라도 완전히 결정적이지 않아 같은 결과를 항상 재현하지 못합니다 ([ADR 0014](../../docs/adr/0014-ask-api-llm-query-understanding.md)).
 
+### Recall Ceiling at k=10
+
+`recall@10`의 분모는 정답 전체입니다. 반환은 10건이므로 정답이 10건을 넘는 질의는 전부 맞혀도 1.0에 도달하지 못합니다. `약국`은 정답이 28건이라 상한이 0.36입니다.
+
+25개 질의 중 22개의 정답이 10건을 넘습니다(평균 17.4건, 최소 8건, 최대 28건). 질의별 상한 `min(10, 정답수) / 정답수`를 평균하면 **0.629**이며, 이 값이 `k=10`에서 가능한 최대치입니다.
+
+| Search Path | Recall@10 | Ceiling (0.629) |
+| --- | ---: | ---: |
+| Keyword | 0.29 | 46% |
+| Vector | 0.43 | 68% |
+| Hybrid (`q`) | 0.54 | 86% |
+| Hybrid (`ask`-generated `q`) | 0.54 | 86% |
+
+`nDCG@10`은 이 상한을 이미 반영합니다. `score_golden_set.py`가 ideal DCG를 `min(정답수, k)`로 계산하므로 nDCG는 `k`에서 달성 가능한 최선 대비 비율입니다. `recall`만 정규화되어 있지 않으므로 두 수치는 기준이 다릅니다.
+
+### Sample Size
+
+25개 질의에서는 질의 하나가 평균을 크게 움직입니다. `세탁소` 오인식 하나가 평균 nDCG를 약 0.04 낮추는 것이 그 예입니다.
+
+따라서 Hybrid와 `ask` 사이의 nDCG 차이 **0.03**은 질의 하나의 영향보다 작아 개선으로 주장하지 않습니다. 두 경로의 `recall@10`은 0.54로 동일하며, 실질적인 차이는 **MRR 0.87 → 0.96**입니다. 질의 이해는 검색 결과 집합을 넓히는 것이 아니라 상위 순위를 정확하게 만듭니다.
+
+Keyword와 Hybrid의 nDCG 차이 **0.33**은 이 표본 크기에서도 유효합니다.
+
 ## Where Query Understanding Helped (and Hurt)
 
 | Query | nDCG | Notes |

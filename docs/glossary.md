@@ -382,7 +382,7 @@ PostgreSQL에 **지리 기능**을 더한 확장. 좌표를 저장하고 거리�
 
 **아키텍처 리뷰**
 스스로 찾은 결함 목록. 고친 것·못 고친 것·왜 못 고쳤는지를 같이 적습니다.
-📍 [architecture-review.md](architecture-review.md) 에 28건 있습니다.
+📍 [architecture-review.md](architecture-review.md) 에 30건 있습니다.
 
 **컴포지트 빌드 (composite build)**
 서로 독립적인 여러 빌드를 **묶어서 한 번에 인식시키는** Gradle 방식.
