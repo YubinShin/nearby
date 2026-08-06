@@ -12,7 +12,7 @@ object PlaceVectors {
 		val must = buildList {
 			req.sigungu?.let { add(match("sigungu", it)) }
 			req.dong?.let { add(match("dong", it)) }
-			req.categoryLarge?.let { add(match("category_large", it)) }
+			req.category?.let { add(anyCategoryLevel(it)) }
 			if (req.hasGeo && req.radiusM != null) {
 				add(
 					mapOf(
@@ -29,6 +29,11 @@ object PlaceVectors {
 	}
 
 	private fun match(key: String, value: String) = mapOf("key" to key, "match" to mapOf("value" to value))
+
+	private fun anyCategoryLevel(value: String) =
+		mapOf("should" to CATEGORY_LEVELS.map { match(it, value) })
+
+	val CATEGORY_LEVELS = listOf("category_large", "category_small")
 
 	fun distanceM(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Long {
 		val dLat = Math.toRadians(lat2 - lat1)

@@ -20,6 +20,8 @@ object PlaceQueries {
 		"jibun_address",
 	)
 
+	val CATEGORY_LEVELS = listOf("category_large", "category_mid", "category_small")
+
 	fun search(req: SearchRequest, relaxed: Boolean = false): Query = Query.of { q ->
 		q.bool { b ->
 			b.must { m ->
@@ -60,12 +62,19 @@ object PlaceQueries {
 	fun filters(req: SearchRequest): List<Query> = buildList {
 		req.sigungu?.let { add(term("sigungu", it)) }
 		req.dong?.let { add(term("dong", it)) }
-		req.categoryLarge?.let { add(term("category_large", it)) }
+		req.category?.let { add(anyCategoryLevel(it)) }
 		if (req.hasGeo && req.radiusM != null) add(withinRadius(req.lat!!, req.lon!!, req.radiusM))
 	}
 
 	private fun term(field: String, value: String): Query =
 		Query.of { q -> q.term { t -> t.field(field).value(value) } }
+
+	private fun anyCategoryLevel(value: String): Query =
+		Query.of { q ->
+			q.bool { b ->
+				b.should(CATEGORY_LEVELS.map { term(it, value) }).minimumShouldMatch("1")
+			}
+		}
 
 	private fun withinRadius(lat: Double, lon: Double, radiusM: Int): Query =
 		Query.of { q ->

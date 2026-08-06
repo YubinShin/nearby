@@ -29,6 +29,22 @@ class PlaceQueriesTest {
 	}
 
 	@Test
+	fun `a category filter matches whichever level carries the value`() {
+		val f = PlaceQueries.filters(SearchRequest.of("커피", category = "카페")).single()
+		val q = json(f)
+
+		PlaceQueries.CATEGORY_LEVELS.forEach {
+			assertTrue("\"$it\"" in q, "a response category can name any level, so the filter has to cover $it: $q")
+		}
+		assertTrue("\"minimum_should_match\":\"1\"" in q, "matching one level is enough: $q")
+	}
+
+	@Test
+	fun `the category filter covers the levels the response can return`() {
+		assertEquals(listOf("category_large", "category_mid", "category_small"), PlaceQueries.CATEGORY_LEVELS)
+	}
+
+	@Test
 	fun `a phrase match on the place name earns a bonus`() {
 		val q = json(PlaceQueries.search(SearchRequest.of("스타벅스")))
 		assertTrue("match_phrase" in q, "places whose whole name matches must be pushed up: $q")

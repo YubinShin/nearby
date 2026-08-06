@@ -42,7 +42,7 @@
 | `page` | int | `0` | 0부터 시작합니다. `0~99` 범위로 보정됩니다. |
 | `sigungu` | string | – | 시군구 정확 일치 필터 (예: `강남구`) |
 | `dong` | string | – | 행정동 정확 일치 필터 (예: `역삼1동`) |
-| `category` | string | – | 대분류 정확 일치 필터 |
+| `category` | string | – | 분류 정확 일치 필터. 대·중·소분류 중 한 곳이라도 일치하면 통과합니다. 응답 `category` 값을 그대로 넣을 수 있습니다. |
 | `lat`, `lon` | double | – | 기준 좌표. 두 값이 모두 있을 때만 위치 기반 기능이 활성화됩니다. |
 | `radius` | int | `2000` | 검색 반경(m). 좌표가 지정된 경우에만 사용하며 `1~50,000` 범위로 보정됩니다. |
 | `sort` | string | `relevance` | `relevance` \| `distance`. 좌표 없이 `distance`를 지정하면 `relevance`로 처리됩니다. |
@@ -212,7 +212,7 @@ curl -G localhost:8080/v1/search --data-urlencode "q=스타벅스"
 |---|---|---|---|
 | `q` | string | (필수) | 검색어 |
 | `size` · `page` | int | `10` · `0` | `/v1/search`와 동일한 규칙을 적용합니다. |
-| `sigungu` · `dong` · `category` | string | – | 정확 일치 필터. 벡터 검색 단계에서 적용됩니다. |
+| `sigungu` · `dong` · `category` | string | – | 정확 일치 필터. 벡터 검색 단계에서 적용됩니다. `category`는 Qdrant payload가 가진 대·소분류만 대조합니다. |
 | `lat`, `lon`, `radius` | – | `2000` | 반경 필터. 좌표가 있으면 `distanceM`도 함께 반환합니다. |
 
 `sort`는 지원하지 않습니다. 벡터 검색 결과는 유사도 점수 순으로 반환됩니다. 자세한 이유는 [ADR 0003](adr/0003-hybrid-search-rrf-in-app-layer.md)를 참고하세요.
