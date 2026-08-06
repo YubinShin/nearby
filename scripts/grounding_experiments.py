@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-grounding_experiments.py — Nearby 그라운딩 함정 실험 재현 (2026-08-04)
+grounding_experiments.py — Nearby 그라운딩 트랩 실험 재현 (2026-08-04)
 
 curl로 한 실험들을 코드로 고정합니다.
 - 컨텍스트는 place dict에서 자동 생성

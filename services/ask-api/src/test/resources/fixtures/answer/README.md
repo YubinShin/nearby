@@ -27,7 +27,7 @@ sha256(
 
 현재 **8개**이며 전부 `source: recorded` · `model: gemini-3.5-flash` 입니다. (Recorded: **2026-08-04**)
 
-모두 `scripts/grounding_experiments.py`의 함정(trap) 시나리오에서 생성했고, 원본 응답은 `scripts/fixtures/260804/`에 있습니다.
+모두 `scripts/grounding_experiments.py`의 트랩 시나리오에서 생성했고, 원본 응답은 `scripts/fixtures/260804/`에 있습니다.
 
 | Experiment | Question | Context |
 | --- | --- | --- |

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""그라운딩 함정 8개를 Gemini API 에 던져 응답 원문을 ask-api 답변 픽스처로 저장한다.
+"""그라운딩 트랩 8개를 Gemini API 에 던져 응답 원문을 ask-api 답변 픽스처로 저장한다.
 
   전제:  export GEMINI_API_KEY=...
   실행:  python3 scripts/record_answer_fixtures.py
@@ -158,7 +158,7 @@ def main():
             continue
         todo.append((experiment, question, context, key))
 
-    print(f"함정 {len(plan)}개 · 녹화 대상 {len(todo)}개 · 모델 {model} · 프롬프트 v{version}")
+    print(f"트랩 {len(plan)}개 · 녹화 대상 {len(todo)}개 · 모델 {model} · 프롬프트 v{version}")
 
     if args.dry_run:
         for experiment, question, context, key in plan:

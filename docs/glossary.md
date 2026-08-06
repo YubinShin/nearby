@@ -164,7 +164,7 @@ Qdrant에서 ES의 "인덱스"에 해당하는 것.
 강남역 반경 300m 는 3% 남습니다.
 📍 "많이 남았으면 문턱을 켜도 안전하다"는 가설을 검토하였으나 실험 후 제외하였습니다. 
 남은 비율이 비슷해도 **카테고리로 좁히면 결과가 사라지고 반경으로 좁히면 멀쩡했기** 때문입니다
-([ADR 0010](adr/0010-embedding-model-and-serving.md) 문턱값 후속 2).
+([ADR 0010](adr/0010-embedding-model-and-serving.md) Threshold follow-up 2).
 
 **추론 (inference)**
 학습이 끝난 모델에 입력을 넣어 출력을 받는 것. **모델을 쓰는 쪽**의 일입니다.

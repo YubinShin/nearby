@@ -15,7 +15,7 @@
 | [0007](0007-vector-engine-qdrant-vs-milvus.md) | 벡터 엔진으로 별도 엔진 Qdrant 를 선택 |
 | [0008](0008-korean-analyzer-komoran-vs-nori.md) | 한국어 형태소 분석기로 KOMORAN 을 선택, ES 플러그인으로 직접 통합 |
 | [0009](0009-keyword-ranking-and-fallback.md) | 키워드 랭킹은 정밀도 우선, 0건 시 완화 폴백 |
-| [0010](0010-embedding-model-and-serving.md) | 임베딩 모델 선택과 추론을 돌릴 자리 |
+| [0010](0010-embedding-model-and-serving.md) | 임베딩 모델 선택과 추론 위치 |
 | [0011](0011-module-split-and-index-contract.md) | 색인기와 질의기를 별도 아티팩트로 분리, 색인 계약은 런타임에 대조 |
 | [0012](0012-manifests-in-monorepo.md) | 배포 매니페스트를 소스와 같은 저장소에 배치 (모노레포) |
 | [0013](0013-indexer-runtime-spring-batch.md) | 색인기 런타임을 리액티브에서 Spring Batch + 블로킹으로 전환 |
