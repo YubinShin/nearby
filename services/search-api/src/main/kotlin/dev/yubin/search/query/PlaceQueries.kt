@@ -22,6 +22,8 @@ object PlaceQueries {
 
 	val CATEGORY_LEVELS = listOf("category_large", "category_mid", "category_small")
 
+	val SUGGEST_FIELDS = listOf("label", "brand_text")
+
 	fun search(req: SearchRequest, relaxed: Boolean = false): Query = Query.of { q ->
 		q.bool { b ->
 			b.must { m ->
@@ -43,7 +45,14 @@ object PlaceQueries {
 		root.functionScore { fs ->
 			fs.query { q ->
 				q.bool { b ->
-					b.must { m -> m.match { mt -> mt.field("label").query(req.q).operator(Operator.And) } }
+					b.must { m ->
+					m.multiMatch { mm ->
+						mm.fields(SUGGEST_FIELDS)
+							.query(req.q)
+							.type(TextQueryType.CrossFields)
+							.operator(Operator.And)
+					}
+				}
 					b.should { s -> s.prefix { p -> p.field("label.raw").value(req.q.lowercase()).boost(3.0f) } }
 				}
 			}

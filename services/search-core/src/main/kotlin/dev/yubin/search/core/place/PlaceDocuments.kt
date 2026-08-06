@@ -26,7 +26,10 @@ object PlaceDocuments {
 	fun suggestDoc(r: PlaceRow): Map<String, Any?> = buildMap {
 		put("place_id", r.placeId)
 		put("name", r.name)
-		Brands.resolve(r.brand, r.name, r.branch)?.let { put("brand", it) }
+		Brands.resolve(r.brand, r.name, r.branch)?.let {
+			put("brand", it)
+			put("brand_text", Brands.searchText(it))
+		}
 		put("label", label(r))
 		put("name_length", r.name.length)
 		r.categorySmall?.let { put("category_small", it) }

@@ -41,6 +41,11 @@
         "fields": { "raw": { "type": "keyword", "normalizer": "lowercase_norm" } }
       },
       "brand":          { "type": "keyword" },
+      "brand_text":     {
+        "type": "text",
+        "analyzer": "autocomplete_index",
+        "search_analyzer": "autocomplete_search"
+      },
       "label":          {
         "type": "text",
         "analyzer": "autocomplete_index",
