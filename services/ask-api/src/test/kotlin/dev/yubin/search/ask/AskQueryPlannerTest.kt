@@ -1,7 +1,9 @@
 package dev.yubin.search.ask
 
 import org.junit.jupiter.api.Test
+import org.springframework.web.server.ServerWebInputException
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -76,6 +78,19 @@ class AskQueryPlannerTest {
 			lon = 127.0276,
 		)
 		assertEquals(AskQueryPlanner.MAX_RADIUS_M, plan.radius)
+	}
+
+	@Test
+	fun `a coordinate outside the valid range is rejected instead of blaming search-api`() {
+		assertFailsWith<ServerWebInputException> {
+			plan(raw = "카페", parsed = ParsedQuery(keyword = "카페"), lat = 999.0, lon = 127.0)
+		}
+		assertFailsWith<ServerWebInputException> {
+			plan(raw = "카페", parsed = null, lat = 37.5, lon = 181.0)
+		}
+		assertFailsWith<ServerWebInputException> {
+			plan(raw = "카페", parsed = null, lat = Double.NaN, lon = 127.0)
+		}
 	}
 
 	@Test

@@ -1,7 +1,9 @@
 package dev.yubin.search.query
 
 import org.junit.jupiter.api.Test
+import org.springframework.web.server.ServerWebInputException
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -27,6 +29,21 @@ class SearchRequestTest {
 	@Test
 	fun `from is page times size`() {
 		assertEquals(60, SearchRequest.of(q = "커피", size = 20, page = 3).from)
+	}
+
+	@Test
+	fun `a coordinate outside the valid range is rejected instead of reaching Elasticsearch`() {
+		assertFailsWith<ServerWebInputException> { SearchRequest.of("커피", lat = 91.0, lon = 127.0) }
+		assertFailsWith<ServerWebInputException> { SearchRequest.of("커피", lat = -91.0, lon = 127.0) }
+		assertFailsWith<ServerWebInputException> { SearchRequest.of("커피", lat = 37.5, lon = 181.0) }
+		assertFailsWith<ServerWebInputException> { SearchRequest.of("커피", lat = Double.NaN, lon = 127.0) }
+		assertFailsWith<ServerWebInputException> { SearchRequest.of("커피", lat = 37.5, lon = Double.POSITIVE_INFINITY) }
+	}
+
+	@Test
+	fun `the range boundaries themselves are accepted`() {
+		assertEquals(90.0, SearchRequest.of("커피", lat = 90.0, lon = 180.0).lat)
+		assertEquals(-180.0, SearchRequest.of("커피", lat = -90.0, lon = -180.0).lon)
 	}
 
 	@Test

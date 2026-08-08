@@ -1,9 +1,20 @@
 package dev.yubin.search.ask
 
+import org.springframework.web.server.ServerWebInputException
+
 object AskQueryPlanner {
 	const val MAX_SIZE = 50
 	const val DEFAULT_RADIUS_M = 2_000
 	const val MAX_RADIUS_M = 50_000
+	const val MAX_LAT = 90.0
+	const val MAX_LON = 180.0
+
+	private fun requireCoordinate(value: Double?, name: String, bound: Double) {
+		if (value == null) return
+		if (!value.isFinite() || value < -bound || value > bound) {
+			throw ServerWebInputException("$name must be between -$bound and $bound, was $value")
+		}
+	}
 
 	fun plan(
 		raw: String,
@@ -14,6 +25,9 @@ object AskQueryPlanner {
 		lon: Double? = null,
 		unsupported: List<String> = emptyList(),
 	): SearchRequestPlan {
+		requireCoordinate(lat, "lat", MAX_LAT)
+		requireCoordinate(lon, "lon", MAX_LON)
+
 		val hasGeo = lat != null && lon != null
 		val resolvedSize = (size ?: defaultSize).coerceIn(1, MAX_SIZE)
 

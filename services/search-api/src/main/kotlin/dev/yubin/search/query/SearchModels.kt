@@ -1,6 +1,7 @@
 package dev.yubin.search.query
 
 import dev.yubin.search.core.brand.Brands
+import org.springframework.web.server.ServerWebInputException
 
 enum class SortBy { RELEVANCE, DISTANCE }
 
@@ -26,6 +27,15 @@ data class SearchRequest(
 		const val MAX_PAGE = 99
 		const val DEFAULT_RADIUS_M = 2_000
 		const val MAX_RADIUS_M = 50_000
+		const val MAX_LAT = 90.0
+		const val MAX_LON = 180.0
+
+		private fun requireCoordinate(value: Double?, name: String, bound: Double) {
+			if (value == null) return
+			if (!value.isFinite() || value < -bound || value > bound) {
+				throw ServerWebInputException("$name must be between -$bound and $bound, was $value")
+			}
+		}
 
 		fun of(
 			q: String?,
@@ -39,6 +49,9 @@ data class SearchRequest(
 			radiusM: Int? = null,
 			sort: String? = null,
 		): SearchRequest {
+			requireCoordinate(lat, "lat", MAX_LAT)
+			requireCoordinate(lon, "lon", MAX_LON)
+
 			val geo = lat != null && lon != null
 			return SearchRequest(
 				q = q?.trim().orEmpty(),
