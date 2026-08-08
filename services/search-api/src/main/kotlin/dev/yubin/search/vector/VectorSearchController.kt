@@ -23,7 +23,7 @@ class VectorSearchController(private val vectorSearch: PlaceVectorSearchService)
 		@RequestParam(required = false) page: Int?,
 		@RequestParam(required = false) sigungu: String?,
 		@RequestParam(required = false) dong: String?,
-		@RequestParam(required = false, name = "category") category: String?,
+		@RequestParam(required = false) category: String?,
 		@RequestParam(required = false) lat: Double?,
 		@RequestParam(required = false) lon: Double?,
 		@RequestParam(required = false, name = "radius") radiusM: Int?,

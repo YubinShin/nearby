@@ -20,7 +20,7 @@ class SearchController(
 		@RequestParam(required = false) page: Int?,
 		@RequestParam(required = false) sigungu: String?,
 		@RequestParam(required = false) dong: String?,
-		@RequestParam(required = false, name = "category") category: String?,
+		@RequestParam(required = false) category: String?,
 		@RequestParam(required = false) lat: Double?,
 		@RequestParam(required = false) lon: Double?,
 		@RequestParam(required = false, name = "radius") radiusM: Int?,
@@ -38,8 +38,8 @@ class SearchController(
 	@GetMapping("/instant")
 	suspend fun instant(
 		@RequestParam q: String?,
-		@RequestParam(required = false, name = "suggestSize") suggestSize: Int?,
-		@RequestParam(required = false, name = "previewSize") previewSize: Int?,
+		@RequestParam(required = false) suggestSize: Int?,
+		@RequestParam(required = false) previewSize: Int?,
 	): InstantResponse = coroutineScope {
 		val startedAt = System.nanoTime()
 		val suggestReq = SuggestRequest.of(q, suggestSize)
