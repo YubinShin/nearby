@@ -1,0 +1,31 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"found\": true,\n  \"unverifiable_conditions\": [],\n  \"sentences\": [\n    {\n      \"text\": \"강남구 봉은사로30길에 위치한 브런치앤모어에서 브런치를 드실 수 있습니다.\",\n      \"evidence\": [\n        \"MA0106202511A2159715\"\n      ]\n    },\n    {\n      \"text\": \"개포로15길 인근에는 브런치빈강남이 있습니다.\",\n      \"evidence\": [\n        \"MA0101202406A0278173\"\n      ]\n    },\n    {\n      \"text\": \"또한, 신사동 강남대로162길에는 르브런쉭이 있습니다.\",\n      \"evidence\": [\n        \"MA010120220804446621\"\n      ]\n    }\n  ]\n}",
+            "thoughtSignature": "EjQKMgERTTIPPkim88XHD2npbD5ahP0Ss93caLOqxu/RvIsU654pfHF7WRbrE3HOTqqVUKeV"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1076,
+    "candidatesTokenCount": 228,
+    "totalTokenCount": 1304,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 1076
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "CrZ2arzFH7qlvr0PhaWBkAo"
+}

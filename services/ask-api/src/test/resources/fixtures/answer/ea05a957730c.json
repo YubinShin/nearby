@@ -1,0 +1,31 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"found\": true,\n  \"unverifiable_conditions\": [],\n  \"sentences\": [\n    {\n      \"text\": \"강남구 도곡1동에는 광일자동차공업사, 서울시자동차전문정비업협동조합강남구지부, 빠방, 도곡공업사주, 스피드메이트가 있습니다.\",\n      \"evidence\": [\n        \"MA010120220804138315\",\n        \"MA010120220811886494\",\n        \"MA010120220808005844\",\n        \"MA010120220804158461\",\n        \"MA010120220812005331\"\n      ]\n    },\n    {\n      \"text\": \"역삼1동에는 지이와 차사랑카센타가 있습니다.\",\n      \"evidence\": [\n        \"MA010120220812905618\",\n        \"MA010120220804464374\"\n      ]\n    },\n    {\n      \"text\": \"논현2동에는 필드매뉴얼, 강남현대자동차, 고진모터스주, 오토클리너가 있습니다.\",\n      \"evidence\": [\n        \"MA010120220804991384\",\n        \"MA010120220801020843\",\n        \"MA010120220800064476\",\n        \"MA010120220813467550\"\n      ]\n    },\n    {\n      \"text\": \"세곡동에는 가든자동차공업사가 있으며, 개포4동에는 현대자동차와 태안모터스개포가 있습니다.\",\n      \"evidence\": [\n        \"MA010120220803022639\",\n        \"MA010120220804443722\",\n        \"MA010120220810107225\"\n      ]\n    },\n    {\n      \"text\": \"대치4동에는 해동자동차공업사가 있고, 논현1동에는 한국지엠논현서비스가 위치해 있습니다.\",\n      \"evidence\": [\n        \"MA010120220801029985\",\n        \"MA010120220804053138\"\n      ]\n    },\n    {\n      \"text\": \"도곡2동에는 오토카센타와 도이치모터스도곡패스트레인서비스센터주가 있습니다.\",\n      \"evidence\": [\n        \"MA010120220804137893\",\n        \"MA010120220804481871\"\n      ]\n    },\n    {\n      \"text\": \"압구정동에는 카튜브가 있으며, 일원1동에는 현대자동차가 있습니다.\",\n      \"evidence\": [\n        \"MA010120220803450137\",\n        \"MA010120220804144795\"\n      ]\n    }\n  ]\n}",
+            "thoughtSignature": "EjQKMgERTTIPtupDhly/Tku4HxNKP57jlGUQM9i6GtiMo0o4JGYUWxVUc4lPSx3pW/MDannt"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1135,
+    "candidatesTokenCount": 842,
+    "totalTokenCount": 1977,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 1135
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "FLZ2asrLErXIrfcPjN666QQ"
+}

@@ -1,0 +1,31 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"found\": true,\n  \"unverifiable_conditions\": [\n    \"조용히 공부할 곳\"\n  ],\n  \"sentences\": [\n    {\n      \"text\": \"역삼동에 위치한 독서실 및 스터디 카페로는 정스터디카페, 작심스터디카페, 안심스터디카페, 정반합스터디카페, 인마이제이스터디센터역삼, 초심스터디카페강남, 마이캐빈, 작심라운지, 작심스페이스, 강남연습실마온, 인코드가 있습니다.\",\n      \"evidence\": [\n        \"MA0101202406A0028618\",\n        \"MA0101202502A0055424\",\n        \"MA010120220804424662\",\n        \"MA0101202302A0093168\",\n        \"MA010120220808629129\",\n        \"MA010120220804397045\",\n        \"MA0101202411A0180804\",\n        \"MA0101202411A0175715\",\n        \"MA0101202411A0169411\",\n        \"MA010120220813018439\",\n        \"MA010120220803399990\"\n      ]\n    }\n  ]\n}",
+            "thoughtSignature": "EjQKMgERTTIPdc8zEQLeb/agZs9d7OHF8fkAD/PyNP6Mf/bGmDu2bM+sbBoasY8AepygjsA8"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1161,
+    "candidatesTokenCount": 401,
+    "totalTokenCount": 1562,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 1161
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "A7Z2atvZFtrAvr0PjfbdgAc"
+}

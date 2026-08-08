@@ -1,0 +1,31 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"found\": true,\n  \"unverifiable_conditions\": [],\n  \"sentences\": [\n    {\n      \"text\": \"서울특별시 강남구에는 편의점스토리웨이, 스토리웨이편의점, 지에스25무역, 세븐한신점주, 지에스25포이한라점, 선릉맞이방편의점, 세븐일레븐신사1001, GS25신사제일, 이마트24논현101점, 지에스25강남영동점, 이마트24삼성119점, GS25대치학원점, 세븐일레븐한신점, CU, 지에스삼성, 씨유삼성대웅점, 세븐일원본점, 세븐일레븐압구정칼릭스점 등의 편의점이 있습니다.\",\n      \"evidence\": [\n        \"MA010120220813006349\",\n        \"MA010120220800363876\",\n        \"MA010120220801037854\",\n        \"MA010120220804481536\",\n        \"MA010120220804456264\",\n        \"MA010120220804809391\",\n        \"MA010120220804034002\",\n        \"MA010120220800048923\",\n        \"MA010120220809961831\",\n        \"MA010120220800051683\",\n        \"MA010120220814312967\",\n        \"MA010120220800091812\",\n        \"MA010120220813457446\",\n        \"MA010120220800117084\",\n        \"MA010120220808839797\",\n        \"MA010120220800120575\",\n        \"MA0101202406A0543696\",\n        \"MA010120220800152597\"\n      ]\n    },\n    {\n      \"text\": \"또한 업종은 슈퍼마켓으로 분류되어 있으나 TJ움직이는편의점과 선정릉맞이방편의점도 있습니다.\",\n      \"evidence\": [\n        \"MA010120220802960591\",\n        \"MA0106202209A0056491\"\n      ]\n    }\n  ]\n}",
+            "thoughtSignature": "EjQKMgERTTIPxG80F7dPsLbH3k9SZLrHMzs/w4s1snc89KdR94i6IRqhtaNtlBzxUXizRzwX"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1125,
+    "candidatesTokenCount": 725,
+    "totalTokenCount": 1850,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 1125
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "HbZ2apuME5TmosUPwNqTqQo"
+}

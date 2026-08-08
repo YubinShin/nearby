@@ -1,0 +1,31 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"found\": true,\n  \"unverifiable_conditions\": [],\n  \"sentences\": [\n    {\n      \"text\": \"서울특별시 강남구에는 파리바게뜨(MA010120220806892808, MA010120220812187004, MA010120220804029481, MA0101202409A0099363)를 비롯하여 다양한 지점이 있습니다.\",\n      \"evidence\": [\n        \"MA010120220806892808\",\n        \"MA010120220812187004\",\n        \"MA010120220804029481\",\n        \"MA0101202409A0099363\"\n      ]\n    },\n    {\n      \"text\": \"역삼1동에는 파리바게뜨점, 파리바게뜨뱅뱅, 파리바게뜨역삼럭키점이 운영 중입니다.\",\n      \"evidence\": [\n        \"MA010120220804821551\",\n        \"MA0101202406A0488052\",\n        \"MA010120220804051362\"\n      ]\n    },\n    {\n      \"text\": \"논현2동에는 파리바게뜨강남구청, 파리바게뜨언주역점, 그리고 카페 업종인 파리바게트강남을지가 위치해 있습니다.\",\n      \"evidence\": [\n        \"MA010120220809785260\",\n        \"MA0101202306A0069075\",\n        \"MA010120220813271334\"\n      ]\n    },\n    {\n      \"text\": \"이 외에도 역삼뉴, 신논현교보, 압구정, 일원역점, 수서역점, 학동역점, 한티역점, 대치, 수서점, 강남 등의 지점이 검색됩니다.\",\n      \"evidence\": [\n        \"MA010120220808021254\",\n        \"MA010120220801029596\",\n        \"MA010120220804025407\",\n        \"MA0101202212A0071489\",\n        \"MA010120220813821628\",\n        \"MA0101202504A0050768\",\n        \"MA010120220801027906\",\n        \"MA0101202406A0326370\",\n        \"MA010120220808023175\",\n        \"MA010120220803051207\"\n      ]\n    }\n  ]\n}",
+            "thoughtSignature": "EjQKMgERTTIP7OeO47yVZlXyThlktJSt9CzFVVp16TqqVahgcGlPFb2HaxDf9jxAjOHhCU/z"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1149,
+    "candidatesTokenCount": 801,
+    "totalTokenCount": 1950,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 1149
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "NLZ2arelJsihvr0PqtOJqQs"
+}

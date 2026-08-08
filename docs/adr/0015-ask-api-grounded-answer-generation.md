@@ -123,6 +123,7 @@ ADR 0014 gap 목록에 답변 생성이 드러낸 항목을 추가합니다.
 | ⑤ | 검색 응답 필드를 바꿔도 컴파일이 막지 않음 — 두 앱이 HTTP로만 연결(ADR 0011) | 소비자는 `HsearchContract`가 경계에서 렌더 필드(`placeId`·`name`·`label`·`category`·`dong`·`address`)를 고정하고 인용 불가 히트를 `unrenderable`로 셈. 생산자는 `HybridHitContractTest`가 직렬화 필드명을 검사 | 닫힘 (`97052ef` · `23b7e4b`) |
 | ⑥ | 거리를 답변에 넣으려면 좌표가 필요하나 경로 없음(gap ②의 답변측 발현) | `거리 정보 없음`으로 컨텍스트 고정 | 지명→좌표 경로. 생기면 거리 문장 허용 재검토 |
 | ⑦ | groundedness 회귀를 CI에서 돌릴 픽스처·하네스가 질의 이해쪽만 있음 | `FixtureLlmClient`가 답변 호출을 재생하고 `AskAnswerMappingTest`가 CI 판정으로 돌림. 녹화본은 8건이나 테스트가 부르는 질의는 2개라 나머지는 재생되지 않음. 재녹화는 `record_answer_fixtures.py` | 닫힘 (`f32ad76` · `856d5dd`). 판정은 `_scoreboard.json` 대신 JUnit이 맡습니다 |
+| ⑧ | 답변 픽스처의 컨텍스트가 스크립트 상수라 실제 검색 결과로는 그 키에 도달하지 못함 | fixture 모드에서 `answer=true`가 항상 degrade했습니다. `record_answer_fixtures.py --source pipeline`이 실제 `ask-api` 응답으로 컨텍스트를 만들어 질의 이해 픽스처와 같은 질문 집합을 녹화합니다 | 닫힘 (2026-08-08). `--verify`가 도달 여부를 확인합니다 |
 
 ## Open questions
 

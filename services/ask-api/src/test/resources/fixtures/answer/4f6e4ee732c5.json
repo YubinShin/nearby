@@ -1,0 +1,31 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"found\": true,\n  \"unverifiable_conditions\": [],\n  \"sentences\": [\n    {\n      \"text\": \"대치2동에는 마미치킨, 치킨뱅이, 깐부치킨, 미미치킨이 있습니다.\",\n      \"evidence\": [\n        \"MA010120220801019317\",\n        \"MA010120220801026472\",\n        \"MA010120220801046006\",\n        \"MA010120220804899687\"\n      ]\n    },\n    {\n      \"text\": \"개포2동에는 바른치킨이 있고, 개포3동에는 소보루치킨이 있습니다.\",\n      \"evidence\": [\n        \"MA010120220801037776\",\n        \"MA010120220801043657\"\n      ]\n    },\n    {\n      \"text\": \"삼성1동에는 깐부치킨, 치킨잇수다, 치킨뱅이가 있으며, 삼성2동에는 동호치킨이 있습니다.\",\n      \"evidence\": [\n        \"MA010120220801039101\",\n        \"MA010120220801040542\",\n        \"MA010120220804794886\",\n        \"MA010120220801040283\"\n      ]\n    },\n    {\n      \"text\": \"수서동에는 깐부치킨이 위치해 있습니다.\",\n      \"evidence\": [\n        \"MA010120220801041773\"\n      ]\n    },\n    {\n      \"text\": \"대치4동에는 멕시카나치킨과 깐부치킨이 있으며, 대치1동에는 생맥주 전문점인 오케이치킨이 있습니다.\",\n      \"evidence\": [\n        \"MA010120220801042067\",\n        \"MA010120220801045194\",\n        \"MA010120220801043555\"\n      ]\n    },\n    {\n      \"text\": \"청담동에는 사또치킨과 깐부치킨이 있습니다.\",\n      \"evidence\": [\n        \"MA010120220804014689\",\n        \"MA010120220804029870\"\n      ]\n    },\n    {\n      \"text\": \"신사동에는 치킨뱅이와 캘리포니아치킨이 영업 중입니다.\",\n      \"evidence\": [\n        \"MA010120220804023220\",\n        \"MA010120220804804670\"\n      ]\n    },\n    {\n      \"text\": \"역삼2동에는 삼풍치킨이 있고, 역삼1동에는 청년치킨이 있습니다.\",\n      \"evidence\": [\n        \"MA010120220804453986\",\n        \"MA010120220805293597\"\n      ]\n    }\n  ]\n}",
+            "thoughtSignature": "EjQKMgERTTIP3yV0DesTzMhFlH3bhdakcjrVynBYmYMkcCkqgC7AekS7LWS+nMB9FNyIrtLI"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1049,
+    "candidatesTokenCount": 858,
+    "totalTokenCount": 1907,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 1049
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "KLZ2apiFGIXbvr0P-qz2mAM"
+}

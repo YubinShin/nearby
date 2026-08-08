@@ -7,55 +7,279 @@
       "experiment": "baseline",
       "question": "회 먹을 데 있어?",
       "source": "recorded",
-      "promptVersion": "1"
+      "promptVersion": "1",
+      "context": "trap"
     },
     "c50b00aa2fb3": {
       "file": "c50b00aa2fb3.json",
       "experiment": "context_mismatch",
       "question": "어방참치 어때?",
       "source": "recorded",
-      "promptVersion": "1"
+      "promptVersion": "1",
+      "context": "trap"
     },
     "8dbedfe48aac": {
       "file": "8dbedfe48aac.json",
       "experiment": "empty_context",
       "question": "회 먹을 데 있어?",
       "source": "recorded",
-      "promptVersion": "1"
+      "promptVersion": "1",
+      "context": "trap"
     },
     "5ea84d4fb198": {
       "file": "5ea84d4fb198.json",
       "experiment": "false_premise",
       "question": "어방참치 초밥 맛있기로 유명하죠?",
       "source": "recorded",
-      "promptVersion": "1"
+      "promptVersion": "1",
+      "context": "trap"
     },
     "7d688d89ddd7": {
       "file": "7d688d89ddd7.json",
       "experiment": "garbage_input",
       "question": "회 먹을 데 있어?",
       "source": "recorded",
-      "promptVersion": "1"
+      "promptVersion": "1",
+      "context": "trap"
     },
     "e67e6c04d45d": {
       "file": "e67e6c04d45d.json",
       "experiment": "implicit_condition",
       "question": "맛있고 가까운 회 먹을 데 있어?",
       "source": "recorded",
-      "promptVersion": "1"
+      "promptVersion": "1",
+      "context": "trap"
     },
     "ccc67984da98": {
       "file": "ccc67984da98.json",
       "experiment": "knowledge_leak_famous",
       "question": "스타벅스 어때?",
       "source": "recorded",
-      "promptVersion": "1"
+      "promptVersion": "1",
+      "context": "trap"
     },
     "6f11a486cfcf": {
       "file": "6f11a486cfcf.json",
       "experiment": "knowledge_leak_unknown",
       "question": "어방참치 어때?",
       "source": "recorded",
+      "promptVersion": "1",
+      "context": "trap"
+    },
+    "e953f93b5064": {
+      "file": "e953f93b5064.json",
+      "question": "회 먹을 데",
+      "source": "recorded",
+      "context": "pipeline",
+      "records": 20,
+      "promptVersion": "1"
+    },
+    "899235e53fb9": {
+      "file": "899235e53fb9.json",
+      "question": "카페",
+      "source": "recorded",
+      "context": "pipeline",
+      "records": 20,
+      "promptVersion": "1"
+    },
+    "1513ca2e021e": {
+      "file": "1513ca2e021e.json",
+      "question": "스타벅스",
+      "source": "recorded",
+      "context": "pipeline",
+      "records": 20,
+      "promptVersion": "1"
+    },
+    "d8e3efa39778": {
+      "file": "d8e3efa39778.json",
+      "question": "역삼동 조용히 공부할 곳",
+      "source": "recorded",
+      "context": "pipeline",
+      "records": 20,
+      "promptVersion": "1"
+    },
+    "5750306a6284": {
+      "file": "5750306a6284.json",
+      "question": "강남역 500m 안에 편의점",
+      "source": "recorded",
+      "context": "pipeline",
+      "records": 20,
+      "promptVersion": "1"
+    },
+    "36884130c422": {
+      "file": "36884130c422.json",
+      "question": "평점 4.5 이상 카페",
+      "source": "recorded",
+      "context": "pipeline",
+      "records": 20,
+      "promptVersion": "1"
+    },
+    "3d77dfac9a73": {
+      "file": "3d77dfac9a73.json",
+      "question": "브런치 먹을 곳",
+      "source": "recorded",
+      "context": "pipeline",
+      "records": 20,
+      "promptVersion": "1"
+    },
+    "d2eead14c836": {
+      "file": "d2eead14c836.json",
+      "question": "머리 자르는 곳",
+      "source": "recorded",
+      "context": "pipeline",
+      "records": 20,
+      "promptVersion": "1"
+    },
+    "33ba6ae10f37": {
+      "file": "33ba6ae10f37.json",
+      "question": "혼밥하기 좋은 집",
+      "source": "recorded",
+      "context": "pipeline",
+      "records": 20,
+      "promptVersion": "1"
+    },
+    "6ba909e246f3": {
+      "file": "6ba909e246f3.json",
+      "question": "매운 거 먹고 싶다",
+      "source": "recorded",
+      "context": "pipeline",
+      "records": 20,
+      "promptVersion": "1"
+    },
+    "ea05a957730c": {
+      "file": "ea05a957730c.json",
+      "question": "차 고치는 곳",
+      "source": "recorded",
+      "context": "pipeline",
+      "records": 20,
+      "promptVersion": "1"
+    },
+    "48c87692275e": {
+      "file": "48c87692275e.json",
+      "question": "조용히 공부할 곳",
+      "source": "recorded",
+      "context": "pipeline",
+      "records": 20,
+      "promptVersion": "1"
+    },
+    "1c43c1535689": {
+      "file": "1c43c1535689.json",
+      "question": "고기 구워 먹는 데",
+      "source": "recorded",
+      "context": "pipeline",
+      "records": 20,
+      "promptVersion": "1"
+    },
+    "dfc99d8668be": {
+      "file": "dfc99d8668be.json",
+      "question": "편의점",
+      "source": "recorded",
+      "context": "pipeline",
+      "records": 20,
+      "promptVersion": "1"
+    },
+    "c6981923d2e4": {
+      "file": "c6981923d2e4.json",
+      "question": "세탁소",
+      "source": "recorded",
+      "context": "pipeline",
+      "records": 20,
+      "promptVersion": "1"
+    },
+    "298f07bca8b7": {
+      "file": "298f07bca8b7.json",
+      "question": "약국",
+      "source": "recorded",
+      "context": "pipeline",
+      "records": 20,
+      "promptVersion": "1"
+    },
+    "f2101fcb75ea": {
+      "file": "f2101fcb75ea.json",
+      "question": "미용실",
+      "source": "recorded",
+      "context": "pipeline",
+      "records": 20,
+      "promptVersion": "1"
+    },
+    "4f6e4ee732c5": {
+      "file": "4f6e4ee732c5.json",
+      "question": "치킨",
+      "source": "recorded",
+      "context": "pipeline",
+      "records": 20,
+      "promptVersion": "1"
+    },
+    "b20e4121aeee": {
+      "file": "b20e4121aeee.json",
+      "question": "삼겹살",
+      "source": "recorded",
+      "context": "pipeline",
+      "records": 20,
+      "promptVersion": "1"
+    },
+    "744f610bf120": {
+      "file": "744f610bf120.json",
+      "question": "노래방",
+      "source": "recorded",
+      "context": "pipeline",
+      "records": 20,
+      "promptVersion": "1"
+    },
+    "2345a5765e92": {
+      "file": "2345a5765e92.json",
+      "question": "CU",
+      "source": "recorded",
+      "context": "pipeline",
+      "records": 20,
+      "promptVersion": "1"
+    },
+    "47430690fbf1": {
+      "file": "47430690fbf1.json",
+      "question": "파리바게뜨",
+      "source": "recorded",
+      "context": "pipeline",
+      "records": 20,
+      "promptVersion": "1"
+    },
+    "9905afd0b054": {
+      "file": "9905afd0b054.json",
+      "question": "이디야",
+      "source": "recorded",
+      "context": "pipeline",
+      "records": 20,
+      "promptVersion": "1"
+    },
+    "aacbdef83f74": {
+      "file": "aacbdef83f74.json",
+      "question": "지금 문 연 약국",
+      "source": "recorded",
+      "context": "pipeline",
+      "records": 20,
+      "promptVersion": "1"
+    },
+    "f80d757cbfea": {
+      "file": "f80d757cbfea.json",
+      "question": "배달 되는 치킨집",
+      "source": "recorded",
+      "context": "pipeline",
+      "records": 1,
+      "promptVersion": "1"
+    },
+    "903de8f25b75": {
+      "file": "903de8f25b75.json",
+      "question": "1만원 이하 파스타",
+      "source": "recorded",
+      "context": "pipeline",
+      "records": 20,
+      "promptVersion": "1"
+    },
+    "c96d48a9b5b4": {
+      "file": "c96d48a9b5b4.json",
+      "question": "제주도 흑돼지 맛집",
+      "source": "recorded",
+      "context": "pipeline",
+      "records": 20,
       "promptVersion": "1"
     }
   }

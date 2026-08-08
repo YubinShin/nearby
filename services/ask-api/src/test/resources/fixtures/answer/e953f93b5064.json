@@ -1,0 +1,31 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"found\": true,\n  \"unverifiable_conditions\": [],\n  \"sentences\": [\n    {\n      \"text\": \"강남구 역삼1동에 위치한 만복회해산물과 우리집에서 회를 드실 수 있습니다.\",\n      \"evidence\": [\n        \"MA0101202212A0020673\",\n        \"MA010120220806993802\"\n      ]\n    },\n    {\n      \"text\": \"논현1동에는 어리숙회가 있습니다.\",\n      \"evidence\": [\n        \"MA010120220813695284\"\n      ]\n    },\n    {\n      \"text\": \"일원1동에서는 초장집과 미식가횟집을 찾으실 수 있습니다.\",\n      \"evidence\": [\n        \"MA0101202305A0139469\",\n        \"MA010120220806962702\"\n      ]\n    },\n    {\n      \"text\": \"신사동에는 현대집과 강남실비횟집이 있습니다.\",\n      \"evidence\": [\n        \"MA010120220812328219\",\n        \"MA0101202406A0472951\"\n      ]\n    },\n    {\n      \"text\": \"삼성2동의 먹어도, 도곡2동의 소가횟집에서도 회를 제공합니다.\",\n      \"evidence\": [\n        \"MA010120220810147236\",\n        \"MA010120220812299240\"\n      ]\n    },\n    {\n      \"text\": \"도곡1동에는 총각수산153과 다목당이 있습니다.\",\n      \"evidence\": [\n        \"MA010120220804445695\",\n        \"MA010120220813103643\"\n      ]\n    },\n    {\n      \"text\": \"압구정동에는 황회장집과 어쩌다횟집이 위치해 있습니다.\",\n      \"evidence\": [\n        \"MA010120220801317559\",\n        \"MA0101202409A0082755\"\n      ]\n    },\n    {\n      \"text\": \"역삼2동에는 기장꼼장어와 맛기행사계절이 있습니다.\",\n      \"evidence\": [\n        \"MA010120220804403409\",\n        \"MA010120220805985004\"\n      ]\n    },\n    {\n      \"text\": \"개포2동에는 강남회수산이 있으며, 개포4동에는 혼이 있습니다.\",\n      \"evidence\": [\n        \"MA0101202406A0236378\",\n        \"MA010120220801046991\"\n      ]\n    },\n    {\n      \"text\": \"대치2동에서는 명가막회집과 자연산횟집을 이용하실 수 있습니다.\",\n      \"evidence\": [\n        \"MA010120220812830516\",\n        \"MA0101202505A0083953\"\n      ]\n    }\n  ]\n  }",
+            "thoughtSignature": "EjQKMgERTTIPieNrJOgn2EucfFYmTZGfheoYQI1BbTiddJgqZLEndD+bhUKoBNdiPJeKxj5t"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1081,
+    "candidatesTokenCount": 876,
+    "totalTokenCount": 1957,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 1081
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "-bV2asySKpWA0-kP-oDI0QE"
+}

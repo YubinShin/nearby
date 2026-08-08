@@ -1,0 +1,31 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"found\": true,\n  \"unverifiable_conditions\": [],\n  \"sentences\": [\n    {\n      \"text\": \"강남구 개포2동에 위치한 포즈포는 세탁소입니다.\",\n      \"evidence\": [\n        \"MA010120220800416967\"\n      ]\n    }\n  ]\n}",
+            "thoughtSignature": "EjQKMgERTTIPMWZC9PQDdJaX1edTP3q3A/IbM+mymKwdHDwYvncoQaGzcRm4oGLN0rXVSwK5"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1086,
+    "candidatesTokenCount": 92,
+    "totalTokenCount": 1178,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 1086
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "ILZ2avTcKraR0-kP6cr0wQE"
+}

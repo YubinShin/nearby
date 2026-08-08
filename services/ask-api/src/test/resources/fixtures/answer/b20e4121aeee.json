@@ -1,0 +1,31 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"found\": true,\n  \"unverifiable_conditions\": [],\n  \"sentences\": [\n    {\n      \"text\": \"강남구 역삼1동에는 돼봉삼겹살, 강남미나리삼겹살, 고꿉집, 동두천솥뚜껑삼겹살 등이 있습니다.\",\n      \"evidence\": [\n        \"MA0101202411A0145618\",\n        \"MA010120220806459227\",\n        \"MA010120220800084451\",\n        \"MA010120220800376137\"\n      ]\n    },\n    {\n      \"text\": \"역삼2동에는 1974옛날삼겹살과 윤채네김치찌개삼겹살이 위치해 있습니다.\",\n      \"evidence\": [\n        \"MA010120220801143664\",\n        \"MA010120220806445958\"\n      ]\n    },\n    {\n      \"text\": \"논현1동에서는 영동원삼겹살, 맹그르브삼겹살, 1956한양꽃삼겹요리잘하는고깃집을 찾을 수 있습니다.\",\n      \"evidence\": [\n        \"MA010120220804019693\",\n        \"MA010120220809794626\",\n        \"MA0101202406A0395240\"\n      ]\n    },\n    {\n      \"text\": \"도곡2동에는 황가솥뚜껑삼겹살과 사람사는고깃집김일도가 있습니다.\",\n      \"evidence\": [\n        \"MA010120220804459760\",\n        \"MA010120220804532560\"\n      ]\n    },\n    {\n      \"text\": \"신사동에는 대박삼겹살과 요술램프삼겹살이 있으며, 압구정동에는 추풍령칼삼겹살이 있습니다.\",\n      \"evidence\": [\n        \"MA010120220804034144\",\n        \"MA0101202303A0088407\",\n        \"MA010120220803443729\"\n      ]\n    },\n    {\n      \"text\": \"대치2동에는 순두부와삼겹살과 노다지삼겹살이 영업 중입니다.\",\n      \"evidence\": [\n        \"MA010120220801341172\",\n        \"MA010120220802646172\"\n      ]\n    },\n    {\n      \"text\": \"이 외에도 개포4동의 제주왕솥뚜껑삼겹살, 논현2동의 이층고깃집, 개포2동의 그고깃집 등이 있습니다.\",\n      \"evidence\": [\n        \"MA010120220800783766\",\n        \"MA010120220810491615\",\n        \"MA010120220801047207\"\n      ]\n    }\n  ]\n}",
+            "thoughtSignature": "EjQKMgERTTIPGFys7n8SDQqOd1FfPDzRqvUDrhOIOlvNtK1NxdHFe2wKHwwk7tqE2kpCwR3P"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1219,
+    "candidatesTokenCount": 850,
+    "totalTokenCount": 2069,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 1219
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "K7Z2arjlKoaj9tMP9byVsAw"
+}

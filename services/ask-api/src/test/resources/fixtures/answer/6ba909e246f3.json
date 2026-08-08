@@ -1,0 +1,31 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"found\": false,\n  \"unverifiable_conditions\": [\n    \"실제 매운 음식을 판매하는지 여부\"\n  ],\n  \"sentences\": [\n    {\n      \"text\": \"제공된 검색결과에는 '매운김밥'이라는 이름의 경영 컨설팅업체가 있으나, 매운 음식을 제공하는 식당인지 여부는 확인할 수 없습니다.\",\n      \"evidence\": [\n        \"MA0101202406A0585830\"\n      ]\n    }\n  ]\n}",
+            "thoughtSignature": "EjQKMgERTTIPRRrDFfV24pCY9TREt4H9wAbe+WxV2PiVjyr7NvtdVoct+YNmwTt5rVAqY0z7"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1099,
+    "candidatesTokenCount": 131,
+    "totalTokenCount": 1230,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 1099
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "ErZ2apP4NJjo2roPqbLyuQE"
+}

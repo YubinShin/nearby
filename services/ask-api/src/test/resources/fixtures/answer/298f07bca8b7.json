@@ -1,0 +1,31 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"found\": true,\n  \"unverifiable_conditions\": [],\n  \"sentences\": [\n    {\n      \"text\": \"서울특별시 강남구 내에는 다양한 약국이 있습니다.\",\n      \"evidence\": []\n    },\n    {\n      \"text\": \"압구정동에는 하이약국, 원약국, 하나약국이 있습니다.\",\n      \"evidence\": [\n        \"MA010120220800451151\",\n        \"MA010120220803917095\",\n        \"MA010120220804021060\"\n      ]\n    },\n    {\n      \"text\": \"일원본동에는 참약국, 열린약국, 대학약국, 천사약국이 있으며, 모두 일원로 95에 위치해 있습니다.\",\n      \"evidence\": [\n        \"MA010120220801027016\",\n        \"MA010120220801039565\",\n        \"MA010120220802263885\",\n        \"MA010120220801031830\"\n      ]\n    },\n    {\n      \"text\": \"일원1동에는 주민약국이 있습니다.\",\n      \"evidence\": [\n        \"MA010120220800461697\"\n      ]\n    },\n    {\n      \"text\": \"신사동에는 신사약국, 비타민약국, 하늘약국, 밝은마음약국이 위치하고 있습니다.\",\n      \"evidence\": [\n        \"MA010120220800428151\",\n        \"MA010120220804021435\",\n        \"MA010120220804017722\",\n        \"MA0101202502A0114369\"\n      ]\n    },\n    {\n      \"text\": \"대치4동에는 수정약국과 종로약국이 있습니다.\",\n      \"evidence\": [\n        \"MA010120220801025336\",\n        \"MA010120220800611633\"\n      ]\n    },\n    {\n      \"text\": \"개포3동에는 원약국과 사랑약국이 있습니다.\",\n      \"evidence\": [\n        \"MA010120220803070735\",\n        \"MA010120220801029525\"\n      ]\n    },\n    {\n      \"text\": \"삼성2동에는 은약국이 있고, 삼성1동에는 지음약국이 있습니다.\",\n      \"evidence\": [\n        \"MA010120220801032077\",\n        \"MA0101202309A0067405\"\n      ]\n    },\n    {\n      \"text\": \"대치2동에는 동호약국이, 역삼2동에는 다온약국이 있습니다.\",\n      \"evidence\": [\n        \"MA010120220801034449\",\n        \"MA010120220800717258\"\n      ]\n    }\n  ]\n}",
+            "thoughtSignature": "EjQKMgERTTIPzhqVLAMDtEIe5hPxv2DnR2hUH2DCDslHNfj6wCw9aJmsdJ1I3DH06ycxuccN"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 998,
+    "candidatesTokenCount": 859,
+    "totalTokenCount": 1857,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 998
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "IrZ2av2UDLS_vr0PsZneuQw"
+}

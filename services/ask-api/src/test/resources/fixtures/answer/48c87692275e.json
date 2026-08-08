@@ -1,0 +1,31 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"found\": true,\n  \"unverifiable_conditions\": [\n    \"조용히 공부할 곳\"\n  ],\n  \"sentences\": [\n    {\n      \"text\": \"강남구 대치동에는 바른공부학습관리스터디카페, 초심스터디카페은마점, 생수스터디카페, 시작스터디카페한티, 작심스터디카페대치914점, 스터디카페, 돌파스터디카페, 시작스터디카페대치, 시작스터디카페대치11호가 있습니다.\",\n      \"evidence\": [\n        \"MA010120220813996025\",\n        \"MA010120220814018293\",\n        \"MA0101202309A0023485\",\n        \"MA0101202409A0183263\",\n        \"MA0101202411A0180937\",\n        \"MA0101202406A0350434\",\n        \"MA010120220812482227\",\n        \"MA010120220812762732\",\n        \"MA0106202512A2350107\"\n      ]\n    },\n    {\n      \"text\": \"도곡동에는 에이스스터디카페, 메타존스터디카페, 지공스터디카페, 만권당스터디카페가 있습니다.\",\n      \"evidence\": [\n        \"MA0101202306A0014963\",\n        \"MA0101202501A0007707\",\n        \"MA0101202306A0077833\",\n        \"MA0101202406A0076531\"\n      ]\n    },\n    {\n      \"text\": \"역삼동에는 초심스터디카페강남, 안심스터디카페가 위치해 있습니다.\",\n      \"evidence\": [\n        \"MA010120220804397045\",\n        \"MA010120220804424662\"\n      ]\n    },\n    {\n      \"text\": \"개포동에는 잉스스터디카페와 만권당스터디카페가 있습니다.\",\n      \"evidence\": [\n        \"MA010120220811944324\",\n        \"MA010120220813607094\"\n      ]\n    },\n    {\n      \"text\": \"이 외에도 청담동의 청담점멘토즈스터디카페, 일원동의 강남멘토즈스터디카페, 세곡동의 공본스터디카페은곡사거리센터가 있습니다.\",\n      \"evidence\": [\n        \"MA0101202502A0088418\",\n        \"MA0101202311A0061322\",\n        \"MA010120220806883847\"\n      ]\n    }\n  ]\n}",
+            "thoughtSignature": "EjQKMgERTTIPBJzDAzFQgbuJ6xYGmYzIT6FFaBjMsHlOuhD1EhT6zOrgBL+lWsiKRVyu5P3+"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1190,
+    "candidatesTokenCount": 811,
+    "totalTokenCount": 2001,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 1190
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "F7Z2at2zFdvKrfcP49GR-Q0"
+}

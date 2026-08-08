@@ -1,0 +1,31 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"found\": true,\n  \"unverifiable_conditions\": [],\n  \"sentences\": [\n    {\n      \"text\": \"서울특별시 강남구에는 지오미용실, 원미용실, 미용실, 현대미용실, 토리미용실, 대박미용실, 황실미용실, 린다미용실, 꽃미용실, 헤라미용실, 은교미용실, 제노미용실, 공리미용실, 쎄미미용실, 미아뜨리에, 홈, 바탕미용실, 헤어갤러리미용실, 모습 등이 있습니다.\",\n      \"evidence\": [\n        \"MA010120220801019188\",\n        \"MA010120220801026337\",\n        \"MA010120220812224304\",\n        \"MA010120220800885786\",\n        \"MA010120220802898061\",\n        \"MA010120220813075537\",\n        \"MA010120220804144628\",\n        \"MA010120220804040373\",\n        \"MA010120220811766389\",\n        \"MA010120220804040394\",\n        \"MA0101202406A0235959\",\n        \"MA010120220809802927\",\n        \"MA010120220804141396\",\n        \"MA010120220813152026\",\n        \"MA010120220805799760\",\n        \"MA010120220800459909\",\n        \"MA010120220800287191\",\n        \"MA010120220800707840\",\n        \"MA010120220804012687\",\n        \"MA010120220806991112\"\n      ]\n    }\n  ]\n}",
+            "thoughtSignature": "EjQKMgERTTIPShu6oLbzTQ9Pub9ATKBYcQXs/oHiYOc3N1LMhIQPTpqjh/XhCur/Wj6hrxhi"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1089,
+    "candidatesTokenCount": 620,
+    "totalTokenCount": 1709,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 1089
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "JbZ2ao-mOKLo2roPieLWwAE"
+}

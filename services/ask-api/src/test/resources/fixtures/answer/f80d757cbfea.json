@@ -1,0 +1,31 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"found\": true,\n  \"unverifiable_conditions\": [\n    \"배달 되는\"\n  ],\n  \"sentences\": [\n    {\n      \"text\": \"서울특별시 강남구 논현로16길 14-3(개포4동)에 '치킨이맛있는집'이라는 치킨집이 있습니다.\",\n      \"evidence\": [\n        \"MA010120220802650416\"\n      ]\n    }\n  ]\n}",
+            "thoughtSignature": "EjQKMgERTTIPRtcOcMztBm/Ydl7PpXirZNRwW2n5hXICCss+hPc81XLXvw/njdiT0s5/Hg5m"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 112,
+    "candidatesTokenCount": 120,
+    "totalTokenCount": 232,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 112
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "PrZ2atG4GaTD1e8PtJvK0Aw"
+}

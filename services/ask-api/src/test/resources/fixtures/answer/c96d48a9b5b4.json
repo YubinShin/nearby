@@ -1,0 +1,31 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"found\": true,\n  \"unverifiable_conditions\": [\n    \"맛집\"\n  ],\n  \"sentences\": [\n    {\n      \"text\": \"서울특별시에 위치한 제주도 흑돼지 관련 음식점으로는 서울특별시 강남구 논현로132길 13에 위치한 제주도흑돼지가 있습니다.\",\n      \"evidence\": [\n        \"MA010120220804009981\"\n      ]\n    },\n    {\n      \"text\": \"서울특별시 강남구 봉은사로 610에는 제주흑도야지가 있으며, 서울특별시 강남구 봉은사로 319에는 제주흑돼지마을이 있습니다.\",\n      \"evidence\": [\n        \"MA0101202412A0038201\",\n        \"MA0101202406A0374608\"\n      ]\n    }\n  ]\n}",
+            "thoughtSignature": "EjQKMgERTTIPhY2z4yj+Jdi8zttlF4vJV7gswJdZvFoWJ0dZ6PPxtjY6/zYmdvqNarbbsNO6"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1184,
+    "candidatesTokenCount": 231,
+    "totalTokenCount": 1415,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 1184
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "QbZ2aoOLHNabvr0PgOe4sQs"
+}

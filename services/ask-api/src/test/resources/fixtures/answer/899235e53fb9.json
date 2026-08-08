@@ -1,0 +1,31 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"found\": true,\n  \"unverifiable_conditions\": [],\n  \"sentences\": [\n    {\n      \"text\": \"강남구 도곡1동에 위치한 카페는 '카페'와 '커피카소'가 있습니다.\",\n      \"evidence\": [\n        \"MA010120220812892983\",\n        \"MA010120220800998093\"\n      ]\n    },\n    {\n      \"text\": \"역삼1동에는 '카페오늘', '카페블루', '커피효과', '카페놀다'가 카페로 분류되어 운영 중입니다.\",\n      \"evidence\": [\n        \"MA010120220803585068\",\n        \"MA010120220806579234\",\n        \"MA0101202409A0118134\",\n        \"MA010120220802900751\"\n      ]\n    },\n    {\n      \"text\": \"개포4동에는 '카페올'과 '커피씨'가 있으며, 대치2동에는 '카페테라'가 카페 업종으로 등록되어 있습니다.\",\n      \"evidence\": [\n        \"MA010120220806376551\",\n        \"MA010120220806939675\",\n        \"MA010120220801044448\"\n      ]\n    },\n    {\n      \"text\": \"그 외에도 일원1동의 '카페포레스트', 역삼2동의 '기로', 신사동의 '카페카이브', 세곡동의 '커피셀러'가 카페 업종으로 검색됩니다.\",\n      \"evidence\": [\n        \"MA010120220804411917\",\n        \"MA010120220813568747\",\n        \"MA0101202502A0113191\",\n        \"MA010120220806436071\"\n      ]\n    }\n  ]\n}",
+            "thoughtSignature": "EjQKMgERTTIPVxsSHmKANev1+7k+wA3i30wpiKLJmUskU0g34ynQZd4QxPC6z0XnbXEMjyoi"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1021,
+    "candidatesTokenCount": 557,
+    "totalTokenCount": 1578,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 1021
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "_LV2arGDMoiDvr0PmZuPmQ0"
+}

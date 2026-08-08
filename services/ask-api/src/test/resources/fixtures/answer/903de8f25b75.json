@@ -1,0 +1,31 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"found\": false,\n  \"unverifiable_conditions\": [\n    \"1만원 이하\"\n  ],\n  \"sentences\": [\n    {\n      \"text\": \"제공된 검색결과에는 가격 정보가 포함되어 있지 않아, 1만원 이하의 파스타 전문점을 확인할 수 없습니다.\",\n      \"evidence\": []\n    }\n  ]\n}",
+            "thoughtSignature": "EjQKMgERTTIPG57NVEMrxUqTyB8ws4LM30OEbfIwipU134vUKBe7ldthvjFCViQH1qAJ0Y2I"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1127,
+    "candidatesTokenCount": 85,
+    "totalTokenCount": 1212,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 1127
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "P7Z2aqiuO-Gf2roPw76C2QM"
+}

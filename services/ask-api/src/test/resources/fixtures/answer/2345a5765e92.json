@@ -1,0 +1,31 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"found\": true,\n  \"unverifiable_conditions\": [],\n  \"sentences\": [\n    {\n      \"text\": \"서울특별시 강남구에는 다양한 CU(씨유) 편의점 매장들이 있습니다.\",\n      \"evidence\": []\n    },\n    {\n      \"text\": \"대치동에는 대치2동의 씨유(CU)세텍점과 씨유CU대치세정점, 대치4동의 씨유대치한국점, 씨유대치(도곡로 443 및 선릉로64길 8) 등이 있습니다.\",\n      \"evidence\": [\n        \"MA0106202508A1061557\",\n        \"MA010120220813336365\",\n        \"MA010120220801029078\",\n        \"MA010120220803133176\",\n        \"MA010120220801029805\"\n      ]\n    },\n    {\n      \"text\": \"논현동에는 논현1동의 씨유(CU) 논현학동점, 씨유CU논현평화점, 씨유(CU) 논현우람점, 씨유논현혜성점과 논현2동의 씨유(CU)학동역점이 운영 중입니다.\",\n      \"evidence\": [\n        \"MA0106202507A2366178\",\n        \"MA010120220809612720\",\n        \"MA0106202508A1938449\",\n        \"MA010120220802176045\",\n        \"MA0106202507A1943558\"\n      ]\n    },\n    {\n      \"text\": \"삼성동에는 삼성1동의 씨유삼성한우리점과 삼성2동의 씨유삼성１호점, CU(테헤란로 403)가 위치해 있습니다.\",\n      \"evidence\": [\n        \"MA010120220801045696\",\n        \"MA010120220801030470\",\n        \"MA010120220800117084\"\n      ]\n    },\n    {\n      \"text\": \"이 외에도 신사동의 씨유(CU)세로수길점, 일원본동의 씨유삼성암센터, 개포4동의 CU포이점과 씨유포이대원점, 역삼2동의 씨유(CU)역삼타운점, 일원1동의 CU강남, 세곡동의 씨유율현 점 등이 검색됩니다.\",\n      \"evidence\": [\n        \"MA0106202602A2223981\",\n        \"MA010120220801036611\",\n        \"MA010120220805004084\",\n        \"MA010120220804455908\",\n        \"MA0106202507A1381437\",\n        \"MA010120220800941229\",\n        \"MA0101202406A0325480\"\n      ]\n    }\n  ]\n}",
+            "thoughtSignature": "EjQKMgERTTIP+L15UNB6YPb2KQ16g7BOGobmaaad/2yEAqu4bUt2wI6KSXZIpY/YWJDEcv45"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1104,
+    "candidatesTokenCount": 865,
+    "totalTokenCount": 1969,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 1104
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "MbZ2avziH_fLrfcPntSX0QY"
+}

@@ -1,0 +1,31 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"found\": true,\n  \"unverifiable_conditions\": [],\n  \"sentences\": [\n    {\n      \"text\": \"서울특별시 강남구에는 토마토노래방, 퀸노래방, 엠비시노래방, 노리터, 놀러와, 대박, 싸이, 홈, 텐프로, 비바, 에이스, 에코, 카라, 채널VJ노래방, 휴, 미, 썬파워노래방, 노래야노래야코인노래연습장, 바리바리, 라라코인노래연습장 등 다양한 노래방 및 주점이 있습니다.\",\n      \"evidence\": [\n        \"MA010120220810288294\",\n        \"MA010120220804794687\",\n        \"MA010120220801024123\",\n        \"MA010120220800002788\",\n        \"MA010120220801042054\",\n        \"MA010120220801035046\",\n        \"MA010120220801033291\",\n        \"MA010120220804007833\",\n        \"MA010120220801046129\",\n        \"MA010120220801039867\",\n        \"MA010120220804025390\",\n        \"MA010120220804010365\",\n        \"MA010120220804257318\",\n        \"MA010120220804017697\",\n        \"MA010120220804464739\",\n        \"MA010120220812715311\",\n        \"MA0101202211A0066776\",\n        \"MA010120220813580517\",\n        \"MA010120220800098355\",\n        \"MA010120220806904489\"\n      ]\n    }\n  ]\n}",
+            "thoughtSignature": "EjQKMgERTTIP8vpsPlCebzXJbUGom3mLC3GW2ZeYsouB7SROgWDyIHvAh7WGaNaTiXx90mGH"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1051,
+    "candidatesTokenCount": 623,
+    "totalTokenCount": 1674,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 1051
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "LrZ2au_LLf2jvr0P2pHGwQs"
+}

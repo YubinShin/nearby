@@ -1,0 +1,31 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"found\": true,\n  \"unverifiable_conditions\": [],\n  \"sentences\": [\n    {\n      \"text\": \"강남구 일원1동에 위치한 머리하기좋은날, 헤어스케치가 있습니다.\",\n      \"evidence\": [\n        \"MA010120220800476673\",\n        \"MA010120220804138057\"\n      ]\n    },\n    {\n      \"text\": \"청담동에는 자르다와 미앤미머리사랑이 있습니다.\",\n      \"evidence\": [\n        \"MA010120220811902178\",\n        \"MA010120220800442916\"\n      ]\n    },\n    {\n      \"text\": \"일원본동에는 머리산책과 헤어살롱길드가 있으며, 역삼2동에는 머리할때이쁘잖아와 헤어갤러리가 위치해 있습니다.\",\n      \"evidence\": [\n        \"MA010120220801031540\",\n        \"MA010120220800263066\",\n        \"MA010120220812752093\",\n        \"MA010120220804442697\"\n      ]\n    },\n    {\n      \"text\": \"논현1동에는 도도붙임머리, 헤어캐슬24시붙임머리논현본점, 이쁜머리가 있고, 논현2동에는 머리하고hairHAGO#이 있습니다.\",\n      \"evidence\": [\n        \"MA010120220804034080\",\n        \"MA010120220804035266\",\n        \"MA010120220814037952\",\n        \"MA010120220809610987\"\n      ]\n    },\n    {\n      \"text\": \"역삼1동에는 이음붙임머리공작소와 헤어정원이 있습니다.\",\n      \"evidence\": [\n        \"MA010120220808538561\",\n        \"MA010120220806497102\"\n      ]\n    },\n    {\n      \"text\": \"신사동에는 헤어그곳과 헤어갤러리미용실이 위치해 있습니다.\",\n      \"evidence\": [\n        \"MA010120220804907897\",\n        \"MA010120220804012687\"\n      ]\n    },\n    {\n      \"text\": \"대치4동에는 예손머리나라, 개포2동에는 더머리잘하는집, 도곡2동에는 헤어아뜨리에, 개포4동에는 헤어커플이 있습니다.\",\n      \"evidence\": [\n        \"MA010120220801024043\",\n        \"MA010120220801273609\",\n        \"MA010120220801033915\",\n        \"MA010120220804168530\"\n      ]\n    }\n  ]\n}",
+            "thoughtSignature": "EjQKMgERTTIPDOXComPklNbVUm5734TBS5oq5/AOl6V3vE/GOcnuHrj739YSaoPYcgYD8DbB"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1099,
+    "candidatesTokenCount": 855,
+    "totalTokenCount": 1954,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 1099
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "DLZ2avqCBq_MrfcPwt_H0QI"
+}

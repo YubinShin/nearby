@@ -1,0 +1,31 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"found\": false,\n  \"unverifiable_conditions\": [\n    \"지금 문 연\"\n  ],\n  \"sentences\": [\n    {\n      \"text\": \"검색 결과에서 현재 영업 중인 여부를 확인할 수 있는 약국 정보가 없습니다. 서울특별시 강남구 내의 약국으로는 하이약국, 주민약국, 참약국, 신사약국, 수정약국, 열린약국, 원약국, 하나약국, 대학약국, 사랑약국, 비타민약국, 은약국, 천사약국, 동호약국, 하늘약국, 지음약국, 종로약국, 밝은마음약국, 다온약국 등이 검색되었습니다.\",\n      \"evidence\": [\n        \"MA010120220800451151\",\n        \"MA010120220800461697\",\n        \"MA010120220801027016\",\n        \"MA010120220800428151\",\n        \"MA010120220801025336\",\n        \"MA010120220801039565\",\n        \"MA010120220803917095\",\n        \"MA010120220803070735\",\n        \"MA010120220804021060\",\n        \"MA010120220802263885\",\n        \"MA010120220801029525\",\n        \"MA010120220804021435\",\n        \"MA010120220801032077\",\n        \"MA010120220801031830\",\n        \"MA010120220801034449\",\n        \"MA010120220804017722\",\n        \"MA0101202309A0067405\",\n        \"MA010120220800611633\",\n        \"MA0101202502A0114369\",\n        \"MA010120220800717258\"\n      ]\n    }\n  ]\n}",
+            "thoughtSignature": "EjQKMgERTTIPD1UcpM+kfsiMb+2Xpx7y/neApoERA23fwHcRj/ThHkPTk46wolCT+1eJMZin"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1001,
+    "candidatesTokenCount": 641,
+    "totalTokenCount": 1642,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 1001
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "O7Z2apekPKTi1e8PoP__oA8"
+}

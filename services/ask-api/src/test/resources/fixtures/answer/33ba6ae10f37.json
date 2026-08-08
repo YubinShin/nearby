@@ -1,0 +1,31 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"found\": true,\n  \"unverifiable_conditions\": [\n    \"혼밥하기 좋은\"\n  ],\n  \"sentences\": [\n    {\n      \"text\": \"역삼1동에는 백반/한정식 전문점인 혼밥대왕이 있습니다.\",\n      \"evidence\": [\n        \"MA010120220807210257\"\n      ]\n    },\n    {\n      \"text\": \"삼성1동에는 백반/한정식 전문점인 집밥가득드림과 강남집밥이 있습니다.\",\n      \"evidence\": [\n        \"MA010120220809921353\",\n        \"MA010120220813572756\"\n      ]\n    },\n    {\n      \"text\": \"압구정동에는 백반/한정식 전문점인 혼술바 초이 서울압구정과 잘아는밥집, 그리고 김밥/만두/분식 전문점인 루비하우스가 있습니다.\",\n      \"evidence\": [\n        \"MA0106202602A2370758\",\n        \"MA010120220804021615\",\n        \"MA010120220806917306\"\n      ]\n    },\n    {\n      \"text\": \"개포4동에는 횟집 업종의 혼과 요리 주점 업종의 혼이 운영 중입니다.\",\n      \"evidence\": [\n        \"MA010120220801046991\",\n        \"MA010120220811851322\"\n      ]\n    },\n    {\n      \"text\": \"세곡동에는 기타 한식 음식점인 회덮밥잘하는집이 있습니다.\",\n      \"evidence\": [\n        \"MA010120220812100510\"\n      ]\n    },\n    {\n      \"text\": \"논현1동에는 백반/한정식 전문점인 혼술바 한;두잔과 딱좋아, 그리고 일식 회/초밥 전문점인 혼마찌가 있습니다.\",\n      \"evidence\": [\n        \"MA0106202601A0720033\",\n        \"MA0101202411A0130757\",\n        \"MA0101202303A0004478\"\n      ]\n    },\n    {\n      \"text\": \"도곡1동에는 기타 한식 음식점인 5분덮밥이 있습니다.\",\n      \"evidence\": [\n        \"MA0106202601A1017117\"\n      ]\n    },\n    {\n      \"text\": \"대치4동에는 백반/한정식 전문점인 밥짓는집이 있습니다.\",\n      \"evidence\": [\n        \"MA010120220800631837\"\n      ]\n    },\n    {\n      \"text\": \"역삼1동에는 백반/한정식 전문점인 집밥윤선생, 요리 주점 업종의 집밥연구소오늘, 김밥/만두/분식 전문점인 모퉁이라면집, 그리고 중국집인 에스엔컴퍼니랩이 있습니다.\",\n      \"evidence\": [\n        \"MA0101202308A0083976\",\n        \"MA010120220812220249\",\n        \"MA010120220804466005\",\n        \"MA010120220808442088\"\n      ]\n    },\n    {\n      \"text\": \"삼성2동에는 백반/한정식 전문점인 청담솥밥이 있습니다.\",\n      \"evidence\": [\n        \"MA0101202411A0083165\"\n      ]\n    },\n    {\n      \"text\": \"삼성1동에는 중국집 업종의 하이프로가 있습니다.\",\n      \"evidence\": [\n        \"MA0106202511A2072824\"\n      ]\n    }\n  ]\n}",
+            "thoughtSignature": "EjQKMgERTTIPo/xJA9t4vPGTs6hPzUoGMLPLw1H+GfmOI5AIbsMv8mlAi6e0Idxjzr9DHoHA"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1129,
+    "candidatesTokenCount": 1053,
+    "totalTokenCount": 2182,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 1129
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "D7Z2arXGC4aj9tMP9byVsAw"
+}

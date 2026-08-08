@@ -1,0 +1,31 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"found\": true,\n  \"unverifiable_conditions\": [],\n  \"sentences\": [\n    {\n      \"text\": \"강남구에는 돼지고기 구이를 드실 수 있는 그고깃집(개포2동), 이층고깃집(논현2동), 일언주먹고기(일원1동), 그집(논현1동), 사람사는고깃집김일도(역삼1동, 도곡2동) 등이 있습니다.\",\n      \"evidence\": [\n        \"MA010120220801047207\",\n        \"MA010120220810491615\",\n        \"MA0101202411A0048895\",\n        \"MA010120220812653660\",\n        \"MA010120220805176962\",\n        \"MA010120220804532560\"\n      ]\n    },\n    {\n      \"text\": \"또한 제주그집(개포4동), 숯덩이(일원1동), 고기집(대치2동), 고꿉집(역삼1동), 우리집(압구정동), 광양불고기본가주(역삼1동), 만세고기(일원1동), 원조초가집(압구정동)에서도 고기를 구워 드실 수 있습니다.\",\n      \"evidence\": [\n        \"MA0101202311A0020934\",\n        \"MA0101202411A0038854\",\n        \"MA010120220801149070\",\n        \"MA010120220800084451\",\n        \"MA0101202411A0063524\",\n        \"MA010120220801071662\",\n        \"MA010120220807770272\",\n        \"MA010120220805111123\"\n      ]\n    },\n    {\n      \"text\": \"이 외에도 갈빗길(도곡2동), 제주주먹고기(역삼1동), 세겹(역삼1동), 먹어도(논현2동)와 같은 고기 구이 전문점이 있습니다.\",\n      \"evidence\": [\n        \"MA010120220813533658\",\n        \"MA0101202406A0438648\",\n        \"MA010120220810024375\",\n        \"MA010120220803839122\"\n      ]\n    }\n  ]\n}",
+            "thoughtSignature": "EjQKMgERTTIPw8TXp/urbLf9Z+Qo/TL+2tly2OaMiEVPHVn8BUF573dDI0Jv4IIZ41n1xSk+"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1155,
+    "candidatesTokenCount": 722,
+    "totalTokenCount": 1877,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 1155
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "GrZ2au7AEIuzvr0P6u3V8Aw"
+}
