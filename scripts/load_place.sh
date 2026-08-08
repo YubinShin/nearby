@@ -12,15 +12,25 @@ cd "$ROOT"
 
 DB="${DB:-place}"
 
-echo "▶ 1/3  강남구 추출 (서울 CSV → data/gangnam_place.csv)"
+echo "▶ 1/4  강남구 추출 (서울 CSV → data/gangnam_place.csv)"
 python3 scripts/extract_gangnam.py
 
-echo "▶ 2/3  스키마 적용 (public.place)"
+echo "▶ 2/4  스키마 적용 (public.place)"
 docker exec -i psp-postgis psql -U place -d "$DB" -v ON_ERROR_STOP=1 < deploy/postgis/schema.sql
 
-echo "▶ 3/3  적재 (COPY)"
+# 색인 질의가 place_brand·place_duplicate 를 조인하므로 비어 있더라도 있어야 한다.
+# 둘 다 DROP+CREATE 라 재적재하면 옛 판정이 함께 지워진다 — 새 스냅샷에 옛 중복 판정이
+# 남아 살아 있는 행을 계속 색인에서 빼는 일을 막는다.
+echo "▶ 3/4  파생 테이블 초기화 (place_brand · place_duplicate)"
+docker exec -i psp-postgis psql -U place -d "$DB" -v ON_ERROR_STOP=1 -q < deploy/postgis/brand.sql
+docker exec -i psp-postgis psql -U place -d "$DB" -v ON_ERROR_STOP=1 -q < deploy/postgis/dedup.sql
+
+echo "▶ 4/4  적재 (COPY)"
 cat data/gangnam_place.csv | docker exec -i psp-postgis psql -U place -d "$DB" -v ON_ERROR_STOP=1 \
   -c "\copy public.place(place_id,name,branch,category_large,category_mid,category_small,sido,sigungu,dong,jibun_address,road_address,lon,lat) FROM STDIN WITH (FORMAT csv, HEADER true)"
 
 echo -n "✔ 적재 건수: "
 docker exec -i psp-postgis psql -U place -d "$DB" -v ON_ERROR_STOP=1 -tAc "SELECT count(*) FROM public.place;"
+echo "  브랜드·중복 판정은 비어 있습니다. 필요하면 이어서 실행하세요:"
+echo "    ./scripts/recover_brands.sh   # 브랜드 복원"
+echo "    ./scripts/build_dedup.sh      # 중복 판정"
