@@ -1,6 +1,7 @@
 package dev.yubin.search.observability
 
 import io.micrometer.core.instrument.MeterRegistry
+import kotlinx.coroutines.CancellationException
 import org.springframework.stereotype.Component
 import java.util.concurrent.TimeUnit
 
@@ -11,6 +12,9 @@ class QueryMetrics(private val registry: MeterRegistry) {
 		var outcome = "success"
 		try {
 			return block()
+		} catch (e: CancellationException) {
+			outcome = "cancelled"
+			throw e
 		} catch (e: Throwable) {
 			outcome = "error"
 			throw e

@@ -472,7 +472,7 @@ Prometheus 형식으로 `/actuator/prometheus`에서 제공합니다.
 
 | Metric | Tags | Description |
 |---|---|---|
-| `psp_query_latency_seconds` | `channel=keyword\|suggest\|vector\|hybrid`, `outcome` | 채널별 질의 지연 시간과 성공/실패를 측정합니다. |
+| `psp_query_latency_seconds` | `channel=keyword\|suggest\|vector\|hybrid`, `outcome=success\|error\|cancelled` | 채널별 질의 지연 시간을 측정합니다. `cancelled`는 클라이언트가 응답 전에 연결을 끊은 경우입니다. |
 | `psp_query_stage_latency_seconds` | `channel`, `stage=embed\|ann\|narrow\|keyword\|vector\|fuse\|hydrate` | 채널 내부 단계를 분리해 측정합니다. 벡터 검색이 느릴 때는 임베딩인지 ANN 탐색인지, 하이브리드 검색이 느릴 때는 어느 채널이 병목인지 구분할 수 있습니다. |
 | `psp_index_lag_seconds` | `pipeline=keyword\|vector` | 원천 데이터의 최신 변경 시각과 색인 체크포인트의 차이(초)입니다. `0`이면 최신 상태이며, `-1`이면 체크포인트가 아직 없습니다. |
 
@@ -484,7 +484,7 @@ Prometheus 형식으로 `/actuator/prometheus`에서 제공합니다.
 
 | Metric | Tags | Description |
 |---|---|---|
-| `psp_ask_latency_seconds` | `stage=llm\|search`, `outcome` | 단계별 지연 시간. LLM 호출과 `/v1/hsearch` 호출을 각각 측정합니다. |
+| `psp_ask_latency_seconds` | `stage=llm\|search`, `outcome=success\|error\|cancelled` | 단계별 지연 시간. LLM 호출과 `/v1/hsearch` 호출을 각각 측정합니다. |
 | `psp_ask_degraded_total` | `stage=llm`, `reason=config\|rate_limit\|upstream\|request\|payload\|unreachable` | LLM 장애로 원문 질의를 그대로 검색한 횟수입니다. `reason=config`는 API 키나 설정 문제로, 재시도로 해결되지 않습니다. |
 | `psp_ask_degraded_total` | `stage=search`, `reason=channel` | 하이브리드 검색에서 채널 하나 이상이 degraded 상태로 응답한 횟수입니다. |
 
