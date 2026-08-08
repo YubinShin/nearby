@@ -345,7 +345,7 @@ Caused by: java.lang.IllegalStateException: [search] the indexed data and this p
 ## Consequences
 
 - **멀티클러스터 전제 확보** (ADR 0002의 연장). 질의기가 독립 아티팩트라 "어느 클러스터를 보나"가 그 앱의 설정 한 줄이 됩니다.
-- **`SCHEMA_VERSION` 갱신 규율.** 문서 필드명이나 ES 매핑을 바꾸면 올려야 합니다. 안 올리면 옛 스키마 위에서 새 질의가 실행되고, 올리면 재색인 전까지 질의기가 기동하지 않습니다 — 후자가 의도입니다.
+- **문서 계약 검증.** 문서 필드명이나 ES 매핑을 바꾸면 재색인 전까지 질의기가 기동하지 않습니다. 처음에는 `SCHEMA_VERSION`을 사람이 올리는 방식이었고, 2026-08-08에 문서 생성기의 출력 해시(`document_fingerprint`)로 대체해 상수를 제거했습니다.
 - **`indexer-core` 추출 시점 확정** — `indexer-stream`에 실코드가 붙을 때.
 - **#14·#15 종료.** 사전 쪽은 2026-08-03에 분석기 지문으로 마저 닫았습니다(아래 "Dictionary follow-up").
 
@@ -425,7 +425,7 @@ java.lang.IllegalStateException: [search] the indexed data and this process disa
 
 ### Limitations
 
-- 프로브 문장은 고정입니다. 바꾸면 모든 지문이 바뀌어 전체 재색인이 강제됩니다. `SCHEMA_VERSION`과 같은 급으로 다뤄야 합니다.
+- 프로브 문장은 고정입니다. 바꾸면 모든 지문이 바뀌어 전체 재색인이 강제됩니다. 문서 지문의 프로브 행도 같습니다.
 - 고정 문장에 안 걸리는 사전 변경은 못 잡습니다. 사전을 통째로 재생성하는 경우는 잡지만, 단어 하나만 더한 경우는 프로브가 그 단어를 안 쓰면 놓칩니다.
 - 결정 6의 주기적 전체 재색인은 그대로 필요합니다. 지문은 어긋남을 막을 뿐 원천 드리프트를 쓸어내지는 않습니다.
 

@@ -1,5 +1,6 @@
 package dev.yubin.search.core.brand
 
+import dev.yubin.search.core.analysis.Digest
 import dev.yubin.search.core.embed.PlaceVectorText
 import dev.yubin.search.core.place.PlaceDocuments
 import dev.yubin.search.core.place.PlaceRow
@@ -7,6 +8,7 @@ import dev.yubin.search.core.vector.PlaceVectorPayload
 import java.time.OffsetDateTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -135,5 +137,18 @@ class BrandsTest {
 	fun `the seed has no duplicate spellings`() {
 		val all = Brands.aliases.values.flatten().map { it.replace(" ", "").lowercase() }
 		assertEquals(all.size, all.toSet().size, "duplicate spellings: ${all.groupBy { it }.filter { it.value.size > 1 }.keys}")
+	}
+
+	@Test
+	fun `the fingerprint is twelve hex characters and stable`() {
+		assertEquals(12, Brands.fingerprint.length, Brands.fingerprint)
+		assertTrue(Brands.fingerprint.all { it in "0123456789abcdef" }, Brands.fingerprint)
+		assertEquals(Brands.fingerprint, Brands.fingerprint)
+	}
+
+	@Test
+	fun `the fingerprint covers every spelling, not only the canonical ones`() {
+		val canonicalOnly = Digest.of(Brands.aliases.keys.map { "$it=$it" })
+		assertNotEquals(canonicalOnly, Brands.fingerprint)
 	}
 }

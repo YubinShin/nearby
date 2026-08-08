@@ -1,5 +1,7 @@
 package dev.yubin.search.core.brand
 
+import dev.yubin.search.core.analysis.Digest
+
 object Brands {
 	val aliases: Map<String, List<String>> = load()
 
@@ -7,6 +9,8 @@ object Brands {
 		aliases.entries
 			.flatMap { (canonical, forms) -> forms.map { normalize(it) to canonical } }
 			.sortedByDescending { it.first.length }
+
+	val fingerprint: String = Digest.of(byLength.map { (form, canonical) -> "$form=$canonical" })
 
 	fun resolve(recovered: String?, name: String, branch: String? = null): String? =
 		recovered?.takeIf { it.isNotBlank() } ?: canonical(name, branch)

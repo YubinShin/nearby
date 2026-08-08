@@ -2,7 +2,9 @@ package dev.yubin.search.startup
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient
 import dev.yubin.search.core.analysis.AnalyzerFingerprint
+import dev.yubin.search.core.brand.Brands
 import dev.yubin.search.core.embed.EmbeddingModel
+import dev.yubin.search.core.meta.DocumentFingerprint
 import dev.yubin.search.core.meta.IndexMeta
 import dev.yubin.search.core.meta.IndexMetaStore
 import jakarta.annotation.PostConstruct
@@ -23,28 +25,37 @@ class IndexContractGuard(
 	fun verify() {
 		meta.requireCompatible(
 			IndexMeta.PIPELINE_SEARCH,
-			stampOf(searchAlias, AnalyzerFingerprint.SEARCH_ANALYZER),
+			stampOf(searchAlias, AnalyzerFingerprint.SEARCH_ANALYZER, DocumentFingerprint.search()),
 			remedy = REMEDY_KEYWORD,
 		)
 		meta.requireCompatible(
 			IndexMeta.PIPELINE_SUGGEST,
-			stampOf(suggestAlias, AnalyzerFingerprint.SUGGEST_ANALYZER),
+			stampOf(suggestAlias, AnalyzerFingerprint.SUGGEST_ANALYZER, DocumentFingerprint.suggest()),
 			remedy = REMEDY_KEYWORD,
 		)
 
 		embeddings.ifAvailable { model ->
 			meta.requireCompatible(
 				IndexMeta.PIPELINE_VECTOR,
-				IndexMeta.stamp(embeddingModel = model.modelId, embeddingDim = model.dimension),
+				IndexMeta.stamp(
+					documentFingerprint = DocumentFingerprint.vector(),
+					brandFingerprint = Brands.fingerprint,
+					embeddingModel = model.modelId,
+					embeddingDim = model.dimension,
+				),
 				remedy = REMEDY_VECTOR,
 			)
 		}
 
-		log.info("index contract verified — schema v{}", IndexMeta.SCHEMA_VERSION)
+		log.info("index contract verified — documents {}, brands {}", DocumentFingerprint.search(), Brands.fingerprint)
 	}
 
-	private fun stampOf(alias: String, analyzer: String) =
-		IndexMeta.stamp(analyzerFingerprint = AnalyzerFingerprint.of(es, alias, analyzer))
+	private fun stampOf(alias: String, analyzer: String, documentFingerprint: String) =
+		IndexMeta.stamp(
+			documentFingerprint = documentFingerprint,
+			brandFingerprint = Brands.fingerprint,
+			analyzerFingerprint = AnalyzerFingerprint.of(es, alias, analyzer),
+		)
 
 	private companion object {
 		const val REMEDY_KEYWORD =

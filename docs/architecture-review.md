@@ -504,7 +504,7 @@ name^5 · branch^3 · category^2 · dong^1.5 · address^1
 
 **1차 해결 — 스키마 도장 (ADR 0011)**
 
-모듈 분리와 함께 **런타임 버전 도장**(`IndexMeta`)을 도입했습니다. 색인기가 alias 스왑에 성공한 뒤 `psp_index_meta`에 계약을 기록하고, 질의기는 기동 시 이 값을 대조하여 다르면 기동에 실패합니다. Elasticsearch 매핑이나 문서 스키마를 변경하면 `SCHEMA_VERSION`을 올리는 것이 규율이 되었습니다.
+모듈 분리와 함께 **런타임 버전 도장**(`IndexMeta`)을 도입했습니다. 색인기가 alias 스왑에 성공한 뒤 `psp_index_meta`에 계약을 기록하고, 질의기는 기동 시 이 값을 대조하여 다르면 기동에 실패합니다. 이때는 Elasticsearch 매핑이나 문서 스키마를 변경하면 `SCHEMA_VERSION`을 사람이 올려야 했습니다.
 
 **검증**
 
@@ -532,6 +532,28 @@ name^5 · branch^3 · category^2 · dong^1.5 · address^1
 지문은 고정된 세 문장의 분석 결과만 측정하므로, 이 문장들에 영향을 주지 않는 사전 변경은 감지하지 못합니다.
 
 `analyzer_fingerprint` 필드가 없는 기존 도장은 차이로 판정하지 않으므로, 보호는 다음 전체 재색인부터 적용됩니다. 감지 범위 밖의 드리프트는 **매일 전체 재색인**(ADR 0011 결정 6)이 24시간 안에 정리합니다.
+
+**3차 해결 — 문서 지문 (2026-08-08)**
+
+`SCHEMA_VERSION`은 사람이 올리는 상수입니다. 올리는 것을 잊으면 장치가 조용히 통과합니다. 상수를 없애고 문서 생성기의 출력을 지문으로 씁니다. 고정된 `PlaceRow` 다섯 건을 `PlaceDocuments`·`PlaceVectorText`·`PlaceVectorPayload`에 넣고, 생성된 문서를 키 순으로 직렬화해 해시한 값을 `document_fingerprint`로 기록합니다. 파이프라인마다 생성기가 다르므로 지문도 각각 남습니다.
+
+시드 사전은 `brand_fingerprint`로 따로 기록합니다. 분석기 지문은 `_analyze` 결과를 재므로 형태소 사전만 반영하고, `brands.tsv`는 분석 결과가 아니라 문서 내용을 바꾸기 때문입니다. 프로브에 걸리지 않는 사전 변경까지 잡으려고 파싱 결과 전체를 해시합니다. 주석과 줄 순서는 파싱 결과에 들어가지 않아 지문을 바꾸지 않습니다.
+
+**검증**
+
+| Pipeline | `document_fingerprint` | `brand_fingerprint` |
+| -------- | ---------------------- | ------------------- |
+| search   | `618427c54106`         | `8828b2d5b34b`      |
+| suggest  | `3278fd4bc830`         | `8828b2d5b34b`      |
+| vector   | `066d525cb981`         | `8828b2d5b34b`      |
+
+옛 도장에는 `document_fingerprint`가 없으므로 `indexed=none`으로 판정해 기동을 막습니다. 실측에서 컨텍스트를 기동하는 `search-api` 테스트 5건이 이 지점에서 실패했습니다. 전체 재색인(키워드 63,448건 42.5초, 벡터 63,448건 1,132.4초) 뒤 84건이 모두 통과했습니다.
+
+**남은 한계**
+
+프로브에 나타나지 않는 값 계산 변경은 `document_fingerprint`에 걸리지 않습니다. 필드 추가·삭제·이름 변경은 프로브와 무관하게 잡습니다.
+
+색인 대상 선정은 두 축으로 나뉘고 한쪽만 덮습니다. `PlaceRow.indexable` 규칙은 `search-core`에 있어 양쪽 앱이 같은 코드를 보므로, 프로브에 소프트 삭제 행과 중복 판정 행을 넣어 지문에 싣습니다. `PlaceSource`의 `left join public.place_duplicate`는 `indexer-batch`에만 있어 질의기가 계산할 수 없습니다. 원천 질의가 바뀌어 색인 대상이 달라지는 경우는 여전히 감지 장치가 없습니다.
 
 ## Findings — Step 5·6 (Vector & Hybrid)
 
@@ -672,7 +694,7 @@ api-spec에 두 `total`의 의미가 다르다는 점과 상한 100을 명시했
 
 `place_duplicate`도 동일합니다. `SELECT_BASE`가 `place_brand`와 `place_duplicate`를 모두 left join하므로, 중복 판정이 바뀌어도 `place.updated_at`은 움직이지 않습니다.
 
-이쪽은 `IndexMeta.SCHEMA_VERSION`을 2로 올려 우회했습니다. 색인 대상이 달라졌다는 사실을 도장에 실어, 전체 재색인 전까지 질의기가 기동하지 못하게 막습니다. 다만 증분으로는 이미 색인된 중복 문서를 걷어내지 못한다는 한계 자체는 남아 있습니다.
+이쪽은 당시 `IndexMeta.SCHEMA_VERSION`을 2로 올려 우회했습니다. 색인 대상이 달라졌다는 사실을 도장에 실어, 전체 재색인 전까지 질의기가 기동하지 못하게 막았습니다. 다만 증분으로는 이미 색인된 중복 문서를 걷어내지 못한다는 한계 자체는 남아 있습니다.
 
 **개선 방향**
 
@@ -758,11 +780,13 @@ api-spec에 두 `total`의 의미가 다르다는 점과 상한 100을 명시했
 
 결과적으로 "브랜드를 고쳤다"가 사람마다 다른 뜻이 됩니다. 앱만 배포하면 한쪽만 갱신됩니다.
 
-**감지 장치가 없다**
+**감지 장치 — 해결 (2026-08-08)**
 
-`IndexMeta.Stamp`는 `schema_version`·`embedding_model`·`embedding_dim`·`analyzer_fingerprint`를 담습니다. 시드 사전의 해시는 없습니다. `brands.tsv`를 고치고 재색인하지 않으면 색인된 `brand` 필드와 질의 시점의 `label`이 어긋나지만, 기동 시 도장 대조는 이를 통과시킵니다.
+`IndexMeta.Stamp`가 `brand_fingerprint`를 담습니다. `brands.tsv`를 고치고 재색인하지 않으면 질의기가 기동 시 막힙니다. 사전은 세 파이프라인이 공유하므로, 어긋나면 키워드와 벡터를 모두 재색인하라는 조치를 출력합니다.
 
-분석기 지문은 `_analyze` 결과를 재므로 형태소 사전만 반영합니다. `brands.tsv`는 문서 내용을 바꾸지 분석 결과를 바꾸지 않아 지문에 걸리지 않습니다. 형태소 사전에서 #14가 닫은 것과 같은 종류의 드리프트가 브랜드 쪽에는 열려 있습니다.
+**남은 한계**
+
+복원분(`place_brand`)의 변경은 어느 지문에도 들어가지 않습니다. `document_fingerprint`의 프로브 행은 `brand` 값이 코드에 고정되어 있어 DB 내용과 무관하고, `brand_fingerprint`는 `brands.tsv`만 해시합니다. `recover_brands.sh`를 다시 실행해 복원 결과가 바뀌어도 도장은 그대로입니다.
 
 **개선 방향**
 
@@ -1014,7 +1038,7 @@ catch 첫 줄에 `if (e is CancellationException) throw e`를 넣었습니다. �
 | #9 인증                                                                        | **Deferred** — 완화만 (역할 분리로 노출면 축소)                                                        |
 | #13 분석 불일치 (사전 + stoptags 재결정)                                       | **Fixed** (실측 완료)                                                                                  |
 | #11 랭킹 근거 데이터 · #12 폴백 이중 질의                                      | **Deferred**                                                                                           |
-| #14 사전·인덱스 버전 정합                                                      | **Fixed** (스키마 도장 + 분석기 지문 — 파일 해시 대신 `_analyze` 결과 해시, 2026-08-03)                |
+| #14 사전·인덱스 버전 정합                                                      | **Fixed** (스키마 도장 + 분석기 지문 + 문서 지문 — 수동 `SCHEMA_VERSION` 제거, 2026-08-08)             |
 | #15 벡터 모델 버전 정합                                                        | **Fixed** (ADR 0011 런타임 도장 + 증분 차단)                                                           |
 | #16 적재/스왑 분리                                                             | **Deferred** (Step 5 신규)                                                                             |
 | #17 벡터의 결과 없음 판별 불가                                                 | **Mitigated** (문턱 + 하이브리드) — recall 은 해결, precision 은 미해결                                |

@@ -1,6 +1,8 @@
 package dev.yubin.search.indexer.batch
 
+import dev.yubin.search.core.brand.Brands
 import dev.yubin.search.core.embed.EmbeddingModel
+import dev.yubin.search.core.meta.DocumentFingerprint
 import dev.yubin.search.core.meta.IndexMeta
 import dev.yubin.search.core.meta.IndexMetaStore
 import dev.yubin.search.core.place.PlaceRow
@@ -151,7 +153,7 @@ class VectorIndexJobConfig(
 
 				meta.write(
 					IndexMeta.PIPELINE_VECTOR,
-					IndexMeta.stamp(embeddingModel = embeddings.modelId, embeddingDim = embeddings.dimension),
+					vectorStamp(),
 				)
 
 				val advanced = LoadProgress.capWatermark(progress.maxUpdatedAt, places.dbNow(), watermarkLag)
@@ -183,7 +185,7 @@ class VectorIndexJobConfig(
 
 				meta.requireCompatible(
 					IndexMeta.PIPELINE_VECTOR,
-					IndexMeta.stamp(embeddingModel = embeddings.modelId, embeddingDim = embeddings.dimension),
+					vectorStamp(),
 					remedy = INCREMENTAL_REMEDY,
 				)
 
@@ -214,6 +216,13 @@ class VectorIndexJobConfig(
 				RepeatStatus.FINISHED
 			}, transactionManager)
 			.build()
+
+	private fun vectorStamp() = IndexMeta.stamp(
+		documentFingerprint = DocumentFingerprint.vector(),
+		brandFingerprint = Brands.fingerprint,
+		embeddingModel = embeddings.modelId,
+		embeddingDim = embeddings.dimension,
+	)
 
 	private companion object {
 		val log = LoggerFactory.getLogger(VectorIndexJobConfig::class.java)

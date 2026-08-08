@@ -2,6 +2,8 @@ package dev.yubin.search.indexer.batch
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient
 import dev.yubin.search.core.analysis.AnalyzerFingerprint
+import dev.yubin.search.core.brand.Brands
+import dev.yubin.search.core.meta.DocumentFingerprint
 import dev.yubin.search.core.meta.IndexMeta
 import dev.yubin.search.core.meta.IndexMetaStore
 import dev.yubin.search.core.place.PlaceRow
@@ -223,10 +225,14 @@ class KeywordIndexJobConfig(
 			.build()
 
 	private fun searchStamp(index: String) = IndexMeta.stamp(
+		documentFingerprint = DocumentFingerprint.search(),
+		brandFingerprint = Brands.fingerprint,
 		analyzerFingerprint = AnalyzerFingerprint.of(es, index, AnalyzerFingerprint.SEARCH_ANALYZER),
 	)
 
 	private fun suggestStamp(index: String) = IndexMeta.stamp(
+		documentFingerprint = DocumentFingerprint.suggest(),
+		brandFingerprint = Brands.fingerprint,
 		analyzerFingerprint = AnalyzerFingerprint.of(es, index, AnalyzerFingerprint.SUGGEST_ANALYZER),
 	)
 

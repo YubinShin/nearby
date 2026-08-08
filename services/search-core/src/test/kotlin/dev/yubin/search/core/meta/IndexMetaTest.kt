@@ -7,10 +7,11 @@ import kotlin.test.assertTrue
 
 class IndexMetaTest {
 	private val model = "multilingual-e5-small"
+	private val document = "a1b2c3d4e5f6"
 
 	@Test
 	fun `an identical stamp passes`() {
-		val stamp = IndexMeta.stamp(model, 384)
+		val stamp = IndexMeta.stamp(document, embeddingModel = model, embeddingDim = 384)
 		assertEquals(IndexMeta.Verdict.Ok, IndexMeta.verify(stamp, stamp))
 	}
 
@@ -20,19 +21,49 @@ class IndexMetaTest {
 	}
 
 	@Test
-	fun `a different schema version blocks`() {
-		val indexed = IndexMeta.Stamp(schema_version = IndexMeta.SCHEMA_VERSION - 1)
-		val verdict = IndexMeta.verify(indexed, IndexMeta.stamp())
+	fun `a different document fingerprint blocks`() {
+		val verdict = IndexMeta.verify(IndexMeta.stamp("0f1e2d3c4b5a"), IndexMeta.stamp(document))
 
 		val mismatch = assertIs<IndexMeta.Verdict.Mismatch>(verdict)
 		assertEquals(1, mismatch.differences.size)
-		assertTrue("${IndexMeta.SCHEMA_VERSION - 1}" in mismatch.differences[0], mismatch.differences[0])
-		assertTrue("${IndexMeta.SCHEMA_VERSION}" in mismatch.differences[0], mismatch.differences[0])
+		assertTrue("0f1e2d3c4b5a" in mismatch.differences[0], mismatch.differences[0])
+		assertTrue(document in mismatch.differences[0], mismatch.differences[0])
+	}
+
+	@Test
+	fun `an index stamped before the document fingerprint existed blocks`() {
+		val verdict = IndexMeta.verify(IndexMeta.Stamp(), IndexMeta.stamp(document))
+
+		val mismatch = assertIs<IndexMeta.Verdict.Mismatch>(verdict)
+		assertEquals(1, mismatch.differences.size)
+		assertTrue("indexed=none" in mismatch.differences[0], mismatch.differences[0])
+	}
+
+	@Test
+	fun `a different brand dictionary blocks and reports a shared cause`() {
+		val verdict = IndexMeta.verify(
+			IndexMeta.stamp(document, brandFingerprint = "111111111111"),
+			IndexMeta.stamp(document, brandFingerprint = "222222222222"),
+		)
+
+		val mismatch = assertIs<IndexMeta.Verdict.Mismatch>(verdict)
+		assertEquals(1, mismatch.differences.size)
+		assertTrue(mismatch.sharesBrandDictionary(), mismatch.differences[0])
+	}
+
+	@Test
+	fun `a fingerprint difference outside the brand dictionary is not a shared cause`() {
+		val verdict = IndexMeta.verify(IndexMeta.stamp("0f1e2d3c4b5a"), IndexMeta.stamp(document))
+
+		assertTrue(!assertIs<IndexMeta.Verdict.Mismatch>(verdict).sharesBrandDictionary())
 	}
 
 	@Test
 	fun `a different embedding model blocks`() {
-		val verdict = IndexMeta.verify(IndexMeta.stamp("ko-sroberta", 384), IndexMeta.stamp(model, 384))
+		val verdict = IndexMeta.verify(
+			IndexMeta.stamp(document, embeddingModel = "ko-sroberta", embeddingDim = 384),
+			IndexMeta.stamp(document, embeddingModel = model, embeddingDim = 384),
+		)
 
 		val mismatch = assertIs<IndexMeta.Verdict.Mismatch>(verdict)
 		assertEquals(1, mismatch.differences.size)
@@ -41,28 +72,41 @@ class IndexMetaTest {
 
 	@Test
 	fun `a different embedding dimension blocks`() {
-		val verdict = IndexMeta.verify(IndexMeta.stamp(model, 768), IndexMeta.stamp(model, 384))
+		val verdict = IndexMeta.verify(
+			IndexMeta.stamp(document, embeddingModel = model, embeddingDim = 768),
+			IndexMeta.stamp(document, embeddingModel = model, embeddingDim = 384),
+		)
 		assertIs<IndexMeta.Verdict.Mismatch>(verdict)
 	}
 
 	@Test
 	fun `every mismatched field is collected`() {
-		val indexed = IndexMeta.Stamp(IndexMeta.SCHEMA_VERSION - 1, "ko-sroberta", 768)
-		val verdict = IndexMeta.verify(indexed, IndexMeta.stamp(model, 384))
+		val indexed = IndexMeta.stamp("0f1e2d3c4b5a", "111111111111", "ko-sroberta", 768)
+		val verdict = IndexMeta.verify(indexed, IndexMeta.stamp(document, "222222222222", model, 384))
 
-		assertEquals(3, assertIs<IndexMeta.Verdict.Mismatch>(verdict).differences.size)
+		assertEquals(4, assertIs<IndexMeta.Verdict.Mismatch>(verdict).differences.size)
 	}
 
 	@Test
 	fun `the keyword pipeline does not compare embedding information`() {
-		val keywordStamp = IndexMeta.stamp()
-		assertEquals(IndexMeta.Verdict.Ok, IndexMeta.verify(keywordStamp, IndexMeta.stamp(model, 384)))
+		val keywordStamp = IndexMeta.stamp(document)
+		val verdict = IndexMeta.verify(keywordStamp, IndexMeta.stamp(document, embeddingModel = model, embeddingDim = 384))
+
+		assertEquals(IndexMeta.Verdict.Ok, verdict)
+	}
+
+	@Test
+	fun `an index stamped before the analyzer fingerprint existed does not block`() {
+		val indexed = IndexMeta.stamp(document)
+		val verdict = IndexMeta.verify(indexed, IndexMeta.stamp(document, analyzerFingerprint = "a1b2c3d4e5f6"))
+
+		assertEquals(IndexMeta.Verdict.Ok, verdict)
 	}
 
 	@Test
 	fun `a different analyzer fingerprint blocks`() {
-		val indexed = IndexMeta.stamp(analyzerFingerprint = "a1b2c3d4e5f6")
-		val verdict = IndexMeta.verify(indexed, IndexMeta.stamp(analyzerFingerprint = "0f1e2d3c4b5a"))
+		val indexed = IndexMeta.stamp(document, analyzerFingerprint = "a1b2c3d4e5f6")
+		val verdict = IndexMeta.verify(indexed, IndexMeta.stamp(document, analyzerFingerprint = "0f1e2d3c4b5a"))
 
 		val mismatch = assertIs<IndexMeta.Verdict.Mismatch>(verdict)
 		assertEquals(1, mismatch.differences.size)
@@ -70,18 +114,10 @@ class IndexMetaTest {
 	}
 
 	@Test
-	fun `an index stamped before fingerprints existed does not block`() {
-		val indexed = IndexMeta.Stamp(IndexMeta.SCHEMA_VERSION)
-		val verdict = IndexMeta.verify(indexed, IndexMeta.stamp(analyzerFingerprint = "a1b2c3d4e5f6"))
-
-		assertEquals(IndexMeta.Verdict.Ok, verdict)
-	}
-
-	@Test
 	fun `a querier started with vectors off does not clash with a vector stamp`() {
 		assertEquals(
 			IndexMeta.Verdict.Ok,
-			IndexMeta.verify(IndexMeta.stamp(model, 384), IndexMeta.stamp()),
+			IndexMeta.verify(IndexMeta.stamp(document, embeddingModel = model, embeddingDim = 384), IndexMeta.stamp()),
 		)
 	}
 }

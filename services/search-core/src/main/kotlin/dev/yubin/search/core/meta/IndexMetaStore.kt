@@ -36,15 +36,15 @@ class IndexMetaStore(private val es: ElasticsearchClient) {
 						append("[$pipeline] the indexed data and this process disagree on the contract.\n")
 						verdict.differences.forEach { append("  - ").append(it).append('\n') }
 						append("  in this state nothing throws — the results just go silently wrong.\n")
-						append("  → ").append(if (verdict.sharesSchemaVersion()) REMEDY_SCHEMA_VERSION else remedy)
+						append("  → ").append(if (verdict.sharesBrandDictionary()) REMEDY_ALL_PIPELINES else remedy)
 					},
 				)
 		}
 	}
 
 	private companion object {
-		const val REMEDY_SCHEMA_VERSION =
-			"the schema version is shared by every pipeline, so one reindex is not enough. " +
+		const val REMEDY_ALL_PIPELINES =
+			"the brand dictionary is shared by every pipeline, so one reindex is not enough. " +
 				"run both on the indexer (indexer-batch) and then start this app again: " +
 				"POST /admin/reindex, then POST /admin/vector/reindex."
 

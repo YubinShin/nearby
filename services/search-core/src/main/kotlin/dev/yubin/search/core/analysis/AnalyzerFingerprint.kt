@@ -2,7 +2,6 @@ package dev.yubin.search.core.analysis
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient
 import co.elastic.clients.elasticsearch._types.ElasticsearchException
-import java.security.MessageDigest
 
 object AnalyzerFingerprint {
 	const val SEARCH_ANALYZER = "komoran"
@@ -22,15 +21,8 @@ object AnalyzerFingerprint {
 			if (e.status() == HTTP_NOT_FOUND) return null
 			throw e
 		}
-		return digest(tokens.map { "${it.token()}:${it.startOffset()}:${it.endOffset()}" })
+		return Digest.of(tokens.map { "${it.token()}:${it.startOffset()}:${it.endOffset()}" })
 	}
 
-	fun digest(terms: List<String>): String =
-		MessageDigest.getInstance("SHA-256")
-			.digest(terms.joinToString("|").toByteArray(Charsets.UTF_8))
-			.take(BYTES)
-			.joinToString("") { "%02x".format(it.toInt() and 0xff) }
-
 	private const val HTTP_NOT_FOUND = 404
-	private const val BYTES = 6
 }
