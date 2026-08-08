@@ -2,7 +2,7 @@
 
 `deploy/eks/cluster.yaml`과 `deploy/k8s/overlays/eks*`의 각 줄이 어떤 결정 위에 서 있는지 기록합니다. 매니페스트에는 주석을 두지 않습니다.
 
-실행 절차는 [deploy/eks/README.md](../deploy/eks/README.md), 실험 결과는 [ADR 0011](adr/0011-module-split-and-index-contract.md) 에 있습니다. 실측 전문은 `git show 83bc469`로 확인합니다.
+실행 절차는 [deploy/eks/README.md](../deploy/eks/README.md), 실험 결과는 [ADR 0011](adr/0011-module-split-and-index-contract.md) 에 있습니다. 실측 전문은 `git show 11f1eb9`로 확인합니다.
 
 ---
 

@@ -120,9 +120,9 @@ ADR 0014 gap 목록에 답변 생성이 드러낸 항목을 추가합니다.
 
 | # | 빈 곳 | 지금 결과 | 필요한 것 |
 |---|---|---|---|
-| ⑤ | 검색 응답 필드를 바꿔도 컴파일이 막지 않음 — 두 앱이 HTTP로만 연결(ADR 0011) | 소비자는 `HsearchContract`가 경계에서 렌더 필드(`placeId`·`name`·`category`·`dong`·`address`)를 고정하고 인용 불가 히트를 `unrenderable`로 셈. 생산자는 `HybridHitContractTest`가 직렬화 필드명을 검사 | 닫힘 (`faade78` · `d0dfbb9`) |
+| ⑤ | 검색 응답 필드를 바꿔도 컴파일이 막지 않음 — 두 앱이 HTTP로만 연결(ADR 0011) | 소비자는 `HsearchContract`가 경계에서 렌더 필드(`placeId`·`name`·`category`·`dong`·`address`)를 고정하고 인용 불가 히트를 `unrenderable`로 셈. 생산자는 `HybridHitContractTest`가 직렬화 필드명을 검사 | 닫힘 (`97052ef` · `23b7e4b`) |
 | ⑥ | 거리를 답변에 넣으려면 좌표가 필요하나 경로 없음(gap ②의 답변측 발현) | `거리 정보 없음`으로 컨텍스트 고정 | 지명→좌표 경로. 생기면 거리 문장 허용 재검토 |
-| ⑦ | groundedness 회귀를 CI에서 돌릴 픽스처·하네스가 질의 이해쪽만 있음 | `FixtureLlmClient`가 답변 호출을 재생하고 `AskAnswerMappingTest`가 CI 판정으로 돌림. 녹화본은 8건이나 테스트가 부르는 질의는 2개라 나머지는 재생되지 않음. 재녹화는 `record_answer_fixtures.py` | 닫힘 (`7c635f1` · `8de084d`). 판정은 `_scoreboard.json` 대신 JUnit이 맡습니다 |
+| ⑦ | groundedness 회귀를 CI에서 돌릴 픽스처·하네스가 질의 이해쪽만 있음 | `FixtureLlmClient`가 답변 호출을 재생하고 `AskAnswerMappingTest`가 CI 판정으로 돌림. 녹화본은 8건이나 테스트가 부르는 질의는 2개라 나머지는 재생되지 않음. 재녹화는 `record_answer_fixtures.py` | 닫힘 (`f32ad76` · `856d5dd`). 판정은 `_scoreboard.json` 대신 JUnit이 맡습니다 |
 
 ## Open questions
 
@@ -157,26 +157,26 @@ ADR 0014 gap 목록에 답변 생성이 드러낸 항목을 추가합니다.
 
 | 모듈 | 파일 | 확정 커밋 | 날짜 |
 |---|---|---|---|
-| `ask-api` | `ask/AskController.kt` | `7c635f1` | 2026-08-05 |
-| `ask-api` | `ask/AskModels.kt` | `7c635f1` · `faade78` | 2026-08-05 |
-| `ask-api` | `ask/AskService.kt` | `7c635f1` · `faade78` | 2026-08-05 |
-| `ask-api` | `ask/answer/AnswerContext.kt` | `7c635f1` · `faade78` | 2026-08-05 |
-| `ask-api` | `ask/answer/AnswerService.kt` | `7c635f1` · `faade78` | 2026-08-05 |
-| `ask-api` | `ask/answer/GroundingValidator.kt` | `7c635f1` · `faade78` | 2026-08-05 |
-| `ask-api` | `ask/corpus/ForbiddenAnswerTerms.kt` | `7c635f1` | 2026-08-05 |
-| `ask-api` | `corpus/forbidden-answer-terms.json` | `7c635f1` | 2026-08-05 |
-| `ask-api` | `ask/llm/AnswerPromptSpec.kt` | `7c635f1` | 2026-08-05 |
-| `ask-api` | `ask/llm/AnswerWire.kt` | `7c635f1` | 2026-08-05 |
-| `ask-api` | `ask/llm/FixtureLlmClient.kt` | `7c635f1` | 2026-08-05 |
-| `ask-api` | `ask/llm/GeminiClient.kt` | `7c635f1` | 2026-08-05 |
-| `ask-api` | `ask/llm/LlmClient.kt` | `7c635f1` | 2026-08-05 |
-| `ask-api` | `prompt/answer-generate.json` | `7c635f1` | 2026-08-05 |
-| `ask-api` | `ask/search/HsearchContract.kt` | `faade78` | 2026-08-05 |
-| `ask-api` | `ask/search/SearchPlatform.kt` | `faade78` | 2026-08-05 |
-| `ask-api` | `ask/AskAnswerMappingTest.kt` *(테스트)* | `7c635f1` · `faade78` | 2026-08-05 |
-| `ask-api` | `ask/answer/AnswerContextTest.kt` *(테스트)* | `7c635f1` · `faade78` | 2026-08-05 |
-| `ask-api` | `ask/answer/GroundingValidatorTest.kt` *(테스트)* | `7c635f1` · `faade78` | 2026-08-05 |
-| `ask-api` | `ask/llm/AnswerWireTest.kt` *(테스트)* | `7c635f1` | 2026-08-05 |
-| `ask-api` | `ask/search/HsearchContractTest.kt` *(테스트)* | `faade78` | 2026-08-05 |
-| `search-api` | `hybrid/HybridHitContractTest.kt` *(테스트)* | `d0dfbb9` | 2026-08-05 |
-| `scripts` | `record_answer_fixtures.py` | `8de084d` | 2026-08-05 |
+| `ask-api` | `ask/AskController.kt` | `f32ad76` | 2026-08-05 |
+| `ask-api` | `ask/AskModels.kt` | `f32ad76` · `97052ef` | 2026-08-05 |
+| `ask-api` | `ask/AskService.kt` | `f32ad76` · `97052ef` | 2026-08-05 |
+| `ask-api` | `ask/answer/AnswerContext.kt` | `f32ad76` · `97052ef` | 2026-08-05 |
+| `ask-api` | `ask/answer/AnswerService.kt` | `f32ad76` · `97052ef` | 2026-08-05 |
+| `ask-api` | `ask/answer/GroundingValidator.kt` | `f32ad76` · `97052ef` | 2026-08-05 |
+| `ask-api` | `ask/corpus/ForbiddenAnswerTerms.kt` | `f32ad76` | 2026-08-05 |
+| `ask-api` | `corpus/forbidden-answer-terms.json` | `f32ad76` | 2026-08-05 |
+| `ask-api` | `ask/llm/AnswerPromptSpec.kt` | `f32ad76` | 2026-08-05 |
+| `ask-api` | `ask/llm/AnswerWire.kt` | `f32ad76` | 2026-08-05 |
+| `ask-api` | `ask/llm/FixtureLlmClient.kt` | `f32ad76` | 2026-08-05 |
+| `ask-api` | `ask/llm/GeminiClient.kt` | `f32ad76` | 2026-08-05 |
+| `ask-api` | `ask/llm/LlmClient.kt` | `f32ad76` | 2026-08-05 |
+| `ask-api` | `prompt/answer-generate.json` | `f32ad76` | 2026-08-05 |
+| `ask-api` | `ask/search/HsearchContract.kt` | `97052ef` | 2026-08-05 |
+| `ask-api` | `ask/search/SearchPlatform.kt` | `97052ef` | 2026-08-05 |
+| `ask-api` | `ask/AskAnswerMappingTest.kt` *(테스트)* | `f32ad76` · `97052ef` | 2026-08-05 |
+| `ask-api` | `ask/answer/AnswerContextTest.kt` *(테스트)* | `f32ad76` · `97052ef` | 2026-08-05 |
+| `ask-api` | `ask/answer/GroundingValidatorTest.kt` *(테스트)* | `f32ad76` · `97052ef` | 2026-08-05 |
+| `ask-api` | `ask/llm/AnswerWireTest.kt` *(테스트)* | `f32ad76` | 2026-08-05 |
+| `ask-api` | `ask/search/HsearchContractTest.kt` *(테스트)* | `97052ef` | 2026-08-05 |
+| `search-api` | `hybrid/HybridHitContractTest.kt` *(테스트)* | `23b7e4b` | 2026-08-05 |
+| `scripts` | `record_answer_fixtures.py` | `856d5dd` | 2026-08-05 |
