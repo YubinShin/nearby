@@ -52,11 +52,12 @@ class RrfTest {
 	}
 
 	@Test
-	fun `a channel weighted 0 has no influence on the ranking`() {
+	fun `a channel weighted 0 adds no score but still contributes candidates`() {
 		val fused = Rrf.fuse(listOf(keyword("A"), vector("B", weight = 0.0)))
 
-		assertEquals(listOf("A", "B"), ids(fused))
+		assertEquals(listOf("A", "B"), ids(fused), "B is still in the result — weight 0 does not disable the channel")
 		assertEquals(0.0, fused.single { it.id == "B" }.score)
+		assertEquals(mapOf("vector" to 1), fused.single { it.id == "B" }.ranks)
 	}
 
 	@Test
@@ -87,12 +88,13 @@ class RrfTest {
 	}
 
 	@Test
-	fun `only ranks are used, not the score scale`() {
-		val fused = Rrf.fuse(listOf(keyword("A", "B"), vector("B", "A")))
+	fun `a better rank scores higher and the gap narrows as ranks deepen`() {
+		val fused = Rrf.fuse(listOf(keyword("A", "B", "C")))
 
-		val a = fused.single { it.id == "A" }
-		val b = fused.single { it.id == "B" }
-		assertEquals(a.score, b.score, "rank 1 + rank 2 must score the same as rank 2 + rank 1")
+		val (a, b, c) = listOf("A", "B", "C").map { id -> fused.single { it.id == id }.score }
+
+		assertTrue(a > b && b > c, "a better rank must score higher: $a $b $c")
+		assertTrue(a - b > b - c, "RRF flattens as ranks deepen, so the first gap is the widest")
 	}
 
 	@Test
