@@ -18,6 +18,16 @@ import org.springframework.web.server.ResponseStatusException
 
 data class CleanupResult(val kept: Int, val removed: List<String>)
 
+internal fun rejectWhileRebuilding(jobs: IndexJobService, jobName: String) {
+	val running = jobs.runningCount(jobName)
+	if (running > 0) {
+		throw ResponseStatusException(
+			HttpStatus.CONFLICT,
+			"$jobName is running — cleanup would delete the index it is loading into. retry once it finishes.",
+		)
+	}
+}
+
 @RestController
 @RequestMapping("/admin")
 class AdminController(
@@ -47,6 +57,8 @@ class AdminController(
 
 	@PostMapping("/cleanup")
 	fun cleanup(): CleanupResult {
+		rejectWhileRebuilding(jobs, IndexJobs.KEYWORD_REBUILD)
+
 		val orphans = admin.sweepOrphansAbove(searchAlias) + admin.sweepOrphansAbove(suggestAlias)
 		val old = admin.reconcile(searchAlias, keepVersions) + admin.reconcile(suggestAlias, keepVersions)
 		return CleanupResult(kept = keepVersions, removed = (orphans + old).sorted())

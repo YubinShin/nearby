@@ -35,6 +35,8 @@ class VectorAdminController(
 
 	@PostMapping("/cleanup")
 	fun cleanup(): CleanupResult {
+		rejectWhileRebuilding(jobs, IndexJobs.VECTOR_REBUILD)
+
 		val orphans = qdrant.sweepOrphansAbove(alias)
 		val old = qdrant.reconcile(alias, keepVersions)
 		return CleanupResult(kept = keepVersions, removed = (orphans + old).sorted())
