@@ -23,7 +23,15 @@ class PlaceSearchService(
 	@Value("\${psp.index.search-alias}") private val alias: String,
 ) {
 	suspend fun search(req: SearchRequest): SearchResponse = metrics.record(CHANNEL) {
-		if (req.q.isBlank()) return@record SearchResponse(req.q, 0, req.page, req.size, 0)
+		if (req.q.isBlank()) {
+			return@record SearchResponse(
+				query = req.q,
+				total = 0,
+				page = req.page,
+				size = req.size,
+				tookMs = 0,
+			)
+		}
 
 		val strict = execute(req, PlaceQueries.search(req, relaxed = false), relaxed = false)
 		val result =
