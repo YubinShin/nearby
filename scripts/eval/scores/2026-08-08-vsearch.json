@@ -1,0 +1,213 @@
+{
+  "label": "api:vsearch",
+  "k": 10,
+  "means": {
+    "precision": 0.7120000000000001,
+    "recall": 0.17088375101784917,
+    "mrr": 0.8,
+    "ndcg": 0.7228548992295681
+  },
+  "rows": {
+    "회 먹을 데": {
+      "returned": 10,
+      "found": 8,
+      "precision": 0.8,
+      "recall": 0.14035087719298245,
+      "mrr": 0.5,
+      "ndcg": 0.7136540102475307
+    },
+    "브런치 먹을 곳": {
+      "returned": 10,
+      "found": 6,
+      "precision": 0.6,
+      "recall": 0.16216216216216217,
+      "mrr": 1.0,
+      "ndcg": 0.6691255538181726
+    },
+    "머리 자르는 곳": {
+      "returned": 10,
+      "found": 10,
+      "precision": 1.0,
+      "recall": 0.4,
+      "mrr": 1.0,
+      "ndcg": 1.0
+    },
+    "혼밥하기 좋은 집": {
+      "returned": 10,
+      "found": 7,
+      "precision": 0.7,
+      "recall": 0.21212121212121213,
+      "mrr": 1.0,
+      "ndcg": 0.7503359712972107
+    },
+    "매운 거 먹고 싶다": {
+      "returned": 10,
+      "found": 6,
+      "precision": 0.6,
+      "recall": 0.2,
+      "mrr": 1.0,
+      "ndcg": 0.6745711375739728
+    },
+    "차 고치는 곳": {
+      "returned": 1,
+      "found": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "mrr": 0.0,
+      "ndcg": 0.0
+    },
+    "조용히 공부할 곳": {
+      "returned": 10,
+      "found": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "mrr": 0.0,
+      "ndcg": 0.0
+    },
+    "고기 구워 먹는 데": {
+      "returned": 10,
+      "found": 10,
+      "precision": 1.0,
+      "recall": 0.2127659574468085,
+      "mrr": 1.0,
+      "ndcg": 1.0
+    },
+    "카페": {
+      "returned": 10,
+      "found": 9,
+      "precision": 0.9,
+      "recall": 0.16981132075471697,
+      "mrr": 1.0,
+      "ndcg": 0.905211635630449
+    },
+    "편의점": {
+      "returned": 10,
+      "found": 10,
+      "precision": 1.0,
+      "recall": 0.1694915254237288,
+      "mrr": 1.0,
+      "ndcg": 1.0
+    },
+    "세탁소": {
+      "returned": 10,
+      "found": 10,
+      "precision": 1.0,
+      "recall": 0.2,
+      "mrr": 1.0,
+      "ndcg": 1.0
+    },
+    "약국": {
+      "returned": 10,
+      "found": 10,
+      "precision": 1.0,
+      "recall": 0.18867924528301888,
+      "mrr": 1.0,
+      "ndcg": 1.0
+    },
+    "미용실": {
+      "returned": 10,
+      "found": 10,
+      "precision": 1.0,
+      "recall": 0.1694915254237288,
+      "mrr": 1.0,
+      "ndcg": 1.0
+    },
+    "치킨": {
+      "returned": 0,
+      "found": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "mrr": 0.0,
+      "ndcg": 0.0
+    },
+    "삼겹살": {
+      "returned": 1,
+      "found": 1,
+      "precision": 0.1,
+      "recall": 0.03333333333333333,
+      "mrr": 1.0,
+      "ndcg": 0.22009176629808017
+    },
+    "노래방": {
+      "returned": 10,
+      "found": 9,
+      "precision": 0.9,
+      "recall": 0.20454545454545456,
+      "mrr": 1.0,
+      "ndcg": 0.9363792118010481
+    },
+    "제주도 흑돼지 맛집": {
+      "returned": 10,
+      "found": 10,
+      "precision": 1.0,
+      "recall": 0.29411764705882354,
+      "mrr": 1.0,
+      "ndcg": 1.0
+    },
+    "스타벅스": {
+      "returned": 10,
+      "found": 10,
+      "precision": 1.0,
+      "recall": 0.18181818181818182,
+      "mrr": 1.0,
+      "ndcg": 1.0
+    },
+    "CU": {
+      "returned": 0,
+      "found": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "mrr": 0.0,
+      "ndcg": 0.0
+    },
+    "파리바게뜨": {
+      "returned": 10,
+      "found": 10,
+      "precision": 1.0,
+      "recall": 0.23255813953488372,
+      "mrr": 1.0,
+      "ndcg": 1.0
+    },
+    "이디야": {
+      "returned": 6,
+      "found": 6,
+      "precision": 0.6,
+      "recall": 0.1875,
+      "mrr": 1.0,
+      "ndcg": 0.7273298443105218
+    },
+    "평점 4.5 이상 카페": {
+      "returned": 10,
+      "found": 8,
+      "precision": 0.8,
+      "recall": 0.12307692307692308,
+      "mrr": 1.0,
+      "ndcg": 0.8048109992093389
+    },
+    "지금 문 연 약국": {
+      "returned": 10,
+      "found": 10,
+      "precision": 1.0,
+      "recall": 0.2,
+      "mrr": 1.0,
+      "ndcg": 1.0
+    },
+    "배달 되는 치킨집": {
+      "returned": 10,
+      "found": 8,
+      "precision": 0.8,
+      "recall": 0.32,
+      "mrr": 0.5,
+      "ndcg": 0.6698623505528797
+    },
+    "1만원 이하 파스타": {
+      "returned": 10,
+      "found": 10,
+      "precision": 1.0,
+      "recall": 0.2702702702702703,
+      "mrr": 1.0,
+      "ndcg": 1.0
+    }
+  },
+  "failed": []
+}

@@ -116,4 +116,4 @@ python3 scripts/record_llm_fixtures.py --dry-run   # 대상만 출력
 
 ## Evaluation
 
-골든셋 25질의 기준 nDCG@10 은 하이브리드 0.86, `ask` 합성 질의를 얹으면 0.89 입니다. 라벨링 절차 · 재현 명령 · 질의별 승패는 [scripts/eval/README.md](../../scripts/eval/README.md) 에 있습니다.
+골든셋 25질의 기준 nDCG@10 은 하이브리드 0.85, `ask` 합성 질의를 얹으면 0.87 입니다. 라벨링 절차 · 재현 명령 · 질의별 승패는 [scripts/eval/README.md](../../scripts/eval/README.md) 에 있습니다.

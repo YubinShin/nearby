@@ -43,11 +43,16 @@ PHRASE_BOOST = 3.0
 
 def load_golden(path):
     doc = yaml.safe_load(path.read_text(encoding="utf-8"))
-    return [
-        (q["query"], set(q["expected_places"]))
-        for q in doc["queries"]
-        if isinstance(q["expected_places"], list)
-    ]
+    labelled = []
+    unlabelled = []
+    for q in doc["queries"]:
+        if q.get("expect_empty") or isinstance(q.get("expected_places"), list):
+            labelled.append((q["query"], set(q.get("expected_places") or []), bool(q.get("expect_empty"))))
+        else:
+            unlabelled.append(q["query"])
+    if unlabelled:
+        print(f"라벨이 없어 채점에서 빠지는 질의 {len(unlabelled)}개: {', '.join(unlabelled)}", file=sys.stderr)
+    return labelled
 
 
 def post(url, body, timeout=30):
@@ -78,12 +83,16 @@ def es_query(query, fields, relaxed):
 
 
 def rank_es(es_url, query, fields, k):
-    for relaxed in (False, True):
-        body = {"size": k, "_source": False, "query": es_query(query, fields, relaxed)}
-        hits = post(f"{es_url}/{ES_INDEX}/_search", body)["hits"]["hits"]
-        if hits:
-            return [h["_id"] for h in hits]
-    return []
+    try:
+        for relaxed in (False, True):
+            body = {"size": k, "_source": False, "query": es_query(query, fields, relaxed)}
+            hits = post(f"{es_url}/{ES_INDEX}/_search", body)["hits"]["hits"]
+            if hits:
+                return [h["_id"] for h in hits]
+        return []
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as e:
+        print(f"  실패 · {query} · {e}", file=sys.stderr)
+        return None
 
 
 def rank_ask(base, query, k, notes):
@@ -93,7 +102,7 @@ def rank_ask(base, query, k, notes):
             body = json.load(resp)
     except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as e:
         print(f"  실패 · {query} · {e}", file=sys.stderr)
-        return []
+        return None
     notes[query] = {
         "vendor": body.get("llmVendor"),
         "applied_q": body.get("applied", {}).get("q"),
@@ -110,21 +119,37 @@ def rank_api(base, channel, query, k):
             body = json.load(resp)
     except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as e:
         print(f"  실패 · {query} · {e}", file=sys.stderr)
-        return []
+        return None
     return [h["placeId"] for h in body.get("hits", [])]
 
 
-def score(ranked, expected, k):
+def score(ranked, expected, k, expect_empty=False):
     ranked = ranked[:k]
+
+    # 0건이 정답인 질의는 순위 지표가 의미 없다. 맞았는지만 1/0 으로 기록한다.
+    if expect_empty:
+        correct = 1.0 if not ranked else 0.0
+        return {
+            "returned": len(ranked),
+            "found": 0,
+            "precision": correct,
+            "recall": correct,
+            "mrr": correct,
+            "ndcg": correct,
+            "expect_empty": True,
+        }
+
     if not expected:
         return None
+
     hits = [i for i, pid in enumerate(ranked) if pid in expected]
     gain = sum(1 / math.log2(i + 2) for i in hits)
     ideal = sum(1 / math.log2(i + 2) for i in range(min(len(expected), k)))
     return {
         "returned": len(ranked),
         "found": len(hits),
-        "precision": len(hits) / len(ranked) if ranked else 0.0,
+        # 분모는 k 다. 반환 건수로 나누면 1건 반환해 맞힌 질의가 1.00 이 된다.
+        "precision": len(hits) / k,
         "recall": len(hits) / len(expected),
         "mrr": 1 / (hits[0] + 1) if hits else 0.0,
         "ndcg": gain / ideal if ideal else 0.0,
@@ -132,18 +157,22 @@ def score(ranked, expected, k):
 
 
 def verify(es_url, base, golden, k):
-    same, diff = 0, []
-    for query, _ in golden:
+    same, diff, failed = 0, [], []
+    for query, _, _ in golden:
         a = rank_es(es_url, query, DEFAULT_FIELDS, k)
         b = rank_api(base, "search", query, k)
-        if a == b:
+        if a is None or b is None:
+            failed.append(query)
+        elif a == b:
             same += 1
         else:
             diff.append((query, len(a), len(b)))
-    print(f"재현 일치 {same}/{len(golden)} 질의")
+    print(f"재현 일치 {same}/{len(golden) - len(failed)} 질의")
     for query, na, nb in diff:
         print(f"  불일치 · {query} · ES {na}건 / API {nb}건")
-    return not diff
+    if failed:
+        print(f"  호출 실패로 비교하지 못한 질의 {len(failed)}개: {', '.join(failed)}", file=sys.stderr)
+    return not diff and not failed
 
 
 def main():
@@ -183,8 +212,15 @@ def main():
     print(f"[{label}]  k={args.k}\n")
     print(f"{'질의':<18} {'반환':>4} {'정답':>4} {'prec':>6} {'recall':>7} {'MRR':>6} {'nDCG':>6}")
     print("-" * 58)
-    for query, expected in golden:
-        s = score(runner(query), expected, args.k)
+    failed = []
+    for query, expected, expect_empty in golden:
+        ranked = runner(query)
+        if ranked is None:
+            # 호출 실패다. 0점으로 평균에 섞으면 지표가 장애를 성능 저하로 보고한다.
+            failed.append(query)
+            print(f"{query:<18} {'호출 실패 — 채점 제외':>30}")
+            continue
+        s = score(ranked, expected, args.k, expect_empty)
         if s is None:
             print(f"{query:<18} {'라벨 없음':>30}")
             continue
@@ -193,6 +229,10 @@ def main():
             f"{query:<18} {s['returned']:>4} {s['found']:>4} {s['precision']:>6.2f} "
             f"{s['recall']:>7.2f} {s['mrr']:>6.2f} {s['ndcg']:>6.2f}"
         )
+
+    if not rows:
+        print("\n채점된 질의가 없습니다.", file=sys.stderr)
+        sys.exit(1)
 
     means = {
         m: sum(r[m] for r in rows.values()) / len(rows)
@@ -203,6 +243,8 @@ def main():
         f"{'평균 (질의 ' + str(len(rows)) + '개)':<18} {'':>4} {'':>4} "
         f"{means['precision']:>6.2f} {means['recall']:>7.2f} {means['mrr']:>6.2f} {means['ndcg']:>6.2f}"
     )
+    if failed:
+        print(f"\n호출 실패로 채점에서 뺀 질의 {len(failed)}개: {', '.join(failed)}", file=sys.stderr)
 
     if args.baseline:
         prev = json.loads(args.baseline.read_text(encoding="utf-8"))
@@ -230,7 +272,7 @@ def main():
               + (f" · degraded {len(degraded)}질의" if degraded else ""))
 
     if args.save:
-        record = {"label": label, "k": args.k, "means": means, "rows": rows}
+        record = {"label": label, "k": args.k, "means": means, "rows": rows, "failed": failed}
         if notes:
             record["ask"] = notes
         args.save.write_text(json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8")
