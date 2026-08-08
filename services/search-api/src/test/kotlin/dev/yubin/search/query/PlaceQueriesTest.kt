@@ -45,6 +45,11 @@ class PlaceQueriesTest {
 	}
 
 	@Test
+	fun `the tie break field is the one RRF also uses`() {
+		assertEquals("place_id", PlaceQueries.TIE_BREAK)
+	}
+
+	@Test
 	fun `a phrase match on the place name earns a bonus`() {
 		val q = json(PlaceQueries.search(SearchRequest.of("스타벅스")))
 		assertTrue("match_phrase" in q, "places whose whole name matches must be pushed up: $q")

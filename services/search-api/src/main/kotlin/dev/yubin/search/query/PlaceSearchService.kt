@@ -51,8 +51,10 @@ class PlaceSearchService(
 							.unit(DistanceUnit.Meters)
 					}
 				}
+			} else {
+				s.sort { so -> so.score { sc -> sc.order(SortOrder.Desc) } }
 			}
-			s
+			s.sort { so -> so.field { f -> f.field(PlaceQueries.TIE_BREAK).order(SortOrder.Asc) } }
 		}, SearchDoc::class.java).await()
 
 		return SearchResponse(

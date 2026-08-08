@@ -24,6 +24,9 @@ object PlaceQueries {
 
 	val SUGGEST_FIELDS = listOf("label", "brand_text")
 
+	// 점수가 같을 때 Lucene 내부 문서 번호로 갈리면 재색인마다 순서가 바뀐다.
+	const val TIE_BREAK = "place_id"
+
 	fun search(req: SearchRequest, relaxed: Boolean = false): Query = Query.of { q ->
 		q.bool { b ->
 			b.must { m ->

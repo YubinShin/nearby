@@ -42,6 +42,20 @@ class PlaceVectorSearchServiceTest {
 		assertEquals(1, store.narrowChecks)
 	}
 
+	@Test
+	fun `equal scores are ordered by place id so the ranking survives a reindex`() = runBlocking {
+		val shuffled = listOf(
+			VectorMatch("c", 0.90f, mapOf("name" to "다")),
+			VectorMatch("a", 0.90f, mapOf("name" to "가")),
+			VectorMatch("b", 0.90f, mapOf("name" to "나")),
+		)
+
+		val resp = service(FakeStore(narrowed = false, matches = shuffled))
+			.search(SearchRequest(q = "카페", size = 10))
+
+		assertEquals(listOf("a", "b", "c"), resp.hits.map { it.placeId })
+	}
+
 	private fun service(store: FakeStore) = PlaceVectorSearchService(
 		embeddings = embeddingModel(),
 		qdrant = store,
@@ -59,7 +73,10 @@ class PlaceVectorSearchServiceTest {
 		return mock
 	}
 
-	private class FakeStore(private val narrowed: Boolean) : QdrantSearchStore("http://localhost", 1000) {
+	private class FakeStore(
+		private val narrowed: Boolean,
+		private val matches: List<VectorMatch> = MATCHES,
+	) : QdrantSearchStore("http://localhost", 1000) {
 		var narrowChecks = 0
 
 		override suspend fun query(
@@ -68,7 +85,7 @@ class PlaceVectorSearchServiceTest {
 			limit: Int,
 			filter: Map<String, Any?>?,
 			efSearch: Int,
-		): List<VectorMatch> = MATCHES
+		): List<VectorMatch> = matches
 
 		override suspend fun narrows(collection: String, filter: Map<String, Any?>): Boolean {
 			narrowChecks++

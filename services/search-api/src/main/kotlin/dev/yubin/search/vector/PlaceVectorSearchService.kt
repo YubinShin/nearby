@@ -49,7 +49,9 @@ class PlaceVectorSearchService(
 
 		val narrowed = filter != null && narrowsCandidates(filter)
 		val floor = if (narrowed) NO_FLOOR else minScore
-		val passed = matches.filter { it.score >= floor }
+		val passed = matches
+			.filter { it.score >= floor }
+			.sortedWith(compareByDescending<VectorMatch> { it.score }.thenBy { it.placeId })
 
 		val hits = passed.drop(req.from).take(req.size).map { toHit(it, req) }
 

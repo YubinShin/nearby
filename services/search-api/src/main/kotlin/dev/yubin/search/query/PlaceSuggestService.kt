@@ -26,7 +26,7 @@ class PlaceSuggestService(
 				.trackTotalHits { t -> t.enabled(false) }
 
 				.sort({ so -> so.score { sc -> sc.order(SortOrder.Desc) } })
-				.sort({ so -> so.field { f -> f.field("place_id").order(SortOrder.Asc) } })
+				.sort({ so -> so.field { f -> f.field(PlaceQueries.TIE_BREAK).order(SortOrder.Asc) } })
 		}, SuggestDoc::class.java).await()
 
 		val items = resp.hits().hits().mapNotNull { h ->
