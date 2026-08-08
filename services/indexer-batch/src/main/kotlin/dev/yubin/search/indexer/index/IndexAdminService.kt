@@ -26,13 +26,18 @@ class IndexAdminService(private val es: ElasticsearchClient) {
 			if (e.status() == HTTP_NOT_FOUND) emptySet() else throw e
 		}
 
-	fun swapAlias(alias: String, newIndex: String): Set<String> {
-		val previous = indicesBehind(alias)
+	fun swapAliases(moves: Map<String, String>): Set<String> {
+		if (moves.isEmpty()) return emptySet()
+
+		val previous = moves.keys.flatMap { indicesBehind(it) }.toSet()
 		es.indices().updateAliases { u ->
-			u.actions { a -> a.remove { r -> r.index("*").alias(alias).mustExist(false) } }
-				.actions { a -> a.add { ad -> ad.index(newIndex).alias(alias) } }
+			moves.forEach { (alias, newIndex) ->
+				u.actions { a -> a.remove { r -> r.index("*").alias(alias).mustExist(false) } }
+				u.actions { a -> a.add { ad -> ad.index(newIndex).alias(alias) } }
+			}
+			u
 		}
-		return previous - newIndex
+		return previous - moves.values.toSet()
 	}
 
 	fun deleteIndices(indices: Set<String>) {

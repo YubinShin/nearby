@@ -142,23 +142,37 @@ class KeywordIndexJobConfig(
 
 				es.indices().refresh { it.index(listOf(newSearch, newSuggest)) }
 
-				admin.swapAlias(searchAlias, newSearch)
-				admin.swapAlias(suggestAlias, newSuggest)
+				val progress = LoadProgress.ofJob(step)
+				check(progress.read > 0) {
+					"loaded 0 rows into $newSearch — refusing to point $searchAlias at an empty index. " +
+						"the source query returned nothing, so the live index is left as it is."
+				}
 
+				val searchStamp = searchStamp(newSearch)
+				val suggestStamp = suggestStamp(newSuggest)
+
+				admin.swapAliases(mapOf(searchAlias to newSearch, suggestAlias to newSuggest))
 				ctx.putString(IndexJobs.Ctx.PROMOTED, "$newSearch,$newSuggest")
 
-				val removed = admin.reconcile(searchAlias, keepVersions) + admin.reconcile(suggestAlias, keepVersions)
-				ctx.putString(IndexJobs.Ctx.REMOVED, removed.sorted().joinToString(","))
+				meta.write(IndexMeta.PIPELINE_SEARCH, searchStamp)
+				meta.write(IndexMeta.PIPELINE_SUGGEST, suggestStamp)
 
-				meta.write(IndexMeta.PIPELINE_SEARCH, searchStamp(newSearch))
-				meta.write(IndexMeta.PIPELINE_SUGGEST, suggestStamp(newSuggest))
-
-				LoadProgress.capWatermark(LoadProgress.ofJob(step).maxUpdatedAt, places.dbNow(), watermarkLag)?.let {
+				val advanced = LoadProgress.capWatermark(progress.maxUpdatedAt, places.dbNow(), watermarkLag)
+					?.takeIf { checkpoints.get(CheckpointStore.PLACE_PIPELINE)?.isBefore(it) ?: true }
+				advanced?.let {
 					checkpoints.set(CheckpointStore.PLACE_PIPELINE, it)
 					ctx.putString(IndexJobs.Ctx.CHECKPOINT, it.toString())
 				}
 
-				log.info("keyword full reindex promoted — alias swapped, swept {} {}", removed.size, removed.sorted())
+				val removed = admin.reconcile(searchAlias, keepVersions) + admin.reconcile(suggestAlias, keepVersions)
+				ctx.putString(IndexJobs.Ctx.REMOVED, removed.sorted().joinToString(","))
+
+				log.info(
+					"keyword full reindex promoted — {} rows, alias swapped, swept {} {}",
+					progress.read,
+					removed.size,
+					removed.sorted(),
+				)
 				RepeatStatus.FINISHED
 			}, transactionManager)
 			.build()

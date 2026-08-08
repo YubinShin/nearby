@@ -140,26 +140,33 @@ class VectorIndexJobConfig(
 				val ctx = step.jobExecution.executionContext
 				val newCollection = ctx.getString(IndexJobs.Ctx.COLLECTION)
 
+				val progress = LoadProgress.ofJob(step)
+				check(progress.read > 0) {
+					"loaded 0 rows into $newCollection — refusing to point $alias at an empty collection. " +
+						"the source query returned nothing, so the live collection is left as it is."
+				}
+
 				qdrant.swapAlias(alias, newCollection)
-
 				ctx.putString(IndexJobs.Ctx.PROMOTED, newCollection)
-
-				val removed = qdrant.reconcile(alias, keepVersions)
-				ctx.putString(IndexJobs.Ctx.REMOVED, removed.sorted().joinToString(","))
 
 				meta.write(
 					IndexMeta.PIPELINE_VECTOR,
 					IndexMeta.stamp(embeddingModel = embeddings.modelId, embeddingDim = embeddings.dimension),
 				)
 
-				LoadProgress.capWatermark(LoadProgress.ofJob(step).maxUpdatedAt, places.dbNow(), watermarkLag)?.let {
+				val advanced = LoadProgress.capWatermark(progress.maxUpdatedAt, places.dbNow(), watermarkLag)
+					?.takeIf { checkpoints.get(CheckpointStore.PLACE_VECTOR)?.isBefore(it) ?: true }
+				advanced?.let {
 					checkpoints.set(CheckpointStore.PLACE_VECTOR, it)
 					ctx.putString(IndexJobs.Ctx.CHECKPOINT, it.toString())
 				}
 
+				val removed = qdrant.reconcile(alias, keepVersions)
+				ctx.putString(IndexJobs.Ctx.REMOVED, removed.sorted().joinToString(","))
+
 				log.info(
-					"vector full reindex promoted — {} ({} points), swept {} {}",
-					newCollection, qdrant.count(newCollection), removed.size, removed.sorted(),
+					"vector full reindex promoted — {} ({} rows, {} points), swept {} {}",
+					newCollection, progress.read, qdrant.count(newCollection), removed.size, removed.sorted(),
 				)
 				RepeatStatus.FINISHED
 			}, transactionManager)
