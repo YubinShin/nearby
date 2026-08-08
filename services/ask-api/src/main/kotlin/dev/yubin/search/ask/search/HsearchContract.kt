@@ -13,7 +13,15 @@ data class PlaceRecord(
 	val address: String?,
 )
 
-data class HsearchRecords(val records: List<PlaceRecord>, val unrenderable: Int)
+data class HsearchRecords(
+	val records: List<PlaceRecord>,
+	val unrenderable: Int,
+	val absentFields: List<String> = emptyList(),
+) {
+	val absentRequired: List<String> get() = absentFields.filter { it in HsearchContract.REQUIRED }
+
+	val absentOptional: List<String> get() = absentFields.filter { it in HsearchContract.OPTIONAL }
+}
 
 object HsearchContract {
 	val REQUIRED = listOf("placeId", "name", "label")
@@ -33,7 +41,13 @@ object HsearchContract {
 					it.address,
 				)
 			}
-		return HsearchRecords(records, hits.size - records.size)
+		return HsearchRecords(records, hits.size - records.size, absentFields(body))
+	}
+
+	private fun absentFields(body: JsonNode): List<String> {
+		val hits = body.path("hits")
+		if (!hits.isArray || hits.size() == 0) return emptyList()
+		return (REQUIRED + OPTIONAL).filter { field -> hits.none { it.has(field) } }
 	}
 }
 

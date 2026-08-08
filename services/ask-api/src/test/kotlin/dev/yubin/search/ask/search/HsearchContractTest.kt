@@ -77,6 +77,63 @@ class HsearchContractTest @Autowired constructor(private val mapper: ObjectMappe
 
 		assertEquals(emptyList(), decoded.records)
 		assertEquals(0, decoded.unrenderable)
+		assertEquals(emptyList(), decoded.absentFields)
+	}
+
+	@Test
+	fun `a documented hit reports no absent field`() {
+		val decoded = HsearchContract.decode(body(DOCUMENTED), mapper)
+
+		assertEquals(emptyList(), decoded.absentFields)
+	}
+
+	@Test
+	fun `a field absent from every hit is reported as contract drift`() {
+		val decoded = HsearchContract.decode(
+			body(
+				"""{"placeId":"MA1","name":"정상","category":"카페","dong":"역삼동","address":"테헤란로 1"},""" +
+					"""{"placeId":"MA2","name":"정상2","category":"카페","dong":"역삼동","address":"테헤란로 2"}""",
+			),
+			mapper,
+		)
+
+		assertEquals(listOf("label"), decoded.absentRequired)
+		assertEquals(emptyList(), decoded.absentOptional)
+	}
+
+	@Test
+	fun `a field missing from one hit but present in another is data, not drift`() {
+		val decoded = HsearchContract.decode(
+			body(
+				"""{"placeId":"MA1","name":"정상","label":"정상","category":"카페","dong":"역삼동","address":"테헤란로 1"},""" +
+					"""{"placeId":"MA2","name":"정상2","category":"카페","dong":"역삼동","address":"테헤란로 2"}""",
+			),
+			mapper,
+		)
+
+		assertEquals(emptyList(), decoded.absentFields)
+	}
+
+	@Test
+	fun `a null value still counts as carrying the field`() {
+		val decoded = HsearchContract.decode(
+			body("""{"placeId":"MA1","name":"정상","label":"정상","category":null,"dong":null,"address":null}"""),
+			mapper,
+		)
+
+		assertEquals(emptyList(), decoded.absentFields)
+	}
+
+	@Test
+	fun `a renamed optional field is reported separately from a required one`() {
+		val decoded = HsearchContract.decode(
+			body("""{"placeId":"MA1","name":"정상","label":"정상","category":"카페","dong":"역삼동","roadAddress":"테헤란로 1"}"""),
+			mapper,
+		)
+
+		assertEquals(emptyList(), decoded.absentRequired)
+		assertEquals(listOf("address"), decoded.absentOptional)
+		assertEquals(0, decoded.unrenderable)
 	}
 
 	private fun body(hits: String) = mapper.readTree("""{"total":1,"degraded":false,"channels":[],"hits":[$hits]}""")

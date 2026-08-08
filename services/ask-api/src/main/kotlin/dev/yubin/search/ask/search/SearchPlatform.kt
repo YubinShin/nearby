@@ -21,6 +21,7 @@ data class SearchResult(
 	val total: Long,
 	val records: List<PlaceRecord> = emptyList(),
 	val unrenderable: Int = 0,
+	val absentFields: List<String> = emptyList(),
 )
 
 interface SearchPlatform {
@@ -79,7 +80,17 @@ class SearchApiClient(
 				HsearchContract.REQUIRED.joinToString(" or "),
 			)
 		}
-		return SearchResult(body, meta.degraded, meta.total, decoded.records, decoded.unrenderable)
+		if (decoded.absentRequired.isNotEmpty()) {
+			log.error(
+				"no hit carries {} — search-api changed the hsearch response and this app still expects the old one. " +
+					"the decoder falls back instead of failing, so answers lose the field without an error.",
+				decoded.absentRequired,
+			)
+		}
+		if (decoded.absentOptional.isNotEmpty()) {
+			log.warn("no hit carries {} — the answer renders a hole where the field would go", decoded.absentOptional)
+		}
+		return SearchResult(body, meta.degraded, meta.total, decoded.records, decoded.unrenderable, decoded.absentFields)
 	}
 
 	private companion object {
