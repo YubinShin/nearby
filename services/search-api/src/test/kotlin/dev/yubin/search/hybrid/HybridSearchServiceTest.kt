@@ -37,6 +37,35 @@ class HybridSearchServiceTest {
 	}
 
 	@Test
+	fun `a vector hit the keyword index no longer holds is dropped, not revived from the payload`() = runBlocking {
+		val service = hybridService(
+			keyword = { SearchResponse(it.q, 1, it.page, it.size, 0, hits = listOf(hit("A"))) },
+			vector = { SearchResponse(it.q, 1, it.page, it.size, 0, hits = listOf(hit("B"))) },
+			byIds = { emptyMap() },
+		)
+
+		val resp = service.search(SearchRequest(q = "test"))
+
+		assertEquals(listOf("A"), resp.hits.map { it.place.placeId })
+		assertFalse(resp.degraded, "the index answered — a document it does not hold is simply gone")
+	}
+
+	@Test
+	fun `a failed hydrate keeps the payload but says the answer is degraded`() = runBlocking {
+		val service = hybridService(
+			keyword = { SearchResponse(it.q, 1, it.page, it.size, 0, hits = listOf(hit("A"))) },
+			vector = { SearchResponse(it.q, 1, it.page, it.size, 0, hits = listOf(hit("B"))) },
+			byIds = { throw IOException("connection refused") },
+		)
+
+		val resp = service.search(SearchRequest(q = "test"))
+
+		assertEquals(setOf("A", "B"), resp.hits.map { it.place.placeId }.toSet())
+		assertTrue(resp.degraded, "the index never answered, so the payload fallback is not verified")
+		assertTrue(resp.channels.none { it.failed }, "neither channel failed — only the hydrate lookup did")
+	}
+
+	@Test
 	fun `hits missing from the keyword channel are hydrated through byIds`() = runBlocking {
 		val lookups = mutableListOf<List<String>>()
 		val service = hybridService(
@@ -120,7 +149,7 @@ class HybridSearchServiceTest {
 	private fun hybridService(
 		keyword: (SearchRequest) -> SearchResponse,
 		vector: (SearchRequest) -> SearchResponse,
-		byIds: (List<String>) -> Map<String, PlaceHit> = { emptyMap() },
+		byIds: (List<String>) -> Map<String, PlaceHit> = { ids -> ids.associateWith { hit(it) } },
 	) = HybridSearchService(
 		keyword = FakeKeywordService(keyword, byIds),
 		vector = FakeVectorService(vector),

@@ -31,4 +31,7 @@ class QueryMetrics(private val registry: MeterRegistry) {
 
 	fun timer(channel: String, stage: String) =
 		registry.timer("psp.query.stage.latency", "channel", channel, "stage", stage)
+
+	fun staleVectors(count: Int) =
+		registry.counter("psp.query.stale.vectors").increment(count.toDouble())
 }

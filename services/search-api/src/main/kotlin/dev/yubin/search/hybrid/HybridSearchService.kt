@@ -64,7 +64,7 @@ class HybridSearchService(
 		}
 
 		val page = fused.drop(req.from).take(req.size)
-		val hits = present(page, kw.hits, vec.hits, req, hydrate = !kw.report.failed)
+		val presented = present(page, kw.hits, vec.hits, req, hydrate = !kw.report.failed)
 
 		val tookMs = (System.nanoTime() - startedAt) / 1_000_000
 		queryLog.search(req.q, fused.size.toLong(), relaxed = false, tookMs = tookMs, channel = CHANNEL)
@@ -75,9 +75,9 @@ class HybridSearchService(
 			page = req.page,
 			size = req.size,
 			tookMs = tookMs,
-			degraded = kw.report.failed || vec.report.failed,
+			degraded = kw.report.failed || vec.report.failed || presented.hydrateFailed,
 			channels = listOf(kw.report, vec.report),
-			hits = hits,
+			hits = presented.hits,
 		)
 	}
 
@@ -105,14 +105,16 @@ class HybridSearchService(
 		vectorHits: List<PlaceHit>,
 		req: SearchRequest,
 		hydrate: Boolean,
-	): List<HybridHit> {
-		if (page.isEmpty()) return emptyList()
+	): Presented {
+		if (page.isEmpty()) return Presented(emptyList(), hydrateFailed = false)
 
 		val fromKeyword = keywordHits.associateBy { it.placeId }
 		val fromVector = vectorHits.associateBy { it.placeId }
 
 		val needsLookup =
 			if (!hydrate) emptyList() else page.map { it.id }.filterNot { fromKeyword.containsKey(it) }
+
+		var hydrateFailed = false
 		val hydrated = if (needsLookup.isEmpty()) {
 			emptyMap()
 		} else {
@@ -122,6 +124,7 @@ class HybridSearchService(
 				} catch (e: CancellationException) {
 					throw e
 				} catch (e: Exception) {
+					hydrateFailed = true
 					val root = generateSequence(e as Throwable) { it.cause }.last()
 					log.warn("hybrid hydrate failed for {} ids — {}: {}", needsLookup.size, root.javaClass.simpleName, root.message)
 					log.debug("hybrid hydrate failure detail", e)
@@ -130,8 +133,18 @@ class HybridSearchService(
 			}
 		}
 
-		return page.mapNotNull { fused ->
-			val base = fromKeyword[fused.id] ?: hydrated[fused.id] ?: fromVector[fused.id] ?: return@mapNotNull null
+		val indexAnswered = hydrate && !hydrateFailed
+		var stale = 0
+
+		val hits = page.mapNotNull { fused ->
+			val indexed = fromKeyword[fused.id] ?: hydrated[fused.id]
+			val base = indexed
+				?: fromVector[fused.id]?.takeUnless { indexAnswered }
+				?: run {
+					if (indexAnswered && fromVector.containsKey(fused.id)) stale++
+					return@mapNotNull null
+				}
+
 			val place = base.copy(
 				score = fused.score,
 				distanceM = distanceM(base, req),
@@ -145,6 +158,13 @@ class HybridSearchService(
 				},
 			)
 		}
+
+		if (stale > 0) {
+			metrics.staleVectors(stale)
+			log.warn("dropped {} vector hit(s) the keyword index no longer holds — the vector store is behind", stale)
+		}
+
+		return Presented(hits, hydrateFailed)
 	}
 
 	private fun distanceM(hit: PlaceHit, req: SearchRequest): Long? =
@@ -157,6 +177,8 @@ class HybridSearchService(
 	private fun elapsedMs(startedAt: Long) = (System.nanoTime() - startedAt) / 1_000_000
 
 	private data class ChannelRun(val report: ChannelReport, val hits: List<PlaceHit>)
+
+	private data class Presented(val hits: List<HybridHit>, val hydrateFailed: Boolean)
 
 	companion object {
 		const val CHANNEL = "hybrid"

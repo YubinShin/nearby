@@ -271,7 +271,7 @@ curl -G localhost:8080/v1/hsearch --data-urlencode "q=회 먹을 데"
   "total": 50,           // 결합된 후보 중 유니크 문서 수입니다. 전체 코퍼스에서의 매칭 수는 아닙니다.
   "page": 0, "size": 10,
   "tookMs": 16,
-  "degraded": false,     // 한 채널 이상이 실패하여 부분 결과만 반환했는지
+  "degraded": false,     // 채널 실패 또는 주소 채우기 실패로 검증되지 않은 결과가 섞였는지
   "channels": [          // 채널별 후보 수와 소요
     { "name": "keyword", "candidates": 0,  "tookMs": 13, "failed": false },
     { "name": "vector",  "candidates": 50, "tookMs": 5,  "failed": false }
@@ -306,8 +306,17 @@ curl -G localhost:8080/v1/hsearch --data-urlencode "q=회 먹을 데"
 | 정상 | `200` · `degraded:false` · total 95 |
 | Qdrant 중단 | `200` · `degraded:true` · keyword `failed:false` / vector `failed:true` · total 50 |
 | ES 중단 | `200` · `degraded:true` · keyword `failed:true` / vector `failed:false` · total 50 |
+| 주소 채우기만 실패 | `200` · `degraded:true` · 두 채널 모두 `failed:false` |
 
 Elasticsearch에 장애가 발생하면 주소 채우기(mget)를 호출하지 않습니다. 이 경우에는 벡터 payload 만으로 응답하므로 `address`가 `null`입니다.
+
+### Vector Hits the Index No Longer Holds
+
+주소 채우기가 성공했는데 그 문서가 없으면 색인에 없는 문서입니다. 벡터 채널만 아는 문서를 payload 로 되살리지 않고 응답에서 제외합니다. 원천에서 삭제되었거나 중복으로 억제된 장소의 벡터가 Qdrant 에 남아 있을 때 발생합니다.
+
+제외한 건수는 `psp_query_stale_vectors` 로 계측합니다. 이 값이 늘면 벡터 증분이 삭제를 따라가지 못하고 있다는 신호입니다.
+
+주소 채우기 자체가 실패한 경우는 다릅니다. 색인이 답하지 않았으므로 없는 문서인지 알 수 없어 payload 를 그대로 쓰고 `degraded:true` 로 표시합니다.
 
 `degraded` 는 백엔드 장애일 때만 켜집니다. 채널 코드 자체의 버그는 반쪽 응답으로 감추지 않고
 `500` 으로 드러냅니다. 감추면 recall 이 조용히 절반이 된 채로 지표는 정상으로 보입니다.
