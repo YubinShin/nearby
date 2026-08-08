@@ -122,7 +122,7 @@ ADR 0014 gap 목록에 답변 생성이 드러낸 항목을 추가합니다.
 |---|---|---|---|
 | ⑤ | 검색 응답 필드를 바꿔도 컴파일이 막지 않음 — 두 앱이 HTTP로만 연결(ADR 0011) | 소비자는 `HsearchContract`가 경계에서 렌더 필드(`placeId`·`name`·`category`·`dong`·`address`)를 고정하고 인용 불가 히트를 `unrenderable`로 셈. 생산자는 `HybridHitContractTest`가 직렬화 필드명을 검사 | 닫힘 (`faade78` · `d0dfbb9`) |
 | ⑥ | 거리를 답변에 넣으려면 좌표가 필요하나 경로 없음(gap ②의 답변측 발현) | `거리 정보 없음`으로 컨텍스트 고정 | 지명→좌표 경로. 생기면 거리 문장 허용 재검토 |
-| ⑦ | groundedness 회귀를 CI에서 돌릴 픽스처·하네스가 질의 이해쪽만 있음 | `FixtureLlmClient`가 답변 호출을 재생하고 `AskAnswerMappingTest`가 녹화본 8건을 CI 판정으로 돌림. 재녹화는 `record_answer_fixtures.py` | 닫힘 (`7c635f1` · `8de084d`). 판정은 `_scoreboard.json` 대신 JUnit이 맡습니다 |
+| ⑦ | groundedness 회귀를 CI에서 돌릴 픽스처·하네스가 질의 이해쪽만 있음 | `FixtureLlmClient`가 답변 호출을 재생하고 `AskAnswerMappingTest`가 CI 판정으로 돌림. 녹화본은 8건이나 테스트가 부르는 질의는 2개라 나머지는 재생되지 않음. 재녹화는 `record_answer_fixtures.py` | 닫힘 (`7c635f1` · `8de084d`). 판정은 `_scoreboard.json` 대신 JUnit이 맡습니다 |
 
 ## Open questions
 

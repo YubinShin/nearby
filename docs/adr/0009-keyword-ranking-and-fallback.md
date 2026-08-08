@@ -31,7 +31,7 @@
 
 전제 조건 하나: cross_fields는 분석기가 같은 필드끼리 그룹을 만듭니다. 그래서 매칭에 쓰는 필드는 전부 komoran으로 통일했습니다. 카테고리·행정동은 원래 `keyword`(분석 안 함)라 부분 단어가 걸리지 않았습니다. 그래서 `.txt` 멀티필드(komoran)를 적용해 매칭은 `.txt`, 필터는 `keyword` 원본으로 역할을 분리했습니다.
 
-가중치는 `name^5 > branch^3 > category_small.txt^2 > dong.txt^1.5 > 주소`. 상호명이 가장 강한 신호라는 도메인 판단이고, 이 순서는 단위 테스트로 고정했습니다.
+가중치는 `name^5 = brand_text^5 > branch^3 > category_small.txt^2 > dong.txt^1.5 > category_mid.txt = sigungu.txt = 주소`. 상호명이 가장 강한 신호라는 도메인 판단이고, 이 순서는 단위 테스트로 고정했습니다.
 
 ### 2. AND-first with 0-hit fallback
 
@@ -56,7 +56,7 @@
 
 | 신호 | 실측 결과 |
 |---|---|
-| 접두 일치 가산점 (`prefix` on `name.raw`) | 비접두 매칭 `e-스타치과` 57위 → **122위**로 강등. 효과 있음 |
+| 접두 일치 가산점 (`prefix` on `label.raw`) | 비접두 매칭 `e-스타치과` 57위 → **122위**로 강등. 효과 있음 |
 | 이름 길이 역수 (`name_length`) | 질의별로 갈림 — `강남`은 상위권 개선(`강남`이 `강남#`보다 위로), `커피`·`스타`는 상위 10 불변, `김밥`은 무변화 |
 | `place_id` tie-break | 동점 순서 고정 (아래) |
 

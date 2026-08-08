@@ -36,7 +36,8 @@ CSV의 경도·위도(문자열)를 그대로 두지 않고, `geometry(Point, 43
 | `lon` | `double precision` | 경도 | 원본 보존 |
 | `lat` | `double precision` | 위도 | 원본 보존 |
 | `geom` | `geometry(Point, 4326)` | (lon, lat)로 생성 | 거리·반경 질의용 |
-| `updated_at` | `timestamptz` | (적재 시각) | 증분 색인 트리거 기준 후보 |
+| `updated_at` | `timestamptz` | 마지막 변경 시각 (트리거가 갱신) | 증분 색인 워터마크 |
+| `deleted_at` | `timestamptz` | 소프트 삭제 표시 | 값이 있으면 증분이 ES 문서를 지움 |
 
 > 나머지 원본 컬럼(우편번호·건물관리번호·표준산업분류 등)은 지금 검색·추천에 쓰지 않습니다.
 > 필요해지면 추가합니다. 원천이므로 **버리기보다 안 넣는 쪽**으로 시작합니다.
@@ -200,8 +201,7 @@ geom geometry(Point, 4326)
 - **`geom`을 따로 둠.** CSV의 경위도는 문자열이라 거리 계산에 쓸 수 없습니다. `geometry(Point, 4326)`
   으로 변환하고 GiST 인덱스를 태워야 지리 질의가 빨라집니다. SRID 4326 = 흔한 WGS84 경위도.
 - **업종을 대/중/소로 분리.** 필터("카페만")와 색인 가중치에 쓰기 좋게 계층을 살려둡니다.
-- **`updated_at`.** 3단계 증분 색인이 "언제 이후 바뀐 것"을 골라가는 기준 후보입니다.
-  (실제 변경 감지 방식은 3단계에서 확정.)
+- **`updated_at`.** 증분 색인이 "언제 이후 바뀐 것"을 골라가는 워터마크입니다. `place_touch_updated_at()` 트리거가 UPDATE 마다 갱신하고 `place_updated_at_idx` 로 조회합니다.
 
 ## 다음 (3단계와의 연결)
 
