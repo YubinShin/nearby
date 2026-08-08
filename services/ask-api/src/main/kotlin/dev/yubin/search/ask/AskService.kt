@@ -38,7 +38,7 @@ class AskService(
 		val llmTookMs = if (raw.isBlank()) 0 else elapsedMs(llmStartedAt)
 
 		val plan = AskQueryPlanner.plan(
-			raw = raw,
+			query = unsupportedFilters.strip(raw),
 			parsed = parsed,
 			defaultSize = defaultSize,
 			size = size,

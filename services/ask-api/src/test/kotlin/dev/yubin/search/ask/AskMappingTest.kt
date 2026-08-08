@@ -117,7 +117,20 @@ class AskMappingTest @Autowired constructor(
 		assertNull(response.parsed)
 		assertEquals(listOf("llm"), response.degradedBy)
 		assertEquals(listOf("평점"), response.applied.unsupported)
-		assertEquals("평점 높은 녹화되지 않은 질의", assertNotNull(platform.lastPlan).q)
+	}
+
+	@Test
+	fun `the dropped filter does not ride into the search text when the llm is down`() = runTest {
+		ask.ask("평점 높은 녹화되지 않은 질의")
+
+		assertEquals("높은 녹화되지 않은 질의", assertNotNull(platform.lastPlan).q)
+	}
+
+	@Test
+	fun `a query with nothing unsupported reaches the search untouched when the llm is down`() = runTest {
+		ask.ask("녹화되지 않은 질의")
+
+		assertEquals("녹화되지 않은 질의", assertNotNull(platform.lastPlan).q)
 	}
 
 	@Test

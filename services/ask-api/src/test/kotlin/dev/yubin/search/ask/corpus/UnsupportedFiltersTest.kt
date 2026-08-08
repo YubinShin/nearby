@@ -73,6 +73,25 @@ class UnsupportedFiltersTest @Autowired constructor(private val filters: Unsuppo
 	}
 
 	@Test
+	fun `stripping removes every word the matched term spans`() {
+		assertEquals("4.5 이상 카페", filters.strip("평점 4.5 이상 카페"))
+		assertEquals("약국", filters.strip("지금 문 연 약국"))
+		assertEquals("치킨집", filters.strip("배달 되는 치킨집"))
+		assertEquals("파스타", filters.strip("1만원 이하 파스타"))
+	}
+
+	@Test
+	fun `a query with no attribute is returned unchanged`() {
+		listOf("회 먹을 데", "카페", "역삼동 조용히 공부할 곳", "인기척 없는 조용한 카페", "")
+			.forEach { assertEquals(it, filters.strip(it), it) }
+	}
+
+	@Test
+	fun `stripping keeps the query when nothing would survive`() {
+		assertEquals("평점", filters.strip("평점"))
+	}
+
+	@Test
 	fun `the exception does not swallow the term it protects`() {
 		assertEquals(listOf("가격"), filters.detect("이거 얼마예요"))
 		assertEquals(listOf("가격"), filters.detect("얼마나 저렴한지"))

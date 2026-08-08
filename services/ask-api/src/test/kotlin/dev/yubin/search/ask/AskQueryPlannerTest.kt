@@ -127,5 +127,5 @@ class AskQueryPlannerTest {
 		size: Int? = null,
 		lat: Double? = null,
 		lon: Double? = null,
-	) = AskQueryPlanner.plan(raw = raw, parsed = parsed, defaultSize = 20, size = size, lat = lat, lon = lon)
+	) = AskQueryPlanner.plan(query = raw, parsed = parsed, defaultSize = 20, size = size, lat = lat, lon = lon)
 }

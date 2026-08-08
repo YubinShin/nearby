@@ -17,7 +17,7 @@ object AskQueryPlanner {
 	}
 
 	fun plan(
-		raw: String,
+		query: String,
 		parsed: ParsedQuery?,
 		defaultSize: Int,
 		size: Int? = null,
@@ -33,7 +33,7 @@ object AskQueryPlanner {
 
 		if (parsed == null) {
 			return SearchRequestPlan(
-				q = raw.trim(),
+				q = query.trim(),
 				size = resolvedSize,
 				lat = lat.takeIf { hasGeo },
 				lon = lon.takeIf { hasGeo },
@@ -42,7 +42,7 @@ object AskQueryPlanner {
 			)
 		}
 
-		val q = compose(parsed).ifBlank { raw.trim() }
+		val q = compose(parsed).ifBlank { query.trim() }
 
 		return SearchRequestPlan(
 			q = q,
