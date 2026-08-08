@@ -11,7 +11,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
 DB="${DB:-place}"
-PSQL=(docker exec -i psp-postgis psql -U place -d "$DB")
+PSQL=(docker exec -i psp-postgis psql -U place -d "$DB" -v ON_ERROR_STOP=1)
 
 echo "▶ 1/5  정제 (cp949→utf-8, 폐업 제거, 관리번호 중복 제거)"
 python3 scripts/clean_localdata.py

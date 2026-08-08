@@ -14,7 +14,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
 DB="${DB:-place}"
-PSQL=(docker exec -i psp-postgis psql -U place -d "$DB")
+PSQL=(docker exec -i psp-postgis psql -U place -d "$DB" -v ON_ERROR_STOP=1)
 
 echo "▶ 1/2  스키마 적용 (public.place_duplicate)"
 "${PSQL[@]}" -q < deploy/postgis/dedup.sql

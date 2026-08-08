@@ -46,7 +46,7 @@ docker exec "$CONTAINER" pg_isready -U place -d "$DB" >/dev/null 2>&1 || {
   exit 1
 }
 
-rows=$(docker exec "$CONTAINER" psql -U place -d "$DB" -tAc "select count(*) from public.place")
+rows=$(docker exec "$CONTAINER" psql -U place -d "$DB" -v ON_ERROR_STOP=1 -tAc "select count(*) from public.place")
 [ "$rows" -gt 0 ] || { echo "public.place 가 비어 있습니다. scripts/load_place.sh 를 먼저 실행하세요." >&2; exit 1; }
 
 docker exec "$CONTAINER" pg_dump -U place -d "$DB" \

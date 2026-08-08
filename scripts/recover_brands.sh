@@ -13,7 +13,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
 DB="${DB:-place}"
-PSQL=(docker exec -i psp-postgis psql -U place -d "$DB")
+PSQL=(docker exec -i psp-postgis psql -U place -d "$DB" -v ON_ERROR_STOP=1)
 
 # 같은 브랜드가 최소 몇 번 나와야 인정할지. 진짜 브랜드는 여러 매장에서 반복되고,
 # 우연히 앞말이 붙은 잡음은 대체로 한 번만 나온다 — 빈도 자체가 신뢰도 신호다.
