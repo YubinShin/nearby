@@ -43,6 +43,7 @@ class PlaceSearchService(
 				.trackTotalHits { t -> t.enabled(true) }
 				.highlight(HIGHLIGHT)
 			if (req.sort == SortBy.DISTANCE) {
+				s.trackScores(true)
 				s.sort { so ->
 					so.geoDistance { g ->
 						g.field("location")
