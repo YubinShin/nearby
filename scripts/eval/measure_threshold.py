@@ -101,13 +101,15 @@ def main():
     )
 
     print()
+    real_total = len(groups["REAL"])
+    junk_total = len(groups["JUNK"])
     for threshold in args.thresholds:
         alive = sum(1 for score in real if score >= threshold)
-        blocked = sum(1 for score in junk if score < threshold)
+        blocked = sum(1 for score in junk if score < threshold) + (junk_total - len(junk))
         print(
             f"  문턱 {threshold:.2f}:"
-            f" 진짜 통과 {alive}/{len(real)},"
-            f" 엉터리 차단 {blocked}/{len(junk)}"
+            f" 진짜 통과 {alive}/{real_total},"
+            f" 엉터리 차단 {blocked}/{junk_total}"
         )
 
 if __name__ == "__main__":
