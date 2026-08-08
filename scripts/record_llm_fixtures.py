@@ -52,8 +52,13 @@ def load_prompt_spec(path):
 
 
 def default_model(path):
-    doc = yaml.safe_load(path.read_text(encoding="utf-8"))
-    return doc["psp"]["ask"]["gemini"]["model"]
+    for doc in yaml.safe_load_all(path.read_text(encoding="utf-8")):
+        if not doc or doc.get("spring", {}).get("config", {}).get("activate"):
+            continue
+        model = doc.get("psp", {}).get("ask", {}).get("gemini", {}).get("model")
+        if model:
+            return model
+    raise KeyError(f"{path} 에 psp.ask.gemini.model 이 없습니다")
 
 
 def build_body(system, schema, query):
