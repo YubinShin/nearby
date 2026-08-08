@@ -60,7 +60,7 @@ def read_log(path: str) -> list[dict]:
     return rows
 
 
-def exists_in_corpus(word: str, index: str = "place_search") -> bool:
+def exists_in_corpus(word: str, index: str = "place_search") -> bool | None:
     """그 글자가 색인된 문서 어딘가에 **원문 그대로** 존재하는가.
 
     0건 질의에는 두 종류가 있고, 사전은 그중 하나만 고친다.
@@ -78,7 +78,7 @@ def exists_in_corpus(word: str, index: str = "place_search") -> bool:
     try:
         return json.load(urllib.request.urlopen(req))["hits"]["total"]["value"] > 0
     except Exception:
-        return False
+        return None
 
 
 def current_dictionary() -> set[str]:
@@ -166,6 +166,7 @@ def main() -> int:
     print(f"# 형식: 단어<TAB>품사   (뒤 주석은 근거: 등장 질의 / 현재 분석 결과)")
     print(f"# [분석실패] = 데이터엔 있는데 못 찾는 것 → 사전으로 해결됨 (우선 채택)")
     print(f"# [데이터없음] = 원천에 아예 없는 것 → 사전을 넣어도 결과는 0건 그대로")
+    print(f"# [확인실패] = ES 조회가 실패해 판정하지 못한 것 → 버리지 말고 다시 실행")
     proposed = {w for w, _ in ranked}
     for word, queries in ranked:
         tokens = analyze(word, LIVE_PROBE_INDEX)
@@ -176,7 +177,8 @@ def main() -> int:
         # ('감태김밥'을 넣으면 '김밥'으로 못 찾는다). 보통은 짧은 쪽만 넣는 게 맞다.
         inner = sorted(w for w in proposed if w != word and w in word)
         warn = f"   ⚠ '{inner[0]}' 도 후보 — 보통 짧은 쪽만 넣습니다" if inner else ""
-        kind = "분석실패" if exists_in_corpus(word) else "데이터없음"
+        found = exists_in_corpus(word)
+        kind = "확인실패" if found is None else "분석실패" if found else "데이터없음"
         print(f"{word}\tNNP\t# [{kind}] {flags} {len(queries)}건: {sample}  |  현재: {pieces}{warn}")
 
     print(f"\n채택 후: python3 scripts/build_komoran_dict.py && "
