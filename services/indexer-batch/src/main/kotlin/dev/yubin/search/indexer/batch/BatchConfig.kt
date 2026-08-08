@@ -1,5 +1,6 @@
 package dev.yubin.search.indexer.batch
 
+import org.slf4j.LoggerFactory
 import org.springframework.batch.core.configuration.support.JdbcDefaultBatchConfiguration
 import org.springframework.beans.factory.DisposableBean
 import org.springframework.context.annotation.Configuration
@@ -27,10 +28,23 @@ class BatchConfig(private val dataSource: DataSource) : JdbcDefaultBatchConfigur
 	}
 
 	override fun destroy() {
+		dropQueuedJobs(jobExecutor)
 		jobExecutor.shutdown()
 	}
 
 	private companion object {
 		const val AWAIT_TERMINATION_SECONDS = 600
+
+		val log = LoggerFactory.getLogger(BatchConfig::class.java)
 	}
+}
+
+internal fun dropQueuedJobs(executor: ThreadPoolTaskExecutor): Int {
+	val abandoned = mutableListOf<Runnable>()
+	executor.threadPoolExecutor.queue.drainTo(abandoned)
+	if (abandoned.isNotEmpty()) {
+		LoggerFactory.getLogger(BatchConfig::class.java)
+			.warn("shutting down — dropped {} queued index job(s) instead of starting them", abandoned.size)
+	}
+	return abandoned.size
 }
