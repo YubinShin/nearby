@@ -323,14 +323,18 @@ Elasticsearch에 장애가 발생하면 주소 채우기(mget)를 호출하지 �
 
 ### Fields Used by Answer Generation
 
-`ask-api`의 답변 생성([ADR 0015](adr/0015-ask-api-grounded-answer-generation.md))은 `hits[]`에서 아래 다섯 개 필드만 사용합니다.
+`ask-api`의 답변 생성([ADR 0015](adr/0015-ask-api-grounded-answer-generation.md))은 `hits[]`에서 아래 여섯 개 필드만 사용합니다.
 
-`label`, `ranks`, `scores`, `lat`, `lon`, `highlight` 등 나머지 필드는 답변 생성 과정에서 사용하지 않습니다.
+`ranks`, `scores`, `lat`, `lon`, `highlight` 등 나머지 필드는 답변 생성 과정에서 사용하지 않습니다.
 
 | 구분 | 필드 |
 |---|---|
-| 필수 | `placeId` · `name` |
+| 필수 | `placeId` · `name` · `label` |
 | 선택 | `category` · `dong` · `address` |
+
+LLM 에 넘기는 컨텍스트는 `label`로 씁니다. `name`은 원본 상호명이라 브랜드를 복원한 장소에서는 브랜드가 빠집니다 — 스타벅스 서울세관사거리점의 `name`은 `서울세관사거리`입니다. `label`로 쓰지 않으면 `스타벅스 어디 있어?` 라는 질의에 브랜드가 하나도 없는 목록이 컨텍스트로 갑니다.
+
+`name`도 함께 넘깁니다. 근거 표류(`driftingEvidence`) 판정이 답변 문장에 장소 이름이 있는지 보는데, `label`만 쓰면 문장이 `서울세관사거리점`이나 `스타벅스`로만 적어도 표류로 잡힙니다. 둘 중 하나가 문장에 있으면 통과합니다.
 
 필수 필드가 없는 문서는 답변에 인용할 수 없으므로 컨텍스트에서 제외됩니다. 제외된 건수는 응답의 `answer.unrenderableRecords`와 `ask-api`의 경고 로그에 기록됩니다.
 

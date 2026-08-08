@@ -101,7 +101,7 @@ class AskAnswerMappingTest @Autowired constructor(
 
 	@Test
 	fun `an unrecorded context degrades the answer without touching the search result`() = runTest {
-		platform.hits = """{"placeId":"MA9","name":"녹화되지 않은 가게","category":"카페","dong":"역삼동","address":"테헤란로 1"}"""
+		platform.hits = """{"placeId":"MA9","name":"녹화되지 않은 가게","label":"녹화되지 않은 가게","category":"카페","dong":"역삼동","address":"테헤란로 1"}"""
 
 		val response = ask.ask("회 먹을 데 있어?", answer = true)
 
@@ -131,19 +131,19 @@ class AskAnswerMappingTest @Autowired constructor(
 		const val ANSWER = "answer"
 		const val FAKE_ID = "FAKE0001"
 
-		const val SASHIMI = """{"placeId":"MA010120220810147236","name":"먹어도","category":"횟집","dong":"삼성2동","address":"학동로56길 32"},
-			{"placeId":"MA010120220813985043","name":"마시아","category":"일식 회/초밥","dong":"삼성2동","address":"선릉로 514"},
-			{"placeId":"MA010120220806498529","name":"어방참치","category":"일식 회/초밥","dong":"대치2동","address":"삼성로84길 32"},
-			{"placeId":"MA0106202510A0703050","name":"카이","category":"일식 회/초밥","dong":"청담동","address":"학동로55길 12-11"},
-			{"placeId":"MA010120220803440076","name":"네기","category":"일식 회/초밥","dong":"신사동","address":"도산대로15길 18"}"""
+		const val SASHIMI = """{"placeId":"MA010120220810147236","name":"먹어도","label":"먹어도","category":"횟집","dong":"삼성2동","address":"학동로56길 32"},
+			{"placeId":"MA010120220813985043","name":"마시아","label":"마시아","category":"일식 회/초밥","dong":"삼성2동","address":"선릉로 514"},
+			{"placeId":"MA010120220806498529","name":"어방참치","label":"어방참치","category":"일식 회/초밥","dong":"대치2동","address":"삼성로84길 32"},
+			{"placeId":"MA0106202510A0703050","name":"카이","label":"카이","category":"일식 회/초밥","dong":"청담동","address":"학동로55길 12-11"},
+			{"placeId":"MA010120220803440076","name":"네기","label":"네기","category":"일식 회/초밥","dong":"신사동","address":"도산대로15길 18"}"""
 
-		const val STARBUCKS = """{"placeId":"MA0106202201A2363742","name":"스타벅스 서울세관사거리","category":"카페","dong":"논현2동","address":"언주로 650"},
-			{"placeId":"MA0106202201A2363717","name":"스타벅스 도산사거리","category":"카페","dong":"논현2동","address":"언주로 727"},
-			{"placeId":"MA0106202201A2363574","name":"스타벅스 청담사거리","category":"카페","dong":"청담동","address":"도산대로 458"},
-			{"placeId":"MA0106202201A2363846","name":"스타벅스 포이","category":"카페","dong":"개포4동","address":"논현로 88"},
-			{"placeId":"MA0106202201A2363716","name":"스타벅스 압구정R","category":"카페","dong":"압구정동","address":"언주로 861"}"""
+		const val STARBUCKS = """{"placeId":"MA0106202201A2363742","name":"서울세관사거리","brand":"스타벅스","label":"스타벅스 서울세관사거리","category":"카페","dong":"논현2동","address":"언주로 650"},
+			{"placeId":"MA0106202201A2363717","name":"도산사거리","brand":"스타벅스","label":"스타벅스 도산사거리","category":"카페","dong":"논현2동","address":"언주로 727"},
+			{"placeId":"MA0106202201A2363574","name":"청담사거리","brand":"스타벅스","label":"스타벅스 청담사거리","category":"카페","dong":"청담동","address":"도산대로 458"},
+			{"placeId":"MA0106202201A2363846","name":"포이","brand":"스타벅스","label":"스타벅스 포이","category":"카페","dong":"개포4동","address":"논현로 88"},
+			{"placeId":"MA0106202201A2363716","name":"압구정R","brand":"스타벅스","label":"스타벅스 압구정R","category":"카페","dong":"압구정동","address":"언주로 861"}"""
 
-		const val GARBAGE = """{"placeId":"FAKE0001","name":"한길회계사무소","category":"회계서비스","dong":"역삼동","address":"테헤란로 123"}"""
+		const val GARBAGE = """{"placeId":"FAKE0001","name":"한길회계사무소","label":"한길회계사무소","category":"회계서비스","dong":"역삼동","address":"테헤란로 123"}"""
 
 		const val UNRENDERABLE = """{"placeId":"MA9","category":"카페","dong":"역삼동","address":"테헤란로 1"}"""
 	}

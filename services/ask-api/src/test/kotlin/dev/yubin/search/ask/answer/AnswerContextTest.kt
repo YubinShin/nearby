@@ -25,7 +25,7 @@ class AnswerContextTest @Autowired constructor(private val context: AnswerContex
 
 	@Test
 	fun `a missing field is dropped from the line instead of printing null`() {
-		val rendered = context.render(listOf(PlaceRecord("MA1", "이름", category = null, dong = "역삼동", address = null)))
+		val rendered = context.render(listOf(PlaceRecord("MA1", "이름", "이름", category = null, dong = "역삼동", address = null)))
 
 		assertEquals("검색결과 (거리 정보 없음):\n- [MA1] 이름 | 역삼동", rendered)
 	}
@@ -36,6 +36,6 @@ class AnswerContextTest @Autowired constructor(private val context: AnswerContex
 	}
 
 	private companion object {
-		val SASHIMI = PlaceRecord("MA010120220810147236", "먹어도", "횟집", "삼성2동", "학동로56길 32")
+		val SASHIMI = PlaceRecord("MA010120220810147236", "먹어도", "먹어도", "횟집", "삼성2동", "학동로56길 32")
 	}
 }

@@ -10,8 +10,24 @@ import kotlin.test.assertEquals
 class HsearchContractTest @Autowired constructor(private val mapper: ObjectMapper) {
 	@Test
 	fun `the contract names the fields the answer stage renders`() {
-		assertEquals(listOf("placeId", "name"), HsearchContract.REQUIRED)
+		assertEquals(listOf("placeId", "name", "label"), HsearchContract.REQUIRED)
 		assertEquals(listOf("category", "dong", "address"), HsearchContract.OPTIONAL)
+	}
+
+	@Test
+	fun `a brand recovered hit carries the brand into the record through label`() {
+		val decoded = HsearchContract.decode(body(BRAND_RECOVERED), mapper)
+
+		val record = decoded.records.single()
+		assertEquals("서울세관사거리", record.name)
+		assertEquals("스타벅스 서울세관사거리", record.label)
+	}
+
+	@Test
+	fun `a hit without label falls back to name`() {
+		val decoded = HsearchContract.decode(body("""{"placeId":"MA1","name":"먹어도"}"""), mapper)
+
+		assertEquals("먹어도", decoded.records.single().label)
 	}
 
 	@Test
@@ -20,7 +36,7 @@ class HsearchContractTest @Autowired constructor(private val mapper: ObjectMappe
 
 		assertEquals(0, decoded.unrenderable)
 		assertEquals(
-			PlaceRecord("MA010120220810147236", "먹어도", "횟집", "삼성2동", "서울특별시 강남구 학동로56길 32"),
+			PlaceRecord("MA010120220810147236", "먹어도", "먹어도", "횟집", "삼성2동", "서울특별시 강남구 학동로56길 32"),
 			decoded.records.single(),
 		)
 	}
@@ -70,5 +86,10 @@ class HsearchContractTest @Autowired constructor(private val mapper: ObjectMappe
 			"category":"횟집","address":"서울특별시 강남구 학동로56길 32","sigungu":"강남구","dong":"삼성2동",
 			"lat":37.51518,"lon":127.04282,"score":0.01639,"distanceM":null,"highlight":[],"label":"먹어도",
 			"ranks":{"vector":1},"scores":{"vector":0.872}}"""
+
+		const val BRAND_RECOVERED = """{"placeId":"MA0106202201A2363742","name":"서울세관사거리","branch":null,
+			"brand":"스타벅스","category":"카페","address":"서울특별시 강남구 언주로 650","sigungu":"강남구",
+			"dong":"논현2동","lat":37.5,"lon":127.0,"score":0.9,"distanceM":null,"highlight":[],
+			"label":"스타벅스 서울세관사거리","ranks":{"keyword":1},"scores":{"keyword":9.9}}"""
 	}
 }

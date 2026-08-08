@@ -57,7 +57,7 @@ class GroundingValidatorTest @Autowired constructor(private val validator: Groun
 	fun `a business name carrying a forbidden term is not read as a leak`() {
 		val validated = validator.validate(
 			answer("맛있는집이 있습니다.", "MA3"),
-			RECORDS + PlaceRecord("MA3", "맛있는집", "한식", "역삼동", "테헤란로 1"),
+			RECORDS + PlaceRecord("MA3", "맛있는집", "맛있는집", "한식", "역삼동", "테헤란로 1"),
 		)
 
 		assertEquals(emptyList(), validated.leakedTerms)
@@ -87,8 +87,8 @@ class GroundingValidatorTest @Autowired constructor(private val validator: Groun
 
 	private companion object {
 		val RECORDS = listOf(
-			PlaceRecord("MA1", "먹어도", "횟집", "삼성2동", "학동로56길 32"),
-			PlaceRecord("MA2", "마시아", "일식 회/초밥", "삼성2동", "선릉로 514"),
+			PlaceRecord("MA1", "먹어도", "먹어도", "횟집", "삼성2동", "학동로56길 32"),
+			PlaceRecord("MA2", "마시아", "마시아", "일식 회/초밥", "삼성2동", "선릉로 514"),
 		)
 	}
 }

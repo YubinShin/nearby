@@ -8,7 +8,7 @@ class AnswerContext {
 	fun render(records: List<PlaceRecord>): String {
 		if (records.isEmpty()) return EMPTY
 		return records.joinToString("\n", prefix = "$HEADER\n") { record ->
-			"- [${record.placeId}] ${record.name}" +
+			"- [${record.placeId}] ${record.label}" +
 				listOfNotNull(record.category, record.dong, record.address).joinToString("") { " | $it" }
 		}
 	}

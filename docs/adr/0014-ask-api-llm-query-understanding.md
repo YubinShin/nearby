@@ -46,7 +46,7 @@ ask-api  ──HTTP──▶  search-api  /v1/hsearch
 |---|---|
 | `degraded` | 반쪽 응답 여부를 전파 |
 | `total` | 결과 유무 |
-| `hits[]` | `HsearchContract`가 `placeId`·`name`·`category`·`dong`·`address`로 역직렬화   |
+| `hits[]` | `HsearchContract`가 `placeId`·`name`·`label`·`category`·`dong`·`address`로 역직렬화 |
 
 ADR 0011 기준으로는 이 필드들은 core 후보입니다. 필드명이 달라도 프로세스가 죽지 않고 결과만 달라지기 때문입니다.
 
