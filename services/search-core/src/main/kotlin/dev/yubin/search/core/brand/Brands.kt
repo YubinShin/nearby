@@ -14,8 +14,16 @@ object Brands {
 	fun canonical(name: String, branch: String? = null): String? {
 		val text = normalize(name + (branch ?: ""))
 		if (text.isEmpty()) return null
-		return byLength.firstOrNull { (form, _) -> text.startsWith(form) }?.second
+		return byLength.firstOrNull { (form, _) -> startsWithBrand(text, form) }?.second
 	}
+
+	private fun startsWithBrand(text: String, form: String): Boolean {
+		if (!text.startsWith(form)) return false
+		val next = text.getOrNull(form.length) ?: return true
+		return !(form.last().isLatinLetter() && next.isLatinLetter())
+	}
+
+	private fun Char.isLatinLetter() = this in 'a'..'z'
 
 	fun searchText(canonical: String): String =
 		aliases[canonical]?.joinToString(" ") ?: canonical

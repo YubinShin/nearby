@@ -81,6 +81,21 @@ class BrandsTest {
 	}
 
 	@Test
+	fun `a latin alias followed by more letters is a different word, not the brand`() {
+		assertNull(Brands.canonical("Cut 0618"), "cut is its own word, not CU")
+		assertNull(Brands.canonical("Cube건축적산사무소"))
+		assertNull(Brands.canonical("cure약국"))
+	}
+
+	@Test
+	fun `a latin alias still matches when what follows is not a letter`() {
+		assertEquals("CU", Brands.canonical("CU역삼점"))
+		assertEquals("CU", Brands.canonical("CU 강남대로점"))
+		assertEquals("CU", Brands.canonical("CU"))
+		assertEquals("이마트24", Brands.canonical("emart24역삼점"))
+	}
+
+	@Test
 	fun `whitespace and letter case are ignored`() {
 		assertEquals("CU", Brands.canonical("cu 역삼"))
 		assertEquals("투썸플레이스", Brands.canonical("투썸 플레이스 강남"))
