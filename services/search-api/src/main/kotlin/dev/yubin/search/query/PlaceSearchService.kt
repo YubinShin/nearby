@@ -113,7 +113,7 @@ class PlaceSearchService(
 		private val HIGHLIGHT: Highlight = Highlight.of { h ->
 			h.fields(
 				NamedValue.of("name", HighlightField.of { f -> f }),
-				NamedValue.of("brand", HighlightField.of { f -> f }),
+				NamedValue.of("road_address", HighlightField.of { f -> f }),
 				NamedValue.of("jibun_address", HighlightField.of { f -> f }),
 			)
 		}

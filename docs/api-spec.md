@@ -111,7 +111,7 @@
 예를 들어 `스타벅스`를 검색하면 실제 매칭된 문서의 `name`은 `개포동`일 수 있습니다.
 `name`만 표시하면 올바른 결과가 잘못된 것처럼 보이므로 UI에서는 `label`을 사용하는 것을 권장합니다.
 
-`highlight`에 브랜드명이 포함되는 이유도 동일합니다.
+`highlight`는 `name`·`road_address`·`jibun_address`에서만 생성됩니다. 브랜드명만 일치한 결과는 빈 배열입니다.
 
 `brand`는 원본 데이터의 값이 아니라 두 번째 데이터 원천(인허가 데이터)과 좌표를 이용해 복원한 값입니다.
 현재 약 86개 문서에만 채워져 있습니다. 복원 절차는 [data-model.md](data-model.md#브랜드명-복원-place_brand)에서 확인할 수 있습니다.
@@ -131,8 +131,8 @@ curl -G localhost:8080/v1/search --data-urlencode "q=카페" \
 
 # 브랜드 복원 확인
 curl -G localhost:8080/v1/search --data-urlencode "q=스타벅스"
-#  → total 86.  {"brand":"스타벅스", "name":"개포동", "label":"스타벅스 개포동",
-#                "highlight":["<em>스타벅스</em>"]}
+#  → total 84.  {"brand":"스타벅스", "name":"청담사거리", "label":"스타벅스 청담사거리",
+#                "highlight":[]}
 ```
 
 ---
