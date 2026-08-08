@@ -29,3 +29,6 @@ scripts/eval/eval_pool.json
 scripts/eval/verdicts.json
 
 CLAUDE.md
+
+# 코드리뷰 작업 문서 — 로컬에만 둔다
+REVIEW.md
