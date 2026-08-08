@@ -3,13 +3,17 @@ package dev.yubin.search.upstream
 import co.elastic.clients.elasticsearch._types.ElasticsearchException
 import co.elastic.clients.elasticsearch._types.ErrorResponse
 import co.elastic.clients.json.JsonpMappingException
+import io.netty.handler.timeout.ReadTimeoutException
 import jakarta.json.stream.JsonParsingException
 import org.springframework.core.codec.DecodingException
 import org.springframework.core.codec.EncodingException
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
+import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import java.io.IOException
 import java.io.UncheckedIOException
+import java.net.URI
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -85,6 +89,18 @@ class UpstreamFailureTest {
 		val e = WebClientResponseException.create(404, "Not Found", HttpHeaders.EMPTY, ByteArray(0), null)
 
 		assertNotNull(UpstreamFailure.of(e))
+	}
+
+	@Test
+	fun `a Qdrant response timeout counts as an upstream failure so the channel degrades`() {
+		val e = WebClientRequestException(
+			ReadTimeoutException.INSTANCE,
+			HttpMethod.POST,
+			URI.create("http://localhost:6333/collections/place_vec/points/query"),
+			HttpHeaders.EMPTY,
+		)
+
+		assertEquals(Upstream.QDRANT, UpstreamFailure.of(e))
 	}
 
 	@Test

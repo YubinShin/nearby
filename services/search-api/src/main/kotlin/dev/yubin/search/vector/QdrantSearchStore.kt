@@ -21,6 +21,7 @@ import java.time.Duration
 )
 class QdrantSearchStore(
 	@Value("\${psp.qdrant.url}") baseUrl: String,
+	@Value("\${psp.qdrant.query-timeout-ms}") queryTimeoutMs: Long,
 ) {
 	private val connections = ConnectionProvider.builder("qdrant")
 		.maxConnections(MAX_CONNECTIONS)
@@ -33,7 +34,11 @@ class QdrantSearchStore(
 
 	private val http = WebClient.builder()
 		.baseUrl(baseUrl)
-		.clientConnector(ReactorClientHttpConnector(HttpClient.create(connections)))
+		.clientConnector(
+			ReactorClientHttpConnector(
+				HttpClient.create(connections).responseTimeout(Duration.ofMillis(queryTimeoutMs)),
+			),
+		)
 		.codecs { it.defaultCodecs().maxInMemorySize(MAX_RESPONSE_BYTES) }
 		.build()
 

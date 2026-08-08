@@ -5,6 +5,10 @@ spring:
   config:
     import: classpath:core.yml
 
+  elasticsearch:
+    connection-timeout: 1s
+    socket-timeout: 2s
+
 server:
   port: 8080
 

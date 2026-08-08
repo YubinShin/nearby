@@ -9,6 +9,9 @@ psp:
 
   qdrant:
     url: http://localhost:6333
+    query-timeout-ms: 1000
+    connect-timeout-ms: 2000
+    write-timeout-ms: 60000
 
   vector:
     enabled: true

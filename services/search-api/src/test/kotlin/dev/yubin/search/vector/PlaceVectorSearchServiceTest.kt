@@ -59,7 +59,7 @@ class PlaceVectorSearchServiceTest {
 		return mock
 	}
 
-	private class FakeStore(private val narrowed: Boolean) : QdrantSearchStore("http://localhost") {
+	private class FakeStore(private val narrowed: Boolean) : QdrantSearchStore("http://localhost", 1000) {
 		var narrowChecks = 0
 
 		override suspend fun query(

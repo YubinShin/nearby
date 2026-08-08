@@ -5,6 +5,10 @@ spring:
   config:
     import: classpath:core.yml
 
+  elasticsearch:
+    connection-timeout: 5s
+    socket-timeout: 60s
+
   datasource:
     url: jdbc:postgresql://localhost:5432/place
     username: place

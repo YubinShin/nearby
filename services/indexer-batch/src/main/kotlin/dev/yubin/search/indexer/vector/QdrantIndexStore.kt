@@ -4,16 +4,28 @@ import dev.yubin.search.core.index.IndexVersion
 import dev.yubin.search.core.vector.QdrantContract
 import dev.yubin.search.core.vector.VectorPoint
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.client.SimpleClientHttpRequestFactory
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.requiredBody
+import java.time.Duration
 import java.time.OffsetDateTime
 
 @Component
 class QdrantIndexStore(
 	@Value("\${psp.qdrant.url}") baseUrl: String,
+	@Value("\${psp.qdrant.connect-timeout-ms}") connectTimeoutMs: Long,
+	@Value("\${psp.qdrant.write-timeout-ms}") writeTimeoutMs: Long,
 ) {
-	private val http = RestClient.builder().baseUrl(baseUrl).build()
+	private val http = RestClient.builder()
+		.baseUrl(baseUrl)
+		.requestFactory(
+			SimpleClientHttpRequestFactory().apply {
+				setConnectTimeout(Duration.ofMillis(connectTimeoutMs))
+				setReadTimeout(Duration.ofMillis(writeTimeoutMs))
+			},
+		)
+		.build()
 
 	fun createNextVersion(alias: String, dimension: Int): String {
 		val name = IndexVersion.newName(alias)
