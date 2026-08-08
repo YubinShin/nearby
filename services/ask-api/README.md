@@ -1,6 +1,6 @@
 # ask-api
 
-자연어 질의를 검색 요청으로 구조화하는 모듈입니다. `search-api` 를 HTTP 로 사용하며 `search-core` 에 의존하지 않습니다. `answer=true` 일 때만 검색 결과를 근거로 답변을 생성하고, 답변 생성이 실패해도 검색 결과는 그대로 반환합니다.
+자연어 질의를 검색 요청으로 구조화하는 모듈입니다. `search-api`를 HTTP 로 사용하며 `search-core`에 의존하지 않습니다. `answer=true` 일 때만 검색 결과를 근거로 답변을 생성하고, 답변 생성이 실패해도 검색 결과는 그대로 반환합니다.
 
 [ADR 0014](../../docs/adr/0014-ask-api-llm-query-understanding.md) · [ADR 0015](../../docs/adr/0015-ask-api-grounded-answer-generation.md)
 
@@ -35,7 +35,7 @@ curl -G localhost:8082/v1/ask --data-urlencode "q=회 먹을 데"
 |---|---|---|---|
 | `q` | string | (필수) | 자연어 질의. 없거나 공백이면 `400` |
 | `size` | int | `20` | `psp.ask.size`. 1~50 으로 잘립니다 |
-| `lat`, `lon` | double | – | 기준 좌표. 둘 다 있어야 `radius_m` 이 전달됩니다 |
+| `lat`, `lon` | double | – | 기준 좌표. 둘 다 있어야 `radius_m`이 전달됩니다  |
 | `answer` | boolean | `false` | `true` 면 검색 결과를 근거로 답변을 생성합니다 |
 
 반경 검색은 기준 좌표가 있을 때만 가능합니다. 답변 생성은 opt-in 이며 LLM 왕복이 한 번 더 붙습니다.
@@ -63,15 +63,15 @@ curl -G localhost:8082/v1/ask --data-urlencode "q=회 먹을 데"
 }
 ```
 
-`applied.unmapped` 는 파싱된 값 중 `/v1/hsearch` 파라미터로 옮기지 못한 항목입니다 — [Platform gaps](../../docs/adr/0014-ask-api-llm-query-understanding.md#platform-gaps).
+`applied.unmapped`는 파싱된 값 중 `/v1/hsearch` 파라미터로 옮기지 못한 항목입니다 — [Platform gaps](../../docs/adr/0014-ask-api-llm-query-understanding.md#platform-gaps).
 
-요청 하나에 전체 상한이 걸립니다(`psp.ask.budget-ms`, 기본 15초). LLM 이해와 답변 생성이 이 시간을 나눠 씁니다. 남은 시간이 없으면 그 단계를 실행하지 않고 `degradedBy` 에 실어 반환합니다. 검색 단계는 자르지 않습니다 — 검색 결과 없이는 응답을 만들 수 없고, `/v1/hsearch` 호출 자체에 5초 상한이 있습니다.
+요청 하나에 전체 상한이 걸립니다(`psp.ask.budget-ms`, 기본 15초). LLM 이해와 답변 생성이 이 시간을 나눠 씁니다. 남은 시간이 없으면 그 단계를 실행하지 않고 `degradedBy`에 실어 반환합니다. 검색 단계는 자르지 않습니다 — 검색 결과 없이는 응답을 만들 수 없고, `/v1/hsearch` 호출 자체에 5초 상한이 있습니다.
 
-`applied.unsupported` 는 코퍼스에 데이터가 없어 거를 수 없는 속성입니다. 검색 결과를 좁히지 않고 이름만 알립니다 — `평점 4.5 이상 카페` 는 `q=카페` 로 검색하고 `unsupported: ["평점"]` 을 응답합니다. LLM 장애 시(`degradedBy: ["llm"]`)에는 원문 질의를 그대로 검색하므로 이 보장이 적용되지 않습니다 — [결정 5](../../docs/adr/0014-ask-api-llm-query-understanding.md#5-unsupported-filters).
+`applied.unsupported`는 코퍼스에 데이터가 없어 거를 수 없는 속성입니다. 검색 결과를 좁히지 않고 이름만 알립니다 — `평점 4.5 이상 카페`는 `q=카페`로 검색하고 `unsupported: ["평점"]`을 응답합니다. LLM 장애 시(`degradedBy: ["llm"]`)에는 원문 질의를 그대로 검색하므로 이 보장이 적용되지 않습니다 — [결정 5](../../docs/adr/0014-ask-api-llm-query-understanding.md#5-unsupported-filters).
 
 ## Grounded Answer
 
-`answer=true` 로 호출하면 `answer` 가 채워집니다.
+`answer=true`로 호출하면 `answer`가 채워집니다.
 
 ```jsonc
 "answer": {
@@ -87,11 +87,11 @@ curl -G localhost:8082/v1/ask --data-urlencode "q=회 먹을 데"
 }
 ```
 
-`GroundingValidator` 가 생성 결과를 검사해 위 네 목록을 채웁니다. 근거로 든 `place_id` 가 검색 결과에 없으면 그 근거를 떼어내고 `droppedEvidence` 에 기록합니다. 답변 문장 자체는 지우지 않으므로, 이 목록들이 비어 있지 않다는 것은 생성이 계약을 벗어났다는 신호입니다.
+`GroundingValidator`가 생성 결과를 검사해 위 네 목록을 채웁니다. 근거로 든 `place_id`가 검색 결과에 없으면 그 근거를 떼어내고 `droppedEvidence`에 기록합니다. 답변 문장 자체는 지우지 않으므로, 이 목록들이 비어 있지 않다는 것은 생성이 계약을 벗어났다는 신호입니다.
 
 ## Fixtures
 
-`src/test/resources/fixtures/` 에 LLM 응답 원문이 있습니다. CI 는 실제 API 를 호출하지 않습니다.
+`src/test/resources/fixtures/`에 LLM 응답 원문이 있습니다. CI 는 실제 API 를 호출하지 않습니다.
 
 ```bash
 python3 scripts/record_llm_fixtures.py             # 녹화되지 않은 응답만 호출
@@ -99,7 +99,7 @@ python3 scripts/record_llm_fixtures.py --force     # 전부 재녹화
 python3 scripts/record_llm_fixtures.py --dry-run   # 대상만 출력
 ```
 
-호출 간격은 `--sleep` 으로 조정합니다. 기본값은 요금제의 분당 호출 제한을 넘지 않도록 잡혀 있습니다 — [fixtures/README.md](src/test/resources/fixtures/README.md).
+호출 간격은 `--sleep`으로 조정합니다. 기본값은 요금제의 분당 호출 제한을 넘지 않도록 잡혀 있습니다 — [fixtures/README.md](src/test/resources/fixtures/README.md).
 
 ## Configuration
 

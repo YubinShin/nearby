@@ -26,7 +26,7 @@
 
 현재 모든 질의의 `expect_empty` 값은 `false`입니다. 평점·영업시간·배달·가격과 같은 **속성 트랩(attribute traps)** 역시 "결과가 없어야 하는 질의"가 아닙니다. 예를 들어 `평점 4.5 이상 카페`의 정답은 **평점 조건을 뺀 카페**입니다. 검색기는 장소 유형을 찾고, 평점 조건은 지원하지 않는 속성으로 처리하는 것이 계약입니다.
 
-속성을 올바르게 인식했는지는 답변의 `unsupported` 필드로 별도 검증합니다. `AskMappingTest` 가 `평점 4.5 이상 카페` → `unsupported: ["평점"]`, `배달 되는 치킨집` → `unsupported: ["배달"]` 을 고정합니다.
+속성을 올바르게 인식했는지는 답변의 `unsupported` 필드로 별도 검증합니다. `AskMappingTest`가 `평점 4.5 이상 카페` → `unsupported: ["평점"]`, `배달 되는 치킨집` → `unsupported: ["배달"]`을 고정합니다.
 
 ## Labeling
 
@@ -64,7 +64,7 @@ Corpus: **Gangnam 64K**, `k=10`
 
 평균은 **25개 질의 전체**를 대상으로 계산하므로, 키워드 검색이 결과를 전혀 반환하지 못한 9개 질의도 0점으로 포함됩니다. 호출이 실패한 질의는 0점이 아니라 채점에서 제외하고 개수를 따로 보고합니다. 원본 측정 결과는 `scores/2026-08-08-*.json`에 있습니다.
 
-`Recall@10` 은 표에서 뺐습니다. 아래 Recall Ceiling 을 참고하십시오. 값은 `scores/` 의 JSON 에 남아 있습니다.
+`Recall@10`은 표에서 뺐습니다. 아래 Recall Ceiling 을 참고하십시오. 값은 `scores/`의 JSON 에 남아 있습니다.
 
 `ask` 행은 **fixture 모드**에서 측정했습니다. 실제 LLM 호출은 `temperature=0`이라도 완전히 결정적이지 않아 같은 결과를 항상 재현하지 못합니다 ([ADR 0014](../../docs/adr/0014-ask-api-llm-query-understanding.md)).
 

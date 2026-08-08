@@ -8,18 +8,18 @@
 
 ---
 
-## `search-api` 가 CrashLoopBackOff 로 뜨지 않는다
+## `search-api`가 CrashLoopBackOff 로 뜨지 않는다
 
 **증상** — 파드가 몇 번 죽었다 살아나고, ES 가 준비된 뒤에도 한동안 계속 죽어 있습니다.
 
 **원인** — Elasticsearch 가 뜨기 전에 시작하면 **스프링 컨텍스트 refresh 자체가 실패합니다.**
-부팅 중에 `Rest5Client` 가 ES 로 요청을 쏘기 때문입니다.
+부팅 중에 `Rest5Client`가 ES 로 요청을 쏘기 때문입니다.
 
 ```
 Rest5Client.performRequest → AsyncConnectExec
 ```
 
-`indexer-batch` 가 PostGIS 로 겪는 것과 같은 모양입니다. CrashLoopBackOff 의
+`indexer-batch`가 PostGIS 로 겪는 것과 같은 모양입니다. CrashLoopBackOff 의
 **지수 백오프(10s → 20s → 40s → 80s)** 때문에 ES 가 준비된 뒤에도 몇 분을 더 죽어 있습니다.
 
 **조치** — `wait-for-elasticsearch` initContainer 로 ES 를 기다립니다
@@ -28,25 +28,25 @@ Rest5Client.performRequest → AsyncConnectExec
 ### 왜 TCP 체크로는 부족한가
 
 **ES 는 클러스터가 서빙 준비되기 전에 9200 포트를 먼저 엽니다.** 포트가 열린 것만 보고
-넘어가면 같은 실패를 그대로 만납니다. 그래서 `_cluster/health` 를 봅니다.
+넘어가면 같은 실패를 그대로 만납니다. 그래서 `_cluster/health`를 봅니다.
 
 ```
 until wget -q -O /dev/null \
   "$SPRING_ELASTICSEARCH_URIS/_cluster/health?wait_for_status=yellow&timeout=5s"
 ```
 
-- **`yellow` 가 정상입니다.** `green` 을 기다리면 영원히 안 끝납니다.
+- **`yellow`가 정상입니다.** `green`을 기다리면 영원히 안 끝납니다.
   단일 노드라서가 아니라 **레플리카를 요구하는 인덱스가 섞여 있어서**입니다. ES 는 레플리카를
-  프라이머리와 같은 노드에 두지 않으므로, 노드가 하나면 그 샤드가 계속 `UNASSIGNED` 로 남습니다.
-  `place_search_*` · `place_suggest_*` 는 `es/place_search.json` 이 `replicas: 0` 을 지정해
+  프라이머리와 같은 노드에 두지 않으므로, 노드가 하나면 그 샤드가 계속 `UNASSIGNED`로 남습니다.
+  `place_search_*` · `place_suggest_*`는 `es/place_search.json`이 `replicas: 0`을 지정해
   단일 노드에서도 green 입니다. 클러스터를 yellow 로 만드는 것은 매핑 파일 없이
   **ES 가 암묵 생성**해 기본값(replicas=1)을 받은 `psp_index_meta` · `psp_index_checkpoint` 둘입니다.
-- `wait_for_status` 가 **ES 쪽에서 블록**해 주므로 폴링이 촘촘할 필요가 없습니다.
+- `wait_for_status`가 **ES 쪽에서 블록**해 주므로 폴링이 촘촘할 필요가 없습니다.
 
 ### 주소를 initContainer 에 하드코딩하지 않는 이유
 
 앱과 **같은 ConfigMap**(`search-backends`)에서 받습니다. 하드코딩하면
-`backend-wiring.yaml` 을 고쳤을 때 앱과 initContainer 가 **조용히 어긋납니다** —
+`backend-wiring.yaml`을 고쳤을 때 앱과 initContainer 가 **조용히 어긋납니다** —
 앱은 새 주소를 보는데 initContainer 는 옛 주소가 뜨기를 기다립니다.
 
 ### Qdrant 는 왜 안 기다리나
@@ -70,7 +70,7 @@ failed to obtain node locks, tried [/usr/share/elasticsearch/data]
 ```
 
 ES 컨테이너는 **uid 1000** 으로 도는데, 새로 만든 EBS 볼륨은 **root:root** 로 마운트됩니다.
-`fsGroup: 1000` 을 주면 kubelet 이 볼륨을 그 그룹으로 chown 하고 프로세스에 보조 그룹으로
+`fsGroup: 1000`을 주면 kubelet 이 볼륨을 그 그룹으로 chown 하고 프로세스에 보조 그룹으로
 달아줍니다 → uid 1000 이 쓸 수 있게 됩니다.
 
 kind 에서 안 나는 이유는 로컬 경로 프로비저너가 디렉터리를 헐겁게 만들기 때문입니다.
@@ -96,21 +96,21 @@ initContainers:
 kind 는 Docker Desktop VM 커널을 공유해 대개 이미 값이 큽니다. **이 initContainer 를 지우면
 EKS 에서 ES 가 안 뜹니다.**
 
-> 참고: `xpack.security.enabled: false` 는 **로컬/데모 전용**입니다. 이 매니페스트를 그대로
+> 참고: `xpack.security.enabled: false`는 **로컬/데모 전용**입니다. 이 매니페스트를 그대로
 > 운영에 옮기면 인증 없는 ES 를 노출하게 됩니다.
 
 ---
 
-## `search-api` 가 힙에 여유가 있는데 OOMKilled 된다
+## `search-api`가 힙에 여유가 있는데 OOMKilled 된다
 
 **원인** — 이 앱은 **JVM 힙 밖에서도 메모리를 씁니다.** 임베딩 추론이 ONNX 네이티브라,
 컨테이너 메모리를 힙과 네이티브가 나눠 씁니다.
 
-이미지가 `-XX:MaxRAMPercentage` 로 힙을 컨테이너 메모리의 **50%** 로 잡고, 나머지 절반을
-ONNX 네이티브가 씁니다. 컨테이너 `limits.memory` 를 이 비율을 무시하고 잡으면
+이미지가 `-XX:MaxRAMPercentage`로 힙을 컨테이너 메모리의 **50%** 로 잡고, 나머지 절반을
+ONNX 네이티브가 씁니다. 컨테이너 `limits.memory`를 이 비율을 무시하고 잡으면
 **힙 여유가 있어도 네이티브 할당 실패로 OOMKilled** 가 납니다.
 
-**조치** — `limits.memory` 를 바꿀 때는 힙 비율을 함께 봅니다.
+**조치** — `limits.memory`를 바꿀 때는 힙 비율을 함께 봅니다.
 현재값은 `requests 1Gi / limits 2Gi` (`deploy/k8s/base/search-api.yaml`).
 
 ---
@@ -121,7 +121,7 @@ ONNX 네이티브가 씁니다. 컨테이너 `limits.memory` 를 이 비율을 �
 끄지 않으면 앱이 부팅하자마자 등록된 job 중 하나를 골라 돌리려 하고(여럿이면 그 시점에 실패)
 원천을 훑기 시작합니다.
 
-**조치** — `services/indexer-batch/src/main/resources/application.yml` 에서 끕니다.
+**조치** — `services/indexer-batch/src/main/resources/application.yml`에서 끕니다.
 
 ```yaml
 spring:
@@ -178,10 +178,10 @@ services/indexer-batch/…/BatchConfig.kt     AWAIT_TERMINATION_SECONDS = 600
 
 ---
 
-## `search-api` 에 `/admin` 이나 PostGIS 설정이 없다
+## `search-api`에 `/admin` 이나 PostGIS 설정이 없다
 
 의도된 것입니다. **플래그로 끈 게 아니라 클래스가 jar 에 없습니다** (ADR 0011).
 질의 앱과 색인 앱은 자원 성격이 정반대라(저지연 상시 ↔ CPU 버스트) 별도 아티팩트로 갈랐고,
 질의 경로가 원천 창고를 여는 일이 없도록 빌드 시점에 보장합니다.
 
-재색인은 색인 앱(`indexer-batch`, 8081)의 `/admin/*` 으로 부릅니다.
+재색인은 색인 앱(`indexer-batch`, 8081)의 `/admin/*`으로 부릅니다.

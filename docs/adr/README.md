@@ -2,7 +2,7 @@
 
 코드에는 주석을 두지 않습니다. 각 결정의 배경은 해당 ADR 과 커밋 메시지에 있습니다.
 
-각 문서 끝의 "구현 위치" 표에 있는 커밋 해시는 `git show <해시>` 로 확인합니다. 해시는 그 결정이 반영된 시점의 커밋이며 파일의 최신 상태가 아닙니다. 코드 경로는 `services/<모듈>/src/{main,test}/kotlin/dev/yubin/search/` 이하입니다.
+각 문서 끝의 "구현 위치" 표에 있는 커밋 해시는 `git show <해시>`로 확인합니다. 해시는 그 결정이 반영된 시점의 커밋이며 파일의 최신 상태가 아닙니다. 코드 경로는 `services/<모듈>/src/{main,test}/kotlin/dev/yubin/search/` 이하입니다.
 
 | ADR | 제목 |
 |---|---|
@@ -19,5 +19,5 @@
 | [0011](0011-module-split-and-index-contract.md) | 색인기와 질의기를 별도 아티팩트로 분리, 색인 계약은 런타임에 대조 |
 | [0012](0012-manifests-in-monorepo.md) | 배포 매니페스트를 소스와 같은 저장소에 배치 (모노레포) |
 | [0013](0013-indexer-runtime-spring-batch.md) | 색인기 런타임을 리액티브에서 Spring Batch + 블로킹으로 전환 |
-| [0014](0014-ask-api-llm-query-understanding.md) | 자연어 질의 이해를 별도 모듈 `ask-api` 에, 검색은 HTTP 로 호출 |
-| [0015](0015-ask-api-grounded-answer-generation.md) | 검색 결과를 근거로 한 답변 생성(RAG)을 `ask-api` 에 추가 |
+| [0014](0014-ask-api-llm-query-understanding.md) | 자연어 질의 이해를 별도 모듈 `ask-api`에, 검색은 HTTP 로 호출  |
+| [0015](0015-ask-api-grounded-answer-generation.md) | 검색 결과를 근거로 한 답변 생성(RAG)을 `ask-api`에 추가  |

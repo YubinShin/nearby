@@ -259,7 +259,7 @@ curl -G localhost:8080/v1/vsearch --data-urlencode "q=회 먹을 데"
 
 키워드 검색과 벡터 검색 결과를 RRF(Reciprocal Rank Fusion)로 결합합니다. ([ADR 0003](adr/0003-hybrid-search-rrf-in-app-layer.md))
 
-파라미터는 `/v1/search` 와 같습니다 (`sort` 제외).
+파라미터는 `/v1/search`와 같습니다 (`sort` 제외).
 
 ```bash
 curl -G localhost:8080/v1/hsearch --data-urlencode "q=회 먹을 데"
@@ -299,7 +299,7 @@ curl -G localhost:8080/v1/hsearch --data-urlencode "q=회 먹을 데"
 
 ### Partial Response
 
-한 채널이 실패해도 나머지로 답하고, 그 사실을 `degraded` 와 `channels[].failed` 로 알립니다.
+한 채널이 실패해도 나머지로 답하고, 그 사실을 `degraded`와 `channels[].failed`로 알립니다.
 
 | 상황 | 응답 |
 |---|---|
@@ -314,12 +314,12 @@ Elasticsearch에 장애가 발생하면 주소 채우기(mget)를 호출하지 �
 
 주소 채우기가 성공했는데 그 문서가 없으면 색인에 없는 문서입니다. 벡터 채널만 아는 문서를 payload 로 되살리지 않고 응답에서 제외합니다. 원천에서 삭제되었거나 중복으로 억제된 장소의 벡터가 Qdrant 에 남아 있을 때 발생합니다.
 
-제외한 건수는 `psp_query_stale_vectors` 로 계측합니다. 이 값이 늘면 벡터 증분이 삭제를 따라가지 못하고 있다는 신호입니다.
+제외한 건수는 `psp_query_stale_vectors`로 계측합니다. 이 값이 늘면 벡터 증분이 삭제를 따라가지 못하고 있다는 신호입니다.
 
-주소 채우기 자체가 실패한 경우는 다릅니다. 색인이 답하지 않았으므로 없는 문서인지 알 수 없어 payload 를 그대로 쓰고 `degraded:true` 로 표시합니다.
+주소 채우기 자체가 실패한 경우는 다릅니다. 색인이 답하지 않았으므로 없는 문서인지 알 수 없어 payload 를 그대로 쓰고 `degraded:true`로 표시합니다.
 
-`degraded` 는 백엔드 장애일 때만 켜집니다. 채널 코드 자체의 버그는 반쪽 응답으로 감추지 않고
-`500` 으로 드러냅니다. 감추면 recall 이 조용히 절반이 된 채로 지표는 정상으로 보입니다.
+`degraded`는 백엔드 장애일 때만 켜집니다. 채널 코드 자체의 버그는 반쪽 응답으로 감추지 않고
+`500`으로 드러냅니다. 감추면 recall 이 조용히 절반이 된 채로 지표는 정상으로 보입니다.
 
 ### Fields Used by Answer Generation
 
@@ -386,7 +386,7 @@ Elasticsearch·Qdrant 장애와 애플리케이션 버그는 서로 다른 상�
 ## `POST /admin/reindex`
 
 재색인 요청은 즉시 `202 Accepted`와 `jobId`를 반환하며, 실제 작업은 백그라운드에서 계속 진행됩니다.
-`curl` 을 끊어도 색인은 영향받지 않습니다 ([ADR 0013](adr/0013-indexer-runtime-spring-batch.md)).
+`curl`을 끊어도 색인은 영향받지 않습니다 ([ADR 0013](adr/0013-indexer-runtime-spring-batch.md)).
 
 무중단 전체 재색인입니다. 새 인덱스를 생성한 뒤 alias만 원자적으로 전환하여 검색 중단 없이 교체합니다.
 64,239건 기준 15.6초가 소요되었으며(2026-07-25 실측), 그동안 검색 서비스는 중단되지 않습니다.
@@ -399,7 +399,7 @@ Elasticsearch·Qdrant 장애와 애플리케이션 버그는 서로 다른 상�
 ## `POST /admin/reindex/incremental`
 
 체크포인트 이후 변경된 데이터만 반영합니다. 같은 데이터를 여러 번 실행해도 결과가 동일한 멱등(idempotent) 작업입니다. 소프트 삭제된 행은 인덱스에서 지웁니다.
-응답은 위와 같은 접수증 형태이고 `jobName` 이 `keywordIncremental` 입니다.
+응답은 위와 같은 접수증 형태이고 `jobName`이 `keywordIncremental` 입니다.
 
 ## `POST /admin/vector/reindex`
 
@@ -407,7 +407,7 @@ Elasticsearch·Qdrant 장애와 애플리케이션 버그는 서로 다른 상�
 임베딩 추론이 훨씬 느려서(64,239건 8분 32초 vs ES bulk 15.6초, 2026-07-25 실측) 한 파이프라인에 묶으면 느린 쪽이 주기를 결정합니다.
 키워드와 벡터는 각각 독립적인 체크포인트를 사용합니다.
 
-`POST /admin/vector/reindex/incremental` 은 벡터 체크포인트 이후 바뀐 것만 다시 임베딩합니다.
+`POST /admin/vector/reindex/incremental`은 벡터 체크포인트 이후 바뀐 것만 다시 임베딩합니다.
 
 ## `GET /admin/jobs/{jobId}`
 
@@ -436,7 +436,7 @@ Elasticsearch·Qdrant 장애와 애플리케이션 버그는 서로 다른 상�
 }
 ```
 
-`GET /admin/jobs` 는 최근 실행 이력을 반환합니다.
+`GET /admin/jobs`는 최근 실행 이력을 반환합니다.
 
 | Name | Type | Default | Description |
 |---|---|---|---|

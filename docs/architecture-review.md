@@ -953,7 +953,7 @@ catch 첫 줄에 `if (e is CancellationException) throw e`를 넣었습니다. �
 
 ### #29 취소 삼킴이 hydrate 경로에 남아 있었다 → **Fixed** (2026-08-03)
 
-#28 은 `runChannel`만 고쳤습니다. 같은 파일 `present()`의 hydrate 는 `runCatching { keyword.byIds(...) }` 라 `Throwable`을 잡아 `CancellationException` 까지 삼키고 있었습니다.
+#28 은 `runChannel`만 고쳤습니다. 같은 파일 `present()`의 hydrate 는 `runCatching { keyword.byIds(...) }` 라 `Throwable`을 잡아 `CancellationException`까지 삼키고 있었습니다.
 
 **발견 계기**
 

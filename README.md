@@ -183,7 +183,7 @@ Kubernetes 환경 실행 시 → [deploy/k8s/README.md](deploy/k8s/README.md)
 | Hybrid                               |         0.85 |     0.88 |     0.85 |
 | **Hybrid + LLM query understanding** |     **0.86** | **0.98** | **0.87** |
 
-`Recall@10` 은 뺐습니다. 정답 수가 질의마다 25건에서 65건까지 달라 `k=10` 에서 상한이 평균 0.248 입니다. 채널 간 비교에 쓰기 어렵습니다. 값 자체는 `scripts/eval/scores/` 에 남아 있습니다.
+`Recall@10`은 뺐습니다. 정답 수가 질의마다 25건에서 65건까지 달라 `k=10`에서 상한이 평균 0.248 입니다. 채널 간 비교에 쓰기 어렵습니다. 값 자체는 `scripts/eval/scores/`에 남아 있습니다.
 
 * 라벨링 절차 · 재현 명령 · 측정 한계: [골든셋](scripts/eval/README.md)
 
