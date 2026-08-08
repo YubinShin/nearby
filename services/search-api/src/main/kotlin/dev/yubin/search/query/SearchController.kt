@@ -26,7 +26,18 @@ class SearchController(
 		@RequestParam(required = false, name = "radius") radiusM: Int?,
 		@RequestParam(required = false) sort: String?,
 	): SearchResponse = searchService.search(
-		SearchRequest.of(q, size, page, sigungu, dong, category, lat, lon, radiusM, sort),
+		SearchRequest.of(
+			q = q,
+			size = size,
+			page = page,
+			sigungu = sigungu,
+			dong = dong,
+			category = category,
+			lat = lat,
+			lon = lon,
+			radiusM = radiusM,
+			sort = sort,
+		),
 	)
 
 	@GetMapping("/suggest")

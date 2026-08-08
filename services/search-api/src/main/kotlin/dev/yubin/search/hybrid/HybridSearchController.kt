@@ -28,9 +28,15 @@ class HybridSearchController(private val hybridSearch: HybridSearchService) {
 		@RequestParam(required = false, name = "radius") radiusM: Int?,
 	): HybridResponse = hybridSearch.search(
 		SearchRequest.of(
-			q = q, size = size, page = page,
-			sigungu = sigungu, dong = dong, category = category,
-			lat = lat, lon = lon, radiusM = radiusM,
+			q = q,
+			size = size,
+			page = page,
+			sigungu = sigungu,
+			dong = dong,
+			category = category,
+			lat = lat,
+			lon = lon,
+			radiusM = radiusM,
 			sort = null,
 		),
 	)
