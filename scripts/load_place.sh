@@ -18,9 +18,6 @@ python3 scripts/extract_gangnam.py
 echo "▶ 2/4  스키마 적용 (public.place)"
 docker exec -i psp-postgis psql -U place -d "$DB" -v ON_ERROR_STOP=1 < deploy/postgis/schema.sql
 
-# 색인 질의가 place_brand·place_duplicate 를 조인하므로 비어 있더라도 있어야 한다.
-# 둘 다 DROP+CREATE 라 재적재하면 옛 판정이 함께 지워진다 — 새 스냅샷에 옛 중복 판정이
-# 남아 살아 있는 행을 계속 색인에서 빼는 일을 막는다.
 echo "▶ 3/4  파생 테이블 초기화 (place_brand · place_duplicate)"
 docker exec -i psp-postgis psql -U place -d "$DB" -v ON_ERROR_STOP=1 -q < deploy/postgis/brand.sql
 docker exec -i psp-postgis psql -U place -d "$DB" -v ON_ERROR_STOP=1 -q < deploy/postgis/dedup.sql

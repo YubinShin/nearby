@@ -12,8 +12,6 @@ cd "$ROOT"
 
 DB="${DB:-place}"
 
-# 스키마 적용이 adm_dong 을 비우므로 SQL 생성이 먼저다. 원본이 없어 생성이 실패하면
-# 빈 adm_dong 이 남고, load_localdata.sh 의 공간 조인이 0행을 갱신한 뒤 오류 없이 끝난다.
 echo "▶ 1/3  GeoJSON → SQL (서울만)"
 trap 'rm -f data/adm_dong.sql.tmp' EXIT
 python3 scripts/boundaries_to_sql.py > data/adm_dong.sql.tmp

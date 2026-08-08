@@ -126,7 +126,6 @@ def rank_api(base, channel, query, k):
 def score(ranked, expected, k, expect_empty=False):
     ranked = ranked[:k]
 
-    # 0건이 정답인 질의는 순위 지표가 의미 없다. 맞았는지만 1/0 으로 기록한다.
     if expect_empty:
         correct = 1.0 if not ranked else 0.0
         return {
@@ -148,7 +147,6 @@ def score(ranked, expected, k, expect_empty=False):
     return {
         "returned": len(ranked),
         "found": len(hits),
-        # 분모는 k 다. 반환 건수로 나누면 1건 반환해 맞힌 질의가 1.00 이 된다.
         "precision": len(hits) / k,
         "recall": len(hits) / len(expected),
         "mrr": 1 / (hits[0] + 1) if hits else 0.0,
@@ -216,7 +214,6 @@ def main():
     for query, expected, expect_empty in golden:
         ranked = runner(query)
         if ranked is None:
-            # 호출 실패다. 0점으로 평균에 섞으면 지표가 장애를 성능 저하로 보고한다.
             failed.append(query)
             print(f"{query:<18} {'호출 실패 — 채점 제외':>30}")
             continue

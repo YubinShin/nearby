@@ -115,8 +115,6 @@ def analyze(text: str, index: str = PROBE_INDEX) -> list[dict] | None:
     try:
         return json.load(urllib.request.urlopen(req))["tokens"]
     except Exception as e:
-        # 호출 실패를 None 으로 돌리면 호출자가 "부서지지 않은 단어" 로 읽는다.
-        # ES 가 죽은 채로 돌리면 후보가 0종이 되고 사전이 시드만 남는다. 세어서 쓰기 전에 막는다.
         with _FAILURE_LOCK:
             ANALYZE_FAILURES[type(e).__name__] += 1
         return None

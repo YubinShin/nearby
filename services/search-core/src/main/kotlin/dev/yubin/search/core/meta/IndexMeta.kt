@@ -1,10 +1,6 @@
 package dev.yubin.search.core.meta
 
 object IndexMeta {
-	// 2: 중복 판정(place_duplicate)이 색인 대상에서 빠지기 시작한 판. 문서 모양은 그대로지만
-	//    수록 대상이 달라졌다 — 증분으로는 이미 색인된 중복 문서를 걷어내지 못한다.
-	// 3: suggest 문서에 brand_text, Qdrant payload 에 category_mid·updated_at 이 늘었다.
-	//    옛 색인에는 그 필드가 없어 질의가 조용히 매칭을 잃는다.
 	const val SCHEMA_VERSION = 3
 
 	const val ES_INDEX = "psp_index_meta"

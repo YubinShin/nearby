@@ -2,7 +2,6 @@ package dev.yubin.search.core.analysis
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient
 import co.elastic.clients.elasticsearch._types.ElasticsearchException
-import org.slf4j.LoggerFactory
 import java.security.MessageDigest
 
 object AnalyzerFingerprint {
@@ -20,10 +19,8 @@ object AnalyzerFingerprint {
 		val tokens = try {
 			es.indices().analyze { a -> a.index(index).analyzer(analyzer).text(PROBE) }.tokens()
 		} catch (e: ElasticsearchException) {
-			if (e.status() != HTTP_NOT_FOUND) {
-				log.warn("[{}] could not fingerprint analyzer [{}], skipping the comparison: {}", index, analyzer, e.message)
-			}
-			return null
+			if (e.status() == HTTP_NOT_FOUND) return null
+			throw e
 		}
 		return digest(tokens.map { "${it.token()}:${it.startOffset()}:${it.endOffset()}" })
 	}
@@ -36,6 +33,4 @@ object AnalyzerFingerprint {
 
 	private const val HTTP_NOT_FOUND = 404
 	private const val BYTES = 6
-
-	private val log = LoggerFactory.getLogger(AnalyzerFingerprint::class.java)
 }
