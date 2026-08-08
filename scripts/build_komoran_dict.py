@@ -20,6 +20,7 @@ import json
 import re
 import subprocess
 import sys
+import threading
 import urllib.request
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
@@ -103,13 +104,21 @@ def ensure_live_probe_index() -> None:
                                headers={"Content-Type": "application/json"}))
 
 
+ANALYZE_FAILURES: Counter = Counter()
+_FAILURE_LOCK = threading.Lock()
+
+
 def analyze(text: str, index: str = PROBE_INDEX) -> list[dict] | None:
     body = json.dumps({"analyzer": "komoran_raw", "text": text}).encode()
     req = urllib.request.Request(f"{ES}/{index}/_analyze", data=body,
                                  headers={"Content-Type": "application/json"})
     try:
         return json.load(urllib.request.urlopen(req))["tokens"]
-    except Exception:
+    except Exception as e:
+        # 호출 실패를 None 으로 돌리면 호출자가 "부서지지 않은 단어" 로 읽는다.
+        # ES 가 죽은 채로 돌리면 후보가 0종이 되고 사전이 시드만 남는다. 세어서 쓰기 전에 막는다.
+        with _FAILURE_LOCK:
+            ANALYZE_FAILURES[type(e).__name__] += 1
         return None
 
 
@@ -356,6 +365,13 @@ def main() -> int:
         if useless:
             print(f"  ⚠ KOMORAN이 이미 통짜로 아는 시드 {len(useless)}개 — 지워도 됩니다: {' '.join(useless)}",
                   file=sys.stderr)
+
+    if ANALYZE_FAILURES:
+        detail = " · ".join(f"{k} {v:,}건" for k, v in ANALYZE_FAILURES.most_common())
+        print(f"✖ _analyze 호출이 {sum(ANALYZE_FAILURES.values()):,}건 실패했습니다 — {detail}", file=sys.stderr)
+        print(f"  실패한 호출은 '부서지지 않은 단어'로 취급되어 후보에서 빠집니다.", file=sys.stderr)
+        print(f"  {OUT} 를 덮어쓰지 않고 멈춥니다. ES 상태를 확인하고 다시 실행하세요.", file=sys.stderr)
+        return 1
 
     with open(OUT, "w", encoding="utf-8") as f:
         f.write("# KOMORAN 사용자 사전 — 자동 생성 파일. 손으로 고치지 말 것(재생성됨).\n")

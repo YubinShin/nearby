@@ -321,11 +321,16 @@ def run(selected=None):
     )
     print(f"\n픽스처: {run_dir}/ (모델 버전·시각 포함, _scoreboard.json 요약 포함)")
 
+    failed = [eid for eid, verdict, _ in results if verdict != "PASS"]
+    if failed:
+        print(f"통과하지 못한 실험 {len(failed)}개: {' '.join(failed)}", file=sys.stderr)
+    return 1 if failed else 0
+
 
 if __name__ == "__main__":
     args = sys.argv[1:]
     if "--list" in args:
         for e in EXPERIMENTS:
             print(f"{e['id']:24s} {e['note']}")
-    else:
-        run(selected=args or None)
+        sys.exit(0)
+    sys.exit(run(selected=args or None))
