@@ -7,6 +7,7 @@ import dev.yubin.search.ask.llm.LlmFailures
 import dev.yubin.search.ask.observability.AskMetrics
 import dev.yubin.search.ask.search.SearchPlatform
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.withTimeoutOrNull
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -19,6 +20,7 @@ class AskService(
 	private val answers: AnswerService,
 	private val metrics: AskMetrics,
 	@Value("\${psp.ask.size}") private val defaultSize: Int,
+	@Value("\${psp.ask.budget-ms}") private val budgetMs: Long,
 ) {
 	suspend fun ask(
 		q: String?,
@@ -28,10 +30,11 @@ class AskService(
 		answer: Boolean = false,
 	): AskResponse {
 		val startedAt = System.nanoTime()
+		val deadline = startedAt + budgetMs * 1_000_000
 		val raw = q?.trim().orEmpty()
 
 		val llmStartedAt = System.nanoTime()
-		val parsed = if (raw.isBlank()) null else parse(raw)
+		val parsed = if (raw.isBlank()) null else withinBudget(deadline, LLM) { parse(raw) }
 		val llmTookMs = if (raw.isBlank()) 0 else elapsedMs(llmStartedAt)
 
 		val plan = AskQueryPlanner.plan(
@@ -49,7 +52,8 @@ class AskService(
 		val searchTookMs = elapsedMs(searchStartedAt)
 
 		val answerStartedAt = System.nanoTime()
-		val generated = if (answer && raw.isNotBlank()) answers.answer(raw, result) else null
+		val generated =
+			if (answer && raw.isNotBlank()) withinBudget(deadline, ANSWER) { answers.answer(raw, result) } else null
 		val answerTookMs = if (answer && raw.isNotBlank()) elapsedMs(answerStartedAt) else 0
 
 		val degradedBy = buildList {
@@ -93,12 +97,29 @@ class AskService(
 		null
 	}
 
+	private suspend fun <T> withinBudget(deadline: Long, stage: String, block: suspend () -> T?): T? {
+		val remainingMs = (deadline - System.nanoTime()) / 1_000_000
+		if (remainingMs <= 0) {
+			metrics.degraded(stage, BUDGET)
+			return null
+		}
+
+		var finished = false
+		val result = withTimeoutOrNull(remainingMs) { block().also { finished = true } }
+		if (!finished) {
+			metrics.degraded(stage, BUDGET)
+			log.warn("{} stage cut at the request budget of {}ms", stage, budgetMs)
+		}
+		return result
+	}
+
 	private fun elapsedMs(startedAt: Long) = (System.nanoTime() - startedAt) / 1_000_000
 
 	private companion object {
 		const val LLM = "llm"
 		const val SEARCH = "search"
 		const val ANSWER = "answer"
+		const val BUDGET = "budget"
 
 		val log = LoggerFactory.getLogger(AskService::class.java)
 	}

@@ -54,7 +54,7 @@ curl -G localhost:8082/v1/ask --data-urlencode "q=회 먹을 데"
     "unsupported": []                        // 코퍼스에 없어 못 거른 속성
   },
   "degraded": false,
-  "degradedBy": [],                 // "llm" | "search"
+  "degradedBy": [],                 // "llm" | "search" | "answer"
   "llmVendor": "gemini",            // "gemini" | "fixture". fixture 면 llmTookMs 는 녹화 재생
   "llmTookMs": 0, "searchTookMs": 0, "answerTookMs": 0, "tookMs": 0,
                                     // 구간별 소요. LLM 왕복이 2~3초로 대부분 (ADR 0014)
@@ -64,6 +64,8 @@ curl -G localhost:8082/v1/ask --data-urlencode "q=회 먹을 데"
 ```
 
 `applied.unmapped` 는 파싱된 값 중 `/v1/hsearch` 파라미터로 옮기지 못한 항목입니다 — [Platform gaps](../../docs/adr/0014-ask-api-llm-query-understanding.md#platform-gaps).
+
+요청 하나에 벽시계 예산이 걸립니다(`psp.ask.budget-ms`, 기본 15초). LLM 이해와 답변 생성이 이 예산을 나눠 쓰고, 남은 예산이 없으면 그 단계를 실행하지 않고 `degradedBy` 에 실어 반환합니다. 검색 단계는 자르지 않습니다 — 검색 결과 없이는 응답을 만들 수 없고, `/v1/hsearch` 호출 자체에 5초 상한이 있습니다.
 
 `applied.unsupported` 는 코퍼스에 데이터가 없어 거를 수 없는 속성입니다. 검색 결과를 좁히지 않고 이름만 알립니다 — `평점 4.5 이상 카페` 는 `q=카페` 로 검색하고 `unsupported: ["평점"]` 을 응답합니다. LLM 장애 시(`degradedBy: ["llm"]`)에는 원문 질의를 그대로 검색하므로 이 보장이 적용되지 않습니다 — [결정 5](../../docs/adr/0014-ask-api-llm-query-understanding.md#5-unsupported-filters).
 

@@ -25,6 +25,7 @@ psp:
   ask:
     llm: gemini
     size: 20
+    budget-ms: 15000
 
     search:
       base-url: http://localhost:8080
