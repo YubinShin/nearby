@@ -10,7 +10,7 @@ import java.time.OffsetDateTime
 object DocumentFingerprint {
 	private val PROBE_TIME: OffsetDateTime = OffsetDateTime.parse("2026-01-01T00:00:00Z")
 
-	val PROBE: List<PlaceRow> = listOf(
+	internal val PROBE: List<PlaceRow> = listOf(
 		PlaceRow(
 			placeId = "probe-brand-from-name",
 			name = "씨유역삼점",
