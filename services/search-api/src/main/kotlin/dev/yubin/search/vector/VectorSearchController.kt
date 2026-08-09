@@ -1,5 +1,6 @@
 package dev.yubin.search.vector
 
+import dev.yubin.search.debug.capturing
 import dev.yubin.search.query.SearchRequest
 import dev.yubin.search.query.SearchResponse
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -27,18 +28,21 @@ class VectorSearchController(private val vectorSearch: PlaceVectorSearchService)
 		@RequestParam(required = false) lat: Double?,
 		@RequestParam(required = false) lon: Double?,
 		@RequestParam(required = false, name = "radius") radiusM: Int?,
-	): SearchResponse = vectorSearch.search(
-		SearchRequest.of(
-			q = q,
-			size = size,
-			page = page,
-			sigungu = sigungu,
-			dong = dong,
-			category = category,
-			lat = lat,
-			lon = lon,
-			radiusM = radiusM,
-			sort = null,
-		),
-	)
+		@RequestParam(required = false) debug: Boolean?,
+	): SearchResponse = capturing(debug) {
+		vectorSearch.search(
+			SearchRequest.of(
+				q = q,
+				size = size,
+				page = page,
+				sigungu = sigungu,
+				dong = dong,
+				category = category,
+				lat = lat,
+				lon = lon,
+				radiusM = radiusM,
+				sort = null,
+			),
+		)
+	}
 }

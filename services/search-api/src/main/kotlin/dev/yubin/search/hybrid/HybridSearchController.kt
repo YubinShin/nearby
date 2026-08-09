@@ -1,5 +1,6 @@
 package dev.yubin.search.hybrid
 
+import dev.yubin.search.debug.capturing
 import dev.yubin.search.query.SearchRequest
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.web.bind.annotation.GetMapping
@@ -26,18 +27,21 @@ class HybridSearchController(private val hybridSearch: HybridSearchService) {
 		@RequestParam(required = false) lat: Double?,
 		@RequestParam(required = false) lon: Double?,
 		@RequestParam(required = false, name = "radius") radiusM: Int?,
-	): HybridResponse = hybridSearch.search(
-		SearchRequest.of(
-			q = q,
-			size = size,
-			page = page,
-			sigungu = sigungu,
-			dong = dong,
-			category = category,
-			lat = lat,
-			lon = lon,
-			radiusM = radiusM,
-			sort = null,
-		),
-	)
+		@RequestParam(required = false) debug: Boolean?,
+	): HybridResponse = capturing(debug) {
+		hybridSearch.search(
+			SearchRequest.of(
+				q = q,
+				size = size,
+				page = page,
+				sigungu = sigungu,
+				dong = dong,
+				category = category,
+				lat = lat,
+				lon = lon,
+				radiusM = radiusM,
+				sort = null,
+			),
+		)
+	}
 }

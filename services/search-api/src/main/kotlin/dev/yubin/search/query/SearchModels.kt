@@ -1,6 +1,9 @@
 package dev.yubin.search.query
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import dev.yubin.search.core.brand.Brands
+import dev.yubin.search.debug.CapturedQuery
+import dev.yubin.search.debug.Debuggable
 import org.springframework.web.server.ServerWebInputException
 
 enum class SortBy { RELEVANCE, DISTANCE }
@@ -105,7 +108,11 @@ data class SearchResponse(
 	val tookMs: Long,
 	val relaxed: Boolean = false,
 	val hits: List<PlaceHit> = emptyList(),
-)
+	@get:JsonInclude(JsonInclude.Include.NON_NULL)
+	override val debug: List<CapturedQuery>? = null,
+) : Debuggable<SearchResponse> {
+	override fun withDebug(queries: List<CapturedQuery>) = copy(debug = queries)
+}
 
 data class SuggestItem(
 	val placeId: String,
@@ -122,11 +129,19 @@ data class SuggestResponse(
 	val query: String,
 	val tookMs: Long,
 	val items: List<SuggestItem> = emptyList(),
-)
+	@get:JsonInclude(JsonInclude.Include.NON_NULL)
+	override val debug: List<CapturedQuery>? = null,
+) : Debuggable<SuggestResponse> {
+	override fun withDebug(queries: List<CapturedQuery>) = copy(debug = queries)
+}
 
 data class InstantResponse(
 	val query: String,
 	val tookMs: Long,
 	val suggestions: List<SuggestItem> = emptyList(),
 	val preview: List<PlaceHit> = emptyList(),
-)
+	@get:JsonInclude(JsonInclude.Include.NON_NULL)
+	override val debug: List<CapturedQuery>? = null,
+) : Debuggable<InstantResponse> {
+	override fun withDebug(queries: List<CapturedQuery>) = copy(debug = queries)
+}

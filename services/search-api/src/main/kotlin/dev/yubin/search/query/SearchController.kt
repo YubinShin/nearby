@@ -1,5 +1,6 @@
 package dev.yubin.search.query
 
+import dev.yubin.search.debug.capturing
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import org.springframework.web.bind.annotation.GetMapping
@@ -25,49 +26,56 @@ class SearchController(
 		@RequestParam(required = false) lon: Double?,
 		@RequestParam(required = false, name = "radius") radiusM: Int?,
 		@RequestParam(required = false) sort: String?,
-	): SearchResponse = searchService.search(
-		SearchRequest.of(
-			q = q,
-			size = size,
-			page = page,
-			sigungu = sigungu,
-			dong = dong,
-			category = category,
-			lat = lat,
-			lon = lon,
-			radiusM = radiusM,
-			sort = sort,
-		),
-	)
+		@RequestParam(required = false) debug: Boolean?,
+	): SearchResponse = capturing(debug) {
+		searchService.search(
+			SearchRequest.of(
+				q = q,
+				size = size,
+				page = page,
+				sigungu = sigungu,
+				dong = dong,
+				category = category,
+				lat = lat,
+				lon = lon,
+				radiusM = radiusM,
+				sort = sort,
+			),
+		)
+	}
 
 	@GetMapping("/suggest")
 	suspend fun suggest(
 		@RequestParam q: String?,
 		@RequestParam(required = false) size: Int?,
-	): SuggestResponse = suggestService.suggest(SuggestRequest.of(q, size))
+		@RequestParam(required = false) debug: Boolean?,
+	): SuggestResponse = capturing(debug) { suggestService.suggest(SuggestRequest.of(q, size)) }
 
 	@GetMapping("/instant")
 	suspend fun instant(
 		@RequestParam q: String?,
 		@RequestParam(required = false) suggestSize: Int?,
 		@RequestParam(required = false) previewSize: Int?,
-	): InstantResponse = coroutineScope {
-		val startedAt = System.nanoTime()
-		val suggestReq = SuggestRequest.of(q, suggestSize)
-		val searchReq = SearchRequest.of(q, size = previewSize ?: PREVIEW_SIZE)
+		@RequestParam(required = false) debug: Boolean?,
+	): InstantResponse = capturing(debug) {
+		coroutineScope {
+			val startedAt = System.nanoTime()
+			val suggestReq = SuggestRequest.of(q, suggestSize)
+			val searchReq = SearchRequest.of(q, size = previewSize ?: PREVIEW_SIZE)
 
-		val suggestions = async { suggestService.suggest(suggestReq) }
-		val preview = async { searchService.search(searchReq) }
+			val suggestions = async { suggestService.suggest(suggestReq) }
+			val preview = async { searchService.search(searchReq) }
 
-		val items = suggestions.await().items
-		val hits = preview.await().hits
+			val items = suggestions.await().items
+			val hits = preview.await().hits
 
-		InstantResponse(
-			query = suggestReq.q,
-			tookMs = (System.nanoTime() - startedAt) / 1_000_000,
-			suggestions = items,
-			preview = hits,
-		)
+			InstantResponse(
+				query = suggestReq.q,
+				tookMs = (System.nanoTime() - startedAt) / 1_000_000,
+				suggestions = items,
+				preview = hits,
+			)
+		}
 	}
 
 	companion object {
