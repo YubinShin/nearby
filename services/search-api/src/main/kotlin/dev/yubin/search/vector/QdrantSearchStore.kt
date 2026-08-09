@@ -2,6 +2,7 @@ package dev.yubin.search.vector
 
 import dev.yubin.search.core.vector.QdrantContract
 import dev.yubin.search.core.vector.VectorMatch
+import dev.yubin.search.debug.recordQuery
 import jakarta.annotation.PreDestroy
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -61,6 +62,8 @@ class QdrantSearchStore(
 			put("params", mapOf("hnsw_ef" to efSearch))
 			filter?.let { put("filter", it) }
 		}
+		recordQuery(TARGET, "POST", "/collections/$collection/points/query", body)
+
 		val resp = http.post().uri("/collections/{name}/points/query", collection)
 			.bodyValue(body)
 			.retrieve().awaitBody<QueryResponse>()
@@ -78,6 +81,8 @@ class QdrantSearchStore(
 			"with_payload" to false,
 			"with_vector" to false,
 		)
+		recordQuery(TARGET, "POST", "/collections/$collection/points/scroll", body)
+
 		val resp = http.post().uri("/collections/{name}/points/scroll", collection)
 			.bodyValue(body)
 			.retrieve().awaitBody<ScrollResponse>()
@@ -86,6 +91,7 @@ class QdrantSearchStore(
 	}
 
 	private companion object {
+		const val TARGET = "qdrant"
 		const val MAX_RESPONSE_BYTES = 16 * 1024 * 1024
 		const val MAX_CONNECTIONS = 100
 		const val PENDING_MAX = 1000
