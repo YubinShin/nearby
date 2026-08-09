@@ -4,7 +4,6 @@ import dev.yubin.search.core.place.SearchDoc
 import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient
 import co.elastic.clients.elasticsearch._types.DistanceUnit
 import co.elastic.clients.elasticsearch._types.SortOrder
-import co.elastic.clients.elasticsearch._types.query_dsl.Query
 import co.elastic.clients.elasticsearch.core.SearchResponse as EsSearchResponse
 import co.elastic.clients.elasticsearch.core.search.Highlight
 import co.elastic.clients.elasticsearch.core.search.HighlightField
@@ -33,19 +32,19 @@ class PlaceSearchService(
 			)
 		}
 
-		val strict = execute(req, PlaceQueries.search(req, relaxed = false), relaxed = false)
+		val strict = execute(req, relaxed = false)
 		val result =
 			if (strict.total > 0) strict
-			else execute(req, PlaceQueries.search(req, relaxed = true), relaxed = true)
+			else execute(req, relaxed = true)
 
 		queryLog.search(result.query, result.total, result.relaxed, result.tookMs)
 		result
 	}
 
-	private suspend fun execute(req: SearchRequest, query: Query, relaxed: Boolean): SearchResponse {
+	private suspend fun execute(req: SearchRequest, relaxed: Boolean): SearchResponse {
 		val resp: EsSearchResponse<SearchDoc> = es.search({ s ->
 			s.index(alias)
-				.query(query)
+				.query(PlaceQueries.search(req, relaxed))
 				.from(req.from)
 				.size(req.size)
 				.trackTotalHits { t -> t.enabled(true) }
