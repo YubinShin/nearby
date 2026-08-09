@@ -6,13 +6,9 @@ import co.elastic.clients.json.JsonpUtils
 import co.elastic.clients.transport.ElasticsearchTransport
 import co.elastic.clients.transport.Endpoint
 import co.elastic.clients.transport.TransportOptions
-import tools.jackson.databind.ObjectMapper
 import java.util.concurrent.CompletableFuture
 
-class EsCapturingTransport(
-	private val delegate: ElasticsearchTransport,
-	private val json: ObjectMapper,
-) : ElasticsearchTransport {
+class EsCapturingTransport(private val delegate: ElasticsearchTransport) : ElasticsearchTransport {
 	override fun <RequestT, ResponseT, ErrorT> performRequest(
 		request: RequestT,
 		endpoint: Endpoint<RequestT, ResponseT, ErrorT>,
@@ -40,14 +36,12 @@ class EsCapturingTransport(
 	private fun <RequestT> capture(request: RequestT, endpoint: Endpoint<RequestT, *, *>) {
 		val capture = DebugCapture.active() ?: return
 
-		capture.add(
-			CapturedQuery(
-				target = TARGET,
-				method = endpoint.method(request),
-				path = endpoint.requestUrl(request),
-				body = (endpoint.body(request) as? JsonpSerializable)
-					?.let { json.readTree(JsonpUtils.toJsonString(it, delegate.jsonpMapper())) },
-			),
+		capture.addJson(
+			target = TARGET,
+			method = endpoint.method(request),
+			path = endpoint.requestUrl(request),
+			json = (endpoint.body(request) as? JsonpSerializable)
+				?.let { JsonpUtils.toJsonString(it, delegate.jsonpMapper()) },
 		)
 	}
 

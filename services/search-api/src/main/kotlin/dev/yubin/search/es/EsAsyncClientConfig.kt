@@ -6,15 +6,13 @@ import dev.yubin.search.debug.EsCapturingTransport
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import tools.jackson.databind.ObjectMapper
 
 @Configuration
 class EsAsyncClientConfig {
 	@Bean
 	fun elasticsearchAsyncClient(
 		transport: ElasticsearchTransport,
-		json: ObjectMapper,
 		@Value("\${psp.debug.enabled:false}") debug: Boolean,
 	): ElasticsearchAsyncClient =
-		ElasticsearchAsyncClient(if (debug) EsCapturingTransport(transport, json) else transport)
+		ElasticsearchAsyncClient(if (debug) EsCapturingTransport(transport) else transport)
 }

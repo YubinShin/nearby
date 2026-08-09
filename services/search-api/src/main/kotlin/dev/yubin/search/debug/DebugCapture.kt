@@ -20,6 +20,10 @@ class DebugCapture {
 		queries.add(query)
 	}
 
+	fun addJson(target: String, method: String, path: String, json: String?) {
+		queries.add(CapturedQuery(target, method, path, json?.let { MAPPER.readTree(it) }))
+	}
+
 	fun snapshot(): List<CapturedQuery> = queries.toList()
 
 	companion object {
