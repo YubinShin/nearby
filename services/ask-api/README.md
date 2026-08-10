@@ -87,7 +87,7 @@ curl -G localhost:8082/v1/ask --data-urlencode "q=회 먹을 데"
 }
 ```
 
-`GroundingValidator`가 생성 결과를 검사해 위 네 목록을 채웁니다. 근거로 든 `place_id`가 검색 결과에 없으면 그 근거를 떼어내고 `droppedEvidence`에 기록합니다. 답변 문장 자체는 지우지 않으므로, 이 목록들이 비어 있지 않다는 것은 생성이 계약을 벗어났다는 신호입니다.
+`GroundingValidator`가 생성 결과를 검사해 위 네 목록을 채웁니다. 근거로 든 `place_id`가 검색 결과에 없으면 그 근거를 떼어내고 `droppedEvidence`에 기록합니다.
 
 ## Fixtures
 
@@ -116,4 +116,4 @@ python3 scripts/record_llm_fixtures.py --dry-run   # 대상만 출력
 
 ## Evaluation
 
-골든셋 25질의 기준 nDCG@10 은 하이브리드 0.85, `ask` 합성 질의를 얹으면 0.87 입니다. 라벨링 절차 · 재현 명령 · 질의별 승패는 [scripts/eval/README.md](../../scripts/eval/README.md) 에 있습니다.
+골든셋 25질의 기준 nDCG@10 은 하이브리드 0.85, `ask` 합성 질의를 적용하면 0.87 입니다. 라벨링 절차 · 재현 명령 · 질의별 승패는 [scripts/eval/README.md](../../scripts/eval/README.md) 에 있습니다.

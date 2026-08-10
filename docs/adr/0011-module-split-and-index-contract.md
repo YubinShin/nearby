@@ -34,7 +34,7 @@ indexer-stream  (뼈대만)
 
 ### Scope of core
 
-기준을 좁게 잡았습니다. "둘 다 쓰니까 core"로 하면 core가 금방 쓰레기통이 됩니다.
+기준을 좁게 잡았습니다.
 
 > 한쪽만 바꿨을 때 프로그램이 죽지 않고 결과만 이상해지는 것 → core
 
@@ -46,7 +46,7 @@ indexer-stream  (뼈대만)
 
 그래서 `Brands`·`PlaceRow`·`PlaceDocuments`·`PlaceEsDocs`·`EmbeddingModel`·`PlaceVectorText`·`QdrantStore`·`PlaceVectorPayload`·`IndexMeta`가 core입니다.
 
-`PlaceDocuments`(필드명을 쓰는 쪽)와 `PlaceEsDocs`(같은 필드명을 읽는 쪽)를 같은 폴더에 뒀습니다. `PlaceEsDocs` 주석에 원래부터 "색인된 스키마와 1:1"이라고 적혀 있었습니다. 말로 적는 것보다 나란히 두는 편이 강한 약속입니다.
+`PlaceDocuments`(필드명을 쓰는 쪽)와 `PlaceEsDocs`(같은 필드명을 읽는 쪽)를 같은 폴더에 뒀습니다. `PlaceEsDocs` 주석에 원래부터 "색인된 스키마와 1:1"이라고 적혀 있었습니다.
 
 `PlaceVectors`는 분리했습니다 — `payload()`는 Qdrant 문서 스키마라 core, `filter()`·`distanceM()`은 질의 규칙이라 search-api. core가 `SearchRequest`(질의 개념)를 몰라도 되게 됐습니다.
 
@@ -54,7 +54,7 @@ indexer-stream  (뼈대만)
 
 ### Module naming — `search-core` and `indexer-core`
 
-공유 모듈 이름이 `indexer-core`면 질의 앱이 "indexer-core"에 의존하는 그림이 되어 리뷰어에게 잘못 읽힙니다. `indexer-core`는 **색인기가 둘이 됐을 때** 추출합니다 — 그때 비로소 둘이 공유하는 것(bulk 적용·체크포인트·멱등 규칙)이 눈에 보입니다. 지금 만들면 무엇을 공유할지 **코드 없이 추측**하는 꼴이라 두 번 틀립니다.
+공유 모듈 이름이 `indexer-core`면 질의 앱이 "indexer-core"에 의존하는 그림이 되어 리뷰어에게 잘못 읽힙니다. `indexer-core`는 **색인기가 둘이 됐을 때** 추출합니다 — 그때 비로소 둘이 공유하는 것(bulk 적용·체크포인트·멱등 규칙)이 눈에 보입니다.
 
 ### `indexer-stream` — naming and empty skeleton
 
@@ -116,7 +116,7 @@ ADR 0010이 노린 보호("색인과 질의가 같은 모델·같은 전처리")
 
 ### Fail-fast rationale
 
-경고면 로그 한 줄 지나가고 서비스는 계속 실행됩니다. 품질이 나빠진 걸 누군가 알아채기까지 며칠이 걸립니다. 기동하지 않으면 배포가 그 자리에서 실패합니다. 오류 없이 틀리는 것보다 시끄럽게 실패하는 쪽이 낫습니다.
+경고면 로그 한 줄 지나가고 서비스는 계속 실행됩니다. 품질이 나빠진 걸 누군가 알아채기까지 며칠이 걸립니다. 기동하지 않으면 배포가 그 자리에서 실패합니다.
 
 ### Stamp location — ES, not Qdrant
 
@@ -127,7 +127,7 @@ PUT /collections/probe  {"vectors":{...}, "metadata":{"x":"1"}}  →  {"result":
 GET /collections/probe                                           →  metadata 없음
 ```
 
-추측했다면 "도장을 찍었다"고 믿으면서 아무것도 안 찍혔을 것입니다. 그래서 ES·Qdrant 양쪽 도장을 ES 문서 한 곳(`psp_index_meta`)에 모았습니다.
+그래서 ES·Qdrant 양쪽 도장을 ES 문서 한 곳(`psp_index_meta`)에 모았습니다.
 
 ### Trade-offs — verification after model load
 
@@ -154,7 +154,7 @@ GET /collections/probe                                           →  metadata �
 - **원천이 `updated_at`을 안 올리고 값만 고친 경우** — watermark 기반 증분은 감지하지 못합니다.
 - **tombstone** — 전체 재색인이 곧 청소입니다.
 
-이건 도장으로 못 막습니다. **주기적 전체 재색인**이 쓸어내야 합니다.
+**주기적 전체 재색인**이 쓸어내야 합니다.
 
 | 대상 | 주기 | 결정 요인 |
 |---|---|---|
@@ -234,7 +234,7 @@ keyword·vector는 병렬로 실행되므로 느린 쪽(keyword 6.01ms)에 수�
 | 질의 노드에 `/admin`이 열리는 것 | 차단. 클래스가 jar에 없습니다 |
 | 색인이 질의 지연을 밀어올리는 것 | 미차단. 같은 머신이면 그대로 경쟁합니다 |
 
-세 번째는 아티팩트 분리로 풀리는 문제가 아닙니다. 두 앱을 다른 노드(또는 K8s 파드)에 배치해야 완성됩니다. 다만 그 배치가 **가능해진 것**이 이 ADR의 성과입니다 — 한 아티팩트였을 때는 애초에 불가능했습니다. ADR 0002의 멀티클러스터도 같은 선상에 있습니다.
+세 번째는 아티팩트 분리로 풀리는 문제가 아닙니다. 두 앱을 다른 노드(또는 K8s 파드)에 배치해야 완성됩니다. 다만 그 배치가 **가능해진 것**이 이 ADR의 성과입니다. ADR 0002의 멀티클러스터도 같은 선상에 있습니다.
 
 ## EKS re-measurement of the unblocked item (2026-07-26)
 
@@ -298,7 +298,7 @@ keyword·vector는 병렬로 실행되므로 느린 쪽(keyword 6.01ms)에 수�
 | **앱 CPU 경쟁**이 질의 지연을 밀어올리는 것 (벡터 재색인) | 미차단 | 차단 **1.09 → 0.90** |
 | **엔진 공유** 경쟁이 질의 지연을 밀어올리는 것 (키워드 재색인) | 미차단 | 미차단 **1.11 → 1.07** |
 
-원래 한 줄이던 미차단 항목을 둘로 분리한 것이 이 실험의 결론입니다.
+
 
 > 아티팩트를 분리하고 노드를 나누면 앱 CPU 경쟁은 풀립니다. 그러나 같은 엔진(ES)을 공유하는 경쟁은 남습니다 — 그건 앱 배치가 아니라 ADR 0002의 클러스터 분리로만 풀립니다.
 
@@ -329,7 +329,7 @@ Caused by: java.lang.IllegalStateException: [search] the indexed data and this p
   → run a full reindex with POST /admin/reindex on the indexer (indexer-batch), then start this app again.
 ```
 
-이 테스트가 통과해야 "분리해도 안전하다"고 말할 수 있습니다. 되돌린 뒤 정상 기동과 `index contract verified — schema v1`을 확인했습니다.
+되돌린 뒤 정상 기동과 `index contract verified — schema v1`을 확인했습니다.
 
 ## Side finding — Jackson 이중 등재 버그
 

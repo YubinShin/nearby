@@ -83,7 +83,7 @@ GEMINI_API_KEY is not set. export it, or replay recorded responses with --psp.as
 | `search-api`가 4xx·5xx로 거절 | `502` · `{"upstream": "search-api", ...}` |
 | `search-api` 전체 | `503` · `{"upstream": "search-api", ...}` |
 
-LLM 장애 시의 결과는 `/v1/hsearch`를 직접 호출한 것과 같습니다. 실패 시 LLM만 빠지고 기존 검색만 수행합니다. LLM 장애와 검색 채널 장애를 구분할 수 있도록 `degradedBy`를 배열로 뒀습니다.
+LLM 장애 시의 결과는 `/v1/hsearch`를 직접 호출한 것과 같습니다. LLM 장애와 검색 채널 장애를 구분할 수 있도록 `degradedBy`를 배열로 뒀습니다.
 
 ### 4. `geo_anchor` and `category_hint`
 
@@ -185,7 +185,7 @@ ask-api를 붙여 보니 플랫폼에서 비어 있는 부분이 보였습니다
 | 1만원 이하 파스타 | `파스타 이탈리아음식` | 33 |
 | 제주도 흑돼지 맛집 | `제주도 흑돼지 맛집 돼지고기구이` | 50 |
 
-`expects_empty`와 `unsupported`는 결과를 좁히지 않고 알리기만 합니다. 그것이 결정 5가 정한 동작이므로 0건은 옳은 응답이 아닙니다. 골든셋의 `expect_empty: true`가 이 설계와 반대였습니다. 속성 트랩 4건을 `false`로 고쳐 정답을 "속성을 뺀 나머지"(카페·약국·치킨집·파스타)로 라벨링했습니다.
+`expects_empty`와 `unsupported`는 결과를 좁히지 않고 알리기만 합니다. 골든셋의 `expect_empty: true`가 이 설계와 반대였습니다. 속성 트랩 4건을 `false`로 고쳐 정답을 "속성을 뺀 나머지"(카페·약국·치킨집·파스타)로 라벨링했습니다.
 
 `제주도 흑돼지 맛집`은 트랩에서 내렸습니다. 강남 코퍼스에 상호가 `제주`로 시작하는 가게가 33곳이라 `제주`가 지역명이 아니라 특산품 이름으로도 읽힙니다.
 

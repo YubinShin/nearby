@@ -25,7 +25,7 @@ sha256(
 
 ## Contents
 
-녹화본은 컨텍스트를 어디서 얻었는지에 따라 두 종류이며, 항목별 `context` 필드가 이를 구분합니다. 전부 `source: recorded` · `model: gemini-3.5-flash` 입니다.
+녹화본은 컨텍스트를 어디서 얻었는지에 따라 두 종류이며, 항목별 `context` 필드가 이를 구분합니다. 전부 `source: recorded` · `model: gemini-3.5-flash`입니다.
 
 ### context: pipeline
 

@@ -7,11 +7,11 @@
 
 ## Features
 
-| Tab              | API                                        | Description                                                            |
-| ---------------- | ------------------------------------------ | ---------------------------------------------------------------------- |
+| Tab              | API                                        | Description                                                                  |
+| ---------------- | ------------------------------------------ | ---------------------------------------------------------------------------- |
 | Natural Language | `GET /v1/ask`                              | `parsed`, `applied`, `unmapped`, `unsupported`, degraded 상태, LLM/검색 지연 |
-| Search Channels  | `/v1/search`, `/v1/vsearch`, `/v1/hsearch` | 키워드·벡터·하이브리드 결과와 RRF 점수 비교                                             |
-| Grounding        | Recorded fixtures                          | `scripts/fixtures/<date>/`의 실험 결과, evidence, 검증 결과                     |
+| Search Channels  | `/v1/search`, `/v1/vsearch`, `/v1/hsearch` | 키워드·벡터·하이브리드 결과와 RRF 점수 비교                                  |
+| Grounding        | Recorded fixtures                          | `scripts/fixtures/<date>/`의 실험 결과, evidence, 검증 결과                  |
 
 ## Running
 

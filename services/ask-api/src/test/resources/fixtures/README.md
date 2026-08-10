@@ -13,7 +13,7 @@
 
 ## Contents
 
-현재 **27개**이며 전부 `source: recorded` · `model: gemini-3.5-flash` 입니다. (Recorded: **2026-08-04**)
+현재 **27개**이며 전부 `source: recorded` · `model: gemini-3.5-flash`입니다. (Recorded: **2026-08-04**)
 
 - 골든셋 25건
 - 골든셋에는 없지만 단위 테스트에서 사용하는 2건
