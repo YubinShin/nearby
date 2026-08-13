@@ -1,0 +1,78 @@
+{
+  "measuredAt": "2026-08-11",
+  "environment": {
+    "host": "MacBook M4 16GB",
+    "documents": 63448,
+    "source": "강남구 상가정보 64,239행 중 중복 억제 791행 제외",
+    "qdrant": "1.12.4 컨테이너",
+    "app": "호스트 JVM, java -jar",
+    "note": "ADR 0010 의 64,239 는 중복 억제 이전 수치다"
+  },
+  "method": {
+    "script": "scripts/bench/embed_batch_sweep.py",
+    "knob": "psp.embedding.batch-size (PSP_EMBEDDING_BATCHSIZE)",
+    "job": "POST /admin/vector/reindex, 전체 재색인",
+    "elapsedMs": "Spring Batch job 의 startTime~endTime",
+    "embedMs": "VectorUpsertWriter 가 embedPassages 호출 구간만 누적한 값",
+    "peakRssMb": "2초 간격 ps -o rss 샘플의 최대치"
+  },
+  "runs": [
+    {
+      "block": 1, "position": 1, "batchSize": 64,
+      "startedAt": "2026-08-11T15:22:44", "elapsedSeconds": 511.8, "embedSeconds": 493.4,
+      "peakRssMb": 1177, "context": "유휴 후 첫 실행"
+    },
+    {
+      "block": 1, "position": 2, "batchSize": 16,
+      "startedAt": "2026-08-11T15:31:51", "elapsedSeconds": 582.2, "embedSeconds": 553.6,
+      "peakRssMb": 1064, "context": "연속"
+    },
+    {
+      "block": 1, "position": 3, "batchSize": 32,
+      "startedAt": "2026-08-11T15:41:55", "elapsedSeconds": 587.8, "embedSeconds": 564.7,
+      "peakRssMb": 1457, "context": "연속"
+    },
+    {
+      "block": 1, "position": 4, "batchSize": 128,
+      "startedAt": "2026-08-11T15:52:08", "elapsedSeconds": 673.3, "embedSeconds": 657.0,
+      "peakRssMb": 1083, "context": "연속"
+    },
+    {
+      "block": 1, "position": 5, "batchSize": 256,
+      "startedAt": "2026-08-11T16:03:42", "elapsedSeconds": 730.8, "embedSeconds": 713.5,
+      "peakRssMb": 1202, "context": "연속"
+    },
+    {
+      "block": 1, "position": 6, "batchSize": 64,
+      "startedAt": "2026-08-11T16:20:48", "elapsedSeconds": 601.8, "embedSeconds": 582.5,
+      "peakRssMb": 1309, "context": "약 5분 간격 후 재실행, 교란 확인용"
+    },
+    {
+      "block": 2, "position": 1, "batchSize": 256,
+      "startedAt": "2026-08-11T18:39:31", "elapsedSeconds": 501.7, "embedSeconds": 489.1,
+      "peakRssMb": null, "context": "약 2시간 유휴 후 첫 실행, 역순 스윕"
+    },
+    {
+      "block": 2, "position": 2, "batchSize": 64,
+      "startedAt": "2026-08-11T18:48:13", "elapsedSeconds": 551.9, "embedSeconds": 532.8,
+      "peakRssMb": null, "context": "역순 스윕"
+    },
+    {
+      "block": 2, "position": 3, "batchSize": 16,
+      "startedAt": "2026-08-11T18:57:47", "elapsedSeconds": null, "embedSeconds": null,
+      "peakRssMb": null, "context": "중단, 미완료"
+    }
+  ],
+  "finding": {
+    "conclusion": "16~256 구간에서 배치 크기는 색인 시간에 측정 가능한 영향을 주지 않는다. 실행 순서가 지배한다.",
+    "evidence": [
+      "같은 위치 1: 배치 64 가 511.8초, 배치 256 이 501.7초. 배치가 4배인데 차이 2%",
+      "같은 위치 2: 배치 16 이 582.2초, 배치 64 가 551.9초. 작은 배치 쪽이 오히려 느리다",
+      "같은 배치 256: 위치 5 에서 730.8초, 위치 1 에서 501.7초. 차이 45.6%",
+      "같은 배치 64: 511.8 / 601.8 / 551.9초. 폭 17.6%"
+    ],
+    "rejected": "블록 1 만 보면 크기 순으로 단조 증가하지만, 크기 순서와 실행 순서가 같아 분리되지 않았다. 역순 실행이 이 해석을 기각했다.",
+    "memory": "상주 최대는 배치 크기와 무관하다. 32 가 1,457MB 로 가장 크고 256 이 1,202MB 다. 2초 샘플링이라 방법 자체도 거칠다.",
+    "toDecide": "크기당 3회 이상, 순서 무작위, 실행 간 동일한 냉각 간격이 필요하다. 5개 x 3회 = 약 2시간 30분."
+  }
+}
