@@ -92,7 +92,9 @@ class PlaceVectorSearchService(
 			name = m.payload["name"] as? String ?: "",
 			branch = m.payload["branch"] as? String,
 			brand = m.payload["brand"] as? String,
-			category = m.payload["category_small"] as? String ?: m.payload["category_large"] as? String,
+			category = m.payload["category_small"] as? String
+				?: m.payload["category_mid"] as? String
+				?: m.payload["category_large"] as? String,
 			address = null,
 			sigungu = m.payload["sigungu"] as? String,
 			dong = m.payload["dong"] as? String,
