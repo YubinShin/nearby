@@ -17,6 +17,8 @@ build/
 
 .meta/
 .claude/
+.agents/
+.codex/
 
 # 원천 데이터 (대용량 공공데이터 CSV). 재현은 data-model.md의 출처에서 받아 data/raw 에 둔다.
 data/
@@ -29,4 +31,4 @@ scripts/eval/eval_pool.json
 scripts/eval/verdicts.json
 
 CLAUDE.md
-
+AGENTS.md
