@@ -93,7 +93,8 @@ class HybridSearchService(
 			} catch (e: CancellationException) {
 				throw e
 			} catch (e: Exception) {
-				if (e !is EmbedOverloadException && UpstreamFailure.of(e) == null) throw e
+				val known = e is EmbedOverloadException || UpstreamFailure.of(e) != null
+				if (!known) throw e
 				val root = generateSequence(e as Throwable) { it.cause }.last()
 				log.warn("hybrid channel '{}' failed, degrading — {}: {}", name, root.javaClass.simpleName, root.message)
 				log.debug("hybrid channel '{}' failure detail", name, e)
