@@ -5,6 +5,8 @@ import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.time.Duration
@@ -70,6 +72,28 @@ class EmbedGateTest {
 		}
 
 		assertEquals("ok", gate.withPermit { "ok" })
+	}
+
+	@Test
+	fun `a timeout that races with the handover does not strand the permit`() = runBlocking {
+		val gate = gate(SimpleMeterRegistry(), permits = 2, maxQueue = 1_000, waitTimeout = Duration.ofMillis(2))
+
+		coroutineScope {
+			repeat(400) {
+				launch(Dispatchers.Default) {
+					try {
+						gate.withPermit { delay(1) }
+					} catch (_: EmbedOverloadException) {
+					}
+				}
+			}
+		}
+
+		coroutineScope {
+			repeat(2) {
+				launch(Dispatchers.Default) { gate.withPermit { delay(50) } }
+			}
+		}
 	}
 
 	private suspend fun holdingThePermit(gate: EmbedGate, block: suspend () -> Unit) {
