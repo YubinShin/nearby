@@ -27,10 +27,11 @@ REJECTED = re.compile(r'^psp_query_embed_rejected_total\{.*reason="([^"]+)"')
 
 
 class Hammer:
-    def __init__(self, base, path, unique):
+    def __init__(self, base, path, unique, backoff):
         self.base = base
         self.path = path
         self.unique = unique
+        self.backoff = backoff
         self.stop = threading.Event()
         self.lock = threading.Lock()
         self.issued = 0
@@ -63,6 +64,8 @@ class Hammer:
                     else:
                         self.outcomes[f"http_{e.code}"] += 1
                         self.failures.append(f"{q}: HTTP {e.code}")
+                if e.code == 429 and self.backoff:
+                    self.stop.wait(retry_after(e))
                 continue
             except Exception as e:
                 with self.lock:
@@ -74,6 +77,14 @@ class Hammer:
             with self.lock:
                 self.served.append(elapsed)
                 self.outcomes["degraded" if body.get("degraded") else "ok"] += 1
+
+
+def retry_after(e, cap=5.0, fallback=1.0):
+    raw = e.headers.get("Retry-After") if e.headers else None
+    try:
+        return min(float(raw), cap)
+    except (TypeError, ValueError):
+        return fallback
 
 
 def percentile(values, p):
@@ -133,10 +144,10 @@ def rejections(before, after):
     return out
 
 
-def run_level(base, path, concurrency, seconds, unique):
+def run_level(base, path, concurrency, seconds, unique, backoff):
     before = samples(scrape(base))
 
-    hammer = Hammer(base, path, unique)
+    hammer = Hammer(base, path, unique, backoff)
     threads = [threading.Thread(target=hammer.run, daemon=True) for _ in range(concurrency)]
     started = time.perf_counter()
     for t in threads:
@@ -155,6 +166,7 @@ def run_level(base, path, concurrency, seconds, unique):
         "elapsed": elapsed,
         "requests": total,
         "rps": total / elapsed if elapsed else 0.0,
+        "servedRps": len(hammer.served) / elapsed if elapsed else 0.0,
         "served": len(hammer.served),
         "rejected": len(hammer.rejected),
         "degraded": hammer.outcomes["degraded"],
@@ -175,8 +187,8 @@ def report(level):
     degraded = 100 * level["degraded"] / level["requests"] if level["requests"] else 0.0
     print(f"\n=== 동시 {level['concurrency']} · {level['elapsed']:.0f}초 ===")
     print(
-        f"  요청 {level['requests']}건 · {level['rps']:.0f} req/s · "
-        f"처리 {level['served']}건 · 거절 {level['rejected']}건({share:.1f}%) · "
+        f"  요청 {level['requests']}건 · 처리 {level['served']}건({level['servedRps']:.0f} req/s) · "
+        f"거절 {level['rejected']}건({share:.1f}%) · "
         f"강등 {level['degraded']}건({degraded:.1f}%) · 실패 {level['failed']}건"
     )
     print(
@@ -193,12 +205,12 @@ def report(level):
 
 def summary(levels):
     print("\n=== 요약 ===")
-    print(f"  {'동시':>4}{'req/s':>10}{'p50':>10}{'p95':>10}{'p99':>10}{'거절':>9}{'강등':>9}")
+    print(f"  {'동시':>4}{'처리 req/s':>12}{'p50':>10}{'p95':>10}{'p99':>10}{'거절':>9}{'강등':>9}")
     for l in levels:
         share = 100 * l["rejected"] / l["requests"] if l["requests"] else 0.0
         degraded = 100 * l["degraded"] / l["requests"] if l["requests"] else 0.0
         print(
-            f"  {l['concurrency']:>4}{l['rps']:>10.0f}{l['p50']:>8.1f}ms"
+            f"  {l['concurrency']:>4}{l['servedRps']:>12.0f}{l['p50']:>8.1f}ms"
             f"{l['p95']:>8.1f}ms{l['p99']:>8.1f}ms{share:>8.1f}%{degraded:>8.1f}%"
         )
 
@@ -218,6 +230,12 @@ def main():
         action="store_true",
         help="질의를 재사용한다. 질의 벡터 캐시가 히트해 게이트를 타지 않는다",
     )
+    ap.add_argument(
+        "--respect-retry-after",
+        action="store_true",
+        help="429 를 받으면 Retry-After 만큼 쉰다. 빼면 즉시 재시도해 재시도 폭주를 만든다",
+    )
+    ap.add_argument("--label", default="", help="결과에 붙일 이름")
     ap.add_argument("--json", help="결과를 적을 파일")
     args = ap.parse_args()
 
@@ -236,11 +254,15 @@ def main():
         except Exception:
             pass
 
-    print(f"채널 {args.channel} ({path}) · 질의 {'매번 새로' if unique else '재사용'}")
+    retry = "Retry-After 존중" if args.respect_retry_after else "즉시 재시도"
+    print(
+        f"{args.label + ' · ' if args.label else ''}채널 {args.channel} ({path}) · "
+        f"질의 {'매번 새로' if unique else '재사용'} · 거절 시 {retry}"
+    )
 
     levels = []
     for concurrency in [int(x) for x in args.levels.split(",")]:
-        level = run_level(args.base, path, concurrency, args.seconds, unique)
+        level = run_level(args.base, path, concurrency, args.seconds, unique, args.respect_retry_after)
         report(level)
         levels.append(level)
         time.sleep(args.settle)
@@ -249,7 +271,16 @@ def main():
 
     if args.json:
         with open(args.json, "w") as f:
-            json.dump({"channel": args.channel, "unique": unique, "levels": levels}, f, ensure_ascii=False, indent=2)
+            json.dump(
+                {
+                    "label": args.label,
+                    "channel": args.channel,
+                    "unique": unique,
+                    "respectRetryAfter": args.respect_retry_after,
+                    "levels": levels,
+                },
+                f, ensure_ascii=False, indent=2,
+            )
         print(f"\n기록: {args.json}")
 
 
