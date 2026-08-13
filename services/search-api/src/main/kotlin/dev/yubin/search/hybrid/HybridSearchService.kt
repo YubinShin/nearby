@@ -141,8 +141,9 @@ class HybridSearchService(
 
 		val hits = page.mapNotNull { fused ->
 			val indexed = fromKeyword[fused.id] ?: hydrated[fused.id]
+			val vectorFallback = if (indexAnswered) null else fromVector[fused.id]
 			val base = indexed
-				?: fromVector[fused.id]?.takeUnless { indexAnswered }
+				?: vectorFallback
 				?: run {
 					if (indexAnswered && fromVector.containsKey(fused.id)) stale++
 					return@mapNotNull null
