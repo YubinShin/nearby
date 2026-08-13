@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
-import java.util.concurrent.TimeUnit
 
 @Service
 @ConditionalOnProperty(
@@ -82,26 +81,25 @@ class HybridSearchService(
 		)
 	}
 
-	private suspend fun runChannel(name: String, block: suspend () -> SearchResponse): ChannelRun {
-		val startedAt = System.nanoTime()
-		return try {
-			val response = block()
-			ChannelRun(
-				ChannelReport(name, response.hits.size, elapsedMs(startedAt), relaxed = response.relaxed),
-				response.hits,
-			)
-		} catch (e: CancellationException) {
-			throw e
-		} catch (e: Exception) {
-			if (e !is EmbedOverloadException && UpstreamFailure.of(e) == null) throw e
-			val root = generateSequence(e as Throwable) { it.cause }.last()
-			log.warn("hybrid channel '{}' failed, degrading — {}: {}", name, root.javaClass.simpleName, root.message)
-			log.debug("hybrid channel '{}' failure detail", name, e)
-			ChannelRun(ChannelReport(name, 0, elapsedMs(startedAt), failed = true), emptyList())
-		}.also {
-			metrics.timer(CHANNEL, name).record(System.nanoTime() - startedAt, TimeUnit.NANOSECONDS)
+	private suspend fun runChannel(name: String, block: suspend () -> SearchResponse): ChannelRun =
+		metrics.stage(CHANNEL, name) {
+			val startedAt = System.nanoTime()
+			try {
+				val response = block()
+				ChannelRun(
+					ChannelReport(name, response.hits.size, elapsedMs(startedAt), relaxed = response.relaxed),
+					response.hits,
+				)
+			} catch (e: CancellationException) {
+				throw e
+			} catch (e: Exception) {
+				if (e !is EmbedOverloadException && UpstreamFailure.of(e) == null) throw e
+				val root = generateSequence(e as Throwable) { it.cause }.last()
+				log.warn("hybrid channel '{}' failed, degrading — {}: {}", name, root.javaClass.simpleName, root.message)
+				log.debug("hybrid channel '{}' failure detail", name, e)
+				ChannelRun(ChannelReport(name, 0, elapsedMs(startedAt), failed = true), emptyList())
+			}
 		}
-	}
 
 	private suspend fun present(
 		page: List<Rrf.Fused>,
