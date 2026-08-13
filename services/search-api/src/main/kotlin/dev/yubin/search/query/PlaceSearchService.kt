@@ -77,9 +77,9 @@ class PlaceSearchService(
 					toHit(
 						doc = doc,
 						score = h.score() ?: 0.0,
-						distanceM = h.sort().firstOrNull()
-							?.takeIf { req.sort == SortBy.DISTANCE }
-							?.doubleValue()?.roundToLong(),
+						distanceM = if (req.sort == SortBy.DISTANCE) {
+							h.sort().firstOrNull()?.doubleValue()?.roundToLong()
+						} else null,
 						highlight = h.highlight().values.flatten(),
 					)
 				}
