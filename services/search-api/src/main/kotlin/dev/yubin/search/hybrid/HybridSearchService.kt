@@ -68,7 +68,7 @@ class HybridSearchService(
 		val presented = present(page, kw.hits, vec.hits, req, hydrate = !kw.report.failed)
 
 		val tookMs = (System.nanoTime() - startedAt) / 1_000_000
-		queryLog.search(req.q, fused.size.toLong(), relaxed = false, tookMs = tookMs, channel = CHANNEL)
+		queryLog.search(req.q, fused.size.toLong(), relaxed = kw.report.relaxed, tookMs = tookMs, channel = CHANNEL)
 
 		HybridResponse(
 			query = req.q,
@@ -86,7 +86,10 @@ class HybridSearchService(
 		val startedAt = System.nanoTime()
 		return try {
 			val response = block()
-			ChannelRun(ChannelReport(name, response.hits.size, elapsedMs(startedAt)), response.hits)
+			ChannelRun(
+				ChannelReport(name, response.hits.size, elapsedMs(startedAt), relaxed = response.relaxed),
+				response.hits,
+			)
 		} catch (e: CancellationException) {
 			throw e
 		} catch (e: Exception) {

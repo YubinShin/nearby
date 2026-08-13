@@ -32,6 +32,7 @@ export interface ChannelReport {
   candidates: number;
   tookMs: number;
   failed: boolean;
+  relaxed: boolean;
 }
 
 export interface HybridResponse extends SearchResponse {

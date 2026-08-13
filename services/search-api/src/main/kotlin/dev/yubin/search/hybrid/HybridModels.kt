@@ -17,6 +17,7 @@ data class ChannelReport(
 	val candidates: Int,
 	val tookMs: Long,
 	val failed: Boolean = false,
+	val relaxed: Boolean = false,
 )
 
 data class HybridResponse(
