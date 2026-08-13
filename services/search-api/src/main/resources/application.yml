@@ -44,7 +44,7 @@ psp:
 
   embedding:
     gate:
-      max-queue: 32
+      max-queue: 8
       wait-timeout: 250ms
 
   hybrid:

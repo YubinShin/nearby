@@ -1,0 +1,76 @@
+{
+  "measuredAt": "2026-08-13",
+  "environment": {
+    "host": "MacBook Air M4 16GB",
+    "documents": 63448,
+    "collection": "place_vec_20260811094814",
+    "app": "search-api, java -jar, 호스트 JVM",
+    "poolSize": 2,
+    "note": "IntelliJ 종료 후 측정. 그 전 측정은 스왑 3.3GB 상태라 폐기했다"
+  },
+  "method": {
+    "generator": "scripts/bench/open_loop_query.py",
+    "shape": "개방 루프 — 응답과 무관하게 고정 도착률로 주입한다",
+    "why": "폐쇄 루프(고정 스레드)는 대기열 깊이가 스레드 수에서 멈춰 상한 없는 대기열의 발산을 만들 수 없다",
+    "queries": "매 요청 새 질의. 질의 벡터 캐시(LRU 2000)가 히트하면 게이트를 타지 않는다",
+    "window": "도착률별 15초, 워밍업 100건",
+    "queueDepth": "psp_query_embed_queue_depth 를 250ms 간격으로 스크레이프"
+  },
+  "boundedVsUnbounded": {
+    "rate": 400,
+    "runs": [
+      {"config": "상한 없음", "round": 1, "served": 6000, "rejectedPct": 0.0, "p50": 6851.8, "p99": 10965.6, "queueMax": 2788, "drainSeconds": 11.05},
+      {"config": "상한 없음", "round": 2, "served": 6000, "rejectedPct": 0.0, "p50": 6460.4, "p99": 11169.3, "queueMax": 2730, "drainSeconds": 11.25},
+      {"config": "게이트 32·250ms", "round": 1, "served": 3459, "rejectedPct": 42.4, "p50": 177.8, "p99": 296.5, "queueMax": 33, "drainSeconds": 0.13},
+      {"config": "게이트 32·250ms", "round": 2, "served": 3131, "rejectedPct": 47.8, "p50": 199.9, "p99": 426.7, "queueMax": 33, "drainSeconds": 0.20}
+    ],
+    "finding": "상한이 없으면 p99 가 11초, 대기열이 2,700 이상으로 자란다. 거절은 0% 지만 주입이 끝난 뒤 11초를 더 처리한다 — 이미 떠난 사용자를 위한 응답이다."
+  },
+  "parameterGrid": {
+    "rate": 400,
+    "runs": [
+      {"maxQueue": 32, "waitTimeout": "250ms", "order": 1, "served": 2765, "rejectedPct": 53.9, "p50": 218.2, "p99": 378.8, "queueFull": 3202, "timeout": 33},
+      {"maxQueue": 32, "waitTimeout": "100ms", "order": 2, "served": 170, "rejectedPct": 97.2, "p50": 122.6, "p99": 165.3, "queueFull": 1365, "timeout": 4465},
+      {"maxQueue": 32, "waitTimeout": "500ms", "order": 3, "served": 3345, "rejectedPct": 44.2, "p50": 194.9, "p99": 440.7, "queueFull": 2655, "timeout": 0},
+      {"maxQueue": 8, "waitTimeout": "250ms", "order": 4, "served": 3290, "rejectedPct": 45.2, "p50": 87.4, "p99": 238.5, "queueFull": 2710, "timeout": 0},
+      {"maxQueue": 128, "waitTimeout": "250ms", "order": 5, "served": 458, "rejectedPct": 92.4, "p50": 278.6, "p99": 351.4, "queueFull": 10, "timeout": 5532},
+      {"maxQueue": 32, "waitTimeout": "250ms", "order": 6, "served": 3383, "rejectedPct": 43.6, "p50": 204.4, "p99": 383.6, "queueFull": 2614, "timeout": 3}
+    ],
+    "repeatability": "순서 1 과 6 이 같은 설정이다. p95 1%, p99 1% 차이. 처리 건수는 22%, 거절률은 10.3%p 차이.",
+    "finding": "타임아웃 거절이 많아지면 처리량이 붕괴한다. queue_full 은 즉시 거절이라 자원을 쓰지 않지만, timeout 은 대기열 자리를 wait-timeout 만큼 차지한 뒤 거절된다."
+  },
+  "queueLengthGrid": {
+    "waitTimeout": "250ms",
+    "runs": [
+      {"maxQueue": 4, "order": 3, "rate": 250, "served": 2962, "rejectedPct": 21.0, "p50": 48.9, "p95": 87.1, "p99": 114.0, "queueMax": 5},
+      {"maxQueue": 8, "order": 1, "rate": 250, "served": 3172, "rejectedPct": 15.4, "p50": 65.2, "p95": 108.6, "p99": 132.0, "queueMax": 8},
+      {"maxQueue": 8, "order": 5, "rate": 250, "served": 3272, "rejectedPct": 12.7, "p50": 65.6, "p95": 123.9, "p99": 164.5, "queueMax": 8},
+      {"maxQueue": 16, "order": 4, "rate": 250, "served": 3235, "rejectedPct": 13.7, "p50": 107.0, "p95": 171.9, "p99": 248.2, "queueMax": 16},
+      {"maxQueue": 32, "order": 2, "rate": 250, "served": 3152, "rejectedPct": 15.9, "p50": 185.1, "p95": 278.1, "p99": 321.1, "queueMax": 33},
+      {"maxQueue": 4, "order": 3, "rate": 400, "served": 3651, "rejectedPct": 39.1, "p50": 58.1, "p95": 146.6, "p99": 205.9, "queueMax": 5},
+      {"maxQueue": 8, "order": 1, "rate": 400, "served": 3256, "rejectedPct": 45.7, "p50": 80.8, "p95": 157.2, "p99": 196.3, "queueMax": 10},
+      {"maxQueue": 8, "order": 5, "rate": 400, "served": 3397, "rejectedPct": 43.4, "p50": 78.4, "p95": 140.6, "p99": 184.4, "queueMax": 10},
+      {"maxQueue": 16, "order": 4, "rate": 400, "served": 3775, "rejectedPct": 37.1, "p50": 117.6, "p95": 227.7, "p99": 293.5, "queueMax": 18},
+      {"maxQueue": 32, "order": 2, "rate": 400, "served": 3442, "rejectedPct": 42.6, "p50": 185.2, "p95": 285.9, "p99": 356.1, "queueMax": 33}
+    ],
+    "repeatability": "max-queue 8 을 순서 1 과 5 에 배치했다. p50 3%, p95 11~14%, p99 6~25% 차이.",
+    "finding": "지연은 대기열 길이에 거의 비례하고 처리량은 대기열과 무관하다. 전 구간에서 거절은 모두 queue_full 이고 timeout 은 0 이다."
+  },
+  "decision": {
+    "maxQueue": 8,
+    "waitTimeout": "250ms",
+    "was": {"maxQueue": 32, "waitTimeout": "250ms"},
+    "reason": "대기열 8 이 32 대비 p50 을 절반 이하로, p99 를 45~59% 낮춘다. 처리량과 거절률은 잡음 안에서 같다. 두 도착률에서 같은 방향이다.",
+    "rejected": {
+      "maxQueue4": "250/s 에서 거절률이 21.0% 로 8 보다 5~8%p 높다(잡음 2.7%p). 그 대가로 얻는 p99 는 114 vs 132~165ms 로 작고, 400/s 에서는 8 보다 나쁘다.",
+      "waitTimeout100": "대기열 32 를 감당하지 못해 6,000 건 중 170 건만 처리했다.",
+      "waitTimeout500": "지금 조건에서 250ms 와 구분되지 않는다. 둘 다 timeout 0 이다."
+    }
+  },
+  "limitations": [
+    "벡터 채널 단일 측정이다. 하이브리드는 재지 않았다.",
+    "질의는 캐시를 우회하려고 숫자를 붙여 만들었다. 토큰이 늘어 절대 지연이 조금 높다.",
+    "16GB 노트북 한 대다. pool-size 2 에서 나온 값이므로 코어 수나 pool-size 가 바뀌면 다시 재야 한다.",
+    "부하 창이 15초다. 더 긴 창에서 열이나 GC 가 만드는 변화는 보지 않았다."
+  ]
+}
