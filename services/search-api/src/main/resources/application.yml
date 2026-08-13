@@ -28,8 +28,10 @@ management:
       percentiles-histogram:
         psp.query.latency: true
         psp.query.stage.latency: true
+        psp.query.embed.wait: true
       slo:
         psp.query.latency: 10ms, 25ms, 50ms, 100ms, 250ms, 500ms
+        psp.query.embed.wait: 1ms, 5ms, 10ms, 25ms, 50ms, 100ms, 250ms
   prometheus:
     metrics:
       export:
@@ -39,6 +41,11 @@ psp:
   vector:
     min-score: 0.84
     cache-size: 2000
+
+  embedding:
+    gate:
+      max-queue: 32
+      wait-timeout: 250ms
 
   hybrid:
     enabled: true

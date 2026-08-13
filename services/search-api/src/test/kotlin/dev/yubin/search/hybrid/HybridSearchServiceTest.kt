@@ -8,6 +8,8 @@ import dev.yubin.search.query.PlaceSearchService
 import dev.yubin.search.query.QueryLog
 import dev.yubin.search.query.SearchRequest
 import dev.yubin.search.query.SearchResponse
+import dev.yubin.search.vector.EmbedGate
+import dev.yubin.search.vector.EmbedOverloadException
 import dev.yubin.search.vector.PlaceVectorSearchService
 import dev.yubin.search.vector.QdrantSearchStore
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
@@ -15,6 +17,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.runBlocking
 import org.mockito.Mockito
 import java.io.IOException
+import java.time.Duration
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -118,6 +121,20 @@ class HybridSearchServiceTest {
 	}
 
 	@Test
+	fun `a vector channel rejected by the embedding gate degrades to the keyword channel`() = runBlocking {
+		val service = hybridService(
+			keyword = { SearchResponse(it.q, 1, it.page, it.size, 0, hits = listOf(hit("A"))) },
+			vector = { throw EmbedOverloadException(EmbedGate.QUEUE_FULL, 33) },
+		)
+
+		val resp = service.search(SearchRequest(q = "test"))
+
+		assertTrue(resp.degraded)
+		assertTrue(resp.channels.single { it.name == HybridSearchService.VECTOR }.failed)
+		assertEquals(listOf("A"), resp.hits.map { it.place.placeId })
+	}
+
+	@Test
 	fun `a bug unrelated to the backend fails the whole request instead of hiding behind degradation`() {
 		val service = hybridService(
 			keyword = { SearchResponse(it.q, 1, it.page, it.size, 0, hits = listOf(hit("A"))) },
@@ -177,6 +194,7 @@ class HybridSearchServiceTest {
 
 	private class FakeVectorService(private val result: (SearchRequest) -> SearchResponse) : PlaceVectorSearchService(
 		embeddingModel(),
+		embedGate(),
 		Mockito.mock(QdrantSearchStore::class.java),
 		QueryMetrics(SimpleMeterRegistry()),
 		QueryLog(),
@@ -193,5 +211,12 @@ class HybridSearchServiceTest {
 			Mockito.`when`(mock.poolSize).thenReturn(1)
 			return mock
 		}
+
+		private fun embedGate() = EmbedGate(
+			poolSize = 1,
+			maxQueue = 8,
+			waitTimeout = Duration.ofSeconds(1),
+			metrics = QueryMetrics(SimpleMeterRegistry()),
+		)
 	}
 }

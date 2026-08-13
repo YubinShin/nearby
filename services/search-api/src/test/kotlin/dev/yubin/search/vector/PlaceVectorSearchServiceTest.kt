@@ -8,6 +8,7 @@ import dev.yubin.search.query.SearchRequest
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import kotlinx.coroutines.runBlocking
 import org.mockito.Mockito
+import java.time.Duration
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -58,6 +59,12 @@ class PlaceVectorSearchServiceTest {
 
 	private fun service(store: FakeStore) = PlaceVectorSearchService(
 		embeddings = embeddingModel(),
+		gate = EmbedGate(
+			poolSize = 1,
+			maxQueue = 8,
+			waitTimeout = Duration.ofSeconds(1),
+			metrics = QueryMetrics(SimpleMeterRegistry()),
+		),
 		qdrant = store,
 		metrics = QueryMetrics(SimpleMeterRegistry()),
 		queryLog = QueryLog(),

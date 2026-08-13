@@ -22,6 +22,7 @@ import java.util.Collections
 )
 class PlaceVectorSearchService(
 	private val embeddings: EmbeddingModel,
+	private val gate: EmbedGate,
 	private val qdrant: QdrantSearchStore,
 	private val metrics: QueryMetrics,
 	private val queryLog: QueryLog,
@@ -73,8 +74,10 @@ class PlaceVectorSearchService(
 
 	private suspend fun embedQuery(q: String): FloatArray {
 		queryVectors[q]?.let { return it }
-		val vector = metrics.stage(CHANNEL, "embed") {
-			withContext(embedDispatcher) { embeddings.embedQuery(q) }
+		val vector = gate.withPermit {
+			metrics.stage(CHANNEL, "embed") {
+				withContext(embedDispatcher) { embeddings.embedQuery(q) }
+			}
 		}
 		queryVectors[q] = vector
 		return vector

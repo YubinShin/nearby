@@ -8,6 +8,7 @@ import dev.yubin.search.query.SearchRequest
 import dev.yubin.search.query.SearchResponse
 import dev.yubin.search.query.SortBy
 import dev.yubin.search.upstream.UpstreamFailure
+import dev.yubin.search.vector.EmbedOverloadException
 import dev.yubin.search.vector.PlaceVectorSearchService
 import dev.yubin.search.vector.PlaceVectors
 import kotlinx.coroutines.CancellationException
@@ -89,7 +90,7 @@ class HybridSearchService(
 		} catch (e: CancellationException) {
 			throw e
 		} catch (e: Exception) {
-			if (UpstreamFailure.of(e) == null) throw e
+			if (e !is EmbedOverloadException && UpstreamFailure.of(e) == null) throw e
 			val root = generateSequence(e as Throwable) { it.cause }.last()
 			log.warn("hybrid channel '{}' failed, degrading — {}: {}", name, root.javaClass.simpleName, root.message)
 			log.debug("hybrid channel '{}' failure detail", name, e)

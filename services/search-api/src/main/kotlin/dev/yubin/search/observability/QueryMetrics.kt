@@ -1,9 +1,11 @@
 package dev.yubin.search.observability
 
+import io.micrometer.core.instrument.Gauge
 import io.micrometer.core.instrument.MeterRegistry
 import kotlinx.coroutines.CancellationException
 import org.springframework.stereotype.Component
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 
 @Component
 class QueryMetrics(private val registry: MeterRegistry) {
@@ -38,4 +40,13 @@ class QueryMetrics(private val registry: MeterRegistry) {
 
 	fun staleVectors(count: Int) =
 		registry.counter("psp.query.stale.vectors").increment(count.toDouble())
+
+	fun embedWaited(nanos: Long) =
+		registry.timer("psp.query.embed.wait").record(nanos, TimeUnit.NANOSECONDS)
+
+	fun embedRejected(reason: String) =
+		registry.counter("psp.query.embed.rejected", "reason", reason).increment()
+
+	fun embedQueueDepth(queued: AtomicInteger): Gauge =
+		Gauge.builder("psp.query.embed.queue.depth", queued) { it.get().toDouble() }.register(registry)
 }

@@ -11,6 +11,7 @@ import dev.yubin.search.query.QueryLog
 import dev.yubin.search.query.SearchController
 import dev.yubin.search.query.SearchRequest
 import dev.yubin.search.query.SearchResponse
+import dev.yubin.search.vector.EmbedGate
 import dev.yubin.search.vector.PlaceVectorSearchService
 import dev.yubin.search.vector.QdrantSearchStore
 import dev.yubin.search.vector.VectorSearchController
@@ -21,6 +22,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import java.io.IOException
+import java.time.Duration
 import kotlin.test.Test
 
 class UpstreamErrorHandlerTest {
@@ -128,6 +130,7 @@ class UpstreamErrorHandlerTest {
 
 	private class ThrowingVectorService(private val exception: Throwable) : PlaceVectorSearchService(
 		embeddingModel(),
+		embedGate(),
 		Mockito.mock(QdrantSearchStore::class.java),
 		QueryMetrics(SimpleMeterRegistry()),
 		QueryLog(),
@@ -144,5 +147,12 @@ class UpstreamErrorHandlerTest {
 			Mockito.`when`(mock.poolSize).thenReturn(1)
 			return mock
 		}
+
+		private fun embedGate() = EmbedGate(
+			poolSize = 1,
+			maxQueue = 8,
+			waitTimeout = Duration.ofSeconds(1),
+			metrics = QueryMetrics(SimpleMeterRegistry()),
+		)
 	}
 }
