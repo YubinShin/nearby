@@ -6,9 +6,13 @@ import dev.yubin.search.observability.QueryMetrics
 import dev.yubin.search.query.QueryLog
 import dev.yubin.search.query.SearchRequest
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.mockito.Mockito
 import java.time.Duration
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -57,8 +61,25 @@ class PlaceVectorSearchServiceTest {
 		assertEquals(listOf("a", "b", "c"), resp.hits.map { it.placeId })
 	}
 
-	private fun service(store: FakeStore) = PlaceVectorSearchService(
-		embeddings = embeddingModel(),
+	@Test
+	fun `a query that waited for the permit reuses the vector the first one cached`() = runBlocking {
+		val embeds = AtomicInteger()
+		val service = service(FakeStore(narrowed = false), embeddingModel(embeds))
+
+		coroutineScope {
+			repeat(2) {
+				launch(Dispatchers.Unconfined) { service.search(SearchRequest(q = "카페")) }
+			}
+		}
+
+		assertEquals(1, embeds.get())
+	}
+
+	private fun service(
+		store: FakeStore,
+		embeddings: EmbeddingModel = embeddingModel(),
+	) = PlaceVectorSearchService(
+		embeddings = embeddings,
 		gate = EmbedGate(
 			poolSize = 1,
 			maxQueue = 8,
@@ -73,10 +94,13 @@ class PlaceVectorSearchServiceTest {
 		cacheSize = 10,
 	)
 
-	private fun embeddingModel(): EmbeddingModel {
+	private fun embeddingModel(embeds: AtomicInteger? = null): EmbeddingModel {
 		val mock = Mockito.mock(EmbeddingModel::class.java)
 		Mockito.`when`(mock.poolSize).thenReturn(1)
-		Mockito.`when`(mock.embedQuery(Mockito.anyString())).thenReturn(FloatArray(4))
+		Mockito.`when`(mock.embedQuery(Mockito.anyString())).thenAnswer {
+			embeds?.incrementAndGet()
+			FloatArray(4)
+		}
 		return mock
 	}
 

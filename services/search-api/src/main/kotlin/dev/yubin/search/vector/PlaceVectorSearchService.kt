@@ -74,13 +74,11 @@ class PlaceVectorSearchService(
 
 	private suspend fun embedQuery(q: String): FloatArray {
 		queryVectors[q]?.let { return it }
-		val vector = gate.withPermit {
+		return gate.withPermit {
 			queryVectors[q] ?: metrics.stage(CHANNEL, "embed") {
 				withContext(embedDispatcher) { embeddings.embedQuery(q) }
-			}
+			}.also { queryVectors[q] = it }
 		}
-		queryVectors[q] = vector
-		return vector
 	}
 
 	private fun toHit(m: VectorMatch, req: SearchRequest): PlaceHit {
