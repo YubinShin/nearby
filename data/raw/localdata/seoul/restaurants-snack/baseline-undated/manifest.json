@@ -1,0 +1,12 @@
+{
+  "dataset": "서울시 휴게음식점 인허가 정보",
+  "source": {
+    "file": "data/raw/서울시 휴게음식점 인허가 정보.csv",
+    "url": "https://data.seoul.go.kr/dataList/OA-16095/S/1/datasetView.do"
+  },
+  "collected_on": null,
+  "collection_date_basis": "unknown",
+  "file": "서울시 휴게음식점 인허가 정보.csv",
+  "sha256": "f7b68e8888dbe3cdfc2be8ed0d73f2396f04d49d1c7da9388ab21849fdeb8e64",
+  "size_bytes": 63335238
+}
