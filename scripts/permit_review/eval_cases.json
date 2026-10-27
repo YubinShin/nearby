@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "label_date": "2026-10-27",
+  "sources": {
+    "changes_sha256": "84b4e66846dcfbe41f2732971460676bbf51d95576d2cd67fef3a11cdefd2c97",
+    "places_sha256": "22611eb7d80644c92c1adc0ad404b92172d568c2076b25c999673291e66488ee"
+  },
+  "limitations": [
+    "제안 허용 라벨은 실제 장소 동일성이나 DB 수정 승인을 뜻하지 않습니다.",
+    "빽다방 개발 사례와 합성 no_change 사례는 실제 평가에 포함하지 않습니다.",
+    "소규모 정책 평가이며 일반적인 정확도 추정이 아닙니다."
+  ],
+  "cases": [
+    {
+      "case_id": "tj",
+      "cohort": "pilot",
+      "label_status": "confirmed",
+      "label_basis": "human_policy",
+      "change_id": "5901f610f32b8cec76eda717f0c7ca81f78483f0453ae17bae3e3fa8bf6cca34",
+      "license_id": "3220000-104-2021-00003",
+      "before": "TJ움직이는편의점",
+      "after": "이마트24 논현TJ점",
+      "candidate_status": "candidates_found",
+      "candidate_count": 1,
+      "expected": {
+        "decision": "propose_update",
+        "place_id": "MA010120220802960591",
+        "updates": [
+          {
+            "field": "name",
+            "before": "TJ움직이는편의점",
+            "after": "이마트24 논현TJ점"
+          }
+        ],
+        "required_evidence_ids": [
+          "f7b68e8888dbe3cdfc2be8ed0d73f2396f04d49d1c7da9388ab21849fdeb8e64:97501",
+          "fbb35674f152f1aa467bdc16064349b3765e5a48e1204ba9a8a46dadffcbd498:99358",
+          "22611eb7d80644c92c1adc0ad404b92172d568c2076b25c999673291e66488ee:14364"
+        ]
+      },
+      "manual_criteria": [
+        "호수 미확인을 명시하고 사람 확인이 필요한 제안으로 설명합니다."
+      ]
+    },
+    {
+      "case_id": "ambiguous_name",
+      "cohort": "pilot",
+      "label_status": "confirmed",
+      "label_basis": "human_policy",
+      "change_id": "3f1fdd91b9982380b3d70b3b3116ce693f5ea3d960e051dfd253855fb38ca1ae",
+      "license_id": "3220000-104-2021-00653",
+      "before": "비앤?? 푸드 bn# food",
+      "after": "비앤에스",
+      "candidate_status": "candidates_found",
+      "candidate_count": 1,
+      "expected": {
+        "decision": "needs_review",
+        "place_id": "",
+        "updates": [],
+        "required_evidence_ids": [
+          "f7b68e8888dbe3cdfc2be8ed0d73f2396f04d49d1c7da9388ab21849fdeb8e64:111328",
+          "fbb35674f152f1aa467bdc16064349b3765e5a48e1204ba9a8a46dadffcbd498:32208"
+        ]
+      },
+      "manual_criteria": [
+        "이름 불일치와 호수 누락으로 동일 업소 근거가 부족함을 설명합니다."
+      ]
+    },
+    {
+      "case_id": "no_candidates",
+      "cohort": "pilot",
+      "label_status": "confirmed",
+      "label_basis": "tool_policy",
+      "change_id": "a3f7363e360e0af3d4fa68036be5e2e733ad2d0cd9a85dacc1916deeda2c0780",
+      "license_id": "3220000-104-2019-00579",
+      "before": "씨제이프레시웨이(주)",
+      "after": "해안건축 신관카페",
+      "candidate_status": "no_candidates",
+      "candidate_count": 0,
+      "expected": {
+        "decision": "needs_review",
+        "place_id": "",
+        "updates": [],
+        "required_evidence_ids": [
+          "f7b68e8888dbe3cdfc2be8ed0d73f2396f04d49d1c7da9388ab21849fdeb8e64:106276",
+          "fbb35674f152f1aa467bdc16064349b3765e5a48e1204ba9a8a46dadffcbd498:13224"
+        ]
+      },
+      "manual_criteria": [
+        "제공된 장소 CSV에서 후보가 없음을 설명합니다. 현실에 장소가 없다고 단정하지 않습니다."
+      ]
+    },
+    {
+      "case_id": "unsupported_address",
+      "cohort": "pilot",
+      "label_status": "confirmed",
+      "label_basis": "tool_policy",
+      "change_id": "da209f7d2aa0601407902f915aec967eff5a6f1b3384022925d3451d863e2203",
+      "license_id": "3220000-104-2026-00495",
+      "before": "푸릇해",
+      "after": "선릉역 푸릇해",
+      "candidate_status": "unsearchable",
+      "candidate_count": 0,
+      "expected": {
+        "decision": "needs_review",
+        "place_id": "",
+        "updates": [],
+        "required_evidence_ids": [
+          "f7b68e8888dbe3cdfc2be8ed0d73f2396f04d49d1c7da9388ab21849fdeb8e64:1918",
+          "fbb35674f152f1aa467bdc16064349b3765e5a48e1204ba9a8a46dadffcbd498:2037"
+        ]
+      },
+      "manual_criteria": [
+        "지하 주소를 현재 조회 규칙이 처리하지 못함을 설명합니다. 후보 부재로 단정하지 않습니다."
+      ]
+    }
+  ]
+}
