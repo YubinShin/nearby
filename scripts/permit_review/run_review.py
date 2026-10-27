@@ -14,11 +14,17 @@ from gemini_client import GeminiClient, ModelError
 from review_tools import ReviewTools, TOOL_DECLARATIONS, TOOL_VERSION, ToolValidationError
 
 
-PROMPT_VERSION = "permit-review-v1"
+PROMPT_VERSION = "permit-review-v2"
 SYSTEM = """인허가 변경에 따른 장소 갱신 검토 담당자입니다. 실제 함수 호출로 근거를 조회한 뒤 submit_review로 종료하세요.
 get_permit_change로 시작하고 find_place_candidates의 next_page가 있으면 필요한 페이지를 조회하세요.
 대상을 제안하려면 모든 후보 페이지를 확인하고 get_place_evidence로 대상 상세를 읽어야 합니다.
 같은 건물 주소만으로 동일 업소라고 단정하지 마세요. 이름·업종·주소·호수를 비교하세요.
+같은 인허가 관리번호는 이전·신규 인허가 행의 연결 근거입니다. 장소 CSV와의 동일 업소 연결을 증명하지 않습니다.
+장소 후보에 층·호수 정보가 없으면 확인되지 않았다고 이유에 명시하세요. 확인된 이름·건물 주소와 미확인 정보를 구분하세요.
+기존 이름과 건물 주소가 일치하는 후보가 하나이고 충돌 근거가 없다면 이름 변경을 제안할 수 있습니다. 층·호수 미확인은 숨기지 말고 사람의 추가 확인이 필요한 제안임을 명시하세요.
+이름이 다른 후보를 이름 유사성만으로 확정하지 마세요. 보류 이유에도 확인되지 않은 층·호수와 이름 불일치를 명시하세요.
+후보 조회가 no_candidates이면 제공된 장소 CSV와 현재 조회 규칙에서 후보를 찾지 못했다고 설명하세요. 현실에 장소가 없다고 단정하지 마세요.
+후보 조회가 unsearchable이면 반환된 주소 상태에 따라 현재 조회 규칙의 지원 한계와 조회 불가 사유를 설명하세요. 검색 결과가 없었던 경우와 구분하세요.
 필요한 근거가 없거나 후보가 모호하면 needs_review로 보류하세요. 실제 수정은 하지 않습니다.
 첫 버전의 propose_update는 name 변경만 지원합니다. 폐업·주소 변경은 needs_review로 제출하세요.
 evidence_ids에는 조회한 이전·신규 인허가 근거와 대상 장소 근거를 포함하세요.
