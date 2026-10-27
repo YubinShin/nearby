@@ -39,6 +39,17 @@ class CapturingClient(FixtureClient):
 
 
 class RunReviewTest(unittest.TestCase):
+    def test_invalid_structured_explanation_can_be_corrected_before_submission(self):
+        responses = successful_responses()
+        invalid = response("submit_review", submission(fact_refs=[]))
+        client = CapturingClient([*responses[:3], invalid, responses[3]])
+        result = run_review(client, context())
+        self.assertEqual("completed", result["status"])
+        self.assertEqual("permit-review-v3", result["tool_version"])
+        self.assertEqual(submission()["fact_refs"], result["review"]["fact_refs"])
+        self.assertEqual("새이름", result["review"]["facts"][1]["value"])
+        self.assertIn("error", client.bodies[-1]["contents"][-1]["parts"][0]["functionResponse"]["response"])
+
     def test_full_loop_preserves_signature_call_id_and_records_usage(self):
         client = CapturingClient(successful_responses())
         result = run_review(client, context())

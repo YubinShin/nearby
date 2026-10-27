@@ -1,5 +1,6 @@
 import copy
 import unittest
+from unittest.mock import patch
 
 from review_tools import ReviewTools, ToolValidationError
 
@@ -24,6 +25,8 @@ def submission(**overrides):
         "change_id": "C1", "decision": "propose_update", "place_id": "P00",
         "updates": [{"field": "name", "before": "옛이름", "after": "새이름"}],
         "evidence_ids": ["old:1", "new:1", "place:0"], "reason": "상호 변경 검토 제안",
+        "fact_refs": [{"evidence_id": "old:1", "field": "name"}, {"evidence_id": "new:1", "field": "name"}],
+        "uncertainties": ["층·호수 미확인"],
     }
     args.update(overrides)
     return args
@@ -36,6 +39,96 @@ def observe(tools):
 
 
 class ReviewToolsTest(unittest.TestCase):
+    def test_facts_copy_original_values_without_model_text(self):
+        tools = context()
+        tools.change["after"]["name"] = "비앤에스"
+        observe(tools)
+        args = submission(updates=[{"field": "name", "before": "옛이름", "after": "비앤에스"}])
+        result = tools.execute("submit_review", args)
+        self.assertEqual("비앤에스", result["review"]["facts"][1]["value"])
+        self.assertNotIn("statement", result["review"]["facts"][1])
+        args["fact_refs"][1]["field"] = "status"
+        self.assertEqual("name", tools.review["facts"][1]["field"])
+
+    def test_model_supplied_value_and_unavailable_fields_are_rejected(self):
+        tools = context()
+        observe(tools)
+        for ref in (
+            {"evidence_id": "new:1", "field": "name", "value": "비앤스"},
+            {"evidence_id": "new:1", "field": "status"},
+            {"evidence_id": "new:1", "field": "total_candidates"},
+            {"evidence_id": "new:1", "field": "__dict__"},
+        ):
+            with self.assertRaises(ToolValidationError):
+                tools.execute("submit_review", submission(fact_refs=[ref]))
+
+    def test_lookup_facts_retain_page_scope_and_query_identity(self):
+        tools = context(11)
+        tools.execute("get_permit_change", {"change_id": "C1"})
+        first = tools.execute("find_place_candidates", {"change_id": "C1", "page": 0})
+        second = tools.execute("find_place_candidates", {"change_id": "C1", "page": 1})
+        self.assertNotEqual(first["evidence_id"], second["evidence_id"])
+        result = tools.execute("submit_review", submission(
+            decision="needs_review", updates=[], place_id="", evidence_ids=["old:1", "new:1", first["evidence_id"]],
+            fact_refs=[{"evidence_id": first["evidence_id"], "field": "candidates"}],
+        ))
+        fact = result["review"]["facts"][0]
+        self.assertEqual(10, len(fact["value"]))
+        self.assertEqual(11, fact["context"]["total_candidates"])
+        self.assertTrue(fact["context"]["has_more"])
+        self.assertEqual(0, fact["context"]["page"])
+        self.assertEqual("provided_place_csv", fact["context"]["scope"])
+
+    def test_unobserved_lookup_and_duplicate_references_are_rejected(self):
+        tools = context()
+        observe(tools)
+        with self.assertRaises(ToolValidationError):
+            tools.execute("submit_review", submission(fact_refs=[{"evidence_id": "lookup:unknown", "field": "status"}]))
+        ref = {"evidence_id": "new:1", "field": "name"}
+        with self.assertRaisesRegex(ToolValidationError, "duplicate_fact_ref"):
+            tools.execute("submit_review", submission(fact_refs=[ref, ref]))
+
+    def test_oversized_lookup_rolls_back_registered_evidence(self):
+        tools = context()
+        tools.execute("get_permit_change", {"change_id": "C1"})
+        before = copy.deepcopy(tools.evidence_records)
+        with patch("review_tools.MAX_RESULT_BYTES", 1):
+            with self.assertRaisesRegex(ToolValidationError, "tool_result_too_large"):
+                tools.execute("find_place_candidates", {"change_id": "C1", "page": 0})
+        self.assertEqual(before, tools.evidence_records)
+        self.assertEqual(set(before), tools.evidence_seen)
+        self.assertEqual(set(), tools.pages_seen)
+
+    def test_fact_evidence_must_be_observed_and_in_submission(self):
+        tools = context(2)
+        observe(tools)
+        tools.execute("get_place_evidence", {"change_id": "C1", "place_id": "P01"})
+        for eid in ("invented", "place:1"):
+            with self.assertRaisesRegex(ToolValidationError, "fact_evidence_not_observed_or_cited"):
+                tools.execute("submit_review", submission(fact_refs=[{"evidence_id": eid, "field": "name"}]))
+        self.assertIsNone(tools.review)
+
+    def test_missing_or_malformed_explanation_is_rejected(self):
+        tools = context()
+        observe(tools)
+        missing = submission()
+        del missing["fact_refs"]
+        with self.assertRaisesRegex(ToolValidationError, "invalid_argument_keys"):
+            tools.execute("submit_review", missing)
+        for values in ({"fact_refs": []}, {"fact_refs": [{"statement": "", "evidence_ids": ["old:1"]}]},
+                       {"uncertainties": "미확인"}, {"uncertainties": [""]}):
+            with self.assertRaisesRegex(ToolValidationError, "invalid_"):
+                tools.execute("submit_review", submission(**values))
+
+    def test_deferred_reference_requires_detail_and_evidence_without_updates(self):
+        tools = context()
+        observe(tools)
+        with self.assertRaisesRegex(ToolValidationError, "target_evidence_required"):
+            tools.execute("submit_review", submission(decision="needs_review", updates=[], evidence_ids=["old:1", "new:1"]))
+        result = tools.execute("submit_review", submission(decision="needs_review", updates=[]))
+        self.assertEqual("P00", result["review"]["place_id"])
+        self.assertFalse(result["review"]["semantic_accuracy_verified"])
+
     def test_valid_submission_is_a_human_review_proposal_only(self):
         tools = context()
         original = copy.deepcopy(tools.change)
